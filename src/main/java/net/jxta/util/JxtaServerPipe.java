@@ -408,7 +408,7 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (el != null) {
 
                 isReliable = Boolean.valueOf((el.toString()));
-                Logging.logCheckedFine(LOG, "Connection request [isReliable] :", isReliable);
+                Logging.logCheckedDebug(LOG, "Connection request [isReliable] :", isReliable);
 
             }
 
@@ -418,7 +418,7 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (el != null) {
 
                 directSupported = Boolean.valueOf((el.toString()));
-                Logging.logCheckedFine(LOG, "Connection request [directSupported] :", directSupported);
+                Logging.logCheckedDebug(LOG, "Connection request [directSupported] :", directSupported);
 
             }
 
@@ -428,7 +428,7 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (el != null) {
 
                 connectionPropertiesBytes = el.getBytes(false);
-                Logging.logCheckedFine(LOG, "Connection request [connectionPropertiesBytes] :", connectionPropertiesBytes);
+                Logging.logCheckedDebug(LOG, "Connection request [connectionPropertiesBytes] :", connectionPropertiesBytes);
 
                 if (connectionPropertiesBytes != null) 
                     connectionProperties = bytesToProperties(connectionPropertiesBytes);
@@ -450,7 +450,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             if (msgr != null) {
 
-                Logging.logCheckedFine(LOG, "Reliability set to :", isReliable);
+                Logging.logCheckedDebug(LOG, "Reliability set to :", isReliable);
 
                 PipeAdvertisement newpipe = newInputPipe(group, outputPipeAdv);
                 JxtaBiDiPipe pipe = null;
@@ -471,7 +471,7 @@ public class JxtaServerPipe implements PipeMsgListener {
         } catch (IOException e) {
 
             // deal with the error
-            Logging.logCheckedFine(LOG, "IOException occured\n", e);
+            Logging.logCheckedDebug(LOG, "IOException occured\n", e);
 
         }
 

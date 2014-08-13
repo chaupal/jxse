@@ -194,7 +194,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         // XXX: header check, security and such should be done here
         // before pushing the message onto the queue.
-        Logging.logCheckedFine(LOG, "Received ", msg, " from ", srcAddr, " for ", pipeID);
+        Logging.logCheckedDebug(LOG, "Received ", msg, " from ", srcAddr, " for ", pipeID);
 
         // determine where demux the msg, to listener, or onto the queue
         if (null == queue) {
@@ -227,7 +227,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
                 synchronized (this) {
-                    Logging.logCheckedFine(LOG, "Queued ", msg, " for ", pipeID);
+                    Logging.logCheckedDebug(LOG, "Queued ", msg, " for ", pipeID);
                 }
             }
         }

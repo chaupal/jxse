@@ -201,7 +201,7 @@ public class WireHeader {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) 
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem.getName());
+                Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem.getName());
 
         }
 

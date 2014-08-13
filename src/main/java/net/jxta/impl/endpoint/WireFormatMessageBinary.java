@@ -211,7 +211,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             } catch (EOFException failed) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "EOF reading message at first byte of header.\n" + failed);
+                Logging.logCheckedDebug(LOG, "EOF reading message at first byte of header.\n" + failed);
                 throw failed;
 
             }
@@ -271,7 +271,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             }
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Read Message Header with ", (namespaceCnt + 2), " namespaces from ", dis);
+            Logging.logCheckedDebug(LOG, "Read Message Header with ", (namespaceCnt + 2), " namespaces from ", dis);
 
             return id2namespace;
         }
@@ -314,7 +314,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int namespaceCnt = buffer.getShort();
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, MessageFormat.format("Message defines {0} namespaces buffer stats{1}", namespaceCnt, buffer.toString()));
+            Logging.logCheckedDebug(LOG, MessageFormat.format("Message defines {0} namespaces buffer stats{1}", namespaceCnt, buffer.toString()));
 
             if (namespaceCnt > 253) {
 
@@ -347,7 +347,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             }
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Read Message Header with ", (namespaceCnt + 2), " namespaces from ", buffer);
+            Logging.logCheckedDebug(LOG, "Read Message Header with ", (namespaceCnt + 2), " namespaces from ", buffer);
 
             return id2namespace;
         }
@@ -416,7 +416,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int dataLen = dis.readInt();
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "element : nsid = ", nsid, " name = \'", name, "\' type = \'", type, "\' flags = ",
+            Logging.logCheckedDebug(LOG, "element : nsid = ", nsid, " name = \'", name, "\' type = \'", type, "\' flags = ",
                         Integer.toBinaryString(flags), " datalen = ", dataLen);
 
             Object[] res = new Object[2];
@@ -529,7 +529,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int dataLen = buffer.getInt();
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "element : nsid = ", nsid, " name = \'", name,
+            Logging.logCheckedDebug(LOG, "element : nsid = ", nsid, " name = \'", name,
                     "\' type = \'", type, "\' flags = ", Integer.toBinaryString(flags),
                     " datalen = ", dataLen);
 
@@ -553,7 +553,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 value = new byte[dataLen];
                 // LOGGING: was Finer
-                Logging.logCheckedFine(LOG, MessageFormat.format("expecting {0} bytes, Buffer stats {1}", dataLen, buffer.toString()));
+                Logging.logCheckedDebug(LOG, MessageFormat.format("expecting {0} bytes, Buffer stats {1}", dataLen, buffer.toString()));
                 buffer.get(value);
 
             }
@@ -1049,7 +1049,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             }
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, MessageFormat.format("Returning {0} buffers for {1}", partBuffers.size(), message));
+            Logging.logCheckedDebug(LOG, MessageFormat.format("Returning {0} buffers for {1}", partBuffers.size(), message));
 
             return partBuffers.toArray(new ByteBuffer[partBuffers.size()]);
 
@@ -1125,7 +1125,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          */
         public InputStream getStream() throws IOException {
 
-            Logging.logCheckedFine(LOG, "Getting stream for ", message);
+            Logging.logCheckedDebug(LOG, "Getting stream for ", message);
 
             List<InputStream> streamParts = new ArrayList<InputStream>();
 
@@ -1146,7 +1146,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             InputStream theStream = new SequenceInputStream(Collections.enumeration(streamParts));
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, MessageFormat.format("Returning {0}@{1} for {2}", theStream.getClass().getName(),
+            Logging.logCheckedDebug(LOG, MessageFormat.format("Returning {0}@{1} for {2}", theStream.getClass().getName(),
                         System.identityHashCode(theStream), message));
 
             return theStream;
@@ -1217,7 +1217,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          */
         public void sendToStream(OutputStream sendTo) throws IOException {
 
-            Logging.logCheckedFine(LOG, "Sending ", message, " to ",
+            Logging.logCheckedDebug(LOG, "Sending ", message, " to ",
                     sendTo.getClass().getName(), "@", System.identityHashCode(sendTo));
 
             DataOutputStream tempDOS = new DataOutputStream(sendTo);

@@ -160,7 +160,7 @@ public class OutgoingMsgrAdaptor implements Outgoing {
      */
     public void setLastAccessed(long time) {
 
-        Logging.logCheckedFine(LOG, "Setting lastAccessed to :", lastAccessed);
+        Logging.logCheckedDebug(LOG, "Setting lastAccessed to :", lastAccessed);
         lastAccessed = time;
 
     }
@@ -176,7 +176,7 @@ public class OutgoingMsgrAdaptor implements Outgoing {
 
         if (closed) throw new IOException("broken connection");
 
-        Logging.logCheckedFine(LOG, "Sending a Message");
+        Logging.logCheckedDebug(LOG, "Sending a Message");
         msgr.sendMessageB(msg, null, null);
 
         return true;

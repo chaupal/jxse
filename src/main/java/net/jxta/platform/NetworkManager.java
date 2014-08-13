@@ -650,7 +650,7 @@ public class NetworkManager implements RendezvousListener {
 
         if ( TheFile.isDirectory() ) {
             try {
-                Logging.logCheckedFine(LOG, "Recursively deleting: ", TheFile.getCanonicalPath());
+                Logging.logCheckedDebug(LOG, "Recursively deleting: ", TheFile.getCanonicalPath());
             } catch (IOException ex) {
                 Logging.logCheckedSevere(LOG, "Cannot retrieve canonical path:", ex);
             }

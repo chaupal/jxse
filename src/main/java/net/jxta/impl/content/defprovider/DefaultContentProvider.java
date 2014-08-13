@@ -275,7 +275,7 @@ public class DefaultContentProvider implements
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
 
-        Logging.logCheckedFine(LOG, "initProvider(): group=", group);
+        Logging.logCheckedDebug(LOG, "initProvider(): group=", group);
 
         peerGroup = group;
         executor = Executors.newScheduledThreadPool(
@@ -298,7 +298,7 @@ public class DefaultContentProvider implements
      */
     public synchronized int startApp(String[] args) {
 
-        Logging.logCheckedFine(LOG, "startApp()");
+        Logging.logCheckedDebug(LOG, "startApp()");
 
         if (running) return Module.START_OK;
 
@@ -334,7 +334,7 @@ public class DefaultContentProvider implements
                 try {
                     processMessages();
                 } catch (InterruptedException intx) {
-                    Logging.logCheckedFine(LOG, "Interrupted\n" + intx);
+                    Logging.logCheckedDebug(LOG, "Interrupted\n" + intx);
                     Thread.interrupted();
                 }
             }
@@ -350,7 +350,7 @@ public class DefaultContentProvider implements
      */
     public synchronized void stopApp() {
 
-        Logging.logCheckedFine(LOG, "stopApp()");
+        Logging.logCheckedDebug(LOG, "stopApp()");
 
         if (!running) return;
 
@@ -420,7 +420,7 @@ public class DefaultContentProvider implements
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "retrieveContent(", contentID, ")");
+        Logging.logCheckedDebug(LOG, "retrieveContent(", contentID, ")");
 
         synchronized(this) {
             if (!running) return null;
@@ -440,7 +440,7 @@ public class DefaultContentProvider implements
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
 
-        Logging.logCheckedFine(LOG, "retrieveContent(", adv, ")");
+        Logging.logCheckedDebug(LOG, "retrieveContent(", adv, ")");
 
         synchronized(this) {
             if (!running) return null;
@@ -460,7 +460,7 @@ public class DefaultContentProvider implements
      */
     public List<ContentShare> shareContent(Content content) {
 
-        Logging.logCheckedFine(LOG, "shareContent(): Content=", content, " ", this);
+        Logging.logCheckedDebug(LOG, "shareContent(): Content=", content, " ", this);
 
         PipeAdvertisement pAdv;
 
@@ -469,7 +469,7 @@ public class DefaultContentProvider implements
         }
 
         if (pipeAdv == null) {
-            Logging.logCheckedFine(LOG, "Cannot create share before initialization");
+            Logging.logCheckedDebug(LOG, "Cannot create share before initialization");
             return null;
         }
 
@@ -502,7 +502,7 @@ public class DefaultContentProvider implements
      */
     public boolean unshareContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=", contentID);
+        Logging.logCheckedDebug(LOG, "unhareContent(): ContentID=", contentID);
 
         ContentShare oldShare;
         synchronized(shares) {
@@ -568,7 +568,7 @@ public class DefaultContentProvider implements
         if (msgQueue.offer(pme)) {
             notifyAll();
         } else {
-            Logging.logCheckedFine(LOG, "Dropped message due to full queue");
+            Logging.logCheckedDebug(LOG, "Dropped message due to full queue");
         }
     }
 
@@ -615,7 +615,7 @@ public class DefaultContentProvider implements
         PipeMsgEvent pme;
         Message msg;
 
-        Logging.logCheckedFine(LOG, "Worker thread starting");
+        Logging.logCheckedDebug(LOG, "Worker thread starting");
 
         while (true) {
             synchronized(this) {
@@ -642,7 +642,7 @@ public class DefaultContentProvider implements
             }
         }
 
-        Logging.logCheckedFine(LOG, "Worker thread closing up shop");
+        Logging.logCheckedDebug(LOG, "Worker thread closing up shop");
 
     }
 
@@ -657,7 +657,7 @@ public class DefaultContentProvider implements
         DataRequest req;
 
         // LOGGING: was Finest
-        Logging.logCheckedFine(LOG, "Incoming message:\n", msg.toString(), "\n");
+        Logging.logCheckedDebug(LOG, "Incoming message:\n", msg.toString(), "\n");
 
         it = msg.getMessageElementsOfNamespace(MSG_NAMESPACE);
 
@@ -677,13 +677,13 @@ public class DefaultContentProvider implements
 
             } catch (IOException iox) {
 
-                Logging.logCheckedFine(LOG, "Could not process message\n", iox);
+                Logging.logCheckedDebug(LOG, "Could not process message\n", iox);
                 return;
 
             }
 
             // LOGGING: was Finest
-            Logging.logCheckedFine(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
+            Logging.logCheckedDebug(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
             processDataRequest(req);
 
         }
@@ -701,12 +701,12 @@ public class DefaultContentProvider implements
         int written;
 
         // LOGGING: was Finest
-        Logging.logCheckedFine(LOG, "DataRequest:");
-        Logging.logCheckedFine(LOG, "   ContentID: ", req.getContentID());
-        Logging.logCheckedFine(LOG, "   Offset : ", req.getOffset());
-        Logging.logCheckedFine(LOG, "   Length : ", req.getLength());
-        Logging.logCheckedFine(LOG, "   QID    : ", req.getQueryID());
-        Logging.logCheckedFine(LOG, "   PipeAdv: ", req.getResponsePipe());
+        Logging.logCheckedDebug(LOG, "DataRequest:");
+        Logging.logCheckedDebug(LOG, "   ContentID: ", req.getContentID());
+        Logging.logCheckedDebug(LOG, "   Offset : ", req.getOffset());
+        Logging.logCheckedDebug(LOG, "   Length : ", req.getLength());
+        Logging.logCheckedDebug(LOG, "   QID    : ", req.getQueryID());
+        Logging.logCheckedDebug(LOG, "   PipeAdv: ", req.getResponsePipe());
 
         share = getShare(req.getContentID());
 
@@ -770,7 +770,7 @@ public class DefaultContentProvider implements
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Sending response: " + msg);
+        Logging.logCheckedDebug(LOG, "Sending response: " + msg);
 
         try {
             if (destPipe.send(msg)) return;
@@ -778,7 +778,7 @@ public class DefaultContentProvider implements
             Logging.logCheckedWarning(LOG, "IOException during message send\n", iox);
         }
 
-        Logging.logCheckedFine(LOG, "Did not send message");
+        Logging.logCheckedDebug(LOG, "Did not send message");
 
     }
 

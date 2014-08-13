@@ -123,7 +123,7 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        Logging.logCheckedFine(LOG, "Processing ", message, " from ", srcAddr);
+        Logging.logCheckedDebug(LOG, "Processing ", message, " from ", srcAddr);
 
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(message);
 
@@ -143,7 +143,7 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
 
         }
 
-        Logging.logCheckedFine(LOG, "Limited Range Greeter calling listener");
+        Logging.logCheckedDebug(LOG, "Limited Range Greeter calling listener");
 
         try {
             walk.getListener().processIncomingMessage(message, srcAddr, dstAddr);

@@ -142,7 +142,7 @@ public class GroupConfig extends ConfigParams implements Cloneable {
             Element elem = (Element) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+                Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
             }
 
         }

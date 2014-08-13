@@ -153,7 +153,7 @@ public final class XIndiceIndexer {
                             indexer.open();
                         }
 
-                        Logging.logCheckedFine(LOG, "Adding :", indexFileName, " under ", name);
+                        Logging.logCheckedDebug(LOG, "Adding :", indexFileName, " under ", name);
                         indices.put(name, indexer);
 
                     } catch (DBException ignore) {
@@ -205,7 +205,7 @@ public final class XIndiceIndexer {
             Map.Entry<String, NameIndexer> anEntry = eachIndex.next();
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Closing Index :", anEntry.getKey());
+            Logging.logCheckedDebug(LOG, "Closing Index :", anEntry.getKey());
 
             try {
 
@@ -224,7 +224,7 @@ public final class XIndiceIndexer {
         indices.clear();
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Closing listDB");
+        Logging.logCheckedDebug(LOG, "Closing listDB");
 
         listDB.close();
         return true;
@@ -262,7 +262,7 @@ public final class XIndiceIndexer {
         public boolean indexInfo(Value val, long pos) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "value :", val, " pattern :", pattern);
+            Logging.logCheckedDebug(LOG, "value :", val, " pattern :", pattern);
 
             switch (op) {
             case IndexQuery.EW:
@@ -307,7 +307,7 @@ public final class XIndiceIndexer {
             if (indices != null) {
                 Iterator<NameIndexer> i = indices.values().iterator();
 
-                Logging.logCheckedFine(LOG, "Searching all indexes");
+                Logging.logCheckedDebug(LOG, "Searching all indexes");
 
                 while (i.hasNext()) {
                     NameIndexer index = i.next();
@@ -318,7 +318,7 @@ public final class XIndiceIndexer {
 
             NameIndexer indexer = indices.get(name);
             if (indexer == null) return;
-            Logging.logCheckedFine(LOG, "Searching Index : ", name);
+            Logging.logCheckedDebug(LOG, "Searching Index : ", name);
             indexer.query(query, cb);
 
         }
@@ -332,7 +332,7 @@ public final class XIndiceIndexer {
         // FIXME add indexer name to NameIndexer, to optimize this loop
         for (String name : indexables.keySet()) {
 
-            Logging.logCheckedFine(LOG, "looking up NameIndexer : ", name);
+            Logging.logCheckedDebug(LOG, "looking up NameIndexer : ", name);
             NameIndexer indexer = indices.get(name);
 
             if (indexer == null) {
@@ -358,7 +358,7 @@ public final class XIndiceIndexer {
                 StringBuilder message = new StringBuilder().append("Adding a reference at position :").append(listPos).append(" to ").append(name).append(" index, Key: ").append(
                         indexables.get(name));
                 // LOGGING: was Finer
-                Logging.logCheckedFine(LOG, message);
+                Logging.logCheckedDebug(LOG, message);
             }
             indexer.add(indexKey, listPos);
         }
@@ -559,13 +559,13 @@ public final class XIndiceIndexer {
             Set<Long> offsets = readRecord(record);
 
             if (offsets != null) {
-                Logging.logCheckedFine(LOG, "list.contains ", pos, " : ", offsets.contains(lpos));
+                Logging.logCheckedDebug(LOG, "list.contains ", pos, " : ", offsets.contains(lpos));
             }
 
             if (offsets != null && !offsets.contains(lpos)) {
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Adding a reference to record at :", lpos);
-                Logging.logCheckedFine(LOG, "Writing :", offsets.size(), " references");
+                Logging.logCheckedDebug(LOG, "Adding a reference to record at :", lpos);
+                Logging.logCheckedDebug(LOG, "Writing :", offsets.size(), " references");
                 offsets.add(lpos);
 
             }
@@ -592,7 +592,7 @@ public final class XIndiceIndexer {
         public boolean indexInfo(Value val, long pos) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Found ", val.toString(), " at ", pos);
+            Logging.logCheckedDebug(LOG, "Found ", val.toString(), " at ", pos);
 
             Record record = null;
             Set<Long> offsets = null;
@@ -605,7 +605,7 @@ public final class XIndiceIndexer {
                     offsets = readRecord(record);
 
                     // LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "Found ", offsets.size(), " entries");
+                    Logging.logCheckedDebug(LOG, "Found ", offsets.size(), " entries");
 
                 }
 
@@ -613,7 +613,7 @@ public final class XIndiceIndexer {
 
                     result &= callback.indexInfo(val, lpos);
                     // LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "Callback result : ", result);
+                    Logging.logCheckedDebug(LOG, "Callback result : ", result);
 
                 }
 

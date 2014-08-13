@@ -94,7 +94,7 @@ public class TlsMessenger extends BlockingMessenger {
               false);
 
         if (conn == null) {
-            Logging.logCheckedFine(LOG, "null TLS connection!");
+            Logging.logCheckedDebug(LOG, "null TLS connection!");
             throw new IllegalArgumentException("null TLS connection!");
         }
 
@@ -156,7 +156,7 @@ public class TlsMessenger extends BlockingMessenger {
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Starting send for ", message);
+        Logging.logCheckedDebug(LOG, "Starting send for ", message);
 
         // check if the connection has died.
         if (HandshakeState.CONNECTIONDEAD == conn.getHandshakeState()) {
@@ -199,7 +199,7 @@ public class TlsMessenger extends BlockingMessenger {
 
         }
 
-        Logging.logCheckedFine(LOG, "Message send to \'", dstAddress, "\' succeeded for ", message);
+        Logging.logCheckedDebug(LOG, "Message send to \'", dstAddress, "\' succeeded for ", message);
 
     } 
 }

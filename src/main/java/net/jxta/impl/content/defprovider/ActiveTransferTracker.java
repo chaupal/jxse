@@ -186,14 +186,14 @@ public class ActiveTransferTracker {
                     result = new ActiveTransfer(group, share, destination);
                     newSession = true;
                     clients.put(key, result);
-                    Logging.logCheckedFine(LOG, "Added client node: ", key);
+                    Logging.logCheckedDebug(LOG, "Added client node: ", key);
                 }
             }
         }
 
         // Too many clients to serve this request.
         if (result == null) {
-            Logging.logCheckedFine(LOG, "Cound not add client node.  Too many clients.");
+            Logging.logCheckedDebug(LOG, "Cound not add client node.  Too many clients.");
             throw(new TooManyClientsException());
         }
 
@@ -210,7 +210,7 @@ public class ActiveTransferTracker {
 
         if (gcTask == null || gcTask.isDone()) {
 
-            Logging.logCheckedFine(LOG, "Starting GC task");
+            Logging.logCheckedDebug(LOG, "Starting GC task");
 
             gcTask = schedExec.scheduleAtFixedRate(new Runnable() {
                 public void run() {
@@ -232,13 +232,13 @@ public class ActiveTransferTracker {
             for (Map.Entry<Object, ActiveTransfer> entry : clients.entrySet()) {
 
                 ActiveTransfer session = entry.getValue();
-                Logging.logCheckedFine(LOG, "Closing client session: ", entry.getKey());
+                Logging.logCheckedDebug(LOG, "Closing client session: ", entry.getKey());
 
                 try {
                     session.close();
                 } catch (IOException iox) {
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Ignoring exception\n", iox);
+                    Logging.logCheckedDebug(LOG, "Ignoring exception\n", iox);
                 }
                 toNotify.add(session);
             }
@@ -246,12 +246,12 @@ public class ActiveTransferTracker {
 
             try {
                 if (gcTask != null) {
-                    Logging.logCheckedFine(LOG, "Stopping GC task");
+                    Logging.logCheckedDebug(LOG, "Stopping GC task");
                     gcTask.cancel(false);
                 }
             } catch (IllegalStateException isx) {
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Ignoring exception\n" + isx);
+                Logging.logCheckedDebug(LOG, "Ignoring exception\n" + isx);
             } finally {
                 gcTask = null;
             }
@@ -278,7 +278,7 @@ public class ActiveTransferTracker {
         ActiveTransfer session;
 
         // LOGGING: was Finest
-        Logging.logCheckedFine(LOG, "clientGC");
+        Logging.logCheckedDebug(LOG, "clientGC");
 
         synchronized(this) {
 
@@ -291,13 +291,13 @@ public class ActiveTransferTracker {
 
                 if (session.isIdle()) {
 
-                    Logging.logCheckedFine(LOG, "Closing client session: ", entry.getKey());
+                    Logging.logCheckedDebug(LOG, "Closing client session: ", entry.getKey());
 
                     try {
                         session.close();
                     } catch (IOException iox) {
                         // LOGGING: was Finest
-                        Logging.logCheckedFine(LOG, "Ignoring exception\n", iox);
+                        Logging.logCheckedDebug(LOG, "Ignoring exception\n", iox);
                     }
 
                     if (toNotify == null) {

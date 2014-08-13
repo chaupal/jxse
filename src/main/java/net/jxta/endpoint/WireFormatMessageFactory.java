@@ -244,7 +244,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
 
         boolean registeredSomething = false;
 
-        Logging.logCheckedFine(LOG, "Registering : ", className);
+        Logging.logCheckedDebug(LOG, "Registering : ", className);
 
         try {
             Class msgClass = Class.forName(className);
@@ -256,7 +256,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
             for (MimeMediaType mimeType : mimeTypes) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "   Registering Type : ", mimeType);
+                Logging.logCheckedDebug(LOG, "   Registering Type : ", mimeType);
                 registeredSomething |= registerInstantiator(mimeType, instantiator);
 
             }

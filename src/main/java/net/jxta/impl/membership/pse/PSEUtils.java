@@ -211,7 +211,7 @@ public final class PSEUtils {
 
             if (null == issuerinfo) {
 
-                Logging.logCheckedFine(LOG, "Generating Self Signed Cert ...");
+                Logging.logCheckedDebug(LOG, "Generating Self Signed Cert ...");
 
                 if (!cn.endsWith("-CA")) {
                     useCN = cn + "-CA";
@@ -221,7 +221,7 @@ public final class PSEUtils {
 
             } else {
 
-                Logging.logCheckedFine(LOG, "Generating Client Cert ...");
+                Logging.logCheckedDebug(LOG, "Generating Client Cert ...");
                 useCN = cn;
 
             }
@@ -325,9 +325,9 @@ public final class PSEUtils {
 
             // dump the certificate?
             if (null == issuer) {
-                Logging.logCheckedFine(LOG, "Root Cert : \n", info.cert);
+                Logging.logCheckedDebug(LOG, "Root Cert : \n", info.cert);
             } else {
-                Logging.logCheckedFine(LOG, "Client Cert : \n", info.cert);
+                Logging.logCheckedDebug(LOG, "Client Cert : \n", info.cert);
             }
 
             return info;
@@ -813,7 +813,7 @@ public final class PSEUtils {
         String encoded = base64.toString();
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
+        Logging.logCheckedDebug(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
 
         return encoded;
     }
@@ -841,7 +841,7 @@ public final class PSEUtils {
         byte[] result = bos.toByteArray();
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Decoded ", result.length, " bytes.");
+        Logging.logCheckedDebug(LOG, "Decoded ", result.length, " bytes.");
 
         return result;
     }

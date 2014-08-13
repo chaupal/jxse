@@ -356,7 +356,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
 
                 cachedMessenger = null;
 
-                Logging.logCheckedFine(LOG, "Getting cached Messenger for ", radv.getName());
+                Logging.logCheckedDebug(LOG, "Getting cached Messenger for ", radv.getName());
                 cachedMessenger = endpoint.getMessengerImmediate(getDestAddress(), radv.getRouteAdv());
 
                 if (null == cachedMessenger) {

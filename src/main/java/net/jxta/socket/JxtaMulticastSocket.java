@@ -285,18 +285,18 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         }
         try {
 
-            Logging.logCheckedFine(LOG, "Pushing a message onto queue");
+            Logging.logCheckedDebug(LOG, "Pushing a message onto queue");
 
             if(!queue.offer(message, -1, TimeUnit.MILLISECONDS))
             	LOG.debug("Failed to push the message onto queue due to no available space");
 
         } catch (InterruptedException e) {
 
-            Logging.logCheckedFine(LOG, "Interrupted\n" + e);
+            Logging.logCheckedDebug(LOG, "Interrupted\n" + e);
 
         } catch (IllegalArgumentException e){
 
-            Logging.logCheckedFine(LOG, "Failed to push the message onto queue\n", e);
+            Logging.logCheckedDebug(LOG, "Failed to push the message onto queue\n", e);
 
         }
     }
@@ -362,7 +362,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         msg.addMessageElement(NAMESPACE, srcElement);
         msg.addMessageElement(NAMESPACE, new ByteArrayMessageElement(DATATAG, MimeMediaType.AOS, data, null));
 
-        Logging.logCheckedFine(LOG, "Sending a data packet");
+        Logging.logCheckedDebug(LOG, "Sending a data packet");
 
         InetAddress address = packet.getAddress();
         PeerID pid = null;
@@ -374,7 +374,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
             try {
                 pid = (PeerID) IDFactory.fromURI(new URI(pidStr));
             } catch (Exception ex) {
-                Logging.logCheckedFine(LOG, "Invalid source PeerID multicasting instead");
+                Logging.logCheckedDebug(LOG, "Invalid source PeerID multicasting instead");
             }
 
         }
@@ -418,18 +418,18 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
             if (del == null || sel == null) {
 
-                Logging.logCheckedFine(LOG, "Message contains no data element, returning");
+                Logging.logCheckedDebug(LOG, "Message contains no data element, returning");
                 return;
 
             } else {
 
-                Logging.logCheckedFine(LOG, "Popped a message off the queue");
+                Logging.logCheckedDebug(LOG, "Popped a message off the queue");
 
             }
 
         } catch (InterruptedException e) {
 
-            Logging.logCheckedFine(LOG, "Exception occured\n", e);
+            Logging.logCheckedDebug(LOG, "Exception occured\n", e);
             throw new IOException(e);
 
         }
@@ -439,10 +439,10 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
         String addrStr = new String(sel.getBytes(false), 0, (int) sel.getByteLength(), "UTF8");
 
-        Logging.logCheckedFine(LOG, "Src Address :", addrStr);
+        Logging.logCheckedDebug(LOG, "Src Address :", addrStr);
         InetAddress address = InetAddress.getByAddress(addrStr, fauxip);
 
-        Logging.logCheckedFine(LOG, "Setting Data, and Src Address :", address);
+        Logging.logCheckedDebug(LOG, "Setting Data, and Src Address :", address);
         packet.setAddress(address);
         packet.setData(del.getBytes(false));
     }

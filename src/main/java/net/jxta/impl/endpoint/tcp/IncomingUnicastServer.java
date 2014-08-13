@@ -273,7 +273,7 @@ public class IncomingUnicastServer implements Runnable {
                                 transport.executor.execute(builder);
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
-                                Logging.logCheckedFine(LOG, MessageFormat.format("Executor rejected task : {0}", builder.toString()),
+                                Logging.logCheckedDebug(LOG, MessageFormat.format("Executor rejected task : {0}", builder.toString()),
                                     "\n", re.toString());
                             }
                         }
@@ -315,7 +315,7 @@ public class IncomingUnicastServer implements Runnable {
                     try {
                         temp.close();
                     } catch (IOException ignored) {
-                        Logging.logCheckedFine(LOG, "Exception occurred while closing server socket\n", ignored);
+                        Logging.logCheckedDebug(LOG, "Exception occurred while closing server socket\n", ignored);
                     }
                 }
                 acceptThread = null;
@@ -423,7 +423,7 @@ public class IncomingUnicastServer implements Runnable {
             } catch (IOException io) {
 
                 // protect against invalid connections
-                Logging.logCheckedFine(LOG, "Messenger creation failure\n\n", io);
+                Logging.logCheckedDebug(LOG, "Messenger creation failure\n\n", io);
 
             } catch (Throwable all) {
 

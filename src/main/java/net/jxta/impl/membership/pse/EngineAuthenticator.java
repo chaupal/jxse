@@ -205,7 +205,7 @@ public class EngineAuthenticator implements Authenticator {
      **/
     synchronized public boolean isReadyForJoin() {
         if (null != seedCert) {
-            Logging.logCheckedFine(LOG, "null seed certificate");
+            Logging.logCheckedDebug(LOG, "null seed certificate");
             return authenticatorEngine.isEnginePresent();
         } else {
 

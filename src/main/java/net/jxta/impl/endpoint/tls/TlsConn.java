@@ -407,7 +407,7 @@ class TlsConn {
 
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
-                Logging.logCheckedFine(LOG, "Getting messenger for ", destAddr);
+                Logging.logCheckedDebug(LOG, "Getting messenger for ", destAddr);
 
                 EndpointAddress realAddr = new EndpointAddress(destAddr, JTlsDefs.ServiceName, null);
 
@@ -423,7 +423,7 @@ class TlsConn {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", destAddr);
+        Logging.logCheckedDebug(LOG, "Sending ", msg, " to ", destAddr);
 
         // Good we have a messenger. Send the message.
         return outBoundMessenger.sendMessage(msg);
@@ -493,7 +493,7 @@ class TlsConn {
                         }
 
                         // dispatch it to TlsTransport for demuxing
-                        Logging.logCheckedFine(LOG, "Dispatching ", msg, " to TlsTransport");
+                        Logging.logCheckedDebug(LOG, "Dispatching ", msg, " to TlsTransport");
                         TlsConn.this.transport.processReceivedMessage(msg);
 
                         synchronized (TlsConn.this.lastAccessedLock) {
@@ -577,7 +577,7 @@ class TlsConn {
                     continue;
                 }
 
-                Logging.logCheckedFine(LOG, "CHECKING: ", certificate.getIssuerX500Principal(), " in ", allIssuers);
+                Logging.logCheckedDebug(LOG, "CHECKING: ", certificate.getIssuerX500Principal(), " in ", allIssuers);
 
                 if (allIssuers.contains(certificate.getIssuerX500Principal())) {
                     return "theone";
@@ -690,16 +690,16 @@ class TlsConn {
 
                     if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
 
-                        Logging.logCheckedFine(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
-                        Logging.logCheckedFine(LOG, "Issuers : ", allIssuers);
+                        Logging.logCheckedDebug(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
+                        Logging.logCheckedDebug(LOG, "Issuers : ", allIssuers);
 
                         java.security.Principal prin = cred.getCertificate().getIssuerX500Principal();
-                        Logging.logCheckedFine(LOG, "  Principal Type :", prin.getClass().getName());
+                        Logging.logCheckedDebug(LOG, "  Principal Type :", prin.getClass().getName());
 
                         for (Principal issuer : allIssuers) {
-                            Logging.logCheckedFine(LOG, "Issuer Type : ", issuer.getClass().getName());
-                            Logging.logCheckedFine(LOG, "Issuer value : ", issuer);
-                            Logging.logCheckedFine(LOG, "tmp.equals(prin) : ", issuer.equals(prin));
+                            Logging.logCheckedDebug(LOG, "Issuer Type : ", issuer.getClass().getName());
+                            Logging.logCheckedDebug(LOG, "Issuer value : ", issuer);
+                            Logging.logCheckedDebug(LOG, "tmp.equals(prin) : ", issuer.equals(prin));
                         }
 
                     }

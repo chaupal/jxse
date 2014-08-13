@@ -267,7 +267,7 @@ public class SrdiMessageImpl extends SrdiMessage {
 
                 } else {
 
-                    Logging.logCheckedFine(LOG, "SrdiMessage Entry with a Null value");
+                    Logging.logCheckedDebug(LOG, "SrdiMessage Entry with a Null value");
 
                 }
             }

@@ -218,7 +218,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
 											new StringReader(peerAdv))));
                 } catch (IOException caught) {
 
-                    Logging.logCheckedFine(LOG, "Malformed peer adv in message\n", caught);
+                    Logging.logCheckedDebug(LOG, "Malformed peer adv in message\n", caught);
                     throw new IllegalArgumentException("Malformed peer adv in message : " + caught.getMessage());
 
                 }

@@ -262,7 +262,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                     String aResponse = elem.getTextValue();
 
                     if (null == aResponse) {
-                        Logging.logCheckedFine(LOG, "Discarding an empty response tag");
+                        Logging.logCheckedDebug(LOG, "Discarding an empty response tag");
                         continue;
                     }
 
@@ -280,7 +280,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                     } else {
 
                         // if there are no attribute use DEFAULT_EXPIRATION
-                        Logging.logCheckedFine(LOG,
+                        Logging.logCheckedDebug(LOG,
                             "Received an old-style DiscoveryResponse.\n You received a response from a peer that does \nnot support advertisement aging. \nSetting expiration to DiscoveryService.DEFAULT_EXPIRATION ");
                         exp = DiscoveryService.DEFAULT_EXPIRATION;
 

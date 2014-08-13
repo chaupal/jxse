@@ -336,7 +336,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
             return;
         }
 
-        Logging.logCheckedFine(LOG, "Regenerating active seeds list.");
+        Logging.logCheckedDebug(LOG, "Regenerating active seeds list.");
 
         activeSeeds.clear();
 
@@ -350,7 +350,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
                 try {
 
-                    Logging.logCheckedFine(LOG, "Loading seeding list from : ", aSeedingURI);
+                    Logging.logCheckedDebug(LOG, "Loading seeding list from : ", aSeedingURI);
 
                     RouteAdvertisement ras[] = loadSeeds(aSeedingURI);
 
@@ -543,7 +543,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
         is.close();
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
+        Logging.logCheckedDebug(LOG, MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
 
         return result.toArray(new RouteAdvertisement[result.size()]);
 

@@ -199,7 +199,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
+        Logging.logCheckedDebug(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
 
         try {
 
@@ -237,7 +237,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
+        Logging.logCheckedDebug(LOG, "Writing ", store, " to ", keystore_location);
 
         try {
             OutputStream os = new FileOutputStream(keystore_location);

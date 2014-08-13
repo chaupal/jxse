@@ -154,7 +154,7 @@ public abstract class ACLSeedingManager implements SeedingManager {
         // Refresh the ACL?
         if (TimeUtils.timeNow() > nextACLrefreshTime) {
 
-            Logging.logCheckedFine(LOG, "Updating ACL");
+            Logging.logCheckedDebug(LOG, "Updating ACL");
 
             try {
                 URL asURL = aclLocation.toURL();

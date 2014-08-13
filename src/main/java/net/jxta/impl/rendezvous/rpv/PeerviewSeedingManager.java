@@ -357,7 +357,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         // Is this a message about ourself?
         if (group.getPeerID().equals(radv.getPeerID())) {
-            Logging.logCheckedFine(LOG, "Received a PeerView message about self. Discard.");
+            Logging.logCheckedDebug(LOG, "Received a PeerView message about self. Discard.");
             return;
         }
 
@@ -367,7 +367,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         boolean isCached = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.CACHED_RADV_ELEMENT_NAME) != null);
         boolean isFromEdge = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT_NAME) != null);
 
-        Logging.logCheckedFine(LOG, "[", group.getPeerGroupID(), "] Received a", (isCached ? " cached" : ""), (isResponse ? " response" : ""),
+        Logging.logCheckedDebug(LOG, "[", group.getPeerGroupID(), "] Received a", (isCached ? " cached" : ""), (isResponse ? " response" : ""),
             (isFailure ? " failure" : ""), " message (", msg, ")", (isFromEdge ? " from edge" : ""),
             " regarding \"", radv.getName(), "\" from ", srcAddr);
 

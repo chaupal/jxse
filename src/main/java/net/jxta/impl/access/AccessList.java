@@ -184,7 +184,7 @@ public class AccessList {
 
     private InputStream getInputStream(URI uri) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Loading ACL : ", uri);
+        Logging.logCheckedDebug(LOG, "Loading ACL : ", uri);
 
         URL url = uri.toURL();
 

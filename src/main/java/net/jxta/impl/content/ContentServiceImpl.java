@@ -260,7 +260,7 @@ public class ContentServiceImpl implements ContentService {
             started = true;
         }
 
-        Logging.logCheckedFine(LOG, "Content Service started.");
+        Logging.logCheckedDebug(LOG, "Content Service started.");
 
         return START_OK;
     }
@@ -278,7 +278,7 @@ public class ContentServiceImpl implements ContentService {
 
         manager.stop();
 
-        Logging.logCheckedFine(LOG, "Content Service stopped.");
+        Logging.logCheckedDebug(LOG, "Content Service stopped.");
 
     }
 
@@ -353,7 +353,7 @@ public class ContentServiceImpl implements ContentService {
              * returns the ContentProvider sub-interface to prevent
              * user access to SPI methods.
              */
-            Logging.logCheckedFine(LOG, "Cannot remove provider which is not a full SPI: ", provider);
+            Logging.logCheckedDebug(LOG, "Cannot remove provider which is not a full SPI: ", provider);
             return;
 
         }
@@ -429,7 +429,7 @@ public class ContentServiceImpl implements ContentService {
         try {
             return new TransferAggregator(this, active, contentID);
         } catch (TransferException transx) {
-            Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
+            Logging.logCheckedDebug(LOG, "Returning null due to exception\n", transx);
             return null;
         }
 
@@ -445,7 +445,7 @@ public class ContentServiceImpl implements ContentService {
         try {
             return new TransferAggregator(this, active, adv);
         } catch (TransferException transx) {
-            Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
+            Logging.logCheckedDebug(LOG, "Returning null due to exception\n", transx);
             return null;
         }
     }
@@ -466,7 +466,7 @@ public class ContentServiceImpl implements ContentService {
 
                 if (subShares == null) continue;
 
-                Logging.logCheckedFine(LOG, "Content with ID '", content.getContentID(),
+                Logging.logCheckedDebug(LOG, "Content with ID '", content.getContentID(),
                     "' being shared by provider: ", provider);
 
                 if (result == null) result = new ArrayList<ContentShare>();
@@ -476,7 +476,7 @@ public class ContentServiceImpl implements ContentService {
             } catch (UnsupportedOperationException uox) {
 
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Ignoring provider which doesn't support ",
+                Logging.logCheckedDebug(LOG, "Ignoring provider which doesn't support ",
                             "share operation: ", provider);
 
             }
@@ -609,7 +609,7 @@ public class ContentServiceImpl implements ContentService {
 
         ClassLoader loader = getClass().getClassLoader();
 
-        Logging.logCheckedFine(LOG, "Locating providers");
+        Logging.logCheckedDebug(LOG, "Locating providers");
 
         Enumeration resources;
         try {
@@ -630,7 +630,7 @@ public class ContentServiceImpl implements ContentService {
         while (resources.hasMoreElements()) {
 
             URL resURL = (URL) resources.nextElement();
-            Logging.logCheckedFine(LOG, "   Provider services resource: " + resURL);
+            Logging.logCheckedDebug(LOG, "   Provider services resource: " + resURL);
 
             try {
 
@@ -669,7 +669,7 @@ public class ContentServiceImpl implements ContentService {
                 Class cl = loader.loadClass(str);
                 provider = (ContentProviderSPI) cl.newInstance();
                 result.add(provider);
-                Logging.logCheckedFine(LOG, "Added provider: ", str);
+                Logging.logCheckedDebug(LOG, "Added provider: ", str);
 
             } catch (ClassNotFoundException cnfx) {
 

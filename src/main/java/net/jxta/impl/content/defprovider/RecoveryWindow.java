@@ -124,7 +124,7 @@ public class RecoveryWindow {
         int written = 0;
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Data request: offset=", offset, ", length=", length);
+        Logging.logCheckedDebug(LOG, "Data request: offset=", offset, ", length=", length);
 
         try {
 
@@ -133,14 +133,14 @@ public class RecoveryWindow {
             if (head != null) {
 
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Walking backwards to find starting node");
+                Logging.logCheckedDebug(LOG, "Walking backwards to find starting node");
 
                 idx=0;
 
                 while (node != null) {
 
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
+                    Logging.logCheckedDebug(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
 
                     if (node.offset <= offset) {
                         // Beginning of chain found.
@@ -156,24 +156,24 @@ public class RecoveryWindow {
 
                     // Cannot recover data that far back.
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Data requested extends beyond recovery window");
+                    Logging.logCheckedDebug(LOG, "Data requested extends beyond recovery window");
                     throw(new IOException("Data requested extends beyond recovery window"));
 
                 }
 
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Walked backwards ", idx, " nodes from head");
+                Logging.logCheckedDebug(LOG, "Walked backwards ", idx, " nodes from head");
 
             }
 
             // Walk forwards through nodes that we do have
             // LOGGING: was Finest
-            Logging.logCheckedFine(LOG, "Beginning forward walk");
+            Logging.logCheckedDebug(LOG, "Beginning forward walk");
 
             while (node != null) {
 
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
+                Logging.logCheckedDebug(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
 
                 idx = (int) (offset - node.offset);
                 adjustedLen = node.data.length - idx;
@@ -182,7 +182,7 @@ public class RecoveryWindow {
                 if (len > 0) {
 
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Writing: idx=", idx, ", len=", len );
+                    Logging.logCheckedDebug(LOG, "Writing: idx=", idx, ", len=", len );
 
                     out.write(node.data, idx, len);
                     written += len;
@@ -196,7 +196,7 @@ public class RecoveryWindow {
                     // No more data is required.
                     // Already, know you, that which you need.
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Request fulfilled.  written=", written);
+                    Logging.logCheckedDebug(LOG, "Request fulfilled.  written=", written);
 
                     return written;
 
@@ -206,7 +206,7 @@ public class RecoveryWindow {
 
                     // This is EOF.  We're done.
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "EOF encountered.  written=", -written);
+                    Logging.logCheckedDebug(LOG, "EOF encountered.  written=", -written);
 
                     return -written;
 
@@ -220,7 +220,7 @@ public class RecoveryWindow {
             // Now try to read the data we dont have
             // Walk forwards through nodes that we do have
             // LOGGING: was Finest
-            Logging.logCheckedFine(LOG, "Beginning new data reads");
+            Logging.logCheckedDebug(LOG, "Beginning new data reads");
 
             while (length > 0) {
 
@@ -244,7 +244,7 @@ public class RecoveryWindow {
                 }
 
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Now at: offset=", idx, ", length=", len);
+                Logging.logCheckedDebug(LOG, "Now at: offset=", idx, ", length=", len);
 
                 // Allocate and link the new node
                 node = new Node();
@@ -259,7 +259,7 @@ public class RecoveryWindow {
                 head = node;
 
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Allocated new data node.  offset=", node.offset,
+                Logging.logCheckedDebug(LOG, "Allocated new data node.  offset=", node.offset,
                             ", length=", node.data.length);
 
                 // Read in the node's data
@@ -278,7 +278,7 @@ public class RecoveryWindow {
                         node.next = node;
 
                         // LOGGING: was Finest
-                        Logging.logCheckedFine(LOG, "Reallocating node.  offset=", node.offset,
+                        Logging.logCheckedDebug(LOG, "Reallocating node.  offset=", node.offset,
                                     ", len=", node.data.length);
 
                     } else {
@@ -293,7 +293,7 @@ public class RecoveryWindow {
                 if (idx == offset) {
 
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Writing node data.  offset=", node.offset,
+                    Logging.logCheckedDebug(LOG, "Writing node data.  offset=", node.offset,
                                 ", len=", node.data.length);
 
                     out.write(node.data);
@@ -307,7 +307,7 @@ public class RecoveryWindow {
 
                     // This was EOF.  We're done.
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "EOF encountered.  written=", -written);
+                    Logging.logCheckedDebug(LOG, "EOF encountered.  written=", -written);
                     return -written;
 
                 }
@@ -317,11 +317,11 @@ public class RecoveryWindow {
             }
 
             // LOGGING: was Finest
-            Logging.logCheckedFine(LOG, "Request fulfilled.  written=", written);
+            Logging.logCheckedDebug(LOG, "Request fulfilled.  written=", written);
 
         } catch (Exception x) {
 
-            Logging.logCheckedFine(LOG, "Uncaught exception\n", x);
+            Logging.logCheckedDebug(LOG, "Uncaught exception\n", x);
 
         }
         return written;

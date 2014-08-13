@@ -228,7 +228,7 @@ public final class IPUtils {
         if (allAddr.isEmpty() || Boolean.getBoolean("net.jxta.impl.IPUtils.localOnly")) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Adding loopback interfaces");
+            Logging.logCheckedDebug(LOG, "Adding loopback interfaces");
 
             if (null != LOOPBACKV4) {
                 allAddr.add(LOOPBACKV4);
@@ -239,7 +239,7 @@ public final class IPUtils {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Returning ", allAddr.size(), " addresses.");
+        Logging.logCheckedDebug(LOG, "Returning ", allAddr.size(), " addresses.");
 
         return allAddr;
     }

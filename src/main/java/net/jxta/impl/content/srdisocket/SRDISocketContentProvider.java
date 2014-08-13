@@ -235,7 +235,7 @@ public class SRDISocketContentProvider
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
 
-        Logging.logCheckedFine(LOG, "initProvider(): group=", group);
+        Logging.logCheckedDebug(LOG, "initProvider(): group=", group);
 
         peerGroup = group;
         executor = Executors.newScheduledThreadPool(
@@ -255,7 +255,7 @@ public class SRDISocketContentProvider
      */
     public synchronized int startApp(String[] args) {
 
-        Logging.logCheckedFine(LOG, "startApp()");
+        Logging.logCheckedDebug(LOG, "startApp()");
 
         if (running) return Module.START_OK;
 
@@ -283,7 +283,7 @@ public class SRDISocketContentProvider
      */
     public synchronized void stopApp() {
 
-        Logging.logCheckedFine(LOG, "stopApp()");
+        Logging.logCheckedDebug(LOG, "stopApp()");
 
         if (!running) return;
 
@@ -349,7 +349,7 @@ public class SRDISocketContentProvider
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "retrieveContent(" + contentID + ")");
+        Logging.logCheckedDebug(LOG, "retrieveContent(" + contentID + ")");
 
         synchronized (this) {
             if (!running) {
@@ -373,7 +373,7 @@ public class SRDISocketContentProvider
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
 
-        Logging.logCheckedFine(LOG, "retrieveContent(ContentShareAdvertisement)");
+        Logging.logCheckedDebug(LOG, "retrieveContent(ContentShareAdvertisement)");
 
         synchronized (this) {
             if (!running) {
@@ -395,12 +395,12 @@ public class SRDISocketContentProvider
      */
     public List<ContentShare> shareContent(Content content) {
 
-        Logging.logCheckedFine(LOG, "shareContent(): Content=", content);
+        Logging.logCheckedDebug(LOG, "shareContent(): Content=", content);
 
         PipeAdvertisement pAdv;
         synchronized (this) {
             if (pipeAdv == null) {
-                Logging.logCheckedFine(LOG, "Cannot create share before initialization");
+                Logging.logCheckedDebug(LOG, "Cannot create share before initialization");
                 return null;
             }
             pAdv = pipeAdv;
@@ -435,7 +435,7 @@ public class SRDISocketContentProvider
      */
     public boolean unshareContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=", contentID);
+        Logging.logCheckedDebug(LOG, "unhareContent(): ContentID=", contentID);
 
         ContentShare oldShare;
         synchronized (shares) {
@@ -491,7 +491,7 @@ public class SRDISocketContentProvider
      */
     private void acceptExecution() {
 
-        Logging.logCheckedFine(LOG, "Acceptor thread starting");
+        Logging.logCheckedDebug(LOG, "Acceptor thread starting");
 
         JxtaServerSocket serverSocket = null;
 
@@ -511,19 +511,19 @@ public class SRDISocketContentProvider
                     }
 
                     // LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "Waiting to accept client...");
+                    Logging.logCheckedDebug(LOG, "Waiting to accept client...");
 
                     Socket socket = serverSocket.accept();
 
                     if (socket != null) {
-                        Logging.logCheckedFine(LOG, "Incoming socket connection");
+                        Logging.logCheckedDebug(LOG, "Incoming socket connection");
                         executor.execute(new Client(socket));
                     }
 
                 } catch (SocketTimeoutException socktox) {
 
                     // LOGGING: was Finest
-                    Logging.logCheckedFine(LOG, "Socket timed out");
+                    Logging.logCheckedDebug(LOG, "Socket timed out");
 
                 } catch (IOException iox) {
 
@@ -565,7 +565,7 @@ public class SRDISocketContentProvider
             }
         }
 
-        Logging.logCheckedFine(LOG, "Accceptor thread exiting");
+        Logging.logCheckedDebug(LOG, "Accceptor thread exiting");
 
     }
 
@@ -579,7 +579,7 @@ public class SRDISocketContentProvider
 
         try {
 
-            Logging.logCheckedFine(LOG, "Client executing against socket: ", socket);
+            Logging.logCheckedDebug(LOG, "Client executing against socket: ", socket);
 
             InputStream inStream = socket.getInputStream();
             ContentRequest request = ContentRequest.readFromStream(inStream);
@@ -590,7 +590,7 @@ public class SRDISocketContentProvider
 
             if (share != null) share.fireShareSessionOpened(remote);
 
-            Logging.logCheckedFine(LOG, "Client response being sent:\n",
+            Logging.logCheckedDebug(LOG, "Client response being sent:\n",
                         response.getDocument(MimeMediaType.XMLUTF8));
 
             OutputStream outStream = socket.getOutputStream();
@@ -599,7 +599,7 @@ public class SRDISocketContentProvider
             if (response.getSuccess()) {
 
                 // Send the content data
-                Logging.logCheckedFine(LOG, "Client transfer starting");
+                Logging.logCheckedDebug(LOG, "Client transfer starting");
 
                 // Notify listeners of access by remote peer
                 share.fireShareSessionAccessed(remote);
@@ -610,7 +610,7 @@ public class SRDISocketContentProvider
                 outStream.flush();
             }
 
-            Logging.logCheckedFine(LOG, "Client transaction completed");
+            Logging.logCheckedDebug(LOG, "Client transaction completed");
 
         } catch (IOException iox) {
 
@@ -631,7 +631,7 @@ public class SRDISocketContentProvider
                 socket.close();
             } catch (IOException ignore) {
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Ignoring exception", ignore);
+                Logging.logCheckedDebug(LOG, "Ignoring exception", ignore);
             }
 
         }

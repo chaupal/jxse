@@ -230,7 +230,7 @@ public class NullConfigurator {
     @Deprecated
     protected PlatformConfig load(URI loadFile) throws ConfiguratorException {
 
-        Logging.logCheckedFine(LOG, "Reading Platform Config from : ", loadFile);
+        Logging.logCheckedDebug(LOG, "Reading Platform Config from : ", loadFile);
 
         InputStream advStream = null;
 
@@ -241,7 +241,7 @@ public class NullConfigurator {
             XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, advStream);
             PlatformConfig result = (PlatformConfig) AdvertisementFactory.newAdvertisement(xmlDoc);
 
-            Logging.logCheckedFine(LOG, "Recovered Platform Config from : ", loadFile);
+            Logging.logCheckedDebug(LOG, "Recovered Platform Config from : ", loadFile);
 
             return result;
 

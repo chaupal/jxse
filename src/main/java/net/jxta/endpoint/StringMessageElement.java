@@ -278,7 +278,7 @@ public class StringMessageElement extends TextMessageElement {
         if (null == cachedBytes) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Creating getBytes of ", getClass().getName(), '@', Integer.toHexString(System.identityHashCode(this)));
+            Logging.logCheckedDebug(LOG, "Creating getBytes of ", getClass().getName(), '@', Integer.toHexString(System.identityHashCode(this)));
 
             String charset = type.getParameter("charset");
 
@@ -335,7 +335,7 @@ public class StringMessageElement extends TextMessageElement {
         if (null == cachedChars) {
         	
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "creating cachedGetChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
+            Logging.logCheckedDebug(LOG, "creating cachedGetChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
             if ((data instanceof CharBuffer) && ((CharBuffer) data).hasArray()) {
                 cachedChars = ((CharBuffer) data).array();

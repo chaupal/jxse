@@ -430,7 +430,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             progress = false;
             iterations++;
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
+            Logging.logCheckedDebug(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
 
             Iterator<Map.Entry<ModuleClassID, Module>> eachService = services.entrySet().iterator();
 
@@ -456,7 +456,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                     case Module.START_OK:
 
-                        Logging.logCheckedFine(LOG, "Module started : ", aModule);
+                        Logging.logCheckedDebug(LOG, "Module started : ", aModule);
 
                         if (aModule instanceof Service) {
                             addService(mcid, (Service) aModule);
@@ -472,19 +472,19 @@ public class StdPeerGroup extends GenericPeerGroup {
                     case Module.START_AGAIN_PROGRESS:
 
                     	// LOGGING: was Finer
-                        Logging.logCheckedFine(LOG, "Service made progress during start : ", aModule);
+                        Logging.logCheckedDebug(LOG, "Service made progress during start : ", aModule);
                         progress = true;
                         break;
 
                     case Module.START_AGAIN_STALLED:
 
                     	// LOGGING: was Finer
-                        Logging.logCheckedFine(LOG, "Service stalled during start : ", aModule);
+                        Logging.logCheckedDebug(LOG, "Service stalled during start : ", aModule);
                         break;
 
                     case Module.START_DISABLED:
 
-                        Logging.logCheckedFine(LOG, "Service declined to start : ", aModule);
+                        Logging.logCheckedDebug(LOG, "Service declined to start : ", aModule);
                         eachService.remove();
                         progress = true;
                         break;
@@ -625,7 +625,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 if(!conf.isSvcEnabled(aModule)) {
 
                     // remove disabled module
-                    Logging.logCheckedFine(LOG, "Module disabled in configuration : ", aModule);
+                    Logging.logCheckedDebug(LOG, "Module disabled in configuration : ", aModule);
                     eachModule.remove();
 
                 }
@@ -840,7 +840,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 if(!conf.isSvcEnabled(aModule)) {
 
                     // remove disabled module
-                    Logging.logCheckedFine(LOG, "Application disabled in configuration : ", aModule);
+                    Logging.logCheckedDebug(LOG, "Application disabled in configuration : ", aModule);
                     eachModule.remove();
 
                 }

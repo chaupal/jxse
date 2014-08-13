@@ -424,7 +424,7 @@ public class NoneMembershipService implements MembershipService {
          *  <code>join()</code>
          **/
         synchronized public boolean isReadyForJoin() {
-            Logging.logCheckedFine(LOG, "Always ready to join");
+            Logging.logCheckedDebug(LOG, "Always ready to join");
             // always ready.
             return true;
         }

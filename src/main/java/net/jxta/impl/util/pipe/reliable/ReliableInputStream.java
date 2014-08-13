@@ -307,7 +307,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             if (len > 0) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Read() : " + (a[0] & 255));
+                Logging.logCheckedDebug(LOG, "Read() : " + (a[0] & 255));
                 return a[0] & 0xFF; // The byte
 
             }
@@ -336,7 +336,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
         int i = local_read(a, offset, length);
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Read(byte[], int, ", length, "), bytes read = ", i);
+        Logging.logCheckedDebug(LOG, "Read(byte[], int, ", length, "), bytes read = ", i);
 
         // If we've reached EOF; there's nothing to do but close().
         if (i == -1) close();
@@ -403,7 +403,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
             outgoing.send(ACKMsg);
 
-            Logging.logCheckedFine(LOG, "SENT ACK, seqn#",  seqnAck, " and ", sackList.size(), " SACKs ");
+            Logging.logCheckedDebug(LOG, "SENT ACK, seqn#",  seqnAck, " and ", sackList.size(), " SACKs ");
 
         } catch (IOException e) {
 
@@ -425,7 +425,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
     Message nextMessage(boolean blocking) throws IOException {
 
-        Logging.logCheckedFine(LOG, "nextMessage blocking?  [", blocking, "]");
+        Logging.logCheckedDebug(LOG, "nextMessage blocking?  [", blocking, "]");
 
         MessageElement elt = dequeueMessage(sequenceNumber + 1, blocking);
 
@@ -437,7 +437,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Converting message seqn :", (sequenceNumber - 1), "element to message");
+            Logging.logCheckedDebug(LOG, "Converting message seqn :", (sequenceNumber - 1), "element to message");
             msg = WireFormatMessageFactory.fromWireExternal(elt.getStream(), Defs.MIME_TYPE_MSG, null, group);
 
         } catch (IOException ex) {
@@ -455,7 +455,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
      */
     private void queueIncomingMessage(Message msg) {
 
-        Logging.logCheckedFine(LOG, "Queue Incoming Message begins for ", msg);
+        Logging.logCheckedDebug(LOG, "Queue Incoming Message begins for ", msg);
 
         long startEnqueue = TimeUtils.timeNow();
 
@@ -490,7 +490,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             // see if this is a duplicate
             if (newElt.seqnum <= sequenceNumber) {
 
-                Logging.logCheckedFine(LOG, "RCVD OLD MESSAGE : Discard seqn#", newElt.seqnum, " now at seqn#", sequenceNumber);
+                Logging.logCheckedDebug(LOG, "RCVD OLD MESSAGE : Discard seqn#", newElt.seqnum, " now at seqn#", sequenceNumber);
                 break;
 
             }
@@ -521,12 +521,12 @@ public class ReliableInputStream extends InputStream implements Incoming {
                 }
 
                 if (duplicate) {
-                    Logging.logCheckedFine(LOG, "RCVD OLD MESSAGE :  Discard duplicate msg, seqn#", newElt.seqnum);
+                    Logging.logCheckedDebug(LOG, "RCVD OLD MESSAGE :  Discard duplicate msg, seqn#", newElt.seqnum);
                     break;
                 }
 
                 inputQueue.add(insertIndex, newElt);
-                Logging.logCheckedFine(LOG, "Enqueued msg with seqn#", newElt.seqnum, " at index ", insertIndex);
+                Logging.logCheckedDebug(LOG, "Enqueued msg with seqn#", newElt.seqnum, " at index ", insertIndex);
                 inputQueue.notifyAll();
 
             }
@@ -545,7 +545,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
                 }
                 try {
 
-                    Logging.logCheckedFine(LOG, "In listener mode, calling back listener");
+                    Logging.logCheckedDebug(LOG, "In listener mode, calling back listener");
                     listener.processIncomingMessage(newmsg);
 
                 } catch (Throwable all) {
@@ -556,7 +556,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Queue Incoming Message for ", msg, " completed in ",
+        Logging.logCheckedDebug(LOG, "Queue Incoming Message for ", msg, " completed in ",
             TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startEnqueue), " msec.");
 
     }
@@ -623,7 +623,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
                     if (TimeUtils.toRelativeTimeMillis(nextRetransRequest) < 0) {
 
-                        Logging.logCheckedFine(LOG, "Trigger retransmission. Wanted seqn#", desiredSeqn, " found seqn#", iQ.seqnum);
+                        Logging.logCheckedDebug(LOG, "Trigger retransmission. Wanted seqn#", desiredSeqn, " found seqn#", iQ.seqnum);
 
                         sendACK(desiredSeqn - 1);
                         nextRetransRequest = TimeUtils.toAbsoluteTimeMillis(TimeUtils.ASECOND);
@@ -632,7 +632,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
                     if (!blocking) {
 
-                        Logging.logCheckedFine(LOG, "Message out of sequece in Non-Blocking mode. returning");
+                        Logging.logCheckedDebug(LOG, "Message out of sequece in Non-Blocking mode. returning");
 
                         // not the element of interest return nothing
                         return null;
@@ -662,11 +662,11 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
         sendACK(desiredSeqn);
 
-        Logging.logCheckedFine(LOG, "DEQUEUED seqn#", iQ.seqnum, " in ",
+        Logging.logCheckedDebug(LOG, "DEQUEUED seqn#", iQ.seqnum, " in ",
             TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startDequeue), " msec on input queue");
 
         if (wct > 0) {
-            Logging.logCheckedFine(LOG, "DEQUEUE waited ", wct, " times on input queue");
+            Logging.logCheckedDebug(LOG, "DEQUEUE waited ", wct, " times on input queue");
         }
 
         return iQ.elt;
@@ -693,7 +693,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
                     // reset the record
                     record.resetRecord(); // GC as necessary(inputStream byte[])
 
-                    Logging.logCheckedFine(LOG, "Getting next data block at seqn#", (sequenceNumber + 1));
+                    Logging.logCheckedDebug(LOG, "Getting next data block at seqn#", (sequenceNumber + 1));
 
                     MessageElement elt = dequeueMessage(sequenceNumber + 1, false);
 
@@ -724,7 +724,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
                 // reset the record
                 record.resetRecord(); // GC as necessary(inputStream byte[])
 
-                Logging.logCheckedFine(LOG, "Getting next data block at seqn#", (sequenceNumber + 1));
+                Logging.logCheckedDebug(LOG, "Getting next data block at seqn#", (sequenceNumber + 1));
 
                 MessageElement elt = dequeueMessage(sequenceNumber + 1, true);
 
@@ -747,7 +747,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
                 }
 
-                Logging.logCheckedFine(LOG, "new seqn#", sequenceNumber, ", bytes = ", record.size);
+                Logging.logCheckedDebug(LOG, "new seqn#", sequenceNumber, ", bytes = ", record.size);
 
             }
 
@@ -771,7 +771,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             record.nextByte += copied;
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Requested ", length, ", Read ", copied, " bytes");
+            Logging.logCheckedDebug(LOG, "Requested ", length, ", Read ", copied, " bytes");
 
             return copied;
         }

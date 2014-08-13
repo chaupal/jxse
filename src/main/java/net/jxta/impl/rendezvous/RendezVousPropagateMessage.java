@@ -139,7 +139,7 @@ public class RendezVousPropagateMessage {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem))
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+                Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
 
         }
 

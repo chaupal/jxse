@@ -273,7 +273,7 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
+        Logging.logCheckedDebug(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
@@ -393,7 +393,7 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
+        Logging.logCheckedDebug(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         long len = getByteLength();
 

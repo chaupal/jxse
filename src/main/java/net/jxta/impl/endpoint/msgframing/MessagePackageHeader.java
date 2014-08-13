@@ -296,7 +296,7 @@ public class MessagePackageHeader {
      */
     public boolean readHeader(ByteBuffer buffer) throws IOException {
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("Parsing Package Header from byte buffer :{0}", buffer.toString()));
+        Logging.logCheckedDebug(LOG, MessageFormat.format("Parsing Package Header from byte buffer :{0}", buffer.toString()));
 
         int count = getHeaderCount(buffer);
 
@@ -314,7 +314,7 @@ public class MessagePackageHeader {
 
             buffer.get(headerValueBytes);
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
+            Logging.logCheckedDebug(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
 
             headers.add(new Header(headerNameString, headerValueBytes));
 
@@ -323,7 +323,7 @@ public class MessagePackageHeader {
         // get the end-of-pkg
         buffer.get();
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
+        Logging.logCheckedDebug(LOG, MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
 
         return true;
     }
@@ -346,7 +346,7 @@ public class MessagePackageHeader {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
+        Logging.logCheckedDebug(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
 
         headers.add(new Header(name, value));
 
@@ -363,7 +363,7 @@ public class MessagePackageHeader {
     public void addHeader(String name, String value) {
 
     	// LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Add header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
+        Logging.logCheckedDebug(LOG, "Add header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
 
         try {
             addHeader(name, value.getBytes("UTF-8"));
@@ -391,7 +391,7 @@ public class MessagePackageHeader {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
+        Logging.logCheckedDebug(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
 
         Header newHeader = new Header(name, value);
         ListIterator<Header> eachHeader = getHeaders();
@@ -422,7 +422,7 @@ public class MessagePackageHeader {
     public void replaceHeader(String name, String value) {
 
     	// LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
+        Logging.logCheckedDebug(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
 
         try {
             replaceHeader(name, value.getBytes("UTF-8"));

@@ -279,7 +279,7 @@ public final class Logging {
      * @param inLog a logger
      * @param inMsg the messages to concatenate
      */
-    public static void logCheckedFine(Logger inLog, Object... inMsg) {
+    public static void logCheckedDebug(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINE && inLog.isDebugEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');

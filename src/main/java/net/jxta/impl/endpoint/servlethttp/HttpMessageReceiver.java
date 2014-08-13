@@ -337,7 +337,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         try {
             in = new FileInputStream(fromFile);
-            Logging.logCheckedFine(LOG, "Read properties from ", fromFile.getPath());
+            Logging.logCheckedDebug(LOG, "Read properties from ", fromFile.getPath());
         } catch (FileNotFoundException e) {
             return null;
         }

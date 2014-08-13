@@ -86,7 +86,7 @@ public class JxtaHash {
         try {
             dig = MessageDigest.getInstance(SHA1);
         } catch (NoSuchAlgorithmException ex) {
-            Logging.logCheckedFine(LOG, ex);
+            Logging.logCheckedDebug(LOG, ex);
         }
     }
 
@@ -126,7 +126,7 @@ public class JxtaHash {
                 dig.update(expression);
             }
         } catch (NoSuchAlgorithmException ex) {
-            Logging.logCheckedFine(LOG, ex);
+            Logging.logCheckedDebug(LOG, ex);
         }
     }
 

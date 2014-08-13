@@ -439,7 +439,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             list.remove();
             origModCount = Message.this.incMessageModCount();
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Removed ", current.namespace, "::",
+            Logging.logCheckedDebug(LOG, "Removed ", current.namespace, "::",
                     current.element.getElementName(), "/", current.element.getClass().getName(),
                     "@", current.element.hashCode(), " from ", Message.this);
 
@@ -523,7 +523,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             origModCount = Message.this.incMessageModCount();
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG,
+            Logging.logCheckedDebug(LOG,
                         "Replaced ", current.namespace, "::", current.element.getElementName(), "/",
                         current.element.getClass().getName(), "@", current.element.hashCode(), " with ",
                         newCurrent.namespace, "::", newCurrent.element.getElementName(), "/",
@@ -647,7 +647,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Created clone ", clone, " of ", this);
+        Logging.logCheckedDebug(LOG, "Created clone ", clone, " of ", this);
 
         return clone;
 
@@ -886,7 +886,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         incMessageModCount();
         
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Added ", namespace, "::", add.getElementName(), "/",
+        Logging.logCheckedDebug(LOG, "Added ", namespace, "::", add.getElementName(), "/",
                     add.getClass().getName(), "@", add.hashCode(), " to ", this);
 
     }
@@ -1247,7 +1247,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         incMessageModCount();
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Cleared ", this);
+        Logging.logCheckedDebug(LOG, "Cleared ", this);
 
     }
 
@@ -1306,7 +1306,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         }
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Modification to ", this);
+        Logging.logCheckedDebug(LOG, "Modification to ", this);
 
         return modCount;
 

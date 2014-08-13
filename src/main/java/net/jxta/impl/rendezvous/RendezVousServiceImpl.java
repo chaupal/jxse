@@ -860,7 +860,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 //        RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
         RendezvousEvent event = new RendezvousEvent(this, type, regarding);
 
-        Logging.logCheckedFine(LOG, "Calling listeners for ", event);
+        Logging.logCheckedDebug(LOG, "Calling listeners for ", event);
 
         while (eachListener.hasNext()) {
 
@@ -953,7 +953,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, id, " = ", found);
+        Logging.logCheckedDebug(LOG, id, " = ", found);
 
         return found;
 
@@ -984,7 +984,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Added Message ID : ", id);
+        Logging.logCheckedDebug(LOG, "Added Message ID : ", id);
 
         return true;
     }

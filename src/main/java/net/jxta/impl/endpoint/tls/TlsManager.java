@@ -168,7 +168,7 @@ class TlsManager implements EndpointListener {
                 if ((HandshakeState.CONNECTIONDEAD == conn.getHandshakeState())
                         || (HandshakeState.HANDSHAKEFAILED == conn.getHandshakeState())) {
 
-                    Logging.logCheckedFine(LOG, "Removing connection for: " + paddr);
+                    Logging.logCheckedDebug(LOG, "Removing connection for: " + paddr);
                     connections.remove(paddr);
                     conn = null;
 
@@ -191,7 +191,7 @@ class TlsManager implements EndpointListener {
 
                 }
 
-                Logging.logCheckedFine(LOG, "Adding connection for: ", paddr);
+                Logging.logCheckedDebug(LOG, "Adding connection for: ", paddr);
                 connections.put(paddr, conn);
                 startHandshake = true;
 
@@ -218,7 +218,7 @@ class TlsManager implements EndpointListener {
 
                 synchronized (connections) {
 
-                    Logging.logCheckedFine(LOG, "Removing connection for: ", paddr);
+                    Logging.logCheckedDebug(LOG, "Removing connection for: ", paddr);
                     connections.remove(paddr);
 
                 }
@@ -234,7 +234,7 @@ class TlsManager implements EndpointListener {
 
         do {
 
-            Logging.logCheckedFine(LOG, "getting ", conn);
+            Logging.logCheckedDebug(LOG, "getting ", conn);
 
             synchronized (conn) {
 
@@ -243,7 +243,7 @@ class TlsManager implements EndpointListener {
                 if ((HandshakeState.SERVERSTART == currentState) || (HandshakeState.CLIENTSTART == currentState)) {
 
                     // wait for the handshake to get going on another thread.
-                    Logging.logCheckedFine(LOG, "Sleeping until handshake starts for ", paddr);
+                    Logging.logCheckedDebug(LOG, "Sleeping until handshake starts for ", paddr);
 
                     try {
                         conn.wait(TimeUtils.ASECOND);
@@ -252,7 +252,7 @@ class TlsManager implements EndpointListener {
                     }
                 } else if (HandshakeState.HANDSHAKESTARTED == currentState) {
 
-                    Logging.logCheckedFine(LOG, "Handshake in progress for ", paddr);
+                    Logging.logCheckedDebug(LOG, "Handshake in progress for ", paddr);
 
                     try {
                         // sleep forever waiting for the state to change.
@@ -309,7 +309,7 @@ class TlsManager implements EndpointListener {
      **/
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        Logging.logCheckedFine(LOG, "Starts for ", msg);
+        Logging.logCheckedDebug(LOG, "Starts for ", msg);
 
         if (null == transport.credential) {
 
@@ -372,7 +372,7 @@ class TlsManager implements EndpointListener {
                 if ((HandshakeState.CONNECTIONDEAD == conn.getHandshakeState())
                         || (HandshakeState.HANDSHAKEFAILED == conn.getHandshakeState())) {
 
-                    Logging.logCheckedFine(LOG, "Removing connection for: ", paddr);
+                    Logging.logCheckedDebug(LOG, "Removing connection for: ", paddr);
                     connections.remove(paddr);
                     conn = null;
 
@@ -398,7 +398,7 @@ class TlsManager implements EndpointListener {
 
                     }
 
-                    Logging.logCheckedFine(LOG, "Adding connection for: ", paddr);
+                    Logging.logCheckedDebug(LOG, "Adding connection for: ", paddr);
                     connections.put(paddr, conn);
                     serverStart = true;
 
@@ -438,7 +438,7 @@ class TlsManager implements EndpointListener {
                 Logging.logCheckedWarning(LOG, "TLS Handshake failure for connection: ", paddr, "\n", e);
 
                 synchronized (connections) {
-                    Logging.logCheckedFine(LOG, "Removing connection for: ", paddr);
+                    Logging.logCheckedDebug(LOG, "Removing connection for: ", paddr);
                     connections.remove(paddr);
                 }
 
@@ -461,11 +461,11 @@ class TlsManager implements EndpointListener {
 
                 if (retrans) {
                     conn.retrans++;
-                    Logging.logCheckedFine(LOG, "retrans received, ", conn.retrans, " total.");
+                    Logging.logCheckedDebug(LOG, "retrans received, ", conn.retrans, " total.");
                     retrans = false;
                 }
 
-                Logging.logCheckedFine(LOG, "Process incoming message for ", conn);
+                Logging.logCheckedDebug(LOG, "Process incoming message for ", conn);
 
                 currentState = conn.getHandshakeState();
 
@@ -482,7 +482,7 @@ class TlsManager implements EndpointListener {
                 } else if ((HandshakeState.SERVERSTART == currentState) || (HandshakeState.CLIENTSTART == currentState)) {
 
                     // wait for the handshake to get going on another thread.
-                    Logging.logCheckedFine(LOG, "Sleeping msg with seqn#", seqN, " until handshake starts for ", paddr);
+                    Logging.logCheckedDebug(LOG, "Sleeping msg with seqn#", seqN, " until handshake starts for ", paddr);
 
                     try {
                         conn.wait(TimeUtils.AMINUTE);
@@ -546,7 +546,7 @@ class TlsManager implements EndpointListener {
                     return;
                 }
 
-                Logging.logCheckedFine(LOG, "Queue ", msg, " seqn#", seqN, " for ", conn);
+                Logging.logCheckedDebug(LOG, "Queue ", msg, " seqn#", seqN, " for ", conn);
 
                 // Queue message up for TlsInputStream on that connection
                 TlsSocket bound = conn.tlsSocket;

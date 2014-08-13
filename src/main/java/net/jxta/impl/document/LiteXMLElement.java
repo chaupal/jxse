@@ -964,7 +964,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Searching for \"", tag, "\" in range [", start, ",", end, "]");
+        Logging.logCheckedDebug(LOG, "Searching for \"", tag, "\" in range [", start, ",", end, "]");
 
         current = start;
 
@@ -978,7 +978,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             if (-1 == foundTagText) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "No Tags Found");
+                Logging.logCheckedDebug(LOG, "No Tags Found");
                 return result;
 
             }
@@ -1006,7 +1006,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             if (emptyTag) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "No tag found");
+                Logging.logCheckedDebug(LOG, "No tag found");
                 return result;
 
             }
@@ -1014,7 +1014,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Search for \"", tag, "\" [", start, ",", end, "]");
+        Logging.logCheckedDebug(LOG, "Search for \"", tag, "\" [", start, ",", end, "]");
 
         // Begin Phase 1: Search for the Start Tag
 
@@ -1028,7 +1028,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             if ((-1 == foundTagText) || (afterTagText > end)) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Tag \"", tag, "\" Not Found(1)");
+                Logging.logCheckedDebug(LOG, "Tag \"", tag, "\" Not Found(1)");
                 return result;
 
             }
@@ -1061,7 +1061,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         if (!foundStartTag) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Tag \"", tag, "\" Not Found(2)");
+            Logging.logCheckedDebug(LOG, "Tag \"", tag, "\" Not Found(2)");
             return result;
 
         }
@@ -1074,7 +1074,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             result.endTag = new charRange(result.startTag.start, result.startTag.end);
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Empty Element \"", tag, "\" Start : ", result.startTag);
+            Logging.logCheckedDebug(LOG, "Empty Element \"", tag, "\" Start : ", result.startTag);
             return result;
 
         }
@@ -1085,7 +1085,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         if (current >= end) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "End not found \"", tag, "\" Start : ", result.startTag);
+            Logging.logCheckedDebug(LOG, "End not found \"", tag, "\" Start : ", result.startTag);
             return result;
 
         }
@@ -1098,7 +1098,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         while (!foundEndTag && (current < end) && (searchFrom < end)) {
 
         	// LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Searching for \"", endTag, "\" in range [", current, ",", end, "]");
+            Logging.logCheckedDebug(LOG, "Searching for \"", endTag, "\" in range [", current, ",", end, "]");
 
             int foundTagText = source.indexOf(endTag, current);
 
@@ -1108,30 +1108,30 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             } // it was not found
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Prospective tag pair for \"", tag, "\" ", result.startTag, ":[", foundTagText, ",",
+            Logging.logCheckedDebug(LOG, "Prospective tag pair for \"", tag, "\" ", result.startTag, ":[", foundTagText, ",",
                         (foundTagText + endTag.length() - 1), "]");
 
             // We recurse here in order to exclude the end tags of any sub elements with the same name
             charRange subRange = new charRange(searchFrom, foundTagText - 1);
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Recursing to search for \"", tag, "\" in ", subRange);
+            Logging.logCheckedDebug(LOG, "Recursing to search for \"", tag, "\" in ", subRange);
 
             tagRange subElement = getTagRanges(source, tag, subRange);
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Recursion result \"", tag, "\" ", subElement);
+            Logging.logCheckedDebug(LOG, "Recursion result \"", tag, "\" ", subElement);
 
             // if there was an incomplete sub-tag with the same name, skip past it
             if (subElement.startTag.isValid()) {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Found sub-tag \"", tag, "\" at ", subElement, " within ", subRange);
+                Logging.logCheckedDebug(LOG, "Found sub-tag \"", tag, "\" at ", subElement, " within ", subRange);
 
                 if (subElement.endTag.isValid()) {
 
                 	// LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "Complete sub-tag \"", tag, "\" at ", subElement, " within ", subRange);
+                    Logging.logCheckedDebug(LOG, "Complete sub-tag \"", tag, "\" at ", subElement, " within ", subRange);
 
                     current = subElement.endTag.end + 1;
                     searchFrom = subElement.endTag.end + 1;
@@ -1150,7 +1150,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             result.endTag.end = foundTagText + endTag.length() - 1;
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Prospective tag \"", tag, "\" ", result.endTag, " is confirmed.");
+            Logging.logCheckedDebug(LOG, "Prospective tag \"", tag, "\" ", result.endTag, " is confirmed.");
         }
 
         // Begin Phase 3 :  Calculate the location of the body.
@@ -1164,7 +1164,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         }
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Found element : \"", tag, "\" ", result);
+        Logging.logCheckedDebug(LOG, "Found element : \"", tag, "\" ", result);
 
         return result;
     }
@@ -1184,7 +1184,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         int current = scanRange.start;
 
         // LOGGING: was Finer
-        Logging.logCheckedFine(LOG, "Scanning for children in range ", scanRange);
+        Logging.logCheckedDebug(LOG, "Scanning for children in range ", scanRange);
 
         do {
             // scan for any tag.
@@ -1195,7 +1195,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
                 LiteXMLElement newChild = getDocument().createElement(aSubtag);
 
                 // LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Adding child tag \"",
+                Logging.logCheckedDebug(LOG, "Adding child tag \"",
                                     getDocument().docContent.substring(aSubtag.endTag.start + 2, aSubtag.endTag.end), "\" ",
                                     aSubtag);
 

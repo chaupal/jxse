@@ -201,7 +201,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public synchronized void add(String primaryKey, String attribute, String value, PeerID pid, long expiration) {
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Adding ", primaryKey, "/", attribute, " = \'", value, "\' for ", pid);
+        Logging.logCheckedDebug(LOG, "[", indexName, "] Adding ", primaryKey, "/", attribute, " = \'", value, "\' for ", pid);
 
         try {
             Key key = new Key(primaryKey + attribute + value);
@@ -319,7 +319,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public synchronized void remove(PeerID pid) {
 
-        Logging.logCheckedFine(LOG, " Adding ", pid, " to peer GC table");
+        Logging.logCheckedDebug(LOG, " Adding ", pid, " to peer GC table");
         gcPeerTBL.add(pid);
 
     }
@@ -335,7 +335,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public synchronized List<PeerID> query(String primaryKey, String attribute, String value, int threshold) {
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Querying for ", threshold, " ", primaryKey, "/", attribute, " = \'", value, "\'");
+        Logging.logCheckedDebug(LOG, "[", indexName, "] Querying for ", threshold, " ", primaryKey, "/", attribute, " = \'", value, "\'");
 
         // return nothing
         if (primaryKey == null) return Collections.emptyList();
@@ -361,7 +361,7 @@ public class XIndiceSrdi implements SrdiAPI {
             }
         }
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Returning ", res.size(), " results for ", primaryKey, "/", attribute, " = \'", value, "\'");
+        Logging.logCheckedDebug(LOG, "[", indexName, "] Returning ", res.size(), " results for ", primaryKey, "/", attribute, " = \'", value, "\'");
 
         return res;
 
@@ -375,7 +375,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     protected synchronized List<PeerID> query(String primaryKey) {
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Querying for ", primaryKey);
+        Logging.logCheckedDebug(LOG, "[", indexName, "] Querying for ", primaryKey);
 
         List<PeerID> res = new ArrayList<PeerID>();
 
@@ -397,7 +397,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         }
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Returning ", res.size(), " results for ", primaryKey);
+        Logging.logCheckedDebug(LOG, "[", indexName, "] Returning ", res.size(), " results for ", primaryKey);
 
         return res;
     }
@@ -422,12 +422,12 @@ public class XIndiceSrdi implements SrdiAPI {
 
             if (results.size() >= threshold) {
 
-                Logging.logCheckedFine(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
+                Logging.logCheckedDebug(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
                 return false;
 
             }
 
-            Logging.logCheckedFine(LOG, "Found ", val);
+            Logging.logCheckedDebug(LOG, "Found ", val);
 
             Record record = null;
 
@@ -448,7 +448,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                 Srdi.SrdiIndexRecord rec = readRecord(record);
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Got result back in : ", (TimeUtils.timeNow() - t0), "ms.");
+                Logging.logCheckedDebug(LOG, "Got result back in : ", (TimeUtils.timeNow() - t0), "ms.");
 
                 copyIntoList(results, rec.list, excludeTable, threshold);
 
@@ -619,13 +619,13 @@ public class XIndiceSrdi implements SrdiAPI {
             boolean expired = entry.isExpired();
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Entry peerid : ", entry.peerid, (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
+            Logging.logCheckedDebug(LOG, "Entry peerid : ", entry.peerid, (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
 
             if (!to.contains(entry.peerid) && !expired) {
                 if (!table.contains(entry.peerid)) {
                 	
                 	// LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "adding Entry :", entry.peerid, " to list");
+                    Logging.logCheckedDebug(LOG, "adding Entry :", entry.peerid, " to list");
 
                     to.add(entry.peerid);
                     if(to.size() >= threshold) return;
@@ -633,14 +633,14 @@ public class XIndiceSrdi implements SrdiAPI {
                 } else {
 
                 	// LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "Skipping gc marked entry :", entry.peerid);
+                    Logging.logCheckedDebug(LOG, "Skipping gc marked entry :", entry.peerid);
 
                 }
 
             } else {
 
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Skipping expired Entry :", entry.peerid);
+                Logging.logCheckedDebug(LOG, "Skipping expired Entry :", entry.peerid);
 
             }
         }
@@ -667,7 +667,7 @@ public class XIndiceSrdi implements SrdiAPI {
             dos.close();
             return bos.toByteArray();
         } catch (IOException ie) {
-            Logging.logCheckedFine(LOG, "Exception while reading Entry\n", ie);
+            Logging.logCheckedDebug(LOG, "Exception while reading Entry\n", ie);
         }
         return null;
     }
@@ -713,7 +713,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (EOFException eofe) {
 
-            Logging.logCheckedFine(LOG, "Empty record\n", eofe);
+            Logging.logCheckedDebug(LOG, "Empty record\n", eofe);
 
         } catch (IOException ie) {
 
@@ -733,7 +733,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Garbage collection started");
+            Logging.logCheckedDebug(LOG, "Garbage collection started");
 
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
 
@@ -758,7 +758,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         }
 
-        Logging.logCheckedFine(LOG, "Garbage collection completed");
+        Logging.logCheckedDebug(LOG, "Garbage collection completed");
 
     }
 
@@ -777,7 +777,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
             if (entry.isExpired()) {
                 eachEntry.remove();
-                Logging.logCheckedFine(LOG, "Removing expired Entry peerid :", entry.peerid, " Expires at :", entry.expiration);
+                Logging.logCheckedDebug(LOG, "Removing expired Entry peerid :", entry.peerid, " Expires at :", entry.expiration);
             }
 
         }
@@ -845,7 +845,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                 for (String aList : list) {
 
-                    Logging.logCheckedFine(LOG, "Removing : ", aList);
+                    Logging.logCheckedDebug(LOG, "Removing : ", aList);
 
                     File file = new File(rootDir, aList);
 

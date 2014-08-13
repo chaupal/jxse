@@ -88,7 +88,7 @@ public final class EndpointUtils {
             XMLElement endpParam = (XMLElement) adv.getServiceParam(IModuleDefinitions.endpointClassID);
 
             if (endpParam == null) {
-                Logging.logCheckedFine(LOG, "No Endpoint Params");
+                Logging.logCheckedDebug(LOG, "No Endpoint Params");
                 return null;
             }
 
@@ -99,7 +99,7 @@ public final class EndpointUtils {
             if (paramChilds.hasMoreElements()) {
                 param = (XMLElement) paramChilds.nextElement();
             } else {
-                Logging.logCheckedFine(LOG, "No Route Adv in Peer Adv");
+                Logging.logCheckedDebug(LOG, "No Route Adv in Peer Adv");
                 return null;
             }
 

@@ -218,7 +218,7 @@ public class LightWeightPeerGroup implements PeerGroup {
         try {
             return group;
         } catch (Exception ex) {
-            Logging.logCheckedFine(LOG, "LightWeightPeerGroup is a base PeerGroup: no parent");
+            Logging.logCheckedDebug(LOG, "LightWeightPeerGroup is a base PeerGroup: no parent");
             throw new RuntimeException("LightWeightPeerGroup is a base PeerGroup: no parent");
         }
 

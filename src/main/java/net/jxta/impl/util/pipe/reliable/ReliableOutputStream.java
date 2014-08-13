@@ -616,12 +616,12 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             jmsg.addMessageElement(Defs.NAMESPACE, element);
             RetrQElt retrQel = new RetrQElt(sequenceToUse, jmsg.clone());
 
-            Logging.logCheckedFine(LOG, "Reliable WRITE : seqn#", sequenceNumber, " length=", len);
+            Logging.logCheckedDebug(LOG, "Reliable WRITE : seqn#", sequenceNumber, " length=", len);
 
             // place copy on retransmission queue
             retrQ.add(retrQel);
 
-            Logging.logCheckedFine(LOG, "Retrans Enqueue added seqn#", sequenceNumber, " retrQ.size()=", retrQ.size());
+            Logging.logCheckedDebug(LOG, "Retrans Enqueue added seqn#", sequenceNumber, " retrQ.size()=", retrQ.size());
 
         }
 
@@ -629,7 +629,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         mrrIQFreeSpace--;
 
         // assume we have now taken a slot
-        Logging.logCheckedFine(LOG, "SENT : seqn#", sequenceNumber, " length=", len);
+        Logging.logCheckedDebug(LOG, "SENT : seqn#", sequenceNumber, " length=", len);
 
     }
 
@@ -789,7 +789,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             RTO = Math.min(RTO, outgoing.getMaxRetryAge());
         }
 
-        Logging.logCheckedFine(LOG, "RTT = ", dt, "ms aveRTT = ", aveRTT, "ms", " RTO = ", RTO, "ms", " maxRTO = ", outgoing.getMaxRetryAge(), "ms");
+        Logging.logCheckedDebug(LOG, "RTT = ", dt, "ms aveRTT = ", aveRTT, "ms", " RTO = ", RTO, "ms", " maxRTO = ", outgoing.getMaxRetryAge(), "ms");
 
     }
 
@@ -900,7 +900,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     dumpRETRQ.append(sackList[y]);
                 }
 
-                Logging.logCheckedFine(LOG, dumpRETRQ);
+                Logging.logCheckedDebug(LOG, dumpRETRQ);
 
             }
 
@@ -956,7 +956,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 outgoing.setLastAccessed(TimeUtils.timeNow());
             }
 
-            Logging.logCheckedFine(LOG, "SEQUENTIALLY ACKD SEQN = ", seqnum, ", (", numberACKed, " acked)");
+            Logging.logCheckedDebug(LOG, "SEQUENTIALLY ACKD SEQN = ", seqnum, ", (", numberACKed, " acked)");
 
             // most recent remote IQ free space
             mrrIQFreeSpace = rmaxQSize - sackList.length;
@@ -967,7 +967,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             // We will keep the rwin <= ave real input queue size.
             int aveIQ = calcAVEIQ(sackList.length);
 
-            Logging.logCheckedFine(LOG, "remote IQ free space = ", mrrIQFreeSpace, " remote avg IQ occupancy = ", aveIQ);
+            Logging.logCheckedDebug(LOG, "remote IQ free space = ", mrrIQFreeSpace, " remote avg IQ occupancy = ", aveIQ);
 
             int retrans = 0;
 
@@ -1017,7 +1017,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                             }
                         }
 
-                        Logging.logCheckedFine(LOG, "SACKD SEQN = ", retrQElt.seqnum);
+                        Logging.logCheckedDebug(LOG, "SACKD SEQN = ", retrQElt.seqnum);
 
                         // GC this stuff
                         retrQElt = null;
@@ -1037,14 +1037,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                             fc.packetMissing(retrQElt.seqnum);
                             retrans++;
 
-                            Logging.logCheckedFine(LOG, "RETR: Fill hole, SACK, seqn#", retrQElt.seqnum, ", Window =", retrans);
+                            Logging.logCheckedDebug(LOG, "RETR: Fill hole, SACK, seqn#", retrQElt.seqnum, ", Window =", retrans);
 
                         }
 
                     }
                 }
 
-                Logging.logCheckedFine(LOG, "SELECTIVE ACKD (", numberACKed, ") ", retrans, " retrans wanted");
+                Logging.logCheckedDebug(LOG, "SELECTIVE ACKD (", numberACKed, ") ", retrans, " retrans wanted");
 
             }
 
@@ -1088,7 +1088,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
             numberToRetrans = Math.min(retrQ.size(), rwin);
 
-            Logging.logCheckedFine(LOG, "Number of messages pending retransmit =", numberToRetrans);
+            Logging.logCheckedDebug(LOG, "Number of messages pending retransmit =", numberToRetrans);
 
             for (int j = 0; j < numberToRetrans; j++) {
 
@@ -1137,7 +1137,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
             try {
 
-                Logging.logCheckedFine(LOG, "RETRANSMIT seqn#", r.seqnum);
+                Logging.logCheckedDebug(LOG, "RETRANSMIT seqn#", r.seqnum);
 
                 Message sending = r.msg;
 
@@ -1159,14 +1159,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 }
             } catch (IOException e) {
 
-                Logging.logCheckedFine(LOG, "FAILED RETRANS seqn#", r.seqnum, "\n", e);
+                Logging.logCheckedDebug(LOG, "FAILED RETRANS seqn#", r.seqnum, "\n", e);
                 break;
                 // don't bother continuing.
 
             }
         }
 
-        Logging.logCheckedFine(LOG, "RETRANSMITED ", retransmitted, " of ", numberToRetrans);
+        Logging.logCheckedDebug(LOG, "RETRANSMITED ", retransmitted, " of ", numberToRetrans);
 
         return retransmitted;
 
@@ -1258,7 +1258,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         long sinceLastSACKRetr = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), sackRetransTime);
 
                         if (sinceLastSACKRetr < RTO) {
-                            Logging.logCheckedFine(LOG, "SACK retrans ", sinceLastSACKRetr, "ms ago");
+                            Logging.logCheckedDebug(LOG, "SACK retrans ", sinceLastSACKRetr, "ms ago");
                             scheduleReTransmitCheck();
                             return;
                         }
@@ -1275,7 +1275,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         }
                     }
 
-                    Logging.logCheckedFine(LOG, "Last ACK ", sinceLastACK, "ms ago. Age of oldest in Queue ", oldestInQueueWait, "ms.");
+                    Logging.logCheckedDebug(LOG, "Last ACK ", sinceLastACK, "ms ago. Age of oldest in Queue ", oldestInQueueWait, "ms.");
 
                     // see if the queue has gone dead
                     if (oldestInQueueWait > outgoing.getMaxRetryAge()) {
@@ -1300,7 +1300,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     // has not been idle for the RTO.
                     if ((realWait >= RTO) && (oldestInQueueWait >= RTO)) {
 
-                        Logging.logCheckedFine(LOG, "RTO RETRANSMISSION [", rwindow, "]");
+                        Logging.logCheckedDebug(LOG, "RTO RETRANSMISSION [", rwindow, "]");
 
                         // retransmit
                         int retransed = retransmit(rwindow, TimeUtils.timeNow());
@@ -1319,7 +1319,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                             nAtThisRTO = 0;
                         }
 
-                        Logging.logCheckedFine(LOG, "RETRANSMISSION ", retransed, " retrans ", nAtThisRTO, " at this RTO (", RTO, ") ",
+                        Logging.logCheckedDebug(LOG, "RETRANSMISSION ", retransed, " retrans ", nAtThisRTO, " at this RTO (", RTO, ") ",
                             nretransmitted, " total retrans");
 
                     } else {
@@ -1332,7 +1332,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                             nAtThisRTO = 0;
                         }
 
-                        Logging.logCheckedFine(LOG, "IDLE : RTO=", RTO, " WAIT=", realWait);
+                        Logging.logCheckedDebug(LOG, "IDLE : RTO=", RTO, " WAIT=", realWait);
                     }
                     scheduleReTransmitCheck();
             } catch (Throwable all) {

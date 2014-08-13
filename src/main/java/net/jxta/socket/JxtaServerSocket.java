@@ -427,7 +427,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Waiting for a connection");
+            Logging.logCheckedDebug(LOG, "Waiting for a connection");
 
             while (true) {
 
@@ -446,7 +446,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                 // make sure we have a socket returning
                 if (socket != null) {
 
-                    Logging.logCheckedFine(LOG, "New socket connection ", socket);
+                    Logging.logCheckedDebug(LOG, "New socket connection ", socket);
                     return socket;
 
                 } else {
@@ -703,7 +703,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
         } catch (InterruptedException woken) {
 
-            Logging.logCheckedFine(LOG, "Interrupted\n", woken);
+            Logging.logCheckedDebug(LOG, "Interrupted\n", woken);
 
         }
 
@@ -726,7 +726,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         PeerAdvertisement remotePeerAdv = null;
         Credential credential = null;
 
-        Logging.logCheckedFine(LOG, "Processing a connection message : ", msg);
+        Logging.logCheckedDebug(LOG, "Processing a connection message : ", msg);
 
         try {
             MessageElement el = msg.getMessageElement(MSG_ELEMENT_NAMESPACE, reqPipeTag);

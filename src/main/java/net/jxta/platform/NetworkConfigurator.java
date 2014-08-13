@@ -521,7 +521,7 @@ public class NetworkConfigurator {
      */
     public NetworkConfigurator(int mode, URI storeHome) {
 
-        Logging.logCheckedFine(LOG, "Creating a default configuration");
+        Logging.logCheckedDebug(LOG, "Creating a default configuration");
 
         setStoreHome(storeHome);
 
@@ -1601,7 +1601,7 @@ public class NetworkConfigurator {
 
         if (uri == null) throw new IllegalArgumentException("URI can not be null");
 
-        Logging.logCheckedFine(LOG, "Loading configuration : ", uri);
+        Logging.logCheckedDebug(LOG, "Loading configuration : ", uri);
 
         PlatformConfig platformConfig = read(uri);
 
@@ -2456,7 +2456,7 @@ public class NetworkConfigurator {
 
                 if (null != defaults) {
 
-                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
+                    Logging.logCheckedDebug(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;

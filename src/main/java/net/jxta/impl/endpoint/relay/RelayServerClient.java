@@ -152,7 +152,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 		    throw new Error("Unhandled IOException", impossible);
 		}
 
-		Logging.logCheckedFine(LOG, "new Client peerId=", clientPeerId, " lease=", leaseLength);
+		Logging.logCheckedDebug(LOG, "new Client peerId=", clientPeerId, " lease=", leaseLength);
 		
 		this.server = server;
 		this.clientPeerId = clientPeerId;
@@ -303,7 +303,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
             } finally {
 
-                Logging.logCheckedFine(LOG, "Stopped sending queued messages for ", this);
+                Logging.logCheckedDebug(LOG, "Stopped sending queued messages for ", this);
 
                 // Re-register with the selector for future messages.
                 synchronized(this) {
@@ -436,7 +436,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
             long now = TimeUtils.timeNow();
             boolean isExpired = !isOpen() || (now > leaseExpireAt) || (now > queueStallAt);
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, this, " : isExpired() = ", isExpired);
+            Logging.logCheckedDebug(LOG, this, " : isExpired() = ", isExpired);
 
             return isExpired;
 
@@ -456,7 +456,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
 		if (!isOpen()) return false;
 
-		Logging.logCheckedFine(LOG, this, " : additional lease = ", leaseLength );
+		Logging.logCheckedDebug(LOG, this, " : additional lease = ", leaseLength );
 
 		leaseExpireAt = TimeUtils.toAbsoluteTimeMillis(leaseLength);
 
@@ -475,11 +475,11 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
             // make sure we are being passed a valid messenger
             if ((null == newMessenger) || (0 == (newMessenger.getState() & Messenger.USABLE))) {
-                Logging.logCheckedFine(LOG, "Ignorning bad messenger (", newMessenger, ")");
+                Logging.logCheckedDebug(LOG, "Ignorning bad messenger (", newMessenger, ")");
                 return false;
             }
 
-            Logging.logCheckedFine(LOG, "New messenger : ", newMessenger );
+            Logging.logCheckedDebug(LOG, "New messenger : ", newMessenger );
 
             // Unless we change our mind, we'll close the new messenger.
             // If we do not keep it, we must close it. Otherwise the client on the
@@ -495,7 +495,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
                     messengerToClose = messenger;
                     messenger = newMessenger;
 
-                    Logging.logCheckedFine(LOG, "Messenger (", messenger, ")");
+                    Logging.logCheckedDebug(LOG, "Messenger (", messenger, ")");
 
                     // If we had no previous messenger then register this channel.
                     if(null == messengerToClose) {
@@ -523,7 +523,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
             // Now that we are out of sync, close the unused messenger.
             // In either case, we claim that we kept the new one.
             if (messengerToClose != null) {
-                Logging.logCheckedFine(LOG, "Closing messenger : ", messengerToClose );
+                Logging.logCheckedDebug(LOG, "Closing messenger : ", messengerToClose );
                 messengerToClose.close();
             }
 
@@ -539,7 +539,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	 */
 	private boolean queueMessage(Message message, String destService, String destParam, boolean outOfBand) {
 
-            Logging.logCheckedFine(LOG, "queueMessage for ", this);
+            Logging.logCheckedDebug(LOG, "queueMessage for ", this);
 
             synchronized (this) {
 
@@ -582,7 +582,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
             }
 
-            Logging.logCheckedFine(LOG, "done queueMessage for ", this);
+            Logging.logCheckedDebug(LOG, "done queueMessage for ", this);
 
             return true;
 	}

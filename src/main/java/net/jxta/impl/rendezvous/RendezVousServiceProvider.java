@@ -148,7 +148,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             String sName = propHdr.getDestSName();
             String sParam = propHdr.getDestSParam();
 
-            Logging.logCheckedFine(LOG, "Processing ", msg, "(", propHdr.getMsgId(), ") for ", sName, "/", sParam, " from ", srcAddr);
+            Logging.logCheckedDebug(LOG, "Processing ", msg, "(", propHdr.getMsgId(), ") for ", sName, "/", sParam, " from ", srcAddr);
 
             // Check if we have a local listener for this message
             processReceivedMessage(msg, propHdr, srcAddr, new EndpointAddress(dstAddr, sName, sParam));
@@ -490,7 +490,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         if (listener != null) {
             // We have a local listener for this message. Deliver it.
 
-            Logging.logCheckedFine(LOG, "Calling local listener ", listener.getClass().getName(), " for [",
+            Logging.logCheckedDebug(LOG, "Calling local listener ", listener.getClass().getName(), " for [",
                     dstAddr.getServiceName(), "/", dstAddr.getServiceParameter(), "] with ", message,
                     " (", propHdr.getMsgId(), ")");
 
@@ -511,7 +511,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             // repropagate(message, propHdr, dstAddr.getServiceName(), dstAddr.getServiceParameter());
         } else {
 
-            Logging.logCheckedFine(LOG, "No message listener found for ServiceName :", dstAddr.getServiceName(), " ServiceParam :",
+            Logging.logCheckedDebug(LOG, "No message listener found for ServiceName :", dstAddr.getServiceName(), " ServiceParam :",
                 dstAddr.getServiceParameter());
 
         }
@@ -543,7 +543,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Endpoint propagating ", msg, " (", propHdr.getMsgId(), ")");
+        Logging.logCheckedDebug(LOG, "Endpoint propagating ", msg, " (", propHdr.getMsgId(), ")");
 
         rdvService.endpoint.propagate(msg, PropSName, PropPName);
 
@@ -661,7 +661,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         if (propHdr.getTTL() <= 0) {
 
             // This message is dead on arrival. Drop it.
-            Logging.logCheckedFine(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- dead on arrival (TTl=", propHdr.getTTL(), ").");
+            Logging.logCheckedDebug(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- dead on arrival (TTl=", propHdr.getTTL(), ").");
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedDeadMessage();
@@ -674,7 +674,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         if (!rdvService.addMsgId(propHdr.getMsgId())) {
 
             // We already received this message - discard
-            Logging.logCheckedFine(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- feedback.");
+            Logging.logCheckedDebug(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- feedback.");
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedDuplicateMessage();
@@ -688,7 +688,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         if (propHdr.isVisited(group.getPeerID().toURI())) {
 
             // Loop is detected - discard.
-            Logging.logCheckedFine(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- loopback.");
+            Logging.logCheckedDebug(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- loopback.");
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedLoopbackMessage();
@@ -715,7 +715,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
             if (null == updatePropHeader(propHdr, initialTTL)) {
 
-                Logging.logCheckedFine(LOG, "TTL expired for ", msg, " (", propHdr.getMsgId(), ") TTL=", propHdr.getTTL());
+                Logging.logCheckedDebug(LOG, "TTL expired for ", msg, " (", propHdr.getMsgId(), ") TTL=", propHdr.getTTL());
                 return null;
 
             }
@@ -725,7 +725,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         XMLDocument propHdrDoc = (XMLDocument) propHdr.getDocument(MimeMediaType.XMLUTF8);
         MessageElement elem = new TextDocumentMessageElement(PROP_HDR_ELEMENT_NAME, propHdrDoc, null);
 
-        Logging.logCheckedFine(LOG, (newHeader ? "Added" : "Updated"), " prop header for ", msg,
+        Logging.logCheckedDebug(LOG, (newHeader ? "Added" : "Updated"), " prop header for ", msg,
             " (", propHdr.getMsgId(), ") TTL = ", propHdr.getTTL());
 
         msg.replaceMessageElement(RDV_MSG_NAMESPACE_NAME, elem);
@@ -785,7 +785,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         // ensure TTL does not exceed maxTTL
         useTTL = Math.min(useTTL, maxTTL);
 
-        Logging.logCheckedFine(LOG, "Updating propagation header (", propHdr.getMsgId(), ") TTL: ", msgTTL, "-->", useTTL);
+        Logging.logCheckedDebug(LOG, "Updating propagation header (", propHdr.getMsgId(), ") TTL: ", msgTTL, "-->", useTTL);
 
         propHdr.setTTL(useTTL);
 

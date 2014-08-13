@@ -193,7 +193,7 @@ public abstract class AbstractContentTransfer
                 transferExecution();
             } catch (InterruptedException intx) {
                 Thread.interrupted();
-                Logging.logCheckedFine(LOG, "Transfer thread interrupted\n", intx);
+                Logging.logCheckedDebug(LOG, "Transfer thread interrupted\n", intx);
             }
         }
     };
@@ -426,7 +426,7 @@ public abstract class AbstractContentTransfer
                 doFire = true;
                 locationState = locationState.getEquivalent(true);
 
-                Logging.logCheckedFine(LOG, "Starting source location (state=",
+                Logging.logCheckedDebug(LOG, "Starting source location (state=",
                             locationState, ", interval=",
                             sourceLocationInterval, ", locationTask=",
                             locationTask, ")");
@@ -460,7 +460,7 @@ public abstract class AbstractContentTransfer
                 locationTask = null;
                 doFire = true;
 
-                Logging.logCheckedFine(LOG, "Stopping source location (state=", locationState, ")");
+                Logging.logCheckedDebug(LOG, "Stopping source location (state=", locationState, ")");
 
             }
         }
@@ -587,7 +587,7 @@ public abstract class AbstractContentTransfer
 
         if (finalContent == null) {
 
-            Logging.logCheckedFine(LOG, "Attempt to set null Content");
+            Logging.logCheckedDebug(LOG, "Attempt to set null Content");
 
             // Ignore
             return;
@@ -596,7 +596,7 @@ public abstract class AbstractContentTransfer
 
         if (!finalContent.getContentID().equals(masterID)) {
 
-            Logging.logCheckedFine(LOG, "Attempt to set Content with wrong ID: ",
+            Logging.logCheckedDebug(LOG, "Attempt to set Content with wrong ID: ",
                     finalContent.getContentID());
 
             // Ignore
@@ -606,7 +606,7 @@ public abstract class AbstractContentTransfer
 
         synchronized(lockObject) {
             if (content == null) {
-                Logging.logCheckedFine(LOG, "Setting Content to: ", finalContent);
+                Logging.logCheckedDebug(LOG, "Setting Content to: ", finalContent);
                 content = finalContent;
                 lockObject.notifyAll();
             }
@@ -759,10 +759,10 @@ public abstract class AbstractContentTransfer
         synchronized(lockObject) {
 
             if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
-                Logging.logCheckedFine(LOG, "Check transfer state");
-                Logging.logCheckedFine(LOG, "   Last State: ", lastTransferState);
-                Logging.logCheckedFine(LOG, "   State     : ", transferState);
-                Logging.logCheckedFine(LOG, "   Goal      : ", goalState);
+                Logging.logCheckedDebug(LOG, "Check transfer state");
+                Logging.logCheckedDebug(LOG, "   Last State: ", lastTransferState);
+                Logging.logCheckedDebug(LOG, "   State     : ", transferState);
+                Logging.logCheckedDebug(LOG, "   Goal      : ", goalState);
             }
 
             if (lastTransferState != transferState) doFire = true;
@@ -779,7 +779,7 @@ public abstract class AbstractContentTransfer
                             && !transferState.isRetrieving()) {
 
                         // Start retrieving
-                        Logging.logCheckedFine(LOG, "Setting up transfer execution");
+                        Logging.logCheckedDebug(LOG, "Setting up transfer execution");
 
                         transferState = goalState;
                         if (transferTask == null || transferTask.isDone()){
@@ -827,7 +827,7 @@ public abstract class AbstractContentTransfer
         synchronized(lockObject) {
             if (doInterrupt && transferTask != null) {
                 if (transferTask.cancel(true)) {
-                    Logging.logCheckedFine(LOG, "Cancelled/interrupted transfer task");
+                    Logging.logCheckedDebug(LOG, "Cancelled/interrupted transfer task");
                 }
                 transferTask = null;
             }
@@ -845,7 +845,7 @@ public abstract class AbstractContentTransfer
 
         String desiredID = masterID.toString();
 
-        Logging.logCheckedFine(LOG, "Locating more data sources for ID: ", desiredID);
+        Logging.logCheckedDebug(LOG, "Locating more data sources for ID: ", desiredID);
 
         DiscoveryService discoveryService = peerGroup.getDiscoveryService();
 
@@ -879,12 +879,12 @@ public abstract class AbstractContentTransfer
         while(advs.hasMoreElements()) {
             Object adv = advs.nextElement();
             try {
-                Logging.logCheckedFine(LOG, "Discovered adv: ", adv);
+                Logging.logCheckedDebug(LOG, "Discovered adv: ", adv);
                 if (adv instanceof ContentShareAdvertisement) {
                     addDiscoveredSource((ContentShareAdvertisement) adv);
                 }
             } catch (ClassCastException castx) {
-                Logging.logCheckedFine(LOG, "Found unusable advertisement: ", adv);
+                Logging.logCheckedDebug(LOG, "Found unusable advertisement: ", adv);
             }
         }
     }
@@ -905,7 +905,7 @@ public abstract class AbstractContentTransfer
 
                 // Already found this source.
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Advertisement was already found:\n", adv);
+                Logging.logCheckedDebug(LOG, "Advertisement was already found:\n", adv);
                 return;
 
             }
@@ -914,12 +914,12 @@ public abstract class AbstractContentTransfer
 
                 // Already found this one too.
                 // LOGGING: was Finest
-                Logging.logCheckedFine(LOG, "Advertisement was already found to be unusable:\n", adv);
+                Logging.logCheckedDebug(LOG, "Advertisement was already found to be unusable:\n", adv);
                 return;
 
             }
 
-            Logging.logCheckedFine(LOG, "Found advertisement: ", adv);
+            Logging.logCheckedDebug(LOG, "Found advertisement: ", adv);
 
             if (isAdvertisementOfUse(adv)) {
 
@@ -929,12 +929,12 @@ public abstract class AbstractContentTransfer
                 doFire = checkSources();
                 doStop = locationState.hasMany();
                 // LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Sources known now at: ",
+                Logging.logCheckedDebug(LOG, "Sources known now at: ",
                             allSources.size(), "   State: ", locationState);
 
             } else {
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Advertisement determined to not be usable");
+                Logging.logCheckedDebug(LOG, "Advertisement determined to not be usable");
 
                 uselessSources.add(adv);
                 doFire = false;
@@ -1020,7 +1020,7 @@ public abstract class AbstractContentTransfer
     @SuppressWarnings("fallthrough")
     private void transferExecution() throws InterruptedException {
 
-        Logging.logCheckedFine(LOG, "Transfer execution starting");
+        Logging.logCheckedDebug(LOG, "Transfer execution starting");
 
         ContentTransferState attemptResult = ContentTransferState.PENDING;
         List<ContentShareAdvertisement> newList =
@@ -1034,7 +1034,7 @@ public abstract class AbstractContentTransfer
         try {
             do {
             	// LOGGING: was Finer
-                Logging.logCheckedFine(LOG, "Updating transfer attempt source lists");
+                Logging.logCheckedDebug(LOG, "Updating transfer attempt source lists");
 
                 doDelay = false;
                 allList.clear();
@@ -1044,7 +1044,7 @@ public abstract class AbstractContentTransfer
 
                     if (!transferState.isRetrieving()) {
                         // We've been instructured to stop
-                        Logging.logCheckedFine(LOG, "Transfer state no longer retrieving");
+                        Logging.logCheckedDebug(LOG, "Transfer state no longer retrieving");
                         break;
                     }
 
@@ -1057,7 +1057,7 @@ public abstract class AbstractContentTransfer
 
                 if (allList.size() + newList.size() == 0) {
 
-                    Logging.logCheckedFine(LOG, "No sources found.  Waiting.");
+                    Logging.logCheckedDebug(LOG, "No sources found.  Waiting.");
 
                     stalls++;
                     synchronized(lockObject) {
@@ -1079,12 +1079,12 @@ public abstract class AbstractContentTransfer
 
                     try {
 
-                        Logging.logCheckedFine(LOG, "Transfer attempt commencing");
+                        Logging.logCheckedDebug(LOG, "Transfer attempt commencing");
 
                         attemptResult = transferAttempt(
                                 destFile, allList, newList);
 
-                        Logging.logCheckedFine(LOG, "Transfer attempt result: ", attemptResult);
+                        Logging.logCheckedDebug(LOG, "Transfer attempt result: ", attemptResult);
 
                         switch(attemptResult) {
                         case CANCELLED:
@@ -1123,7 +1123,7 @@ public abstract class AbstractContentTransfer
                         }
                     } catch (TransferException transx) {
 
-                        Logging.logCheckedFine(LOG, "Transfer attempt failed\n", transx);
+                        Logging.logCheckedDebug(LOG, "Transfer attempt failed\n", transx);
 
                         // Irrecoverable failure.  Bubble this up to user.
                         synchronized(lockObject) {
@@ -1169,12 +1169,12 @@ public abstract class AbstractContentTransfer
 
         } catch (RuntimeException rtx) {
 
-            Logging.logCheckedFine(LOG, "Caught runtime exception\n\n", rtx);
+            Logging.logCheckedDebug(LOG, "Caught runtime exception\n\n", rtx);
             throw(rtx);
 
         } finally {
 
-            Logging.logCheckedFine(LOG, "Transfer execution exiting");
+            Logging.logCheckedDebug(LOG, "Transfer execution exiting");
 
         }
     }

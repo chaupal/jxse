@@ -264,7 +264,7 @@ public final class PSEConfig {
     boolean validPasswd(ID id, char[] storePassword, char[] key_password) {
 
         if (null == id) {
-            Logging.logCheckedFine(LOG, "null id");
+            Logging.logCheckedDebug(LOG, "null id");
             return false;
         }
 
@@ -289,7 +289,7 @@ public final class PSEConfig {
                 Key key = store.getKey(alias, key_password);
 
                 if ( key == null )
-                    Logging.logCheckedFine(LOG, "Can't retrieve key for alias: ", alias);
+                    Logging.logCheckedDebug(LOG, "Can't retrieve key for alias: ", alias);
 
                 return (null != key);
             }

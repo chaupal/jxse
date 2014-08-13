@@ -167,7 +167,7 @@ class RouterMessenger extends BlockingMessenger {
 
                 if (null == sendTo) break;
 
-                Logging.logCheckedFine(LOG, "Sending ", message, " to ", sendTo);
+                Logging.logCheckedDebug(LOG, "Sending ", message, " to ", sendTo);
                 router.sendOnLocalRoute(sendTo, message);
 
                 // it worked! We are done.
@@ -232,7 +232,7 @@ class RouterMessenger extends BlockingMessenger {
 
         // Kind of stupid. Have to convert the runtime exceptions so that we
         // can re-throw them.
-        Logging.logCheckedFine(LOG, "Messenger failed:\n", lastFailure);
+        Logging.logCheckedDebug(LOG, "Messenger failed:\n", lastFailure);
 
         if (lastFailure instanceof IOException) {
             throw (IOException) lastFailure;

@@ -151,7 +151,7 @@ public class RouteControl implements RouteController {
 
         // check if the destination is not ourself
         if (route.getDestPeerID().equals(localPeerId)) {
-            Logging.logCheckedFine(LOG, "Skipping Local peer addRoute");
+            Logging.logCheckedDebug(LOG, "Skipping Local peer addRoute");
             return ALREADY_EXIST;
         }
 
@@ -180,8 +180,8 @@ public class RouteControl implements RouteController {
             }
 
             if (router.isLocalRoute(destAddress) || router.isRoutedRoute(route.getDestPeerID())) {
-                Logging.logCheckedFine(LOG, "Skipping add Route ", destAddress, " already exists");
-                Logging.logCheckedFine(LOG, "isLocalRoute() ", router.isLocalRoute(destAddress),
+                Logging.logCheckedDebug(LOG, "Skipping add Route ", destAddress, " already exists");
+                Logging.logCheckedDebug(LOG, "isLocalRoute() ", router.isLocalRoute(destAddress),
                         " isRoutedRoute() : ", router.isRoutedRoute(route.getDestPeerID()));
                 return ALREADY_EXIST;
             }
@@ -198,7 +198,7 @@ public class RouteControl implements RouteController {
             // which may make good use of ourselves as a first and only hop. (Normally routes are discovered
             // via route discovery, which automatically stiches routes to the respondant ahead of the
             // discovered route. But a discovered route adv is sometimes used as well).
-            Logging.logCheckedFine(LOG, "Publishing route :", newRoute);
+            Logging.logCheckedDebug(LOG, "Publishing route :", newRoute);
 
             routeCM.publishRoute(newRoute);
             return OK;

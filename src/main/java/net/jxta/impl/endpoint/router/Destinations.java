@@ -206,7 +206,7 @@ class Destinations {
             Messenger currentIncoming = getIncoming();
 
             if (currentIncoming == null) {
-                Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
+                Logging.logCheckedDebug(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
                 incomingMessenger = m;
                 return true;
             }
@@ -235,7 +235,7 @@ class Destinations {
 
             incomingMessenger = m;
 
-            Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
+            Logging.logCheckedDebug(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
 
             return true;
         }
@@ -248,7 +248,7 @@ class Destinations {
             xportDest = m.getDestinationAddress();
             expiresAt = TimeUtils.toAbsoluteTimeMillis(EXPIRATION);
 
-            Logging.logCheckedFine(LOG, "Accepted new outgoing messenger for ", xportDest);
+            Logging.logCheckedDebug(LOG, "Accepted new outgoing messenger for ", xportDest);
             return true;
 
         }

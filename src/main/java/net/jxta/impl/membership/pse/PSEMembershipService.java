@@ -721,7 +721,7 @@ public final class PSEMembershipService implements MembershipService {
      **/
     X509Certificate[] generateServiceCertificate(ID assignedID, PSECredential credential) throws  IOException, KeyStoreException, InvalidKeyException, SignatureException {
 
-        Logging.logCheckedFine(LOG, "Generating new service cert for ", assignedID);
+        Logging.logCheckedDebug(LOG, "Generating new service cert for ", assignedID);
 
         IssuerInfo serviceinfo = peerSecurityEngine.generateCertificate(credential);
 
@@ -741,7 +741,7 @@ public final class PSEMembershipService implements MembershipService {
 
         getPSEConfig().setKey(assignedID, serviceChain, serviceinfo.subjectPkey, keyPass);
 
-        Logging.logCheckedFine(LOG, "Generated new service cert");
+        Logging.logCheckedDebug(LOG, "Generated new service cert");
 
         return serviceChain;
     }
@@ -756,7 +756,7 @@ public final class PSEMembershipService implements MembershipService {
 
         PSECredential pseCredential = null;
 
-        Logging.logCheckedFine(LOG, "Getting service redential for ", assignedID);
+        Logging.logCheckedDebug(LOG, "Getting service redential for ", assignedID);
 
         Authenticator authenticate = null;
 
@@ -1382,14 +1382,14 @@ public final class PSEMembershipService implements MembershipService {
                     cname = cname.substring(0, cname.length() - 3);
             }
 
-            Logging.logCheckedFine(LOG, "Generating new service cert for \'", cname, "\'");
+            Logging.logCheckedDebug(LOG, "Generating new service cert for \'", cname, "\'");
 
             // generate the service cert and private key
             IssuerInfo serviceinfo = PSEUtils.genCert(cname, info);
 
             // IssuerInfo serviceinfo = membership.genCert( cname, info, "SHA1withRSA" );
 
-            Logging.logCheckedFine(LOG, "Generated new service cert for \'", cname, "\'");
+            Logging.logCheckedDebug(LOG, "Generated new service cert for \'", cname, "\'");
 
             return serviceinfo;
         }

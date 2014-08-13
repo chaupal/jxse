@@ -435,7 +435,7 @@ public class TcpConnection implements Runnable {
 
                     if (closed) break;
 
-                    Logging.logCheckedFine(LOG, "tcp receive - message starts for " + inetAddress.getHostAddress() + ":" + port);
+                    Logging.logCheckedDebug(LOG, "tcp receive - message starts for " + inetAddress.getHostAddress() + ":" + port);
 
                     // We can stay blocked here for a long time, it's ok.
                     MessagePackageHeader header = new MessagePackageHeader(inputStream);
@@ -444,7 +444,7 @@ public class TcpConnection implements Runnable {
 
                     // FIXME 20020730 bondolo@jxta.org Do something with content-coding here.
 
-                    Logging.logCheckedFine(LOG, "Message body (" + msglength + ") starts for " + inetAddress.getHostAddress() + ":" + port);
+                    Logging.logCheckedDebug(LOG, "Message body (" + msglength + ") starts for " + inetAddress.getHostAddress() + ":" + port);
 
                     // read the message!
                     // We have received the header, so, the rest had better
@@ -468,7 +468,7 @@ public class TcpConnection implements Runnable {
                         inputActive(false);
                     }
 
-                    Logging.logCheckedFine(LOG, "Handing incoming message from "
+                    Logging.logCheckedDebug(LOG, "Handing incoming message from "
                         + inetAddress.getHostAddress() + ":" + port + " to EndpointService");
 
                     try {
@@ -555,7 +555,7 @@ public class TcpConnection implements Runnable {
                 size = serialed.getByteLength();
                 header.setContentLengthHeader(size);
 
-                Logging.logCheckedFine(LOG, "sendMessage (" + serialed.getByteLength() + ") to " + dstAddress + " via "
+                Logging.logCheckedDebug(LOG, "sendMessage (" + serialed.getByteLength() + ") to " + dstAddress + " via "
                     + inetAddress.getHostAddress() + ":" + port);
 
                 // Write the header and the message.
@@ -624,7 +624,7 @@ public class TcpConnection implements Runnable {
         // Ok, we can wait for messages now.
         inputActive(false);
 
-        Logging.logCheckedFine(LOG, "Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "]");
+        Logging.logCheckedDebug(LOG, "Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "]");
 
         recvThread = new Thread(this);
         setThreadName();

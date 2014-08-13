@@ -319,7 +319,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         try {
             paramsAdv = AdvertisementFactory.newAdvertisement(param);
         } catch (NoSuchElementException notThere) {
-            Logging.logCheckedFine(LOG, "Could not find parameter document\n", notThere);
+            Logging.logCheckedDebug(LOG, "Could not find parameter document\n", notThere);
         }
 
         if (!(paramsAdv instanceof MulticastAdv)) {
@@ -604,7 +604,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
                     if (isClosed) return;
 
-                    Logging.logCheckedFine(LOG, "multicast message received from :", packet.getAddress().getHostAddress());
+                    Logging.logCheckedDebug(LOG, "multicast message received from :", packet.getAddress().getHostAddress());
 
                     // This operation is blocking and may take a long time to
                     // return. As a result we may lose datagram packets because
@@ -682,7 +682,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             if (isClosed || multicastSocket == null) return false;
 
             multicastSocket.send(packet);
-            Logging.logCheckedFine(LOG, "Sent Multicast message to :", pName, "/", pParams);
+            Logging.logCheckedDebug(LOG, "Sent Multicast message to :", pName, "/", pParams);
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
                 multicastTransportBindingMeter.messageSent(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
@@ -718,12 +718,12 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             // FIXME: hard-coded constant
             if (size < 4) {
-                Logging.logCheckedFine(LOG, "damaged multicast discarded");
+                Logging.logCheckedDebug(LOG, "damaged multicast discarded");
                 throw new IOException("damaged multicast discarded : too short");
             }
 
             if (('J' != buffer[0]) || ('X' != buffer[1]) || ('T' != buffer[2]) || ('A' != buffer[3])) {
-                Logging.logCheckedFine(LOG, "damaged multicast discarded");
+                Logging.logCheckedDebug(LOG, "damaged multicast discarded");
                 throw new IOException("damaged multicast discarded : incorrect signature");
             }
 
@@ -751,7 +751,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             EndpointAddress srcAddr = new EndpointAddress(srcAddrElem.toString());
 
             if (srcAddr.equals(ourSrcAddr)) {
-                Logging.logCheckedFine(LOG, "Discard loopback multicast message");
+                Logging.logCheckedDebug(LOG, "Discard loopback multicast message");
                 return;
             }
 
@@ -774,7 +774,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - TimeUtils.timeNow(), size);
             }
 
-            Logging.logCheckedFine(LOG, "Discard incoming multicast message\n", e);
+            Logging.logCheckedDebug(LOG, "Discard incoming multicast message\n", e);
 
         }
     }
@@ -856,7 +856,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             }
 
             // LOGGING: was Finer
-            Logging.logCheckedFine(LOG, "Queuing incoming datagram packet : ", packet);
+            Logging.logCheckedDebug(LOG, "Queuing incoming datagram packet : ", packet);
 
             // push the datagram
             queue.put(packet);
@@ -871,7 +871,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             // If it's ok, start a new executor outside of the synchronization.
             if (execute) {
-                Logging.logCheckedFine(LOG, "Starting new executor datagram processing task");
+                Logging.logCheckedDebug(LOG, "Starting new executor datagram processing task");
                 executor.execute(this);
             }
         }
@@ -887,7 +887,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
                 while (!stopped && (null != (packet = queue.poll()))) {
                 	// LOGGING: was Finer
-                    Logging.logCheckedFine(LOG, "Processing incoming datagram packet : ", packet);
+                    Logging.logCheckedDebug(LOG, "Processing incoming datagram packet : ", packet);
                     processMulticast(packet);
                 }
 

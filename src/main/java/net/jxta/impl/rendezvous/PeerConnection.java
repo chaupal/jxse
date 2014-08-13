@@ -328,7 +328,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
             // we only get new messengers while we are connected. It is not
             // worth the effort for a disconnected peer. We WILL use an existing
             // open messenger if we have one though.
-            Logging.logCheckedFine(LOG, "Getting new cached Messenger for ", peerName);
+            Logging.logCheckedDebug(LOG, "Getting new cached Messenger for ", peerName);
 
             RouteAdvertisement hint = null;
 
@@ -345,7 +345,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
             }
 
         } else {
-            Logging.logCheckedFine(LOG, "connection closed : NOT getting new cached Messenger for ", peerName);
+            Logging.logCheckedDebug(LOG, "connection closed : NOT getting new cached Messenger for ", peerName);
         }
 
         return cachedMessenger;
