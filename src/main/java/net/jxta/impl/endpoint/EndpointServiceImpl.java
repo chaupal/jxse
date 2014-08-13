@@ -385,7 +385,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 cachedMessenger.close();
                 cachedMessenger = null;
             } else {
-                Logging.logCheckedSevere(LOG, "Internal messenger error: close requested while not connected.");
+                Logging.logCheckedError(LOG, "Internal messenger error: close requested while not connected.");
             }
         }
 
@@ -434,7 +434,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             if (cachedMessenger == null) {
 
-                Logging.logCheckedSevere(LOG, "Internal messenger error: logical destination requested while not connected.");
+                Logging.logCheckedError(LOG, "Internal messenger error: logical destination requested while not connected.");
                 return null;
 
             }
@@ -451,7 +451,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             if (cachedMessenger == null) {
 
-                Logging.logCheckedSevere(LOG, "Internal messenger error: send requested while not connected.");
+                Logging.logCheckedError(LOG, "Internal messenger error: send requested while not connected.");
                 throw new IOException("Internal messenger error.");
 
             }
@@ -1030,7 +1030,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught throwable from listener for ", dstAddress, all);
+            Logging.logCheckedError(LOG, "Uncaught throwable from listener for ", dstAddress, all);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.errorProcessingIncomingMessage();
@@ -1256,7 +1256,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Exception adding message transport \n", ex);
+            Logging.logCheckedError(LOG, "Exception adding message transport \n", ex);
 
         }
     }
@@ -1329,7 +1329,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Exception removing messsage transport \n", ex);
+            Logging.logCheckedError(LOG, "Exception removing messsage transport \n", ex);
 
         }
     }

@@ -440,14 +440,14 @@ public final class NetPeerGroupFactory {
                 return result;
             } catch (PeerGroupException failed) {
 
-                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", failed);
+                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", failed);
 
                 // rethrow
                 throw failed;
 
             } catch (RuntimeException e) {
 
-                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
+                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", e);
 
                 // rethrow
                 throw e;
@@ -455,7 +455,7 @@ public final class NetPeerGroupFactory {
             } catch (Exception e) {
 
                 // should be all other checked exceptions
-                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
+                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", e);
 
                 // Simplify exception scheme for caller: every sort of problem 
                 // wrapped in a PeerGroupException.
@@ -533,7 +533,7 @@ public final class NetPeerGroupFactory {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
+                    Logging.logCheckedError(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
 
                 }

@@ -673,17 +673,17 @@ public class ContentServiceImpl implements ContentService {
 
             } catch (ClassNotFoundException cnfx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider\n", cnfx);
+                Logging.logCheckedError(LOG, "Could not load service provider\n", cnfx);
                 // Continue to next provider class name
 
             } catch (InstantiationException instx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider\n", instx);
+                Logging.logCheckedError(LOG, "Could not load service provider\n", instx);
                 // Continue to next provider class name
 
             } catch (IllegalAccessException iaccx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider\n", iaccx);
+                Logging.logCheckedError(LOG, "Could not load service provider\n", iaccx);
                 // Continue to next provider class name
 
             }

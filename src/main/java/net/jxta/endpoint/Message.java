@@ -273,7 +273,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                Logging.logCheckedSevere(LOG,
+                Logging.logCheckedError(LOG,
                             Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                             Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
@@ -292,7 +292,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                Logging.logCheckedSevere(LOG,
+                Logging.logCheckedError(LOG,
                             Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                             Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
@@ -320,7 +320,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                Logging.logCheckedSevere(LOG,
+                Logging.logCheckedError(LOG,
                             Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                             Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
@@ -341,7 +341,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                Logging.logCheckedSevere(LOG,
+                Logging.logCheckedError(LOG,
                             Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                             Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
@@ -377,7 +377,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                Logging.logCheckedSevere(LOG,
+                Logging.logCheckedError(LOG,
                             Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                             Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
@@ -425,7 +425,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                     RuntimeException failure = new ConcurrentModificationException(
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                    Logging.logCheckedSevere(LOG,
+                    Logging.logCheckedError(LOG,
                                 Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                                 Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                                 failure);
@@ -459,7 +459,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. ");
 
-                Logging.logCheckedSevere(LOG,
+                Logging.logCheckedError(LOG,
                             Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                             Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
@@ -506,7 +506,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                     RuntimeException failure = new ConcurrentModificationException(
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                    Logging.logCheckedSevere(LOG,
+                    Logging.logCheckedError(LOG,
                                 Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
                                 Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                                 failure);
@@ -1301,7 +1301,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         if (!modifiable) {
 
             IllegalStateException failure = new IllegalStateException("Unmodifiable message should not have been modified");
-            Logging.logCheckedSevere(LOG, failure);
+            Logging.logCheckedError(LOG, failure);
             throw failure;
 
         }

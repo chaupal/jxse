@@ -197,7 +197,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
             if (!rdvService.endpoint.addIncomingMessageListener(this, PropSName, PropPName)) {
 
-                Logging.logCheckedSevere(LOG, "Cannot register the propagation listener (already registered)");
+                Logging.logCheckedError(LOG, "Cannot register the propagation listener (already registered)");
                 return -1;
 
             }
@@ -205,7 +205,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         } catch (Exception ez1) {
 
             // Not much we can do here.
-            Logging.logCheckedSevere(LOG, "Failed registering the endpoint listener\n", ez1);
+            Logging.logCheckedError(LOG, "Failed registering the endpoint listener\n", ez1);
             return -1;
 
         }

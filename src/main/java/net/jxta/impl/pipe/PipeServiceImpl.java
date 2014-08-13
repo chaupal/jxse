@@ -412,7 +412,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		} else {
 
 			// Unknown type
-                        Logging.logCheckedSevere(LOG, "Cannot create pipe for unknown type : ", type);
+                        Logging.logCheckedError(LOG, "Cannot create pipe for unknown type : ", type);
 			throw new IOException("Cannot create pipe for unknown type : " + type);
 
 		}
@@ -511,7 +511,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
 			IllegalArgumentException failed
                             = new IllegalArgumentException("Pipe type was not set");
-                        Logging.logCheckedSevere(LOG, failed);
+                        Logging.logCheckedError(LOG, failed);
 			throw failed;
 
 		}
@@ -546,7 +546,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
 				} catch (Throwable ignored) {
 
-					Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for ", pipeId,
+					Logging.logCheckedError(LOG, "Uncaught Throwable in listener for ", pipeId,
 					    " (", listener.getClass().getName(), ")", ignored);
 					
 				}
@@ -583,7 +583,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		} else {
 
 			// Unknown type
-			Logging.logCheckedSevere(LOG, "createOutputPipe: cannot create pipe for unknown type : ", type);
+			Logging.logCheckedError(LOG, "createOutputPipe: cannot create pipe for unknown type : ", type);
 			throw new IOException("cannot create pipe for unknown type : " + type);
 
 		}
@@ -773,7 +773,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
                 } catch (Throwable ignored) {
 
-                    Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for ",
+                    Logging.logCheckedError(LOG, "Uncaught Throwable in listener for ",
                         pipeID, "(", pipeHolder.getClass().getName(), ")\n", ignored);
 
                 }
@@ -783,7 +783,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
             } catch (IOException ie) {
 
-                Logging.logCheckedSevere(LOG, "Error creating output pipe ", event.getPipeID(), "\n", ie);
+                Logging.logCheckedError(LOG, "Error creating output pipe ", event.getPipeID(), "\n", ie);
 
             }
 

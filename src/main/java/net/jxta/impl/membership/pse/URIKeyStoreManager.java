@@ -277,7 +277,7 @@ public class URIKeyStoreManager implements KeyStoreManager {
 
         } else {
 
-            Logging.logCheckedSevere(LOG, "Unable to delete non-file URI :", keystore_location);
+            Logging.logCheckedError(LOG, "Unable to delete non-file URI :", keystore_location);
             throw new UnsupportedOperationException("Unable to delete non-file URI");
 
         }

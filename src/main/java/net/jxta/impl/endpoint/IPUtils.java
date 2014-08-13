@@ -165,7 +165,7 @@ public final class IPUtils {
 
         if (LOOPBACK == null || ANYADDRESS == null) {
 
-            Logging.logCheckedSevere(LOG, "failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
+            Logging.logCheckedError(LOG, "failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
             throw new IllegalStateException("failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
 
         }

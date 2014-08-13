@@ -158,7 +158,7 @@ public final class XIndiceIndexer {
 
                     } catch (DBException ignore) {
 
-                        Logging.logCheckedSevere(LOG, "Failed to create Index ", name, "\n", ignore);
+                        Logging.logCheckedError(LOG, "Failed to create Index ", name, "\n", ignore);
 
                     }
                 }
@@ -177,11 +177,11 @@ public final class XIndiceIndexer {
 
         } catch (DBException dbe) {
 
-            Logging.logCheckedSevere(LOG, "Failed during listDB Creation\n", dbe);
+            Logging.logCheckedError(LOG, "Failed during listDB Creation\n", dbe);
 
         } catch (IOException ie) {
 
-            Logging.logCheckedSevere(LOG, "Failed during listDB Creation\n", ie);
+            Logging.logCheckedError(LOG, "Failed during listDB Creation\n", ie);
 
         }
     }

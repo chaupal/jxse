@@ -173,7 +173,7 @@ public final class RelayTransport implements EndpointListener, Module {
 
             } catch (IllegalArgumentException failed) {
 
-                Logging.logCheckedSevere(LOG, "Error in relay advertisement\n", failed);
+                Logging.logCheckedError(LOG, "Error in relay advertisement\n", failed);
                 throw failed;
 
             }

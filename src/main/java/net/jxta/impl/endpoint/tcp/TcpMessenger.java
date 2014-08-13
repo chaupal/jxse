@@ -816,7 +816,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 IOException failure = new IOException("Failure announcing messenger.");
                 failure.initCause(all);
                 throw failure;
@@ -904,7 +904,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
 
         }
     }

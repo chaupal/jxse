@@ -646,13 +646,13 @@ public class NetworkManager implements RendezvousListener {
 
         // Checking parameter
         if ( TheFile == null )
-            Logging.logCheckedSevere(LOG, "Attempting to recursively delete a NULL directoy");
+            Logging.logCheckedError(LOG, "Attempting to recursively delete a NULL directoy");
 
         if ( TheFile.isDirectory() ) {
             try {
                 Logging.logCheckedDebug(LOG, "Recursively deleting: ", TheFile.getCanonicalPath());
             } catch (IOException ex) {
-                Logging.logCheckedSevere(LOG, "Cannot retrieve canonical path:", ex);
+                Logging.logCheckedError(LOG, "Cannot retrieve canonical path:", ex);
             }
         }
 

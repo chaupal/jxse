@@ -151,7 +151,7 @@ public class JxtaMessageMessageElement extends MessageElement {
 
                 } catch (IOException fatal) {
 
-                    Logging.logCheckedSevere(LOG, "MessageElements could not be compared.\n", fatal);
+                    Logging.logCheckedError(LOG, "MessageElements could not be compared.\n", fatal);
                     IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
                     failure.initCause(fatal);
                     throw failure;

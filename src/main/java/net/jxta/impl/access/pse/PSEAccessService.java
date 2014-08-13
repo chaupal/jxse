@@ -363,7 +363,7 @@ public class PSEAccessService implements AccessService {
 
         } else {
 
-            Logging.logCheckedSevere(LOG, "PSE Access Service requires a PSE Membership Service.");
+            Logging.logCheckedError(LOG, "PSE Access Service requires a PSE Membership Service.");
             return -1;
 
         }

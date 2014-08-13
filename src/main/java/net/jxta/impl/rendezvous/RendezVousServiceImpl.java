@@ -327,7 +327,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         if (!rdvProviderSwitchStatus.compareAndSet(true, true)) {
 
-            Logging.logCheckedSevere(LOG, "Unable to start rendezvous provider.");
+            Logging.logCheckedError(LOG, "Unable to start rendezvous provider.");
             return -1;
 
         }
@@ -560,7 +560,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             if (!rdvProviderSwitchStatus.compareAndSet(false, true)) {
 
                 IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
-                Logging.logCheckedSevere(LOG, "Failed to start rendezvous\n", failed);
+                Logging.logCheckedError(LOG, "Failed to start rendezvous\n", failed);
                 throw failed;
 
             }
@@ -604,7 +604,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         if (!rdvProviderSwitchStatus.compareAndSet(false, true)) {
 
             IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
-            Logging.logCheckedSevere(LOG, "Failed to stop rendezvous\n", failed);
+            Logging.logCheckedError(LOG, "Failed to stop rendezvous\n", failed);
 
         }
 
@@ -938,7 +938,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), "\n", all);
 
             }
         }

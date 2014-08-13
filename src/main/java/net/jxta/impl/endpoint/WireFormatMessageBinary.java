@@ -224,7 +224,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 IOException failure = new IOException(
                         "Not a message (incorrect signature '" + msgsig[0] + msgsig[1] + msgsig[2] + msgsig[3] + "') ");
 
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -233,7 +233,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (dis.readByte() != MESSAGE_VERSION) {
 
                 IOException failure = new IOException("Message not version " + MESSAGE_VERSION);
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -243,7 +243,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (namespaceCnt > 253) {
 
                 IOException failure = new IOException("Message contains too many namespaces (>253)");
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -297,7 +297,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 IOException failure = new IOException(
                         "Not a message (incorrect signature '" + msgsig[0] + msgsig[1] + msgsig[2] + msgsig[3] + "') ");
 
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -306,7 +306,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (buffer.get() != MESSAGE_VERSION) {
 
                 IOException failure = new IOException("Message not version " + MESSAGE_VERSION);
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -319,7 +319,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (namespaceCnt > 253) {
 
                 IOException failure = new IOException(MessageFormat.format("Message contains too many namespaces ({0} >253)", namespaceCnt));
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -384,7 +384,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (elsig[0] != 'j' || elsig[1] != 'x' || elsig[2] != 'e' || elsig[3] != 'l') {
 
                 IOException failure = new IOException("Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }
@@ -497,7 +497,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (elsig[0] != 'j' || elsig[1] != 'x' || elsig[2] != 'e' || elsig[3] != 'l') {
 
                 IOException failure = new IOException("Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
-                Logging.logCheckedSevere(LOG, failure);
+                Logging.logCheckedError(LOG, failure);
                 throw failure;
 
             }

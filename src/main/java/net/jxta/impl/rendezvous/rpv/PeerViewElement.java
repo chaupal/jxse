@@ -326,7 +326,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
 
         if (!radv.getPeerID().equals(adv.getPeerID())) {
 
-            Logging.logCheckedSevere(LOG, "adv refers to a different peer");
+            Logging.logCheckedError(LOG, "adv refers to a different peer");
             throw new IllegalArgumentException("adv refers to a different peer");
 
         }

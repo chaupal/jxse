@@ -321,7 +321,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         if (!pushed && isClosed()) {
 
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
-            Logging.logCheckedSevere(LOG, failed);
+            Logging.logCheckedError(LOG, failed);
             throw failed;
 
         }
@@ -636,7 +636,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             }
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
             // give another thread the chance to start unless one already has.
             // If the exception was caused by damaged state on this object then

@@ -182,7 +182,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
             } catch (Exception ex) {
 
-                Logging.logCheckedSevere(LOG, "Could not configure LoggerLogSink");
+                Logging.logCheckedError(LOG, "Could not configure LoggerLogSink");
 
             }
         }
@@ -250,7 +250,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "Could not start server\n", e);
+            Logging.logCheckedError(LOG, "Could not start server\n", e);
             PeerGroupException failure = new PeerGroupException("Could not start server");
             failure.initCause(e);
             throw failure;
@@ -277,7 +277,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         } catch (InterruptedException e) {
 
-            Logging.logCheckedSevere(LOG, "Interrupted during stop()\n", e);
+            Logging.logCheckedError(LOG, "Interrupted during stop()\n", e);
 
         }
 
@@ -348,7 +348,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         } catch (IOException e) {
 
-            Logging.logCheckedSevere(LOG, "Error reading ", fromFile.getPath(), "\n", e);
+            Logging.logCheckedError(LOG, "Error reading ", fromFile.getPath(), "\n", e);
 
         } finally {
 

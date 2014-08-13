@@ -507,7 +507,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         if (messengerEventListener == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration refused");
+            Logging.logCheckedError(LOG, "Transport registration refused");
             return -1;
 
         }
@@ -524,7 +524,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         } catch (IOException soe) {
 
-            Logging.logCheckedSevere(LOG, "Could not join multicast group, setting Multicast off");
+            Logging.logCheckedError(LOG, "Could not join multicast group, setting Multicast off");
             return -1;
 
         }
@@ -621,7 +621,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 } catch (Exception e) {
 
                     if (isClosed) return;
-                    if (!isClosed) Logging.logCheckedSevere(LOG, "failure during multicast receive\n", e);
+                    if (!isClosed) Logging.logCheckedError(LOG, "failure during multicast receive\n", e);
                     break;
 
                 }
@@ -630,7 +630,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             if (isClosed) return;
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
 
         } finally {
 
@@ -893,7 +893,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
 
             } finally {
 

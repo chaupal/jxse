@@ -437,7 +437,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
                     } catch (Throwable uncaught) {
 
-                        Logging.logCheckedSevere(LOG, "Uncaught Throwable in selfDescructTask. \n", uncaught);
+                        Logging.logCheckedError(LOG, "Uncaught Throwable in selfDescructTask. \n", uncaught);
 
                     }
                 }
@@ -776,7 +776,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
         if (currentMessage == null) {
 
-            Logging.logCheckedSevere(LOG, "Internal error. Asked to send with no message.");
+            Logging.logCheckedError(LOG, "Internal error. Asked to send with no message.");
             return;
 
         }

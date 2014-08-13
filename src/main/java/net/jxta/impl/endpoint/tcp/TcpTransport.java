@@ -224,7 +224,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
         } catch (IOException ex) {
 
-            Logging.logCheckedSevere(LOG, "Failed adding selector to  write selector pool");
+            Logging.logCheckedError(LOG, "Failed adding selector to  write selector pool");
 
         }
 
@@ -681,7 +681,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
         if (messengerEventListener == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration refused");
+            Logging.logCheckedError(LOG, "Transport registration refused");
             return -1;
 
         }
@@ -692,7 +692,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         if (unicastServer != null) {
             if (!unicastServer.start()) {
 
-                Logging.logCheckedSevere(LOG, "Unable to start TCP Unicast Server");
+                Logging.logCheckedError(LOG, "Unable to start TCP Unicast Server");
                 return -1;
 
             }
@@ -742,7 +742,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             } catch (IOException failed) {
 
-                Logging.logCheckedSevere(LOG, "IO error occured while closing server socket\n", failed);
+                Logging.logCheckedError(LOG, "IO error occured while closing server socket\n", failed);
 
             }
 
@@ -1063,7 +1063,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
 
             } finally {
 

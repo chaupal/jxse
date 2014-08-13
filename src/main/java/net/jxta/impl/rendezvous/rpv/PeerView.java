@@ -1066,7 +1066,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread: ", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread: ", Thread.currentThread().getName(), "\n", all);
 
             } finally {
 
@@ -1415,7 +1415,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         } catch (Exception ez1) {
 
-            Logging.logCheckedSevere(LOG, "Cannot set timer. RPV will not work.\n", ez1);
+            Logging.logCheckedError(LOG, "Cannot set timer. RPV will not work.\n", ez1);
 
         }
     }
@@ -1531,7 +1531,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable ignored) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in PeerViewEvent listener : (",
+                Logging.logCheckedError(LOG, "Uncaught Throwable in PeerViewEvent listener : (",
                     pvl.getClass().getName(), ")\n", ignored);
 
             }
@@ -1756,7 +1756,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
             } finally {
 
@@ -2029,7 +2029,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
             }
 
@@ -2054,7 +2054,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread : ", Thread.currentThread().getName(), "\n", all.toString());
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread : ", Thread.currentThread().getName(), "\n", all.toString());
 
             } finally {
 

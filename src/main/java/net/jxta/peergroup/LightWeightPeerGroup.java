@@ -144,7 +144,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     public int startApp(String[] args) {
 
         if (null == group) {
-            Logging.logCheckedSevere(LOG, "No base peer group defined.");
+            Logging.logCheckedError(LOG, "No base peer group defined.");
             return -1;
         }
 

@@ -857,7 +857,7 @@ final class HttpClientMessenger extends BlockingMessenger {
 
             } catch (Throwable argh) {
 
-                Logging.logCheckedSevere(LOG, "Poller exiting because of uncaught exception\n", argh);
+                Logging.logCheckedError(LOG, "Poller exiting because of uncaught exception\n", argh);
                 stop();
 
             } finally {

@@ -361,7 +361,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         } catch (Exception failed) {
 
-            Logging.logCheckedSevere(LOG, "Failed to process seed cert\n", failed);
+            Logging.logCheckedError(LOG, "Failed to process seed cert\n", failed);
 
             IllegalArgumentException failure = new IllegalArgumentException("Failed to process seed cert");
             failure.initCause(failed);
@@ -460,7 +460,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         } catch (Exception failed) {
 
-            Logging.logCheckedSevere(LOG, "Failed to process private key\n", failed);
+            Logging.logCheckedError(LOG, "Failed to process private key\n", failed);
 
             IllegalStateException failure = new IllegalStateException("Failed to process private key");
             failure.initCause(failed);
@@ -574,7 +574,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         } catch (Exception failed) {
 
-            Logging.logCheckedSevere(LOG, "Failed to process private key\n", failed);
+            Logging.logCheckedError(LOG, "Failed to process private key\n", failed);
 
             IllegalArgumentException failure = new IllegalArgumentException("Failed to process private key");
             failure.initCause(failed);

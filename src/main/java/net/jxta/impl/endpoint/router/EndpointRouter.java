@@ -299,7 +299,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in timer task ", Thread.currentThread().getName(), " for ", peerID, all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in timer task ", Thread.currentThread().getName(), " for ", peerID, all);
 
             }
         }
@@ -349,7 +349,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         if (endpParam == null) {
 
-            Logging.logCheckedSevere(LOG, "no Endpoint SVC Params");
+            Logging.logCheckedError(LOG, "no Endpoint SVC Params");
 
             // Return whatever we had so far.
             return localRoute;
@@ -366,7 +366,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         } else {
 
-            Logging.logCheckedSevere(LOG, "no Endpoint Route Adv");
+            Logging.logCheckedError(LOG, "no Endpoint Route Adv");
 
             // Return whatever we had so far.
             return localRoute;
@@ -814,7 +814,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         if (endpoint.addMessageTransport(this) == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration refused");
+            Logging.logCheckedError(LOG, "Transport registration refused");
             return -1;
 
         }

@@ -863,7 +863,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             if (!registered) {
 
-                Logging.logCheckedSevere(LOG, "Existing registered Endpoint Listener for ", pipeID);
+                Logging.logCheckedError(LOG, "Existing registered Endpoint Listener for ", pipeID);
                 return false;
 
             }

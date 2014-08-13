@@ -299,7 +299,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
             } finally {
 
@@ -316,7 +316,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
                         } catch(ClosedChannelException betterNotBe) {
 
-                            Logging.logCheckedSevere(LOG, "Channel unexpectedly closed!\n", betterNotBe);
+                            Logging.logCheckedError(LOG, "Channel unexpectedly closed!\n", betterNotBe);
 
                         }
                     }
@@ -507,7 +507,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
                         } catch(ClosedChannelException betterNotBe) {
 
-                            Logging.logCheckedSevere(LOG, "Channel unexpectedly closed!\n", betterNotBe);
+                            Logging.logCheckedError(LOG, "Channel unexpectedly closed!\n", betterNotBe);
 
                         }
 

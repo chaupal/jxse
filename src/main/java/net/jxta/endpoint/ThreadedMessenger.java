@@ -385,7 +385,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
         } catch (Throwable any) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught throwable in background thread\n", any);
+            Logging.logCheckedError(LOG, "Uncaught throwable in background thread\n", any);
             // Hope the next thread has more luck. It'll need it.
 
         } finally {

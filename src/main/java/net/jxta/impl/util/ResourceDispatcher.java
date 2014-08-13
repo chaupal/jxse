@@ -360,7 +360,7 @@ public class ResourceDispatcher {
             nbReserved -= quantity;
 
             if (nbReserved > fromReservedItems + fromExtraItems)
-                Logging.logCheckedSevere(LOG, "Incorrect values after obtaining ", quantity, " : [", this, "]");
+                Logging.logCheckedError(LOG, "Incorrect values after obtaining ", quantity, " : [", this, "]");
 
             return true;
         }
@@ -409,7 +409,7 @@ public class ResourceDispatcher {
             nbReserved += quantity;
 
             if (nbReserved > fromReservedItems + fromExtraItems)
-                Logging.logCheckedSevere(LOG, "Incorrect values after releasing ", quantity, " : [", this, "]");
+                Logging.logCheckedError(LOG, "Incorrect values after releasing ", quantity, " : [", this, "]");
 
         }
 

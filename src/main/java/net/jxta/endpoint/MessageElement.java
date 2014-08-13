@@ -311,7 +311,7 @@ public abstract class MessageElement implements Document {
 
         } catch (IOException caught) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate string for element. \n", caught);
+            Logging.logCheckedError(LOG, "Could not generate string for element. \n", caught);
             throw new IllegalStateException("Could not generate string for element. " + caught);
 
         }
@@ -399,7 +399,7 @@ public abstract class MessageElement implements Document {
 
         if (len > Integer.MAX_VALUE) {
 
-            Logging.logCheckedSevere(LOG, "MessageElement is too large to be stored in a byte array.");
+            Logging.logCheckedError(LOG, "MessageElement is too large to be stored in a byte array.");
             throw new IllegalStateException("MessageElement is too large to be stored in a byte array.");
 
         }
@@ -413,7 +413,7 @@ public abstract class MessageElement implements Document {
 
         } catch (IOException caught) {
 
-            Logging.logCheckedSevere(LOG, "Failed to get bytes of Message Element. \n", caught);
+            Logging.logCheckedError(LOG, "Failed to get bytes of Message Element. \n", caught);
             throw new IllegalStateException("Failed to get bytes of Message Element. " + caught);
 
         }

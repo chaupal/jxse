@@ -430,7 +430,7 @@ public class ListenerAdaptor implements Runnable {
             }
         } catch (Throwable anyOther) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in background thread", anyOther);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in background thread", anyOther);
 
             // There won't be any other thread. This thing is dead if that
             // happens. And it really shouldn't.
@@ -455,7 +455,7 @@ public class ListenerAdaptor implements Runnable {
 
             } catch (Throwable anyOther) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable while shutting down background thread", anyOther);
+                Logging.logCheckedError(LOG, "Uncaught Throwable while shutting down background thread", anyOther);
 
             }
 

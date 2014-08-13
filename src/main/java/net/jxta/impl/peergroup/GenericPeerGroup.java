@@ -682,7 +682,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             } catch (Exception ex) {
 
                 // What happened?
-                Logging.logCheckedSevere(LOG,ex);
+                Logging.logCheckedError(LOG,ex);
 
                 try {
                     newMod.stopApp();
@@ -1127,7 +1127,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             }
 
         } catch (Throwable any) {
-            Logging.logCheckedSevere(LOG, "Group init failed\n", any);
+            Logging.logCheckedError(LOG, "Group init failed\n", any);
 
             if (any instanceof Error) {
                 throw (Error) any;
@@ -1448,7 +1448,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         } catch (Throwable any) {
 
-            Logging.logCheckedSevere(LOG, "Could not load group implementation\n", any);
+            Logging.logCheckedError(LOG, "Could not load group implementation\n", any);
             throw new PeerGroupException("Could not load group implementation", any);
 
         }

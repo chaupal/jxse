@@ -374,14 +374,14 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         if (!(groupMembership instanceof PSEMembershipService)) {
 
-            Logging.logCheckedSevere(LOG, "TLS Transport requires PSE Membership Service");
+            Logging.logCheckedError(LOG, "TLS Transport requires PSE Membership Service");
             return -1;
 
         }
 
         if (endpoint.addMessageTransport(this) == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration refused");
+            Logging.logCheckedError(LOG, "Transport registration refused");
             return -1;
 
         }
@@ -419,7 +419,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         } catch (Throwable e2) {
 
-            Logging.logCheckedSevere(LOG, "TLS could not register listener...as good as dead\n", e2);
+            Logging.logCheckedError(LOG, "TLS could not register listener...as good as dead\n", e2);
             return -1;
 
         }
@@ -532,7 +532,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         if (conn == null) {
 
-            Logging.logCheckedSevere(LOG, "Cannot get a TLS connection for ", dstPAddr);
+            Logging.logCheckedError(LOG, "Cannot get a TLS connection for ", dstPAddr);
 
             // No connection was either available or created. Cannot do TLS
             // with the destination address.
@@ -698,7 +698,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
 
                 if (null != failure) {
-                    Logging.logCheckedSevere(LOG, "Failure building service certificate\n", failure);
+                    Logging.logCheckedError(LOG, "Failure building service certificate\n", failure);
                     return;
                 }
             }
@@ -738,7 +738,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
 
                 if (null != failure) {
-                    Logging.logCheckedSevere(LOG, "Failure building service credential\n", failure);
+                    Logging.logCheckedError(LOG, "Failure building service credential\n", failure);
                 }
             }
         }

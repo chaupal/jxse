@@ -295,7 +295,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "Skipping: ", classID, " Unsupported module descriptor : ", value.getClass().getName());
+                    Logging.logCheckedError(LOG, "Skipping: ", classID, " Unsupported module descriptor : ", value.getClass().getName());
                     eachModule.remove();
                     continue;
 
@@ -338,7 +338,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         if (!initComplete) {
 
-            Logging.logCheckedSevere(LOG, "Group has not been initialized or init failed.");
+            Logging.logCheckedError(LOG, "Group has not been initialized or init failed.");
             return -1;
 
         }
@@ -598,7 +598,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "Failure instantiating local store\n", e);
+            Logging.logCheckedError(LOG, "Failure instantiating local store\n", e);
             throw new PeerGroupException("Failure instantiating local store", e);
 
         }

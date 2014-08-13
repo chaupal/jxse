@@ -189,7 +189,7 @@ public class SRDISocketContentProvider
 
         public void uncaughtException(Thread thread, Throwable throwable) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught throwable in pool thread: ",
+            Logging.logCheckedError(LOG, "Uncaught throwable in pool thread: ",
                 thread, "\n", throwable);
 
         }
@@ -527,7 +527,7 @@ public class SRDISocketContentProvider
 
                 } catch (IOException iox) {
 
-                    Logging.logCheckedSevere(LOG, "Caught exception in acceptor loop\n", iox);
+                    Logging.logCheckedError(LOG, "Caught exception in acceptor loop\n", iox);
 
                     // Close and deref the current socket
                     try {
@@ -545,7 +545,7 @@ public class SRDISocketContentProvider
 
                     } catch (InterruptedException intx) {
 
-                        Logging.logCheckedSevere(LOG, "Interrupted\n", intx);
+                        Logging.logCheckedError(LOG, "Interrupted\n", intx);
 
                     }
 
@@ -618,7 +618,7 @@ public class SRDISocketContentProvider
 
         } catch (RuntimeException rtx) {
 
-            Logging.logCheckedSevere(LOG, "Caught runtime exception\n", rtx);
+            Logging.logCheckedError(LOG, "Caught runtime exception\n", rtx);
             throw (rtx);
 
         } finally {

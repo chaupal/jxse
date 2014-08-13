@@ -525,7 +525,7 @@ public class StdPeerGroupParamAdv {
 
             } else {
 
-                Logging.logCheckedSevere(LOG, "unsupported descriptor for ", mcid, " in ", mainTag, " module table : ", val);
+                Logging.logCheckedError(LOG, "unsupported descriptor for ", mcid, " in ", mainTag, " module table : ", val);
                 throw new IllegalStateException("unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
 
             }

@@ -457,7 +457,7 @@ class RouteCM implements Module {
 
             } catch (Exception ex) {
 
-                Logging.logCheckedSevere(LOG, "error publishing route adv \n", route, "\n", ex);
+                Logging.logCheckedError(LOG, "error publishing route adv \n", route, "\n", ex);
 
             }
         }

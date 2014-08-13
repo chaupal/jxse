@@ -171,12 +171,12 @@ public class XIndiceSrdi implements SrdiAPI {
 	        }
 		} catch (DBException de) {
 
-	        Logging.logCheckedSevere(LOG, "Unable to Initialize databases\n", de);
+	        Logging.logCheckedError(LOG, "Unable to Initialize databases\n", de);
 	        throw new UndeclaredThrowableException(de, "Unable to Initialize databases");
 
 	    } catch (Throwable e) {
 
-	        Logging.logCheckedSevere(LOG, "Unable to create Cm\n", e);
+	        Logging.logCheckedError(LOG, "Unable to create Cm\n", e);
 	
 	        if (e instanceof Error) {
 	            throw (Error) e;
@@ -239,7 +239,7 @@ public class XIndiceSrdi implements SrdiAPI {
                 // LOG.fine("Serialized result in : " + (TimeUtils.timeNow() - t0) + "ms.");
                 // }
                 if (data == null) {
-                    Logging.logCheckedSevere(LOG, "Failed to serialize data");
+                    Logging.logCheckedError(LOG, "Failed to serialize data");
                     return;
                 }
 
@@ -805,7 +805,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Unable to stop the Srdi Indexer\n", ex);
+            Logging.logCheckedError(LOG, "Unable to stop the Srdi Indexer\n", ex);
 
         }
     }

@@ -150,7 +150,7 @@ public class Srdi implements SrdiAPI {
             backend = (SrdiAPI) constructor.newInstance(group, indexName);
             Logging.logCheckedConfig(LOG, "Srdi backend [", backendClassName, "] loaded successfully");
         } catch (Exception e) {
-            Logging.logCheckedSevere(LOG, "Unable to construct SRDI Index backend [", backendClassName, "] specified by system property, constructing default\n", e);
+            Logging.logCheckedError(LOG, "Unable to construct SRDI Index backend [", backendClassName, "] specified by system property, constructing default\n", e);
             backend = new XIndiceSrdi(group, indexName);
         }
     }
@@ -337,7 +337,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(ClassNotFoundException e) {
 
-    	    Logging.logCheckedSevere(LOG, "Class specified for use as backend could not be found\n", e);
+    	    Logging.logCheckedError(LOG, "Class specified for use as backend could not be found\n", e);
   	    return getDefaultBackendClass();
 
     	}
@@ -350,7 +350,7 @@ public class Srdi implements SrdiAPI {
 
             } catch (ClassCastException e) {
 
-                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not implement SrdiAPI\n", e);
+                 Logging.logCheckedError(LOG, "Class specified for use as backend does not implement SrdiAPI\n", e);
                  return getDefaultBackendClass();
 
             }
@@ -361,7 +361,7 @@ public class Srdi implements SrdiAPI {
 
             } catch (Exception e) {
 
-                Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters\n", e);
+                Logging.logCheckedError(LOG, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters\n", e);
                 return getDefaultBackendClass();
 
             }
@@ -372,7 +372,7 @@ public class Srdi implements SrdiAPI {
 
                 if((method.getModifiers() & Modifier.STATIC) == 0) {
 
-                    Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide method clearSrdi as a static");
+                    Logging.logCheckedError(LOG, "Class specified for use as backend does not provide method clearSrdi as a static");
 
                     return getDefaultBackendClass();
 
@@ -380,7 +380,7 @@ public class Srdi implements SrdiAPI {
 
             } catch(Exception e) {
 
-                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible method clearSrdi which takes a PeerGroup\n", e);
+                 Logging.logCheckedError(LOG, "Class specified for use as backend does not provide accessible method clearSrdi which takes a PeerGroup\n", e);
                  return getDefaultBackendClass();
 
             }
@@ -396,7 +396,7 @@ public class Srdi implements SrdiAPI {
 
 	} catch (ClassNotFoundException e) {
 
-	    Logging.logCheckedSevere(LOG, "Could not load default backend for SrdiIndex\n", e);
+	    Logging.logCheckedError(LOG, "Could not load default backend for SrdiIndex\n", e);
 	    throw new RuntimeException("Could not load default backend for SrdiIndex", e);
 
         }

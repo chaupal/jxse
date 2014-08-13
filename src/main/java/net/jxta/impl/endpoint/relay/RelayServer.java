@@ -257,7 +257,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         if ((messengerEventListener = endpointService.addMessageTransport(this)) == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration refused");
+            Logging.logCheckedError(LOG, "Transport registration refused");
             return false;
 
         }
@@ -938,7 +938,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), "\n", all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), "\n", all);
 
         } finally {
 
@@ -1310,7 +1310,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 }
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), "\n", all);
 
             } finally {
 
@@ -1375,7 +1375,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
             }
         }

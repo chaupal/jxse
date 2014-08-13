@@ -420,7 +420,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
         } catch (CloneNotSupportedException failed) {
 
-            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : ", adv.getClass().getName(), failed);
+            Logging.logCheckedError(LOG, "Unclonable Advertisements may not be used : ", adv.getClass().getName(), failed);
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
 
         }
@@ -464,7 +464,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
         } catch (CloneNotSupportedException failed) {
 
-            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : ", adv.getClass().getName(), failed);
+            Logging.logCheckedError(LOG, "Unclonable Advertisements may not be used : ", adv.getClass().getName(), failed);
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
 
         }

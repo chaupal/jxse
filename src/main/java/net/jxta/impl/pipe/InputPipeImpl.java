@@ -211,7 +211,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             } catch (Throwable ignored) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for : ", pipeID, "(", temp.getClass().getName(), ")\n", ignored);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in listener for : ", pipeID, "(", temp.getClass().getName(), ")\n", ignored);
 
             }
 

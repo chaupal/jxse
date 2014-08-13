@@ -239,7 +239,7 @@ public class ByteArrayMessageElement extends MessageElement {
 
                 } catch (IOException fatal) {
 
-                    Logging.logCheckedSevere(LOG, "MessageElements could not be compared.", fatal);
+                    Logging.logCheckedError(LOG, "MessageElements could not be compared.", fatal);
                     throw new IllegalStateException("MessageElements could not be compared." + fatal);
 
                 }

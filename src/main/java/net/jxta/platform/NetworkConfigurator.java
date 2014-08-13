@@ -2464,7 +2464,7 @@ public class NetworkConfigurator {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
+                    Logging.logCheckedError(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
 
                 }

@@ -518,7 +518,7 @@ public class TcpConnection implements Runnable {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
 
         }
     }
@@ -610,7 +610,7 @@ public class TcpConnection implements Runnable {
         outputStream.setWatchList(LongCycle);
 
         if ((inputStream == null) || (outputStream == null)) {
-            Logging.logCheckedSevere(LOG, "   failed getting streams.");
+            Logging.logCheckedError(LOG, "   failed getting streams.");
             throw new IOException("Could not get streams");
         }
 

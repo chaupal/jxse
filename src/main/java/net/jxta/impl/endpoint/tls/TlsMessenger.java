@@ -194,7 +194,7 @@ public class TlsMessenger extends BlockingMessenger {
         } catch (IOException caught) {
 
             close();
-            Logging.logCheckedSevere(LOG, "Message send to \'", dstAddress, "\' failed for ", message, "\n", caught);
+            Logging.logCheckedError(LOG, "Message send to \'", dstAddress, "\' failed for ", message, "\n", caught);
             throw caught;
 
         }

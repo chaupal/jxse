@@ -390,7 +390,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
                 } catch (Throwable ignored) {
 
-                    Logging.logCheckedSevere(LOG, "Uncaught Throwable during callback (", anInputPipe, ") for ", anInputPipe.getPipeID(), ignored);
+                    Logging.logCheckedError(LOG, "Uncaught Throwable during callback (", anInputPipe, ") for ", anInputPipe.getPipeID(), ignored);
 
                 }
             }

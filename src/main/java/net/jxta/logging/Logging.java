@@ -308,14 +308,14 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_SEVERE} is set to {@code true),
-     * and whether the provided logger allows severe messages. If yes, the
+     * This method checks whether {@code SHOW_ERROR} is set to {@code true),
+     * and whether the provided logger allows error messages. If yes, the
      * message is logged.
      *
      * @param inLog a logger
      * @param inMsg the messages to concatenate
      */
-    public static void logCheckedSevere(Logger inLog, Object... inMsg) {
+    public static void logCheckedError(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_ERROR && inLog.isErrorEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');

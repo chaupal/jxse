@@ -1016,7 +1016,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 inputStreamCipher = Cipher.getInstance(SYMMETRIC_ALGORITHM, "BC");
                 outputStreamCipher = Cipher.getInstance(SYMMETRIC_ALGORITHM, "BC");
             } catch (Exception ex) {
-                Logging.logCheckedSevere(LOG, "Failed to set up localSecretKey or encryption ciphers for input/output streams ", this, " : ", ex);
+                Logging.logCheckedError(LOG, "Failed to set up localSecretKey or encryption ciphers for input/output streams ", this, " : ", ex);
             }
         }
 
@@ -1287,7 +1287,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                 } catch (IOException ie) {
 
-                    Logging.logCheckedSevere(LOG, "failed during closeFromRemote", ie);
+                    Logging.logCheckedError(LOG, "failed during closeFromRemote", ie);
 
                 }
 
@@ -1567,7 +1567,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
 
-            Logging.logCheckedSevere(LOG, "Failed to send a close request ", this, " : ", msg);
+            Logging.logCheckedError(LOG, "Failed to send a close request ", this, " : ", msg);
 
         }
     }
@@ -1586,7 +1586,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
 
-            Logging.logCheckedSevere(LOG, "Failed to send a close ACK ", this, " : ", msg);
+            Logging.logCheckedError(LOG, "Failed to send a close ACK ", this, " : ", msg);
 
         }
     }

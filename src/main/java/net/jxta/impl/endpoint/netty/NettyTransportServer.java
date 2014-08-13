@@ -141,7 +141,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         
         if(listener == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration failed for netty transport server, protocol=", addrTranslator.getProtocolName());
+            Logging.logCheckedError(LOG, "Transport registration failed for netty transport server, protocol=", addrTranslator.getProtocolName());
             return false;
 
         }

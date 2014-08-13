@@ -332,26 +332,26 @@ public class ResolverServiceImpl implements ResolverService {
             queryListener = new DemuxQuery();
 
             if (!endpoint.addIncomingMessageListener(queryListener, handlerName, outQueName)) {
-                Logging.logCheckedSevere(LOG, "Cannot register listener (already registered)");
+                Logging.logCheckedError(LOG, "Cannot register listener (already registered)");
             }
 
             // Register Response Listener
             responseListener = new DemuxResponse();
 
             if (!endpoint.addIncomingMessageListener(responseListener, handlerName, inQueName)) {
-                Logging.logCheckedSevere(LOG, "Cannot register listener (already registered)");
+                Logging.logCheckedError(LOG, "Cannot register listener (already registered)");
             }
 
             // Register SRDI Listener
             srdiListener = new DemuxSrdi();
 
             if (!endpoint.addIncomingMessageListener(srdiListener, handlerName, srdiQueName)) {
-                Logging.logCheckedSevere(LOG, "Cannot register listener (already registered)");
+                Logging.logCheckedError(LOG, "Cannot register listener (already registered)");
             }
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "failed to add listeners\n", e);
+            Logging.logCheckedError(LOG, "failed to add listeners\n", e);
             return -1;
 
         }

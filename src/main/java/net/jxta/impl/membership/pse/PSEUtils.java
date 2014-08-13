@@ -253,7 +253,7 @@ public final class PSEUtils {
 
         } catch (NoSuchAlgorithmException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
+            Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -334,7 +334,7 @@ public final class PSEUtils {
 
         } catch (SignatureException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
+            Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -342,7 +342,7 @@ public final class PSEUtils {
 
         } catch (InvalidKeyException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
+            Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -350,7 +350,7 @@ public final class PSEUtils {
 
         } catch (IOException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
+            Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);

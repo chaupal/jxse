@@ -121,7 +121,7 @@ public class SrdiManagerPeriodicPushTask implements Runnable {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in SrdiPushTask",all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in SrdiPushTask",all);
             
         }
     }

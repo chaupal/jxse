@@ -284,7 +284,7 @@ class TlsManager implements EndpointListener {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "Unhandled Handshake state: ", currentState);
+                    Logging.logCheckedError(LOG, "Unhandled Handshake state: ", currentState);
 
                 }
             }

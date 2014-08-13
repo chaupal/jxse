@@ -183,7 +183,7 @@ public class IncomingUnicastServer implements Runnable {
         try {
             acceptSelector.close();
         } catch (IOException io) {
-            Logging.logCheckedSevere(LOG, "IO error occured while closing Selectors\n\n", io);
+            Logging.logCheckedError(LOG, "IO error occured while closing Selectors\n\n", io);
         }
     }
 
@@ -303,7 +303,7 @@ public class IncomingUnicastServer implements Runnable {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
         } finally {
 
@@ -351,7 +351,7 @@ public class IncomingUnicastServer implements Runnable {
 
                     }
 
-                    Logging.logCheckedSevere(LOG, "Cannot bind ServerSocket on ", serverBindLocalInterface, ":", serverBindPreferredLocalPort, failed);
+                    Logging.logCheckedError(LOG, "Cannot bind ServerSocket on ", serverBindLocalInterface, ":", serverBindPreferredLocalPort, failed);
                     return null;
 
                 }
@@ -427,7 +427,7 @@ public class IncomingUnicastServer implements Runnable {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
 
             }
         }

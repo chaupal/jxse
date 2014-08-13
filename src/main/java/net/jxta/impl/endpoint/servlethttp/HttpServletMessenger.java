@@ -177,7 +177,7 @@ final class HttpServletMessenger extends BlockingMessenger {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in timer task :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in timer task :", Thread.currentThread().getName(), "\n", all);
 
             } finally {
 

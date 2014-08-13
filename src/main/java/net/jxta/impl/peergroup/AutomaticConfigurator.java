@@ -121,7 +121,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
         } catch (RuntimeException serious) {
 
-            Logging.logCheckedSevere(LOG, "Trouble while fixing PlatformConfig. Hope for the best.\n", serious);
+            Logging.logCheckedError(LOG, "Trouble while fixing PlatformConfig. Hope for the best.\n", serious);
             reconf = true;
 
         }

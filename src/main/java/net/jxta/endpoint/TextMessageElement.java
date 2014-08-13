@@ -151,7 +151,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
 
         } catch (IOException caught) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate string for element. \n", caught);
+            Logging.logCheckedError(LOG, "Could not generate string for element. \n", caught);
             throw new IllegalStateException("Could not generate string for element. " + caught);
 
         }

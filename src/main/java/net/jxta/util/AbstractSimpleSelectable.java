@@ -203,7 +203,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
             try {
                 listener.itemChanged(srcObject);
             } catch(Throwable all) {
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener ", listener, "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in listener ", listener, "\n", all);
             }
         }
 

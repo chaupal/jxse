@@ -107,8 +107,8 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
         } catch (Exception ex1) {
 
-            Logging.logCheckedSevere(LOG, "Could not check \'reconf\' file. Assuming it exists.\n", ex1);
-            Logging.logCheckedSevere(LOG, "Reconfig required - error getting \'reconf\' file");
+            Logging.logCheckedError(LOG, "Could not check \'reconf\' file. Assuming it exists.\n", ex1);
+            Logging.logCheckedError(LOG, "Reconfig required - error getting \'reconf\' file");
             return true;
 
         }
@@ -135,8 +135,8 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
             } catch (IOException ex1) {
 
-                Logging.logCheckedSevere(LOG, "Could not create \'reconf\' file\n", ex1);
-                Logging.logCheckedSevere(LOG, "Create the file \'reconf\' by hand before retrying.");
+                Logging.logCheckedError(LOG, "Could not create \'reconf\' file\n", ex1);
+                Logging.logCheckedError(LOG, "Create the file \'reconf\' by hand before retrying.");
 
             }
 
@@ -148,8 +148,8 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
             } catch (Exception ex1) {
 
-                Logging.logCheckedSevere(LOG, "Could not remove \'reconf\' file\n", ex1);
-                Logging.logCheckedSevere(LOG, "Delete the file \'reconf\' by hand before retrying.");
+                Logging.logCheckedError(LOG, "Could not remove \'reconf\' file\n", ex1);
+                Logging.logCheckedError(LOG, "Delete the file \'reconf\' by hand before retrying.");
 
             }
         }

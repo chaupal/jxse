@@ -148,7 +148,7 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
         try {
             walk.getListener().processIncomingMessage(message, srcAddr, dstAddr);
         } catch (Throwable ignored) {
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener (", walk.getListener(), ")\n", ignored);
+            Logging.logCheckedError(LOG, "Uncaught Throwable in listener (", walk.getListener(), ")\n", ignored);
         }
 
     }

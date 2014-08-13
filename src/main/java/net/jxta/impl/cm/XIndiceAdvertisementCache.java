@@ -274,7 +274,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             
         } catch (DBException de) {
 
-            Logging.logCheckedSevere(LOG, "Unable to Initialize databases\n", de);
+            Logging.logCheckedError(LOG, "Unable to Initialize databases\n", de);
             IOException failure = new IOException("Unable to Initialize databases");
             failure.initCause(de);
             throw failure;
@@ -1110,7 +1110,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Exception while searching in index\n", ex);
+            Logging.logCheckedError(LOG, "Exception while searching in index\n", ex);
 
         }
 
@@ -1208,7 +1208,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
         } catch (DBException ex) {
 
-            Logging.logCheckedSevere(LOG, "Unable to close advertisments.tbl\n", ex);
+            Logging.logCheckedError(LOG, "Unable to close advertisments.tbl\n", ex);
 
         }
 
@@ -1240,7 +1240,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             }
         }
@@ -1270,7 +1270,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             }
         }

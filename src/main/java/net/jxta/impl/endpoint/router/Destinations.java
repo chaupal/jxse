@@ -455,7 +455,7 @@ class Destinations {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedError(LOG, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), "\n", all);
 
             }
         }

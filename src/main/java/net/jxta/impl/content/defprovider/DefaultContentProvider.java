@@ -245,7 +245,7 @@ public class DefaultContentProvider implements
 
         public void uncaughtException(Thread thread, Throwable throwable) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught throwable in pool thread: ", thread, "\n", throwable);
+            Logging.logCheckedError(LOG, "Uncaught throwable in pool thread: ", thread, "\n", throwable);
 
         }
     }
