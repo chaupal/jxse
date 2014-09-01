@@ -61,7 +61,7 @@
 package net.jxta.annotation;
 
 /**
- * Indicates that code need redesing. A {@code Rem} and a {@code TargetVersion} can be included, for example:
+ * Indicates that code need redesign. A {@code Rem} and a {@code TargetVersion} can be included, for example:
  *
  * </p>@NeedsRedesign(Rem="Review method signature", TargetVersion="2.6")
  * 

@@ -89,6 +89,12 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
         return endpointMeter;
     }
 
+    // Precondition: serviceName has been validated by EndpointServiceImpl that
+    // it does not contain '/'.
+    // REVIEW MJG: Could EndpointServiceImpl simply pass in the full serviceName/serviceParam
+    // address, as it has it already? This isn't called from anywhere else...?
+    // Perhaps this method name is misleading, as it creates the meter, if it does
+    // not exist.
     public synchronized InboundMeter getInboundMeter(String serviceName, String serviceParam) {
         String address = serviceName;
 

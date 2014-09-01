@@ -129,7 +129,7 @@ public interface Messenger extends SimpleSelectable {
     public static final int SENDING = 0x40;
 
     /**
-     * Currently sending messages.New messages may not be submitted at this time.
+     * Currently sending messages. New messages may not be submitted at this time.
      */
     public static final int SENDINGSATURATED = 0x80;
 
@@ -357,7 +357,7 @@ public interface Messenger extends SimpleSelectable {
      * Transport module, then you can ignore this method.
      * <p/>
      * <b>Important:</b> The channel so obtained is not configured to support the {@link #sendMessage(Message,String,String,
-     *OutgoingMessageEventListener)} legacy method. If use of this method is desired, {@link ChannelMessenger#setMessageWatcher}
+     * OutgoingMessageEventListener)} legacy method. If use of this method is desired, {@link ChannelMessenger#setMessageWatcher}
      * must be used first.
      *
      * @param redirection  The requested redirection. The resulting channel messenger will use this to force

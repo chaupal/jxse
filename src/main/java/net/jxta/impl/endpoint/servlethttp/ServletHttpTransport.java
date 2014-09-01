@@ -354,7 +354,7 @@ public final class ServletHttpTransport implements Module {
             } catch (PeerGroupException e) {
 
                 Logging.logCheckedError(LOG, "Could not start http message sender\n", e);
-                return -1; // Can't go on; if we were configured to be a server we must make the failure obvious.
+                return -1; // Can't go on; if we were configured to be a client we must make the failure obvious.
 
             }
         }

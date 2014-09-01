@@ -202,7 +202,7 @@ final class HttpClientMessenger extends BlockingMessenger {
 
         senderURL = new URL("http", host, port, "/");
 
-        logicalDest = retreiveLogicalDestinationAddress();
+        logicalDest = retrieveLogicalDestinationAddress();
 
         // Start receiving messages from the other peer
         poller = new MessagePoller(srcAddr.getProtocolAddress(), destAddr);
@@ -321,7 +321,7 @@ final class HttpClientMessenger extends BlockingMessenger {
     /**
      *  Connects to the http server and retrieves the Logical Destination Address
      */
-    private EndpointAddress retreiveLogicalDestinationAddress() throws IOException {
+    private EndpointAddress retrieveLogicalDestinationAddress() throws IOException {
         long beginConnectTime = 0;
         long connectTime = 0;
 
@@ -564,7 +564,7 @@ final class HttpClientMessenger extends BlockingMessenger {
             /*
              * query string is of the format ?{response timeout},{extra response timeout},{dest address}
              *
-             * The timeout's are expressed in milliseconds. -1 means do not wait
+             * The timeouts are expressed in milliseconds. -1 means do not wait
              * at all, 0 means wait forever.
              */
             try {
@@ -635,7 +635,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                 long noReconnectBefore = 0;
                 HttpURLConnection conn = null;
 
-                Logging.logCheckedInfo(LOG, "Message polling beings for ", pollingURL);
+                Logging.logCheckedInfo(LOG, "Message polling begins for ", pollingURL);
 
                 int connectAttempt = 1;
 
@@ -646,7 +646,7 @@ final class HttpClientMessenger extends BlockingMessenger {
 
                         Logging.logCheckedDebug(LOG, "Opening new connection to ", pollingURL);
 
-                        conn = (HttpURLConnection) pollingURL.openConnection(); // Incomming data channel
+                        conn = (HttpURLConnection) pollingURL.openConnection(); // Incoming data channel
 
                         conn.setRequestMethod("GET");
                         conn.setDoOutput(false);
@@ -704,11 +704,11 @@ final class HttpClientMessenger extends BlockingMessenger {
                         connectTime = TimeUtils.timeNow();
                         noReconnectBefore = TimeUtils.toAbsoluteTimeMillis(MIMIMUM_POLL_INTERVAL, connectTime);
 
-			if (0 == conn.getContentLength()) {
-			    conn.disconnect();
-			    conn = null;
-			    continue;
-			}
+                        if (0 == conn.getContentLength()) {
+                            conn.disconnect();
+                            conn = null;
+                            continue;
+                        }
 
                         if (HttpURLConnection.HTTP_NO_CONTENT == responseCode) {
                             // the connection timed out.
@@ -759,7 +759,9 @@ final class HttpClientMessenger extends BlockingMessenger {
 
                             Logging.logCheckedDebug(LOG, "Failed connecting to ", senderURL);
 
-                            if (null != conn) conn.disconnect();
+                            if (null != conn) {
+                            	conn.disconnect();
+                            }
 
                             conn = null;
                             connectAttempt++;
@@ -779,7 +781,9 @@ final class HttpClientMessenger extends BlockingMessenger {
 
                             Logging.logCheckedDebug(LOG, "Failed connecting to ", senderURL);
 
-                            if (null != conn) conn.disconnect();
+                            if (null != conn) {
+                            	conn.disconnect();
+                            }
 
                             conn = null;
                             connectAttempt++;
@@ -842,7 +846,9 @@ final class HttpClientMessenger extends BlockingMessenger {
                         // scary message already.
                         Logging.logCheckedDebug(LOG, "Failed to read message from ", senderURL, "\n", e);
 
-                        if (null != conn) conn.disconnect();
+                        if (null != conn) {
+                        	conn.disconnect();
+                        }
 
                         conn = null;
 

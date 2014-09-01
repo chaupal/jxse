@@ -185,7 +185,7 @@ public class HttpMessageServlet extends HttpServlet {
     @Override
     public synchronized void destroy() {
 
-        // All we need to do is wakeup the threads that are waiting. (In truth
+        // All we need to do is wake up the threads that are waiting. (In truth
         // we'll miss those that are waiting on a messenger, but that'll do for
         // now, because we do that only when shutting down the group and then
         // the relay will be shutdown as well, which will take care of the
@@ -237,7 +237,7 @@ public class HttpMessageServlet extends HttpServlet {
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING) {
                 long connectionTime = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime);
-                EndpointAddress sourceAddress = new EndpointAddress("http", req.getRemoteHost(), null, null); //
+                EndpointAddress sourceAddress = new EndpointAddress("http", req.getRemoteHost(), null, null);
 
                 transportBindingMeter = servletHttpTransport.getTransportBindingMeter(null, sourceAddress);
                 if (transportBindingMeter != null) {
@@ -255,7 +255,7 @@ public class HttpMessageServlet extends HttpServlet {
         if (TransportMeterBuildSettings.TRANSPORT_METERING) {
             lastReadWriteTime = TimeUtils.timeNow();
             long connectTime = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime);
-            EndpointAddress sourceAddress = new EndpointAddress("http", req.getRemoteHost(), null, null); //
+            EndpointAddress sourceAddress = new EndpointAddress("http", req.getRemoteHost(), null, null);
 
             if (null != currentRequest.requestorAddr) {
                 transportBindingMeter = servletHttpTransport.getTransportBindingMeter(currentRequest.requestorAddr.toString(),
@@ -795,7 +795,7 @@ public class HttpMessageServlet extends HttpServlet {
             try {
                 timeout = Long.parseLong(requestTimeoutString);
 
-                // Protect agains clients that will try top have us keep
+                // Protect against clients that will try to have us keep
                 // connections for ever. If they re-establish all the time it's
                 // fine, but until we have a more sophisticated mechanism, we
                 // want to make sure we quit timely if the client's gone.
@@ -824,7 +824,7 @@ public class HttpMessageServlet extends HttpServlet {
             try {
                 timeout = Long.parseLong(extraResponseTimeoutString);
 
-                // Protect agains clients that will try top have us keep
+                // Protect against clients that will try to have us keep
                 // connections for ever. If they re-establish all the time it's
                 // fine, but until we have a more sophisticated mechanism, we
                 // want to make sure we quit timely if the client's gone.

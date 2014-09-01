@@ -289,7 +289,7 @@ class HttpMessageReceiver implements MessageReceiver {
      * Notify messenger listener that we are ready.
      * 
      * @param newMessenger new messenger
-     * @param connAddr conenction endpoint address
+     * @param connAddr connection endpoint address
      * @return {@code true} if the listener claimed the messenger, {@code false}
      *  otherwise
      */

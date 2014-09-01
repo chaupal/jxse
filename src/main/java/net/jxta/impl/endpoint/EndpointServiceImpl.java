@@ -373,7 +373,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          */
         @Override
         public void close() {
-            // No way. Not form the outside.
+            // No way. Not from the outside.
         }
 
         /**
@@ -1395,6 +1395,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 return false;
             }
 
+            // Note: getInboundMeter creates and attaches meters if they don't
+            // exist.
             InboundMeter incomingMessageListenerMeter = null;
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointServiceMonitor != null)) {

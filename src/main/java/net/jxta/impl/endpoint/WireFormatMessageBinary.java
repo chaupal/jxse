@@ -356,7 +356,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          * Read in a message element from the provided data stream.
          *
          * @param dis the data stream to read from
-         * @param is  todo
+         * @param is the underlying inputstream that dis is based on
          * @return object array containing two objects, index[0] contains an
          *         Integer which identifies the namespace to which this element belongs
          *         and index[1] contains a MessageElement. If null is returned then

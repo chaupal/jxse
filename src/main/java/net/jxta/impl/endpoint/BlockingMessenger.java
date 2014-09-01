@@ -411,11 +411,11 @@ public abstract class BlockingMessenger extends AbstractMessenger {
          * <p/>
          * As long as this timer task is scheduled, this messenger is not subject to GC. Therefore, its owner, if any, which is strongly
          * referenced, is not subject to GC either. This avoids prematurely closing open connections just because a destination is
-         * not currently in use, which we would have to do if CanonicalMessengers could be GCed independantly (and which would
+         * not currently in use, which we would have to do if CanonicalMessengers could be GCed independently (and which would
          * force us to use finalizers, too).<p/>
          *
-         * Such a mechanism is usefull only if this blocking messenger is expensive to make or holds system resources that require
-         * an explicit invocation of the close method. Else, it is better to let it be GC'ed along with any refering canonical
+         * Such a mechanism is useful only if this blocking messenger is expensive to make or holds system resources that require
+         * an explicit invocation of the close method. Else, it is better to let it be GC'ed along with any referring canonical
          * messenger when memory is tight.<p/>
          *
          */
@@ -682,7 +682,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
                 }
             }
             // Yes, we return true in either case. sendMessageN is supposed to be async. If a message fails
-            // after it was successfuly queued, the error is not reported by the return value, but only by
+            // after it was successfully queued, the error is not reported by the return value, but only by
             // the message property (and select). Just making sure the behaviour is as normal as can be
             // even it means suppressing some information.
 
