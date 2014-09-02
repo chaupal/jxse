@@ -95,9 +95,9 @@ import java.util.List;
  * <li>An HTTP-server-based message receiver</li>
  * </ul>
  */
-public final class ServletHttpTransport implements Module {
+public final class ServletHttpTransportImpl implements Module {
 
-    private final static transient Logger LOG = Logging.getLogger(ServletHttpTransport.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(ServletHttpTransportImpl.class.getName());
 
     /**
      * The name of the protocol

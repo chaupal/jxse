@@ -102,7 +102,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * The ServletHttpTransport that created this MessageReceiver.
      */
-    final ServletHttpTransport servletHttpTransport;
+    final ServletHttpTransportImpl servletHttpTransport;
 
     /**
      * The public addresses for the this transport.
@@ -136,7 +136,7 @@ class HttpMessageReceiver implements MessageReceiver {
      */
     private MessengerEventListener messengerEventListener;
 
-    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
+    public HttpMessageReceiver(ServletHttpTransportImpl servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
@@ -320,7 +320,7 @@ class HttpMessageReceiver implements MessageReceiver {
         return servletHttpTransport.getEndpointService();
     }
 
-    ServletHttpTransport getServletHttpTransport() {
+    ServletHttpTransportImpl getServletHttpTransport() {
         return servletHttpTransport;
     }
 

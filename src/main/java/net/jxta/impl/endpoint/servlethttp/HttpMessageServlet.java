@@ -116,7 +116,7 @@ public class HttpMessageServlet extends HttpServlet {
     private EndpointAddress localAddress = null;
     private byte[] pingResponseBytes;
 
-    private ServletHttpTransport servletHttpTransport = null;
+    private ServletHttpTransportImpl servletHttpTransport = null;
 
     /**
      *  If {@code true} then this servlet has been (or is being) destroyed.

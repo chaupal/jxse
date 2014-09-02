@@ -79,7 +79,7 @@ class HttpMessageSender implements MessageSender {
     /**
      * The ServletHttpTransport that created this object
      */
-    private final ServletHttpTransport servletHttpTransport;
+    private final ServletHttpTransportImpl servletHttpTransport;
 
     /**
      * The public address for this message sender
@@ -95,7 +95,7 @@ class HttpMessageSender implements MessageSender {
     /**
      * constructor
      */
-    public HttpMessageSender(ServletHttpTransport servletHttpTransport, EndpointAddress publicAddress) throws PeerGroupException {
+    public HttpMessageSender(ServletHttpTransportImpl servletHttpTransport, EndpointAddress publicAddress) throws PeerGroupException {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddress = publicAddress;
