@@ -95,7 +95,7 @@ import java.util.List;
  * <li>An HTTP-server-based message receiver</li>
  * </ul>
  */
-public final class ServletHttpTransportImpl implements Module {
+public final class ServletHttpTransportImpl implements ServletHttpTransport, Module {
 
     private final static transient Logger LOG = Logging.getLogger(ServletHttpTransportImpl.class.getName());
 
@@ -378,11 +378,30 @@ public final class ServletHttpTransportImpl implements Module {
     }
 
     /**
-     * Get the EndpointService instance we attach to.
-     * 
-     * @return EndpointService instance
+     * {@inheritDoc}
      */
-    EndpointService getEndpointService() {
+    public PeerGroup getPeerGroup() {
+    	return group;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public ID getAssignedID() {
+    	return assignedID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getConfiguredHttpProtocolName() {
+    	return HTTP_PROTOCOL_NAME;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public EndpointService getEndpointService() {
         return endpoint;
     }
 
@@ -454,7 +473,10 @@ public final class ServletHttpTransportImpl implements Module {
         return publicAddresses;
     }
 
-    TransportBindingMeter getTransportBindingMeter(String peerIDString, EndpointAddress destinationAddress) {
+    /**
+     * {@inheritDoc}
+     */
+    public TransportBindingMeter getTransportBindingMeter(String peerIDString, EndpointAddress destinationAddress) {
         if (transportMeter != null) {
             return transportMeter.getTransportBindingMeter((peerIDString != null) ? peerIDString : TransportMeter.UNKNOWN_PEER,
                     destinationAddress);

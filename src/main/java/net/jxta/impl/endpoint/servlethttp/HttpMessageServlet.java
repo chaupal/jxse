@@ -116,7 +116,7 @@ public class HttpMessageServlet extends HttpServlet {
     private EndpointAddress localAddress = null;
     private byte[] pingResponseBytes;
 
-    private ServletHttpTransportImpl servletHttpTransport = null;
+    private ServletHttpTransport servletHttpTransport = null;
 
     /**
      *  If {@code true} then this servlet has been (or is being) destroyed.
@@ -140,7 +140,7 @@ public class HttpMessageServlet extends HttpServlet {
             throw new ServletException("'HttpMessageReceiver' attribute was not of the proper type in the Servlet Context");
         }
 
-        servletHttpTransport = owner.servletHttpTransport;
+        servletHttpTransport = owner.getServletHttpTransport();
         endpoint = owner.getEndpointService();
 
         String peerId = endpoint.getGroup().getPeerID().getUniqueValue().toString();
@@ -285,8 +285,9 @@ public class HttpMessageServlet extends HttpServlet {
                 messengerAliveFor = Math.max(currentRequest.responseTimeout, currentRequest.extraResponsesTimeout);
             }
 
-            messenger = new HttpServletMessenger(owner.servletHttpTransport.group.getPeerGroupID(), 
-                                                 owner.servletHttpTransport.group.getTaskManager(),
+            // REVIEW MJG show don't tell...
+            messenger = new HttpServletMessenger(owner.getServletHttpTransport().getPeerGroup().getPeerGroupID(), 
+                                                 owner.getServletHttpTransport().getPeerGroup().getTaskManager(),
                                                  localAddress,
                                                  currentRequest.requestorAddr, 
                                                  messengerAliveFor);
@@ -332,7 +333,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                     // FIXME 20040927 bondolo Should get message encoding from http header.
                     try {
-                        incomingMessage = WireFormatMessageFactory.fromWireExternal(in, contentMimeType, null, this.servletHttpTransport.group);
+                        incomingMessage = WireFormatMessageFactory.fromWireExternal(in, contentMimeType, null, this.servletHttpTransport.getPeerGroup());
                     } catch (NoSuchElementException noValidWireFormat) {
                         IOException failure = new IOException("Unrecognized content type MIME type : " + contentType);
 
@@ -450,7 +451,7 @@ public class HttpMessageServlet extends HttpServlet {
                     }
 
                     // send the message
-                    WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(outMsg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null, this.servletHttpTransport.group);
+                    WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(outMsg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null, this.servletHttpTransport.getPeerGroup());
 
                     // if only one message is being returned, set the content
                     // length, otherwise try to use chunked encoding.

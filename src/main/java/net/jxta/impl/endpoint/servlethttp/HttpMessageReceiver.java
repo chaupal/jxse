@@ -102,7 +102,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * The ServletHttpTransport that created this MessageReceiver.
      */
-    final ServletHttpTransportImpl servletHttpTransport;
+    private final ServletHttpTransport servletHttpTransport;
 
     /**
      * The public addresses for the this transport.
@@ -136,7 +136,7 @@ class HttpMessageReceiver implements MessageReceiver {
      */
     private MessengerEventListener messengerEventListener;
 
-    public HttpMessageReceiver(ServletHttpTransportImpl servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
+    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
@@ -148,7 +148,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.getAssignedID());
 
             configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
             configInfo.append("\n\tMax threads=").append(MAX_LISTENER_THREADS);
@@ -310,7 +310,7 @@ class HttpMessageReceiver implements MessageReceiver {
      * {@inheritDoc}
      */
     public String getProtocolName() {
-        return servletHttpTransport.HTTP_PROTOCOL_NAME;
+        return servletHttpTransport.getConfiguredHttpProtocolName();
     }
 
     /**
@@ -320,7 +320,11 @@ class HttpMessageReceiver implements MessageReceiver {
         return servletHttpTransport.getEndpointService();
     }
 
-    ServletHttpTransportImpl getServletHttpTransport() {
+    /**
+     * Get the ServletHttpTransport used by this receiver.
+     * @return the 'parent' ServletHttpTransport.
+     */
+    ServletHttpTransport getServletHttpTransport() {
         return servletHttpTransport;
     }
 
