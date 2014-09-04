@@ -69,6 +69,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
+import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
@@ -331,7 +332,9 @@ public final class ServletHttpTransportImpl implements ServletHttpTransport, Mod
             // Start the http server that runs the receiver.
             try {
 
-                receiver = new HttpMessageReceiver(this, publicAddresses, usingInterface, usingPort);
+                // Use peer group class loader (useful for HttpMessageServlet)
+                final ClassLoader classLoader = GenericPeerGroup.getLoader().getClassLoader();
+                receiver = new HttpMessageReceiver(this, publicAddresses, usingInterface, usingPort, classLoader);
                 receiver.start();
 
             } catch (PeerGroupException e) {

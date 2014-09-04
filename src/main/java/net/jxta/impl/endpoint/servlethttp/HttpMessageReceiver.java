@@ -110,6 +110,12 @@ class HttpMessageReceiver implements MessageReceiver {
     private final List<EndpointAddress> publicAddresses;
 
     /**
+     * The ClassLoader used to load classes by the HttpContext. Obtained from
+     * the peer group (useful for HttpMessageServlet).
+     */
+    private final ClassLoader classLoader;
+    
+    /**
      *  The min threads that the HTTP server will use for handling requests.
      */
     private static int MIN_LISTENER_THREADS = 10;
@@ -136,10 +142,13 @@ class HttpMessageReceiver implements MessageReceiver {
      */
     private MessengerEventListener messengerEventListener;
 
-    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
+
+    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port, ClassLoader classLoader) throws PeerGroupException {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
+		this.classLoader = classLoader;
+        
 
         // read settings from the properties file
         Properties prop = getJxtaProperties(
@@ -218,8 +227,6 @@ class HttpMessageReceiver implements MessageReceiver {
         handler.setUsingCookies(false);
         handler.initialize(handlerContext);
 
-        // Use peer group class loader (useful for HttpMessageServlet)
-        final ClassLoader classLoader = GenericPeerGroup.getLoader().getClassLoader();
 		handlerContext.setClassLoader(classLoader);
         handlerContext.addHandler(handler);
 
