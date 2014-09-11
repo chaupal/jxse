@@ -3,6 +3,7 @@ package net.jxta.impl.endpoint.servlethttp;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +36,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -126,6 +129,10 @@ public class CharacteriseHttpMessageReceiverTest {
 		httpMessageReceiver.stop();
 		assertThat(portOpen(), is(false));		
 	}
+
+	private interface HttpConnectionTestBody {
+		void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException;
+	}
 	
 	@Test(timeout = 3000)
 	public void httpMessageServletCanBePinged() throws PeerGroupException, IOException, URISyntaxException {
@@ -135,35 +142,65 @@ public class CharacteriseHttpMessageReceiverTest {
 			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 		}});
 
+		connect("", new HttpConnectionTestBody() {
+			public void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException {
+				// not sure if this is the recommended way of going from the
+				// string received in the input stream, which is of the form
+				// cbid-2FD774D5B372433D84F1BAF6098F73C05BBC13E206EB725BAD1AD059E49FC57F03
+				// to a PeerID
+				final String readFromStream = readFromStream(httpConnection.getInputStream(), httpConnection.getContentLength());
+				final URI uri = new URI("urn:jxta:" + readFromStream);
+				final PeerID receivedPeerId = (PeerID) IDFactory.fromURI(uri);
+				
+				LOG.info("Received peer Id '" + receivedPeerId + "'");
+				assertThat(receivedPeerId, equalTo(assignedPeerId));
+			}
+		});
+	}
+
+	@Test(timeout = 3000)
+	public void httpMessageServletCanBePolled() throws PeerGroupException, IOException, URISyntaxException {
+		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
+		final EndpointAddress destinationAddress = null; // TODO define this
+		// Requestor defined, positive response timeout and destination address.
+		mockContext.checking(new Expectations() {{
+			//oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
+			//oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
+			//oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
+		}});
+
+		connect(requestorPeerId.toString() + "?500,600," + destinationAddress,
+				new HttpConnectionTestBody() {			
+			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException {
+				//TODO fail("test more stuff here");
+			}
+		}); 
+	}
+
+	private void connect(final String restOfURL, final HttpConnectionTestBody body) throws IOException,
+			ProtocolException, URISyntaxException {
 		// TODO if connected to a real network, getLocalHost gives real IP address. If
 		// trying to use localhost here, connection fails... how can I force JXTA to
 		// only use localhost (that should be sufficient for these tests?)
-		final URL url = new URL("http://" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "/");
+		final URL url = new URL("http://" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "/" + restOfURL);
 		final HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-		httpConnection.setRequestMethod("GET");
-		httpConnection.setConnectTimeout(500);
-		httpConnection.setReadTimeout(1000);
 		try {
+			httpConnection.setRequestMethod("GET");
+			httpConnection.setConnectTimeout(500);
+			httpConnection.setReadTimeout(1000);
+	
 			LOG.info("Connecting to " + url);
 			httpConnection.connect();
 			LOG.info("Connected");
 			
-			// not sure if this is the recommended way of going from the
-			// string received in the input stream, which is of the form
-			// cbid-2FD774D5B372433D84F1BAF6098F73C05BBC13E206EB725BAD1AD059E49FC57F03
-			// to a PeerID
-			final String readFromStream = readFromStream(httpConnection.getInputStream(), httpConnection.getContentLength());
-			final URI uri = new URI("urn:jxta:" + readFromStream);
-			final PeerID receivedPeerId = (PeerID) IDFactory.fromURI(uri);
-			
-			LOG.info("Received peer Id '" + receivedPeerId + "'");
-			assertThat(receivedPeerId, equalTo(assignedPeerId));
+			body.apply(httpConnection);
 		} finally {
 			LOG.info("Disconnecting");
 			httpConnection.disconnect();
-		}
+		} 	
 	}
 
+	
 	private String readFromStream(final InputStream inputStream, final int len)
 			throws IOException {
 		BufferedReader reader = null;

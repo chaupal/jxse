@@ -552,7 +552,7 @@ public class EndpointAddress {
     }
 
     /**
-     * Parse and EndpointAddress from a URL
+     * Parse an EndpointAddress from a URL
      *
      * @param addr endpoint address to parse
      */
