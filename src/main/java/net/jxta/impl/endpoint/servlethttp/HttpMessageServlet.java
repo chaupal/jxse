@@ -275,7 +275,7 @@ public class HttpMessageServlet extends HttpServlet {
         if ((null != currentRequest.requestorAddr) && (currentRequest.responseTimeout >= 0) && (null != currentRequest.destAddr)) {
 
             // create the back channel messenger
-            Logging.logCheckedDebug(LOG, "Creating back channel messenger for ", currentRequest.requestorAddr, " (", currentRequest.destAddr, ")");
+            Logging.logCheckedDebug(LOG, "Responding to \'poll\': creating back channel messenger for ", currentRequest.requestorAddr, " (", currentRequest.destAddr, ")");
 
             long messengerAliveFor;
 
