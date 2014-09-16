@@ -361,25 +361,24 @@ public final class Logging {
     }
 
     /**
-     * Extracts the calling method using the [1] stack trace element, and creates a
+     * Extracts the calling method using the [2] stack trace element, and creates a
      * string containing the line number, package, class and method name.
      *
      * @param inSTE a stack trace
      * @return the coordinates of the calling method
      */
-    public static String getCaller(StackTraceElement[] inSTE) {
-
+    static String getCaller(StackTraceElement[] inSTE) {
         if ( inSTE == null ) {
             LOG.error("Can't get caller: null StackTraceElement");
             return null;
         }
 
-        if ( inSTE.length < 2 ) {
-            LOG.error("Can't get caller: StackTraceElement length < 2");
+        if ( inSTE.length < 3 ) {
+            LOG.error("Can't get caller: StackTraceElement length < 3");
             return null;
         }
 
-        StackTraceElement STE = inSTE[1];
+        StackTraceElement STE = inSTE[2];
 
         StringBuffer Result = new StringBuffer();
         Result.append("Line ").append(STE.getLineNumber())
