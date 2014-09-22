@@ -149,7 +149,6 @@ final class HttpServletMessenger extends BlockingMessenger {
          */
         @Override
         public void execute() {
-
             try {
 
                 HttpServletMessenger temp = messenger;
@@ -188,7 +187,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     }
 
     /**
-     *  Standard constructor.
+     * Standard constructor.
      *
      * @param peerGroupID the peer group id
      * @param srcAddress  source address
@@ -296,12 +295,12 @@ final class HttpServletMessenger extends BlockingMessenger {
 
         // No need to wait for the messenger to be free. Transport
         // messengers have no obligation to behave nicely if they're
-        // used by mltiple threads. If a thread comes here while
+        // used by multiple threads. If a thread comes here while
         // we're already busy sending, then that's a congestion. Just
         // drop the new message (pretend it went out).
         // This is not even so nasty, because jetty has a sizeable
         // output buffer. As long as that buffer is not full, sending
-        // is instantaneou. If sending starts blocking, then we can honestly
+        // is instantaneous. If sending starts blocking, then we can honestly
         // drop messages.
 
         if (isClosed()) {
