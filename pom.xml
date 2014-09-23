@@ -99,28 +99,12 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>    
-                <executions>
-                    <execution>
-                       <phase>package</phase>
-                       <goals>
-                          <goal>jar</goal>
-                       </goals>
-                       <configuration>
-                          <finalName>${project.artifactId}-${project.version}</finalName>
-                       </configuration>
-                    </execution>
-                 </executions>
-            </plugin>
 
             <!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.0.1</version>
+                <version>2.5.3</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -131,12 +115,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                     <archive>
-                       <addMavenDescriptor>true</addMavenDescriptor>
-                     </archive>
-                     <supportedProjectTypes>
-                       <supportedProjectType>jar</supportedProjectType>
-                     </supportedProjectTypes>
                      <instructions>
                         <Built-By>${project.organization.name}</Built-By>
                         <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
@@ -173,7 +151,7 @@
                             org.jboss.netty.channel.socket.nio;version="3.6.2.Final",
                             org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
                             org.jboss.netty.handler.timeout;version="3.6.2.Final",
-                            org.jboss.netty.util;version="3.6.2.Final"
+                            org.jboss.netty.util;version="3.6.2.Final"                            
                         </Import-Package>                        
                     </instructions>                    
                 </configuration>                
@@ -204,7 +182,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                          deactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
 
@@ -573,5 +551,5 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>    
+    </profiles>            
 </project>
