@@ -168,7 +168,8 @@
                             org.jboss.netty.handler.codec.oneone;version="3.2.2.Final",
                             org.jboss.netty.handler.timeout;version="3.2.2.Final",
                             org.jboss.netty.util;version="3.2.2.Final",
-                            org.slf4j.*;version="1.7.5"                            
+                            org.slf4j.*;version="1.7.5",                            
+                            org.slf4j.impl.*;version="1.7.5"
                         </Import-Package>                        
                     </instructions>                    
                 </configuration>                
@@ -313,8 +314,12 @@
             <artifactId>slf4j-log4j12</artifactId>                                                                                                    
             <version>1.7.5</version>                                                                                                                                               
             <scope>test</scope>
-        </dependency>                                                                                                                                 
-        
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.5</version>
+        </dependency>
     </dependencies>
 
     <reporting>
