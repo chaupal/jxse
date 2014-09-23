@@ -56,12 +56,16 @@
 
 package net.jxta.logging;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * To test the JxseOSGiFramework API class.
@@ -96,4 +100,21 @@ public class LoggingTest {
 
     }
 
+    /*
+     * Obviously this test has sensitive dependence on its location in this
+     * file...
+     */
+    private String getCaller() {
+    	return simulateUseOfGetCallerInLogging();
+    }
+    
+    String simulateUseOfGetCallerInLogging() {
+    	return Logging.getCaller(new Exception().getStackTrace());
+    }
+    
+    @Test
+    public void callerIsInClientCode() {
+    	final String caller = getCaller(); // The line number of this is critical
+    	assertThat(caller, equalTo("Line 117 net.jxta.logging.LoggingTest.callerIsInClientCode()"));
+    }
 }

@@ -141,7 +141,7 @@ final class HttpClientMessenger extends BlockingMessenger {
     /**
      * The ServletHttpTransport that created this object.
      */
-    private final ServletHttpTransport servletHttpTransport;
+    private final ServletHttpTransportImpl servletHttpTransport;
 
     /**
      *  The Return Address element we will add to all messages we send.
@@ -172,7 +172,7 @@ final class HttpClientMessenger extends BlockingMessenger {
      *  @param srcAddr The source address.
      *  @param destAddr The destination address.
      */
-    HttpClientMessenger(ServletHttpTransport servletHttpTransport, EndpointAddress srcAddr, EndpointAddress destAddr) throws IOException {
+    HttpClientMessenger(ServletHttpTransportImpl servletHttpTransport, EndpointAddress srcAddr, EndpointAddress destAddr) throws IOException {
 
         // We do use self destruction.
         super(servletHttpTransport.getEndpointService().getGroup().getPeerGroupID(), 

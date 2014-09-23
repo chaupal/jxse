@@ -102,13 +102,19 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * The ServletHttpTransport that created this MessageReceiver.
      */
-    final ServletHttpTransport servletHttpTransport;
+    private final ServletHttpTransport servletHttpTransport;
 
     /**
      * The public addresses for the this transport.
      */
     private final List<EndpointAddress> publicAddresses;
 
+    /**
+     * The ClassLoader used to load classes by the HttpContext. Obtained from
+     * the peer group (useful for HttpMessageServlet).
+     */
+    private final ClassLoader classLoader;
+    
     /**
      *  The min threads that the HTTP server will use for handling requests.
      */
@@ -136,10 +142,13 @@ class HttpMessageReceiver implements MessageReceiver {
      */
     private MessengerEventListener messengerEventListener;
 
-    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
+
+    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port, ClassLoader classLoader) throws PeerGroupException {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
+		this.classLoader = classLoader;
+        
 
         // read settings from the properties file
         Properties prop = getJxtaProperties(
@@ -148,7 +157,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.getAssignedID());
 
             configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
             configInfo.append("\n\tMax threads=").append(MAX_LISTENER_THREADS);
@@ -218,9 +227,7 @@ class HttpMessageReceiver implements MessageReceiver {
         handler.setUsingCookies(false);
         handler.initialize(handlerContext);
 
-        // Use peer group class loader (useful for HttpMessageServlet)
-        IJxtaLoader loader = GenericPeerGroup.getLoader();
-        handlerContext.setClassLoader(loader.getClassLoader());
+		handlerContext.setClassLoader(classLoader);
         handlerContext.addHandler(handler);
 
         // Set up support for downloading midlets.
@@ -310,7 +317,7 @@ class HttpMessageReceiver implements MessageReceiver {
      * {@inheritDoc}
      */
     public String getProtocolName() {
-        return servletHttpTransport.HTTP_PROTOCOL_NAME;
+        return servletHttpTransport.getConfiguredHttpProtocolName();
     }
 
     /**
@@ -320,6 +327,10 @@ class HttpMessageReceiver implements MessageReceiver {
         return servletHttpTransport.getEndpointService();
     }
 
+    /**
+     * Get the ServletHttpTransport used by this receiver.
+     * @return the 'parent' ServletHttpTransport.
+     */
     ServletHttpTransport getServletHttpTransport() {
         return servletHttpTransport;
     }
