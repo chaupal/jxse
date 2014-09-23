@@ -167,7 +167,8 @@
                             org.jboss.netty.channel.socket.nio;version="3.2.2.Final",
                             org.jboss.netty.handler.codec.oneone;version="3.2.2.Final",
                             org.jboss.netty.handler.timeout;version="3.2.2.Final",
-                            org.jboss.netty.util;version="3.2.2.Final"                            
+                            org.jboss.netty.util;version="3.2.2.Final",
+                            org.slf4j.*;version="1.7.5"                            
                         </Import-Package>                        
                     </instructions>                    
                 </configuration>                
