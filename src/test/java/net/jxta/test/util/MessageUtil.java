@@ -55,7 +55,9 @@
  */
 package net.jxta.test.util;
 
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -73,7 +75,6 @@ import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.impl.rendezvous.StdRendezVousService;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
@@ -130,52 +131,88 @@ public class MessageUtil {
     }
 
     /**
-     *  Print  message element names, and sizes to stdout
+     *  Print message element names, and sizes to stdout.
      *
-     *@param  msg  the Message
+     * @param  msg  the Message
      */
-    public static void printMessageStats(Message message) {
+    public static void printMessageStats(final Message message) {
         printMessageStats(message, false);
     }
 
     /**
-     *  Print  message element names, and sizes to stdout
-     *  if verbose print element content.
+     *  Print message element names, and sizes to stdout.
+     *  If verbose, print element content.
      *
-     *@param  msg  the Message
-     *@param  verbose  print element content if true
+     * @param  msg  the Message
+     * @param  verbose  print element content if true
      */
-    public static void printMessageStats(Message msg, boolean verbose) {
-        try {
-            CountingOutputStream cnt;
-            Iterator en = msg.getMessageElements();
+    public static void printMessageStats(final Message msg, final boolean verbose) {
+    	final Iterator<String> it = messageStatsIterator(msg, verbose);
+    	while (it.hasNext()) {
+    		System.out.println(it.next());
+    	}
+    }
+    
+    private static class MessageStatsIterator implements Iterator<String> {
+		private final boolean verbose;
+		private final LinkedList<String> list = new LinkedList<String>();
+		private Iterator<MessageElement> en;
 
-            System.out.println("------------------Begin Message---------------------");
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, new MimeMediaType("application/x-jxta-msg")
-                    ,
-                    (MimeMediaType[]) null);
+		public MessageStatsIterator(final Message msg, final boolean verbose) {
+			this.verbose = verbose;
+			en = msg.getMessageElements();
+			
+			list.add("------------------Begin Message---------------------");
+			
+            final WireFormatMessage serialed = WireFormatMessageFactory.toWire(
+            		msg, new MimeMediaType("application/x-jxta-msg"),
+            		(MimeMediaType[]) null);
+            list.add("Message Size :" + serialed.getByteLength());
+    	}
+		
+		public boolean hasNext() {
+			return !list.isEmpty() || en.hasNext();
+		}
 
-            System.out.println("Message Size :" + serialed.getByteLength());
-            while (en.hasNext()) {
-                MessageElement el = (MessageElement) en.next();
-                String eName = el.getElementName();
+		public String next() {
+			try {
+				if (list.isEmpty()) {
+	                final MessageElement el = (MessageElement) en.next();
+	                String eName = el.getElementName();
+	
+	                final CountingOutputStream cnt = new CountingOutputStream(new DevNullOutputStream());
+	                el.sendToStream(cnt);
+	                long size = cnt.getBytesWritten();
+	
+	                list.add("Element " + eName + " : " + size);
+	                if (verbose) {
+	                    list.add("[" + el + "]");
+	                }
+				}
+				return list.remove();
+			} catch (final IOException ioe) {
+				// do nothing
+			}
+			return "";
+		}
 
-                cnt = new CountingOutputStream(new DevNullOutputStream());
-                el.sendToStream(cnt);
-                long size = cnt.getBytesWritten();
-
-                System.out.println("Element " + eName + " : " + size);
-                if (verbose) {
-                    System.out.println("[" + el + "]");
-                }
-            }
-            System.out.println("-------------------End Message----------------------");
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
+		public void remove() {
+			throw new UnsupportedOperationException("Can't remove");
+		}
     }
 
+    /**
+     *  Obtain an Iterator of message element names, and sizes.
+     *  If verbose, include element content in the Iterator.
+     *
+     * @param  msg  the Message
+     * @param  verbose  print element content if true
+     */
+    public static Iterator<String> messageStatsIterator(final Message msg, final boolean verbose) {
+    	return new MessageStatsIterator(msg, verbose);
+    }
+    
+    
     /**
      *  Create a Rendezvous Connect Message
      *
