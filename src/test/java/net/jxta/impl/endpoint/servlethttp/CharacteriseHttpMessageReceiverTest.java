@@ -3,7 +3,6 @@ package net.jxta.impl.endpoint.servlethttp;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -37,6 +37,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
+import net.jxta.test.util.MessageUtil;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -45,7 +46,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -98,32 +98,47 @@ public class CharacteriseHttpMessageReceiverTest {
 		System.setProperty(CBJX_SYSTEM_PROPERTY, "" + initialCbjxDisable);
 	}
 	
-	private class StubMessengerEventListener implements MessengerEventListener {
+	private class StubMessengerEventListener implements MessengerEventListener, Runnable {
+		private Object lock = new Object();
 		private MessengerEvent event;
 		private Message replyMessage;
-
-		public MessengerEvent getEvent() {
-			return event;
-		}
+		private volatile boolean startThread = false;
 
 		public boolean messengerReady(final MessengerEvent event) {
 			LOG.info("StubMessengerEventListener called with " + event);
      		// we need to stash this so that the test can get the messenger
 			this.event = event;
-			if (replyMessage != null) {
-				try {
-					LOG.info("StubMessengerEventListener replying with " + replyMessage);
-					event.getMessenger().sendMessage(replyMessage);
-				} catch (final IOException e) {
-					LOG.warn("StubMessengerEventListener could not send", e);
-				}
+			if (startThread) {
+				LOG.info("StubMessengerEventListener creating thread...");
+				new Thread(this).start();
 				return true; // to indicate that this messenger is 'taken'
 			}
 			return false;
 		}
 
 		public void replyWith(final Message replyMessage) {
-			this.replyMessage = replyMessage;
+			synchronized(lock) {
+				this.replyMessage = replyMessage;
+				startThread = (replyMessage != null);
+			}
+		}
+
+		public void run() {
+			LOG.info("StubMessengerEventListener reply thread starting");
+			try {
+				Thread.sleep(500);
+				LOG.info("StubMessengerEventListener out of sleep, locking...");
+				synchronized(lock) {									
+					LOG.info("StubMessengerEventListener acquired lock, replying with " + replyMessage);
+					event.getMessenger().sendMessage(replyMessage);
+					LOG.info("StubMessengerEventListener replied");
+				}
+			} catch (final IOException e) {
+				LOG.warn("StubMessengerEventListener thread could not send", e);
+			} catch (final InterruptedException e) {
+				LOG.warn("StubMessengerEventListener thread interrupted", e);
+			}
+			LOG.info("StubMessengerEventListener reply thread finished");
 		}
 	}
 	
@@ -186,11 +201,11 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	private interface HttpConnectionTestBody {
-		void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException;
+		void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException, InterruptedException;
 	}
 	
 	@Test(timeout = 3000)
-	public void httpMessageServletCanBePinged() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePinged() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// No Message and no Requestor defined.
 		
 		mockContext.checking(new Expectations() {{
@@ -216,7 +231,7 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	@Test(timeout = 3000)
-	public void httpMessageServletCanBePolledWithEmptyMessageAndNoReplyMessenger() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePolledWithEmptyMessageAndNoReplyMessenger() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout and destination address.
 
 		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
@@ -247,7 +262,7 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	@Test(timeout = 3000)
-	public void httpMessageServletCanBePolledWithMessageThatsDeliveredToEndpointService() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePolledWithMessageThatsDeliveredToEndpointService() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout and destination address.
 		
 		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
@@ -292,8 +307,7 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	@Test(timeout = 8000)
-	@Ignore // until I can get it working...
-	public void httpMessageServletCanBePolledWithReply() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePolledWithReply() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout and destination address.
 		
 		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
@@ -313,33 +327,40 @@ public class CharacteriseHttpMessageReceiverTest {
 		// (around line 290). We want to reply with this message...
 		final Message replyMessage = new Message();
 		replyMessage.addMessageElement(new StringMessageElement("anothername", "replymessage", null));
+
+		LOG.info(">> The reply message is...");
+		final Iterator<String> msgit = MessageUtil.messageStatsIterator(replyMessage, true);
+		while (msgit.hasNext()) {
+			LOG.info(">>  " + msgit.next());
+		}
+		LOG.info(">> The reply message is...");
+
 		stubMessengerEventListener.replyWith(replyMessage);
 
 		connect(requestorPeerId.toString() + "?4000,1000," + destinationAddress,
 				new HttpConnectionTestBody() {			
-			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException {
-				LOG.debug("reading from http connection input stream... in 3s");
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				LOG.debug("reading from http connection input stream... ");
-				final String readFromStream = readFromStream(httpConnection.getInputStream(), httpConnection.getContentLength());
-				assertThat(readFromStream, equalTo(""));
-				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException, InterruptedException {
+				LOG.debug("Reading from http connection input stream in 3s... ");
+				Thread.sleep(3000);
 				
-				// TODO The main aim of this test - that I can't get working...
-				// Now we should deserialise the input stream into a message,
-				// and compare it against replyMessage, above.
+				final Message incomingMessage = WireFormatMessageFactory.fromWireExternal(httpConnection.getInputStream(), WireFormatMessageFactory.DEFAULT_WIRE_MIME, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
+                LOG.debug("<< Incoming reply message is...");
+        		Iterator<String> msgit = MessageUtil.messageStatsIterator(incomingMessage, true);
+        		while (msgit.hasNext()) {
+        			LOG.debug("<<  " + msgit.next());
+        		}
+                LOG.debug("<< Incoming reply message is...");
+                
+				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+				assertThat(incomingMessage, equalTo(replyMessage));
 			}
 		}); 
 	}
 	
 	// TODO also need send test - as the poll, but with no destination address.
-	
+
 	private void connect(final String restOfURL, final HttpConnectionTestBody body) throws IOException,
-	ProtocolException, URISyntaxException {
+		ProtocolException, URISyntaxException, InterruptedException {
 		connect(restOfURL, null, body);
 	}
 	
@@ -347,7 +368,7 @@ public class CharacteriseHttpMessageReceiverTest {
 			final String restOfURL,
 			final HttpConnectionTestBody prepare, 
 			final HttpConnectionTestBody check) throws IOException,
-			ProtocolException, URISyntaxException {
+			ProtocolException, URISyntaxException, InterruptedException {
 		// TODO if connected to a real network, getLocalHost gives real IP address. If
 		// trying to use localhost here, connection fails... how can I force JXTA to
 		// only use localhost (that should be sufficient for these tests?)
