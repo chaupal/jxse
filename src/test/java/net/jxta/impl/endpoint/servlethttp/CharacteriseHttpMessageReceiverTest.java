@@ -100,14 +100,16 @@ public class CharacteriseHttpMessageReceiverTest {
 	
 	private class StubMessengerEventListener implements MessengerEventListener, Runnable {
 		private Object lock = new Object();
-		private MessengerEvent event;
+		private MessengerEvent event = null;
 		private Message replyMessage;
 		private volatile boolean startThread = false;
 
 		public boolean messengerReady(final MessengerEvent event) {
 			LOG.info("StubMessengerEventListener called with " + event);
      		// we need to stash this so that the test can get the messenger
-			this.event = event;
+			synchronized(lock) {
+				this.event = event;
+			}
 			if (startThread) {
 				LOG.info("StubMessengerEventListener creating thread...");
 				new Thread(this).start();
@@ -116,6 +118,12 @@ public class CharacteriseHttpMessageReceiverTest {
 			return false;
 		}
 
+		public boolean wasListenerCalled() {
+			synchronized(lock) {
+				return event != null;
+			}
+		}
+		
 		public void replyWith(final Message replyMessage) {
 			synchronized(lock) {
 				this.replyMessage = replyMessage;
@@ -353,11 +361,58 @@ public class CharacteriseHttpMessageReceiverTest {
                 
 				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
 				assertThat(incomingMessage, equalTo(replyMessage));
+				assertThat(stubMessengerEventListener.wasListenerCalled(), is(true));
 			}
 		}); 
 	}
 	
-	// TODO also need send test - as the poll, but with no destination address.
+	@Test(timeout = 3000)
+	public void httpMessageServletCanBeSentToWithDestinationAddress() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
+		// Requestor defined, positive response timeout or no destination address.
+
+		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
+		
+		// Going to send a message that'll be serialised, sent over HTTP, received,
+		// deserialised, and then passed to the endpoint service.
+		final Message message = new Message();
+		message.addMessageElement(new StringMessageElement("myname", "mymessage", null));
+
+		mockContext.checking(new Expectations() {{
+			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
+			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
+			oneOf(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
+			
+			// The endpoint service is given the deserialised message. 
+			oneOf(mockEndpointService).processIncomingMessage(with(equalTo(message)));
+		}});
+
+		connect(requestorPeerId.toString() + "?500", // no destination => no messenger
+				// Prepare the request....
+				new HttpConnectionTestBody() {
+					public void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException {
+						final WireFormatMessage wireExternal = WireFormatMessageFactory.toWireExternal(message, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null, null);
+						httpConnection.addRequestProperty("content-length", "" + wireExternal.getByteLength());
+						httpConnection.addRequestProperty("content-type", WireFormatMessageFactory.DEFAULT_WIRE_MIME.getMimeMediaType());
+						httpConnection.setDoOutput(true);
+						wireExternal.sendToStream(httpConnection.getOutputStream());
+					}			
+				},
+
+				// Check the response....
+				new HttpConnectionTestBody() {			
+					public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException {
+						final String readFromStream = readFromStream(httpConnection.getInputStream(), httpConnection.getContentLength());
+						
+						assertThat(readFromStream, equalTo(""));
+						assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+						
+						// If there's no destination, the messenger is never created,
+						// and the listener shouldn't be called.
+						assertThat(stubMessengerEventListener.wasListenerCalled(), is(false));
+					}
+		}); 
+	}
 
 	private void connect(final String restOfURL, final HttpConnectionTestBody body) throws IOException,
 		ProtocolException, URISyntaxException, InterruptedException {
