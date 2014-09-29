@@ -185,6 +185,12 @@ public class CharacteriseHttpMessageReceiverTest {
 			oneOf(mockEndpointService).addMessageTransport(httpMessageReceiver); will(returnValue(stubMessengerEventListener));
 		}});
 
+		// Expectations of HttpMesssageServlet's init
+		mockContext.checking(new Expectations() {{
+			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
+			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
+		}});
 		
 		LOG.info("Starting HttpMessageReceiver");
 		httpMessageReceiver.start();
@@ -215,12 +221,6 @@ public class CharacteriseHttpMessageReceiverTest {
 	@Test(timeout = 3000)
 	public void httpMessageServletCanBePinged() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// No Message and no Requestor defined.
-		
-		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
-		}});
 
 		connect("", new HttpConnectionTestBody() {
 			public void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException {
@@ -246,9 +246,6 @@ public class CharacteriseHttpMessageReceiverTest {
 		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
 		
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -282,9 +279,6 @@ public class CharacteriseHttpMessageReceiverTest {
 		message.addMessageElement(new StringMessageElement("myname", "mymessage", null));
 
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -322,9 +316,6 @@ public class CharacteriseHttpMessageReceiverTest {
 		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
 		
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -363,9 +354,6 @@ public class CharacteriseHttpMessageReceiverTest {
 		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
 		
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -410,9 +398,6 @@ public class CharacteriseHttpMessageReceiverTest {
 		message.addMessageElement(new StringMessageElement("myname", "mymessage", null));
 
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			oneOf(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			
 			// The endpoint service is given the deserialised message. 
