@@ -335,13 +335,7 @@ public class CharacteriseHttpMessageReceiverTest {
 		// (around line 290). We want to reply with this message...
 		final Message replyMessage = new Message();
 		replyMessage.addMessageElement(new StringMessageElement("anothername", "replymessage", null));
-
-		LOG.info(">> The reply message is...");
-		final Iterator<String> msgit = MessageUtil.messageStatsIterator(replyMessage, true);
-		while (msgit.hasNext()) {
-			LOG.info(">>  " + msgit.next());
-		}
-		LOG.info(">> The reply message is...");
+		dumpMessage("reply", replyMessage);
 
 		stubMessengerEventListener.replyWith(replyMessage);
 
@@ -352,12 +346,7 @@ public class CharacteriseHttpMessageReceiverTest {
 				Thread.sleep(3000);
 				
 				final Message incomingMessage = WireFormatMessageFactory.fromWireExternal(httpConnection.getInputStream(), WireFormatMessageFactory.DEFAULT_WIRE_MIME, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
-                LOG.debug("<< Incoming reply message is...");
-        		Iterator<String> msgit = MessageUtil.messageStatsIterator(incomingMessage, true);
-        		while (msgit.hasNext()) {
-        			LOG.debug("<<  " + msgit.next());
-        		}
-                LOG.debug("<< Incoming reply message is...");
+				dumpMessage("incoming reply", incomingMessage);
                 
 				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
 				assertThat(incomingMessage, equalTo(replyMessage));
@@ -387,13 +376,7 @@ public class CharacteriseHttpMessageReceiverTest {
 		// (around line 290). We want to reply with this message...
 		final Message replyMessage = new Message();
 		replyMessage.addMessageElement(new StringMessageElement("anothername", "replymessage", null));
-
-		LOG.info(">> The reply message is...");
-		final Iterator<String> msgit = MessageUtil.messageStatsIterator(replyMessage, true);
-		while (msgit.hasNext()) {
-			LOG.info(">>  " + msgit.next());
-		}
-		LOG.info(">> The reply message is...");
+		dumpMessage("reply", replyMessage);
 
 		stubMessengerEventListener.replyWith(replyMessage);
 
@@ -406,12 +389,7 @@ public class CharacteriseHttpMessageReceiverTest {
 				Thread.sleep(3000);
 				
 				final Message incomingMessage = WireFormatMessageFactory.fromWireExternal(httpConnection.getInputStream(), WireFormatMessageFactory.DEFAULT_WIRE_MIME, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
-                LOG.debug("<< Incoming reply message is...");
-        		Iterator<String> msgit = MessageUtil.messageStatsIterator(incomingMessage, true);
-        		while (msgit.hasNext()) {
-        			LOG.debug("<<  " + msgit.next());
-        		}
-                LOG.debug("<< Incoming reply message is...");
+				dumpMessage("incoming reply", incomingMessage);
                 
 				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
 				assertThat(incomingMessage, equalTo(replyMessage));
@@ -466,6 +444,15 @@ public class CharacteriseHttpMessageReceiverTest {
 						assertThat(stubMessengerEventListener.wasListenerCalled(), is(false));
 					}
 		}); 
+	}
+
+	private void dumpMessage(final String description, final Message message) {
+		LOG.info(">> The " + description + " message is...");
+		final Iterator<String> msgit = MessageUtil.messageStatsIterator(message, true);
+		while (msgit.hasNext()) {
+			LOG.info("||  " + msgit.next());
+		}
+		LOG.info("<< The " + description + " message was.");
 	}
 
 	private void connect(final String restOfURL, final HttpConnectionTestBody body) throws IOException,
