@@ -365,7 +365,61 @@ public class CharacteriseHttpMessageReceiverTest {
 			}
 		}); 
 	}
-	
+
+	@Test(timeout = 8000)
+	public void httpMessageServletCanBePolledWithReplyContentLengthSet() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
+		// Requestor defined, positive response timeout and destination address.
+		
+		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
+		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
+		
+		mockContext.checking(new Expectations() {{
+			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
+			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
+			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
+			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
+		}});
+
+		// The StubMessengerEventListener will be called, and claim the messenger as taken
+		// then we can get the messenger that was created by HttpMessageServer::processRequest
+		// (around line 290). We want to reply with this message...
+		final Message replyMessage = new Message();
+		replyMessage.addMessageElement(new StringMessageElement("anothername", "replymessage", null));
+
+		LOG.info(">> The reply message is...");
+		final Iterator<String> msgit = MessageUtil.messageStatsIterator(replyMessage, true);
+		while (msgit.hasNext()) {
+			LOG.info(">>  " + msgit.next());
+		}
+		LOG.info(">> The reply message is...");
+
+		stubMessengerEventListener.replyWith(replyMessage);
+
+		// Using a negative extra responses timeout causes the content length
+		// to be set in the response, rather than using chunked encoding.
+		connect(requestorPeerId.toString() + "?4000,-1000," + destinationAddress,
+				new HttpConnectionTestBody() {			
+			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException, InterruptedException {
+				LOG.debug("Reading from http connection input stream in 3s... ");
+				Thread.sleep(3000);
+				
+				final Message incomingMessage = WireFormatMessageFactory.fromWireExternal(httpConnection.getInputStream(), WireFormatMessageFactory.DEFAULT_WIRE_MIME, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
+                LOG.debug("<< Incoming reply message is...");
+        		Iterator<String> msgit = MessageUtil.messageStatsIterator(incomingMessage, true);
+        		while (msgit.hasNext()) {
+        			LOG.debug("<<  " + msgit.next());
+        		}
+                LOG.debug("<< Incoming reply message is...");
+                
+				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+				assertThat(incomingMessage, equalTo(replyMessage));
+				assertThat(stubMessengerEventListener.wasListenerCalled(), is(true));
+			}
+		}); 
+	}
+
 	@Test(timeout = 3000)
 	public void httpMessageServletCanBeSentToWithDestinationAddress() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout or no destination address.
