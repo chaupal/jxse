@@ -68,7 +68,7 @@ import java.lang.reflect.UndeclaredThrowableException;
  * This class is an implementation of the StructuredDocument interface using
  * a simplified XML implementation.
  */
-public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteXMLElement> {
+public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteXMLElement>, Serializable {
 
     /**
      * {@inheritDoc}
@@ -89,7 +89,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         private static final ExtensionMapping[] myExtensions = {
             new ExtensionMapping("xml", myTypes[0]), 
             new ExtensionMapping("xml", (MimeMediaType) null) 
-        };
+        };  
 
         /**
          * Creates new LiteXMLDocumentInstantiator
@@ -137,7 +137,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
             return new LiteXMLDocument(mimeType, source);
         }
-    }
+    }   
 
     /**
      * The instantiator for instances of our documents.

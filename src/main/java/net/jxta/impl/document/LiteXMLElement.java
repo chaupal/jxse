@@ -62,6 +62,7 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,14 +76,14 @@ import java.util.List;
  * while makes use of XML-style document conventions, but without the overhead of a
  * full parser.
  */
-public class LiteXMLElement implements XMLElement<LiteXMLElement> {
+public class LiteXMLElement implements XMLElement<LiteXMLElement>, Serializable {
 
     /**
      * Defines a range of characters, probably within a string. The range is
      * deemed to be invalid if 'start' is -1.  A zero length range is, by
      * convention, described by an 'end' value of 'start' - 1.
      */
-    protected static class charRange implements Comparable<charRange> {
+    protected static class charRange implements Comparable<charRange>, Serializable {
 
         /**
          * Contains the start position of this range.
@@ -236,7 +237,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * <p/>For empty-element tags the <code>startTag</code>, <code>body</code>
      * and <code>endTag</code> will be equal.
      */
-    protected static class tagRange implements Comparable<tagRange> {
+    protected static class tagRange implements Comparable<tagRange>, Serializable {
         public charRange startTag;
         public charRange body;
         public charRange endTag;
@@ -345,12 +346,12 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * perform a consistency check. This is a deadly performance killer but
      * helps a lot in isolating bugs.
      */
-    protected final static transient boolean paranoidConsistencyChecking = false;
+    protected final static boolean paranoidConsistencyChecking = false;
 
     /**
      * The document associated with this Element.
      */
-    protected final transient LiteXMLDocument doc;
+    protected final LiteXMLDocument doc;
 
     /**
      * Identifies the element which is the parent of this element. If <code>
@@ -358,23 +359,23 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * If <code>null == parent</code> then this element has not yet been
      * inserted into the document.
      */
-    protected transient LiteXMLElement parent;
+    protected LiteXMLElement parent;
 
     /**
      * The portion of the source XML associated with this node
      */
-    protected transient tagRange loc;
+    protected tagRange loc;
 
     /**
      * If this node has yet to be inserted into the document then will contain
      * the String value of this node, otherwise null.
      */
-    private transient StringBuilder uninserted = null;
+    private StringBuilder uninserted = null;
 
     /**
      * The child elements associated with this element
      */
-    private transient List<LiteXMLElement> children;
+    private List<LiteXMLElement> children;
 
     /**
      * Creates new LiteXMLElement

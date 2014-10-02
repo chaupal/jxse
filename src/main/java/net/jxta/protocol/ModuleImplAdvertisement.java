@@ -56,6 +56,7 @@
 
 package net.jxta.protocol;
 
+import java.io.Serializable;
 import net.jxta.document.Element;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.document.MimeMediaType;
@@ -87,7 +88,7 @@ import net.jxta.platform.ModuleSpecID;
  * @see net.jxta.protocol.ModuleSpecAdvertisement
  * @see net.jxta.peergroup.PeerGroup
  */
-public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement implements Cloneable {
+public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement implements Cloneable, Serializable {
 
     private ModuleSpecID msid = null;
     private StructuredDocument description = null;

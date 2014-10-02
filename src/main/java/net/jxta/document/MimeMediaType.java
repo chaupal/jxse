@@ -188,7 +188,7 @@ public class MimeMediaType implements Serializable {
     /**
      * manages a media type parameter.
      */
-    private static class parameter implements Comparable<parameter> {
+    private static class parameter implements Comparable<parameter>, Serializable {
 
         /**
          * Attribute name.
