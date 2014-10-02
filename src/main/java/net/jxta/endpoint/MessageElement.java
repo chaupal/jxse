@@ -228,7 +228,7 @@ public abstract class MessageElement implements Document {
         if (target instanceof MessageElement) {
             MessageElement likeMe = (MessageElement) target;
 
-            // sig is nullable so test seperatly.
+            // sig is nullable so test separately.
             boolean sigequals = (null != sig) ? sig.equals(likeMe.sig) : (null == likeMe.sig);
 
             return sigequals && name.equals(likeMe.name) && type.equalsIngoringParams(likeMe.type);

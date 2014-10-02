@@ -55,6 +55,19 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -68,19 +81,6 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
 
 /**
  *  This is a simple servlet that accepts JXTA Messages from clients using HTTP
@@ -380,7 +380,7 @@ public class HttpMessageServlet extends HttpServlet {
             // Check if the back channel is to be used for sending messages.
             if ((currentRequest.responseTimeout >= 0) && (null != messenger)) {
 
-                Logging.logCheckedDebug(LOG, "Wait for message from the messenger. timeout = ", currentRequest.responseTimeout);
+                Logging.logCheckedDebug(LOG, "Wait for message from the messenger. timeout = ", currentRequest.responseTimeout, " destroyed = ", destroyed);
 
                 long quitAt = (currentRequest.responseTimeout == 0)
                         ? Long.MAX_VALUE

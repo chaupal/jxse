@@ -3,7 +3,6 @@ package net.jxta.impl.endpoint.servlethttp;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -37,6 +37,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
+import net.jxta.test.util.MessageUtil;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -45,7 +46,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -98,32 +98,55 @@ public class CharacteriseHttpMessageReceiverTest {
 		System.setProperty(CBJX_SYSTEM_PROPERTY, "" + initialCbjxDisable);
 	}
 	
-	private class StubMessengerEventListener implements MessengerEventListener {
-		private MessengerEvent event;
+	private class StubMessengerEventListener implements MessengerEventListener, Runnable {
+		private Object lock = new Object();
+		private MessengerEvent event = null;
 		private Message replyMessage;
-
-		public MessengerEvent getEvent() {
-			return event;
-		}
+		private volatile boolean startThread = false;
 
 		public boolean messengerReady(final MessengerEvent event) {
 			LOG.info("StubMessengerEventListener called with " + event);
      		// we need to stash this so that the test can get the messenger
-			this.event = event;
-			if (replyMessage != null) {
-				try {
-					LOG.info("StubMessengerEventListener replying with " + replyMessage);
-					event.getMessenger().sendMessage(replyMessage);
-				} catch (final IOException e) {
-					LOG.warn("StubMessengerEventListener could not send", e);
-				}
+			synchronized(lock) {
+				this.event = event;
+			}
+			if (startThread) {
+				LOG.info("StubMessengerEventListener creating thread...");
+				new Thread(this).start();
 				return true; // to indicate that this messenger is 'taken'
 			}
 			return false;
 		}
 
+		public boolean wasListenerCalled() {
+			synchronized(lock) {
+				return event != null;
+			}
+		}
+		
 		public void replyWith(final Message replyMessage) {
-			this.replyMessage = replyMessage;
+			synchronized(lock) {
+				this.replyMessage = replyMessage;
+				startThread = (replyMessage != null);
+			}
+		}
+
+		public void run() {
+			LOG.info("StubMessengerEventListener reply thread starting");
+			try {
+				Thread.sleep(500);
+				LOG.info("StubMessengerEventListener out of sleep, locking...");
+				synchronized(lock) {									
+					LOG.info("StubMessengerEventListener acquired lock, replying with " + replyMessage);
+					event.getMessenger().sendMessage(replyMessage);
+					LOG.info("StubMessengerEventListener replied");
+				}
+			} catch (final IOException e) {
+				LOG.warn("StubMessengerEventListener thread could not send", e);
+			} catch (final InterruptedException e) {
+				LOG.warn("StubMessengerEventListener thread interrupted", e);
+			}
+			LOG.info("StubMessengerEventListener reply thread finished");
 		}
 	}
 	
@@ -162,6 +185,12 @@ public class CharacteriseHttpMessageReceiverTest {
 			oneOf(mockEndpointService).addMessageTransport(httpMessageReceiver); will(returnValue(stubMessengerEventListener));
 		}});
 
+		// Expectations of HttpMesssageServlet's init
+		mockContext.checking(new Expectations() {{
+			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
+			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
+		}});
 		
 		LOG.info("Starting HttpMessageReceiver");
 		httpMessageReceiver.start();
@@ -186,18 +215,12 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	private interface HttpConnectionTestBody {
-		void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException;
+		void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException, InterruptedException;
 	}
 	
 	@Test(timeout = 3000)
-	public void httpMessageServletCanBePinged() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePinged() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// No Message and no Requestor defined.
-		
-		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
-		}});
 
 		connect("", new HttpConnectionTestBody() {
 			public void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException {
@@ -216,16 +239,13 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	@Test(timeout = 3000)
-	public void httpMessageServletCanBePolledWithEmptyMessageAndNoReplyMessenger() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePolledWithEmptyMessageAndNoReplyMessenger() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout and destination address.
 
 		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
 		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
 		
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -247,7 +267,7 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	@Test(timeout = 3000)
-	public void httpMessageServletCanBePolledWithMessageThatsDeliveredToEndpointService() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePolledWithMessageThatsDeliveredToEndpointService() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout and destination address.
 		
 		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
@@ -259,9 +279,6 @@ public class CharacteriseHttpMessageReceiverTest {
 		message.addMessageElement(new StringMessageElement("myname", "mymessage", null));
 
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -292,17 +309,13 @@ public class CharacteriseHttpMessageReceiverTest {
 	}
 
 	@Test(timeout = 8000)
-	@Ignore // until I can get it working...
-	public void httpMessageServletCanBePolledWithReply() throws PeerGroupException, IOException, URISyntaxException {
+	public void httpMessageServletCanBePolledWithReply() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
 		// Requestor defined, positive response timeout and destination address.
 		
 		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
 		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
 		
 		mockContext.checking(new Expectations() {{
-			oneOf(mockServletHttpContext).getEndpointService(); will(returnValue(mockEndpointService));
-			oneOf(mockEndpointService).getGroup(); will(returnValue(mockPeerGroup));
-			oneOf(mockPeerGroup).getPeerID(); will(returnValue(assignedPeerId));
 			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
@@ -313,33 +326,122 @@ public class CharacteriseHttpMessageReceiverTest {
 		// (around line 290). We want to reply with this message...
 		final Message replyMessage = new Message();
 		replyMessage.addMessageElement(new StringMessageElement("anothername", "replymessage", null));
+		dumpMessage("reply", replyMessage);
+
 		stubMessengerEventListener.replyWith(replyMessage);
 
 		connect(requestorPeerId.toString() + "?4000,1000," + destinationAddress,
 				new HttpConnectionTestBody() {			
-			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException {
-				LOG.debug("reading from http connection input stream... in 3s");
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				LOG.debug("reading from http connection input stream... ");
-				final String readFromStream = readFromStream(httpConnection.getInputStream(), httpConnection.getContentLength());
-				assertThat(readFromStream, equalTo(""));
-				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException, InterruptedException {
+				LOG.debug("Reading from http connection input stream in 3s... ");
+				Thread.sleep(3000);
 				
-				// TODO The main aim of this test - that I can't get working...
-				// Now we should deserialise the input stream into a message,
-				// and compare it against replyMessage, above.
+				final Message incomingMessage = WireFormatMessageFactory.fromWireExternal(httpConnection.getInputStream(), WireFormatMessageFactory.DEFAULT_WIRE_MIME, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
+				dumpMessage("incoming reply", incomingMessage);
+                
+				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+				assertThat(incomingMessage, equalTo(replyMessage));
+				assertThat(stubMessengerEventListener.wasListenerCalled(), is(true));
 			}
 		}); 
 	}
-	
-	// TODO also need send test - as the poll, but with no destination address.
-	
+
+	@Test(timeout = 8000)
+	public void httpMessageServletCanBePolledWithReplyContentLengthSet() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
+		// Requestor defined, positive response timeout and destination address.
+		
+		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
+		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
+		
+		mockContext.checking(new Expectations() {{
+			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
+			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
+		}});
+
+		// The StubMessengerEventListener will be called, and claim the messenger as taken
+		// then we can get the messenger that was created by HttpMessageServer::processRequest
+		// (around line 290). We want to reply with this message...
+		final Message replyMessage = new Message();
+		replyMessage.addMessageElement(new StringMessageElement("anothername", "replymessage", null));
+		dumpMessage("reply", replyMessage);
+
+		stubMessengerEventListener.replyWith(replyMessage);
+
+		// Using a negative extra responses timeout causes the content length
+		// to be set in the response, rather than using chunked encoding.
+		connect(requestorPeerId.toString() + "?4000,-1000," + destinationAddress,
+				new HttpConnectionTestBody() {			
+			public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException, InterruptedException {
+				LOG.debug("Reading from http connection input stream in 3s... ");
+				Thread.sleep(3000);
+				
+				final Message incomingMessage = WireFormatMessageFactory.fromWireExternal(httpConnection.getInputStream(), WireFormatMessageFactory.DEFAULT_WIRE_MIME, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
+				dumpMessage("incoming reply", incomingMessage);
+                
+				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+				assertThat(incomingMessage, equalTo(replyMessage));
+				assertThat(stubMessengerEventListener.wasListenerCalled(), is(true));
+			}
+		}); 
+	}
+
+	@Test(timeout = 3000)
+	public void httpMessageServletCanBeSentToWithDestinationAddress() throws PeerGroupException, IOException, URISyntaxException, InterruptedException {
+		// Requestor defined, positive response timeout or no destination address.
+
+		final PeerID requestorPeerId = IDFactory.newPeerID(assignedPeerGroupId);
+		
+		// Going to send a message that'll be serialised, sent over HTTP, received,
+		// deserialised, and then passed to the endpoint service.
+		final Message message = new Message();
+		message.addMessageElement(new StringMessageElement("myname", "mymessage", null));
+
+		mockContext.checking(new Expectations() {{
+			oneOf(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
+			
+			// The endpoint service is given the deserialised message. 
+			oneOf(mockEndpointService).processIncomingMessage(with(equalTo(message)));
+		}});
+
+		connect(requestorPeerId.toString() + "?500", // no destination => no messenger
+				// Prepare the request....
+				new HttpConnectionTestBody() {
+					public void apply(HttpURLConnection httpConnection) throws IOException, URISyntaxException {
+						final WireFormatMessage wireExternal = WireFormatMessageFactory.toWireExternal(message, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null, null);
+						httpConnection.addRequestProperty("content-length", "" + wireExternal.getByteLength());
+						httpConnection.addRequestProperty("content-type", WireFormatMessageFactory.DEFAULT_WIRE_MIME.getMimeMediaType());
+						httpConnection.setDoOutput(true);
+						wireExternal.sendToStream(httpConnection.getOutputStream());
+					}			
+				},
+
+				// Check the response....
+				new HttpConnectionTestBody() {			
+					public void apply(final HttpURLConnection httpConnection) throws IOException, URISyntaxException {
+						final String readFromStream = readFromStream(httpConnection.getInputStream(), httpConnection.getContentLength());
+						
+						assertThat(readFromStream, equalTo(""));
+						assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
+						
+						// If there's no destination, the messenger is never created,
+						// and the listener shouldn't be called.
+						assertThat(stubMessengerEventListener.wasListenerCalled(), is(false));
+					}
+		}); 
+	}
+
+	private void dumpMessage(final String description, final Message message) {
+		LOG.info(">> The " + description + " message is...");
+		final Iterator<String> msgit = MessageUtil.messageStatsIterator(message, true);
+		while (msgit.hasNext()) {
+			LOG.info("||  " + msgit.next());
+		}
+		LOG.info("<< The " + description + " message was.");
+	}
+
 	private void connect(final String restOfURL, final HttpConnectionTestBody body) throws IOException,
-	ProtocolException, URISyntaxException {
+		ProtocolException, URISyntaxException, InterruptedException {
 		connect(restOfURL, null, body);
 	}
 	
@@ -347,7 +449,7 @@ public class CharacteriseHttpMessageReceiverTest {
 			final String restOfURL,
 			final HttpConnectionTestBody prepare, 
 			final HttpConnectionTestBody check) throws IOException,
-			ProtocolException, URISyntaxException {
+			ProtocolException, URISyntaxException, InterruptedException {
 		// TODO if connected to a real network, getLocalHost gives real IP address. If
 		// trying to use localhost here, connection fails... how can I force JXTA to
 		// only use localhost (that should be sufficient for these tests?)
