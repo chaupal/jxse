@@ -431,6 +431,8 @@ public class CharacteriseHttpMessageReceiverTest {
 		}); 
 	}
 
+    // TODO Need tests for the support for downloading midlets.
+	
 	private void dumpMessage(final String description, final Message message) {
 		LOG.info(">> The " + description + " message is...");
 		final Iterator<String> msgit = MessageUtil.messageStatsIterator(message, true);
