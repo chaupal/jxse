@@ -55,37 +55,35 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.MessageReceiver;
-import net.jxta.endpoint.MessengerEvent;
-import net.jxta.endpoint.MessengerEventListener;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.impl.peergroup.GenericPeerGroup;
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.logging.Logger;
-import net.jxta.logging.Logging;
-import net.jxta.platform.IJxtaLoader;
-
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpServer;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.handler.ResourceHandler;
-import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.util.InetAddrPort;
-import org.mortbay.util.Log;
-import org.mortbay.util.LoggerLogSink;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.MessageReceiver;
+import net.jxta.endpoint.MessengerEvent;
+import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
+import net.jxta.logging.Logging;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
 
 /**
  * Simple Message Receiver for server side.
@@ -133,9 +131,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      *  The Jetty HTTP Server instance.
      */
-    private final HttpServer server;
-    private final ServletHandler handler;
-    private final SocketListener listener;
+    private final Server server;
 
     /**
      * The listener to invoke when making an incoming messenger.
@@ -167,85 +163,55 @@ class HttpMessageReceiver implements MessageReceiver {
 
         }
 
-        // Configure Jetty Logging
-        // LOGGING: was Finer
-        if (!(Logging.SHOW_DEBUG && LOG.isDebugEnabled())) {
-            Log.instance().disableLog();
-        }
+        // Initialize the Jetty HTTP Server
+        InetSocketAddress addrPort = new InetSocketAddress(useInterface, port);
+        server = new Server(addrPort);
 
-        // Setup the logger to match the rest of JXTA unless explicitly configured.
-        // "LOG_CLASSES" is a Jetty thing.
-        // MJG: Unsure how to get this working with our logging abstraction -
-        // jetty seems fixated on JUL loggers, which are classes not interfaces,
-        // so cannot be adapted...
-        if (System.getProperty("LOG_CLASSES") == null) {
-            LoggerLogSink logSink = new LoggerLogSink();
-            java.util.logging.Logger jettyLogger = java.util.logging.Logger.getLogger(org.mortbay.http.HttpServer.class.getName());
+        // Jetty 8 doesn't initialise its own thread pool, so do that here:
+        server.setThreadPool(new QueuedThreadPool());
+        // Jetty 9 does initialise a QueuedThreadPool for us, so we wouldn't need to create one above.
 
-            logSink.setLogger(jettyLogger);
+        final QueuedThreadPool threadPool = (QueuedThreadPool) server.getThreadPool();
+        threadPool.setMinThreads(MIN_LISTENER_THREADS);
+        threadPool.setMaxThreads(MAX_LISTENER_THREADS);
+        // Jetty 8:
+        threadPool.setMaxIdleTimeMs((int) MAX_THREAD_IDLE_DURATION);
+        // Jetty 9:
+        // threadPool.setIdleTimeout((int) MAX_THREAD_IDLE_DURATION); 
 
-            try {
-
-                logSink.start();
-                Log.instance().add(logSink);
-
-            } catch (Exception ex) {
-
-                Logging.logCheckedError(LOG, "Could not configure LoggerLogSink");
-
-            }
-        }
-
-        // SPT - these methods call log internally.  If they are called before we add our JUL as a logSink (above)
-        //       then a default STDERR logSink will also be added as default: org.mortbay.util.OutputStreamLogSink
-        // LOGGING: was Finer
-        org.mortbay.util.Code.setDebug(Logging.SHOW_DEBUG && LOG.isDebugEnabled());
-        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isWarnEnabled()));
-        // LOGGING: was Finer
-        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_DEBUG && LOG.isDebugEnabled()));
-
-        // Initialize the Jetty HttpServer
-        server = new HttpServer();
-
-        // Create the listener and attach it to server.
-        InetAddrPort addrPort = new InetAddrPort(useInterface, port);
-
-        listener = new SocketListener(addrPort);
-
-        listener.setMinThreads(MIN_LISTENER_THREADS);
-        listener.setMaxThreads(MAX_LISTENER_THREADS);
-        listener.setMaxIdleTimeMs((int) MAX_THREAD_IDLE_DURATION);
-
-        server.addListener(listener);
-
-        // Create a context for the handlers at the root, then add servlet
-        // handler for the specified servlet class and add it to the context
-        HttpContext handlerContext = server.getContext("/");
-
-        handler = new ServletHandler();
-
-        handler.setUsingCookies(false);
-        handler.initialize(handlerContext);
-
-		handlerContext.setClassLoader(classLoader);
-        handlerContext.addHandler(handler);
-
+        final HandlerCollection handlers = new HandlerCollection();
+        
+        // Create a context/servlet handler at the root for the specified
+        // servlet class and add it to the list of handlers the server manages.
+        final ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setContextPath("/");
+        servletContextHandler.setClassLoader(classLoader);
+        servletContextHandler.setHandler(new ServletHandler());
+        servletContextHandler.addServlet(HttpMessageServlet.class.getName(), MSG_RECEIVER_RELATIVE_URI);
+        // TODO need to set cookies false
+        servletContextHandler.setAttribute("HttpMessageReceiver", this);
+        
+        handlers.addHandler(servletContextHandler);
+        
         // Set up support for downloading midlets.
+        // TODO need a test for midlet downloading
         if (System.getProperty("net.jxta.http.allowdownload") != null) {
-            HttpContext context = server.addContext("/midlets/*");
+        	final ServletContextHandler resourceContextHandler = new ServletContextHandler();
+        	resourceContextHandler.setContextPath("/midlets/*");
+        	resourceContextHandler.setResourceBase("./midlets/");
+        	resourceContextHandler.setHandler(new ResourceHandler());
+        	
+        	handlers.addHandler(resourceContextHandler);
 
-            context.setResourceBase("./midlets/");
-            // context.setDirAllowed(false);
+        	// MJG these were commented out... not sure about them....
+        	// context.setDirAllowed(false);
             // context.setServingResources(true);
 
             // String methods[] = {"GET"};
-            ResourceHandler resHandler = new ResourceHandler();
-
             // resHandler.setAllowedMethods(methods);
-            context.addHandler(resHandler);
         }
-
-        handler.addServlet(MSG_RECEIVER_RELATIVE_URI, HttpMessageServlet.class.getName());
+        
+        server.setHandler(handlers);
     }
 
     synchronized void start() throws PeerGroupException {
@@ -253,7 +219,6 @@ class HttpMessageReceiver implements MessageReceiver {
         try {
 
             server.start();
-            handler.getServletContext().setAttribute("HttpMessageReceiver", this);
 
         } catch (Exception e) {
 
@@ -285,6 +250,10 @@ class HttpMessageReceiver implements MessageReceiver {
         } catch (InterruptedException e) {
 
             Logging.logCheckedError(LOG, "Interrupted during stop()\n", e);
+
+        } catch (Exception e) {
+
+            Logging.logCheckedError(LOG, "Exception during stop()\n", e);
 
         }
 
