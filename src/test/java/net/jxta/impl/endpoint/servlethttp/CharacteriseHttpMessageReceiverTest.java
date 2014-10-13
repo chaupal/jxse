@@ -1,7 +1,7 @@
 package net.jxta.impl.endpoint.servlethttp;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
@@ -85,7 +85,7 @@ public class CharacteriseHttpMessageReceiverTest {
 		System.setProperty("net.jxta.logging.Logging", java.util.logging.Level.ALL.getName());
 		BasicConfigurator.configure();
 		LOG = Logging.getLogger(CharacteriseHttpMessageReceiverTest.class);
-		org.apache.log4j.Logger.getLogger(HttpMessageReceiver.class).setLevel(Level.ALL);
+		//org.apache.log4j.Logger.getLogger(HttpMessageReceiver.class).setLevel(Level.ALL);
 		
 		// I don't know what CBJX is, but it complicates message serialisation, so
 		// disable it.

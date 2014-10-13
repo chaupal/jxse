@@ -52,7 +52,8 @@ public class JxseConfigurationToolTest {
 
         // Need to create separate temp dir, or residual config files will/may
         // be read and break this test
-        File ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager");
+        File ToBeDeleted = null;
+			ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager");
         ToBeDeleted.mkdirs();
         assertTrue(ToBeDeleted.exists());
 
@@ -126,7 +127,8 @@ public class JxseConfigurationToolTest {
 
         // Need to create separate temp dir, or residual config files will/may
         // be read and break this test
-        File ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager2");
+        File ToBeDeleted = null;
+			ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager2");
         ToBeDeleted.mkdirs();
         assertTrue(ToBeDeleted.exists());
 
