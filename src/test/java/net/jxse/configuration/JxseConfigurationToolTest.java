@@ -45,7 +45,7 @@ public class JxseConfigurationToolTest {
     }
 
     @Test
-    public void testGetConfiguredNetworkManager() {
+    public void testGetConfiguredNetworkManager() throws IOException {
 
         // Creating new valid peer configuration
         JxsePeerConfiguration JPC = new ValidJxsePeerConfiguration();
@@ -84,7 +84,7 @@ public class JxseConfigurationToolTest {
     }
 
     @Test
-    public void testGetConfiguredNetworkManager_2() {
+    public void testGetConfiguredNetworkManager_2() throws IOException {
 
         // Http config
         JxseHttpTransportConfiguration TempHttp = JxseHttpTransportConfiguration.getDefaultHttpTransportConfiguration();

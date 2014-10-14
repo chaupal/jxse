@@ -1,7 +1,6 @@
 package net.jxta.impl.endpoint.servlethttp;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
@@ -42,6 +41,7 @@ import net.jxta.test.util.MessageUtil;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -64,7 +64,9 @@ public class CharacteriseHttpMessageReceiverTest {
 	private static boolean initialCbjxDisable;
 	
     @Rule
-    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery() {{ 
+    	setThreadingPolicy(new Synchroniser());
+    }};
     
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -171,13 +173,13 @@ public class CharacteriseHttpMessageReceiverTest {
 		}});
 
 		LOG.info("Creating HttpMessageReceiver");
-		assertThat(portOpen(), is(false));
+		assertThat(portOpen(), equalTo(false));
 		httpMessageReceiver = new HttpMessageReceiver(
 				mockServletHttpContext, 
 				Arrays.asList(new EndpointAddress("urn:jxta:test#service/param")), 
 				InetAddress.getLocalHost(), port, 
 				Thread.currentThread().getContextClassLoader());
-		assertThat(portOpen(), is(false));
+		assertThat(portOpen(), equalTo(false));
 
 		// expectations of HttpMessageReceiver's start
 		mockContext.checking(new Expectations() {{
@@ -194,12 +196,12 @@ public class CharacteriseHttpMessageReceiverTest {
 		
 		LOG.info("Starting HttpMessageReceiver");
 		httpMessageReceiver.start();
-		assertThat(portOpen(), is(true));
+		assertThat(portOpen(), equalTo(true));
 	}
 
 	@After
 	public void tearDown() {
-		assertThat(portOpen(), is(true));		
+		assertThat(portOpen(), equalTo(true));		
 		LOG.info("Stopping HttpMessageReceiver");
 
 		// expectations of HttpMessageReceiver's stop
@@ -209,7 +211,7 @@ public class CharacteriseHttpMessageReceiverTest {
 		}});
 
 		httpMessageReceiver.stop();
-		assertThat(portOpen(), is(false));
+		assertThat(portOpen(), equalTo(false));
 		
         taskManager.shutdown();
 	}
@@ -341,7 +343,7 @@ public class CharacteriseHttpMessageReceiverTest {
                 
 				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
 				assertThat(incomingMessage, equalTo(replyMessage));
-				assertThat(stubMessengerEventListener.wasListenerCalled(), is(true));
+				assertThat(stubMessengerEventListener.wasListenerCalled(), equalTo(true));
 			}
 		}); 
 	}
@@ -381,7 +383,7 @@ public class CharacteriseHttpMessageReceiverTest {
                 
 				assertThat(httpConnection.getResponseCode(), equalTo(HttpURLConnection.HTTP_OK));
 				assertThat(incomingMessage, equalTo(replyMessage));
-				assertThat(stubMessengerEventListener.wasListenerCalled(), is(true));
+				assertThat(stubMessengerEventListener.wasListenerCalled(), equalTo(true));
 			}
 		}); 
 	}
@@ -426,7 +428,7 @@ public class CharacteriseHttpMessageReceiverTest {
 						
 						// If there's no destination, the messenger is never created,
 						// and the listener shouldn't be called.
-						assertThat(stubMessengerEventListener.wasListenerCalled(), is(false));
+						assertThat(stubMessengerEventListener.wasListenerCalled(), equalTo(false));
 					}
 		}); 
 	}
