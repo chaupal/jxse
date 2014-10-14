@@ -70,6 +70,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty.version>8.1.16.v20140903</jetty.version>
     </properties>
 
     <repositories>
@@ -243,11 +244,16 @@
               project's pom.xml if you want to use the parts of JXTA that depend on
               them.
           -->
-        <!-- TODO MJG replace the Jetty aggregate with a smaller set of dependencies -->
         <dependency>
-            <groupId>org.eclipse.jetty.aggregate</groupId>
-            <artifactId>jetty-all</artifactId>
-            <version>8.1.16.v20140903</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
             <optional>true</optional>
         </dependency>
         <!-- Jetty 9: upgrade to the
