@@ -184,11 +184,11 @@ class HttpMessageReceiver implements MessageReceiver {
         // Create a context/servlet handler at the root for the specified
         // servlet class and add it to the list of handlers the server manages.
         final ServletContextHandler servletContextHandler = new ServletContextHandler();
+        // By default, no session tracking (cookies) is used.
         servletContextHandler.setContextPath("/");
         servletContextHandler.setClassLoader(classLoader);
         servletContextHandler.setHandler(new ServletHandler());
         servletContextHandler.addServlet(HttpMessageServlet.class.getName(), MSG_RECEIVER_RELATIVE_URI);
-        // TODO need to set cookies false
         servletContextHandler.setAttribute("HttpMessageReceiver", this);
         
         handlers.addHandler(servletContextHandler);
@@ -214,7 +214,7 @@ class HttpMessageReceiver implements MessageReceiver {
         server.setHandler(handlers);
     }
 
-    synchronized void start() throws PeerGroupException {
+	synchronized void start() throws PeerGroupException {
 
         try {
 
