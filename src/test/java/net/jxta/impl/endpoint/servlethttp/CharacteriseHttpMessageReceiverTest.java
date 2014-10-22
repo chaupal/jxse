@@ -248,7 +248,7 @@ public class CharacteriseHttpMessageReceiverTest {
 		final EndpointAddress destinationAddress = new EndpointAddress("jxta://test/service/param");
 		
 		mockContext.checking(new Expectations() {{
-			atLeast(2).of(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
+			oneOf(mockServletHttpContext).getPeerGroup(); will(returnValue(mockPeerGroup));
 			oneOf(mockPeerGroup).getPeerGroupID(); will(returnValue(assignedPeerGroupId));
 			oneOf(mockPeerGroup).getTaskManager(); will(returnValue(taskManager));
 		}});

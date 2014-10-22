@@ -81,6 +81,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
 
 /**
  *  This is a simple servlet that accepts JXTA Messages from clients using HTTP
@@ -285,9 +286,9 @@ public class HttpMessageServlet extends HttpServlet {
                 messengerAliveFor = Math.max(currentRequest.responseTimeout, currentRequest.extraResponsesTimeout);
             }
 
-            // REVIEW MJG show don't tell...
-            messenger = new HttpServletMessenger(owner.getServletHttpTransport().getPeerGroup().getPeerGroupID(), 
-                                                 owner.getServletHttpTransport().getPeerGroup().getTaskManager(),
+            final PeerGroup peerGroup = owner.getServletHttpTransport().getPeerGroup();
+			messenger = new HttpServletMessenger(peerGroup.getPeerGroupID(), 
+			                                     peerGroup.getTaskManager(),
                                                  localAddress,
                                                  currentRequest.requestorAddr, 
                                                  messengerAliveFor);
