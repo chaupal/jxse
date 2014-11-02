@@ -306,6 +306,7 @@ public interface PeerGroup extends Service {
      * The global registry of Peer Group instances. Operations involving the
      * instantiation or orderly shutdown of Peer Groups should synchronize upon
      * this object.
+     * @return 
      */
 
     GlobalRegistry getGlobalRegistry();
@@ -413,7 +414,7 @@ public interface PeerGroup extends Service {
      * @param compat A compatibility statement.
      * @return {@code true} if the compatibility statement is compatible.
      */
-    public boolean compatible(Element<?> compat);
+    public boolean compatible(Element<?> compat);         
 
     /**
      * Load a Module from a ModuleImplAdv.

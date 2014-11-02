@@ -256,6 +256,9 @@ public class RefJxtaLoader extends JxtaLoader {
      * implementation with one exception - it attempts to load classes
      * via the thread's context class loader if all the normal sources
      * fail to load the requested class.
+     * 
+     * @return class
+     * @throws java.lang.ClassNotFoundException
      */
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
@@ -288,6 +291,7 @@ public class RefJxtaLoader extends JxtaLoader {
     /**
      * {@inheritDoc}
      * 
+     * @return class
      * @throws ClassNotFoundException if module cannot be loaded or if the
      *  class which is loaded is not a Module implementation
      */
@@ -311,7 +315,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
         // search through compats again.
         // if found, return it
-        // throw CNFE
+        // throw ClassNotFoundException
         result = searchCompats(spec);
         if (result != null) {
             return result;
@@ -326,6 +330,7 @@ public class RefJxtaLoader extends JxtaLoader {
     /**
      * {@inheritDoc}
      * 
+     * @return loaded class
      * @throws ClassNotFoundException if class cannot be found or if class
      *  is not a Module implementation
      */
@@ -336,60 +341,43 @@ public class RefJxtaLoader extends JxtaLoader {
          * ClassLoader.loadClass(String,boolean) method, but this time we
          * do so for Modules.  The only main difference is that we only
          * defer to our parent loader (since it is the only JxtaLoader).
-         */
-        // LOGGING: was Finest
+         */        
         Logging.logCheckedDebug(LOG, hashHex(), ": loadClass(MSID=", spec, ")");
-
-        // Try the parent JxtaLoader, if present
-        try {
-
+        
+        try {            
             ClassLoader parentLoader = getParent();
 
             if (parentLoader instanceof JxtaLoader) {
-
+                // Try the parent JxtaLoader, if present
                 IJxtaLoader jxtaLoader = (IJxtaLoader) parentLoader;
                 Class<? extends Module> result = jxtaLoader.loadClass(spec);
-
-                // LOGGING: was Finest
+                
                 Logging.logCheckedDebug(LOG, hashHex(), ": Parent found: ", result);
 
                 return result;
-
-            } else {
-
-                // LOGGING: was Finest
+            } else {                             
                 Logging.logCheckedDebug(LOG, hashHex(), ": No parent loader to try.");
-
             }
-        } catch (ClassNotFoundException cnfx) {
-
-        	// LOGGING: was Finer
-            Logging.logCheckedDebug(LOG, hashHex(), ": Parent could not load MSID: ", spec);
-            // Fall through
-
+        } catch (ClassNotFoundException cnfx) {        	
+            Logging.logCheckedDebug(LOG, hashHex(), ": Parent could not load MSID: ", spec);            
         }
  
         // Now try locally
         try {
-
             Class<?> found = findClass(spec);
-            // LOGGING: was Finest
+            
             Logging.logCheckedDebug(LOG, hashHex(), ": Self loaded: ", found);
-
+            
             return verifyAndCast(found);
-
-        } catch (ClassNotFoundException cnfx) {
-
-            // LOGGING: was Finest
-            Logging.logCheckedDebug(LOG, hashHex(), ": Self loader threw: ",
-                        cnfx.getClass(), ": ", cnfx.getMessage());
-
+        } catch (ClassNotFoundException cnfx) {            
+            Logging.logCheckedDebug(LOG, hashHex(), ": Self loader threw: ", cnfx.getClass(), ": ", cnfx.getMessage());
             throw(cnfx);
         }
     }
 
     /**
      * {@inheritDoc}
+     * @return 
      * @throws ClassFormatError if class cannot be found or if class is not
      *  a Module implementation
      */
@@ -410,27 +398,20 @@ public class RefJxtaLoader extends JxtaLoader {
         Class<? extends Module> loaded = compats.get(asString);
 
         if (null == loaded) {
-
             try {
-
+                
                 URI uri = URI.create(impl.getUri());
                 Class<?> clazz = loadClass(impl.getCode(), uri, false);
                 loaded = verifyAndCast(clazz);
-
-            } catch (IllegalArgumentException iax) {
-
-            	// LOGGING: was Finer
+                
+            } catch (IllegalArgumentException iax) {            	
+                
                 Logging.logCheckedDebug(LOG, ": Caught exception\n", iax);
-                throw new ClassFormatError("Class '" + impl.getCode()
-                        + "' could not be loaded from : " + impl.getUri());
-
+                throw new ClassFormatError("Class '" + impl.getCode() + "' could not be loaded from : " + impl.getUri());                
             } catch (ClassNotFoundException failed) {
-
-            	// LOGGING: was Finer
+            	
                 Logging.logCheckedDebug(LOG, hashHex(), ": Caught exception\n", failed);
-                throw new ClassFormatError("Class '" + impl.getCode()
-                        + "' could not be loaded from : " + impl.getUri());
-
+                throw new ClassFormatError("Class '" + impl.getCode() + "' could not be loaded from : " + impl.getUri());
             }
 
             // Remember the class along with the matching compatibility statement.
@@ -445,6 +426,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @SuppressWarnings("rawtypes")
 	@Override
@@ -486,6 +468,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
     /**
      * {@inheritDoc}
+     * @return Module implementation advertisement
      */
     @Override
     public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
@@ -513,6 +496,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public String toString() {

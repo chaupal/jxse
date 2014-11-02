@@ -573,5 +573,4 @@ public class LightWeightPeerGroup implements PeerGroup {
             throw new RuntimeException("No wrapped group initialised to delegate to");
         }
     }
-
 }

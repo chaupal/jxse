@@ -614,13 +614,22 @@ public abstract class GenericPeerGroup implements PeerGroup {
         // When we want to cut the service loose, we should clear the reference
         // from the interface that we own before letting it go. We need to study
         // the consequences of doing that before implementing it.
-    }
+    }       
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.ProtocolNotSupportedException
+     * @throws net.jxta.exception.PeerGroupException
      */
-    public Module loadModule(ID assigned, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException {
-        return loadModule(assigned, (ModuleImplAdvertisement) impl, false);
+    public Module loadModule(ID assignedID, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException {
+        return loadModule(assignedID, (ModuleImplAdvertisement) impl, false);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Module loadModule(ID assignedID, ModuleSpecID specID, int where) {
+        return loadModule(assignedID, specID, where, false);
     }
 
     /**
@@ -631,64 +640,59 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * In most cases the other loadModule() method should be preferred, since
      * unlike this one, it will seek many compatible implementation
      * advertisements and try them all until one works. The home group of the new
-     * module (its' parent group if the new Module is a group) will be this group.
+     * module (it's parent group if the new Module is a group) will be this group.
      *
      * @param assigned   Id to be assigned to that module (usually its ClassID).
      * @param implAdv    An implementation advertisement for that module.
      * @param privileged If {@code true} then the module is provided the true
-     *                   group obj instead of just an interface to the group object. This is
+     *                   group object instead of just an interface to the group object. This is
      *                   normally used only for the group's defined services and applications.
      * @return Module the module loaded and initialized.
      * @throws ProtocolNotSupportedException The module is incompatible.
      * @throws PeerGroupException            The module could not be loaded or initialized
      */
     protected Module loadModule(ID assigned, ModuleImplAdvertisement implAdv, boolean privileged) throws ProtocolNotSupportedException, PeerGroupException {
-
         Element compat = implAdv.getCompat();
 
-        if (null == compat)
+        if (null == compat) {
             throw new IllegalArgumentException("No compatibility statement for : " + assigned);
-
-        if (!compatible(compat)) {
-
-            Logging.logCheckedWarning(LOG, "Incompatible Module : ", assigned);
-            throw new ProtocolNotSupportedException("Incompatible Module : " + assigned);
-
         }
 
-        Module newMod = null;
+        if (!compatible(compat)) {
+            Logging.logCheckedWarning(LOG, "Incompatible Module : ", assigned);
+            throw new ProtocolNotSupportedException("Incompatible Module : " + assigned);
+        }
+
+        Module loadedModule = null;
 
         if ((null != implAdv.getCode()) && (null != implAdv.getUri())) {
             try {
                 // Good one. Try it.
-                Class<? extends Module> clazz;
+                Class<? extends Module> loadedModuleClass;
                 try {
-                    clazz = loader.loadClass(implAdv.getModuleSpecID());
-                } catch (ClassNotFoundException notLoaded) {
-                    clazz = loader.defineClass(implAdv);
+                    loadedModuleClass = loader.loadClass(implAdv.getModuleSpecID());
+                } catch (ClassNotFoundException exception) {
+                    loadedModuleClass = loader.defineClass(implAdv);
                 }
 
-                if (null == clazz) {
+                if (null == loadedModuleClass) {
                     throw new ClassNotFoundException("Cannot load class (" + implAdv.getCode() + ") : " + assigned);
                 }
 
-                newMod = clazz.newInstance();
-//                newMod.init(privileged ? this : getInterface(), assigned, implAdv);
-                newMod.init(this, assigned, implAdv);
+                loadedModule = loadedModuleClass.newInstance();
+                loadedModule.init(this, assigned, implAdv);
 
-                Logging.logCheckedInfo(LOG, "Loaded", (privileged ? " privileged" : ""),
-                    " module : ", implAdv.getDescription(), " (", implAdv.getCode(), ")");
-
-            } catch (Exception ex) {
-
-                // What happened?
+                Logging.logCheckedInfo(LOG, "Loaded", (privileged ? " privileged" : ""), " module : ", implAdv.getDescription(), " (", implAdv.getCode(), ")");
+            } catch (Exception ex) {                
                 Logging.logCheckedError(LOG,ex);
 
                 try {
-                    newMod.stopApp();
-                } catch (Throwable ignored) {
-                // If this does not work, nothing needs to be done.
+                    if (loadedModule != null) {
+                        loadedModule.stopApp();
+                    }
+                } catch (Throwable ignored) {                
                 }
+                
                 throw new PeerGroupException("Could not load module for : " + assigned + " (" + implAdv.getDescription() + ")", ex);
             }
         } else {
@@ -714,15 +718,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
 
         // If we reached this point we're done.
-        return newMod;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Module loadModule(ID assigned, ModuleSpecID specID, int where) {
-        return loadModule(assigned, specID, where, false);
-    }
+        return loadedModule;
+    }    
 
     /**
      * Load a module from a ModuleSpecID
