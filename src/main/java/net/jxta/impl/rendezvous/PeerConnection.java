@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.rendezvous;
 
-import net.jxta.discovery.DiscoveryService;
 import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.EndpointUtils;
@@ -67,7 +66,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 /**
  * Manages a connection with a remote client or a rendezvous peer.
