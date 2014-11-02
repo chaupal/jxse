@@ -109,7 +109,10 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     private String creator = null;
     private String uri = null;
     private String version = null;
+    
+    @Deprecated
     private PipeAdvertisement pipeAdv = null;
+    
     private ModuleSpecID proxySpecID = null;
     private ModuleSpecID authSpecID = null;
     private StructuredDocument param = null;
@@ -347,19 +350,34 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     }
 
     /**
-     * returns the embedded pipe advertisement if any.
-     *
-     * @return PipeAdvertisement the Pipe Advertisement. null if none exists.
-     **/
+    * returns the embedded pipe advertisement if any.
+    *
+    * @return PipeAdvertisement the Pipe Advertisement. null if none exists.    
+    * 
+    * @deprecated this method is subject for removal and will not be available for future releases. It brings circular dependency problem when initializing module.
+    * 
+    * Originally it was conceived to retrieve module specification via pipe. It brings a lot of confusion and should not be utilized.
+    * When initiating module, we need ModuleImplAdvertisement which is based on ModuleSpecAdvertisement which is based on PipeAdvertisement
+    * which is based on PeerGroup known only when module is initialized which requires ModuleImplAdvertisement is in place.
+    */     
+    @Deprecated
     public PipeAdvertisement getPipeAdvertisement() {
         return (pipeAdv == null ? null : pipeAdv.clone());
     }
 
     /**
-     * sets an embedded pipe advertisement.
-     *
-     * @param pipeAdv the Pipe Advertisement. null is authorized.
-     **/
+    * sets an embedded pipe advertisement.
+    *
+    * @param pipeAdv the Pipe Advertisement. null is authorized.
+    * 
+    * @deprecated this method is subject for removal and will not be available for future releases. It brings circular dependency problem when initializing module.
+    * 
+    * Originally it was conceived to retrieve module specification via pipe. It brings a lot of confusion and should not be utilized.
+    * When initiating module, we need ModuleImplAdvertisement which is based on ModuleSpecAdvertisement which is based on PipeAdvertisement
+    * which is based on PeerGroup known only when module is initialized which requires ModuleImplAdvertisement is in place.
+    * 
+    **/
+    @Deprecated
     public void setPipeAdvertisement(PipeAdvertisement pipeAdv) {
         this.pipeAdv = (pipeAdv == null ? null : pipeAdv.clone());
     }
