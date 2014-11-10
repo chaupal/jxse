@@ -66,5 +66,5 @@ public interface CompatibilityEquater {
      * @param test the element to test
      * @return boolean True if test is compatible with target.
      */
-    public boolean compatible(Element test);
+    public boolean compatible(Element<?> test);
 }
