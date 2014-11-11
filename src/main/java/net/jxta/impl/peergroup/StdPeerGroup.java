@@ -72,6 +72,7 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
+import net.jxta.exception.PeerGroupAuthenticationException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
@@ -689,7 +690,6 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         else
                         {
-
                             tempAuth.setAuth1_KeyStorePassword(membershipPassword);
                             tempAuth.setAuth2Identity(this.getPeerID());
                             tempAuth.setAuth3_IdentityPassword(membershipPassword);
@@ -708,9 +708,10 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 }
                             }
                             else
-                            {                                
-                                LOG.error("Failed to make PSE membership credential 'ready for join'");
-                                throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error=" + tempRes);
+                            {     
+                                String peerGroupName = this.getPeerGroupName();
+                                LOG.error("Failed to join the group: " + peerGroupName);
+                                throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
                             }
                         }
                     } else if ("EngineAuthentication".equals(membershipAuthenticationType)) {
@@ -729,7 +730,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         if (null == tempAuth)
                         {
-                            throw new PeerGroupException("Failed to get a EngineAuthentication for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                            throw new PeerGroupException("Failed to get a EngineAuthentication for this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
                         }
                         else
                         {
@@ -739,7 +740,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 tempMs.join(tempAuth);
                                 if (tempMs.getDefaultCredential() == null)
                                 {
-                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
                                 }
                                 else
                                 {
@@ -749,10 +750,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {
-                                LOG.error("Failed to make PSE membership credential 'ready for join'");
-                                throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
-//                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
-//                                System.exit(0);
+                                String peerGroupName = this.getPeerGroupName();
+                                LOG.error("Failed to join the group: " + peerGroupName);
+                                throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
                             }
                         }
                     } else if ("DialogAuthentication".equals(membershipAuthenticationType) || "InteractiveAuthentication".equals(membershipAuthenticationType)) {
@@ -771,18 +771,20 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         if (null == tempAuth)
                         {
-                            throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                            throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
                         }
                         else
                         {
                             char[] tempPass=null;
                             for(int attempt=0;attempt<3;attempt++)
                             {
-                                net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());
-                                tempPass=net.jxta.impl.util.Password.singleton().getPassword();
+                                net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());                                
+                                tempPass = net.jxta.impl.util.Password.singleton().getPassword();
+                                
                                 tempAuth.setAuth1_KeyStorePassword(tempPass);
                                 tempAuth.setAuth2Identity(this.getPeerID());
                                 tempAuth.setAuth3_IdentityPassword(tempPass);
+                                
                                 if(tempAuth.isReadyForJoin())
                                 {
                                     break;
@@ -798,7 +800,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 tempMs.join(tempAuth);
                                 if (tempMs.getDefaultCredential() == null)
                                 {
-                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
                                 }
                                 else
                                 {
@@ -808,10 +810,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {
-                                LOG.error("Failed to make PSE membership credential 'ready for join'");
-                                throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
-//                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
-//                                System.exit(0);
+                                String peerGroupName = this.getPeerGroupName();
+                                LOG.error("Failed to join the group: " + peerGroupName);
+                                throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
                             }
                         }
                     }
@@ -823,7 +824,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
             else
             {
-                throw new PeerGroupException("Failed to start peer group membership service for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
             }
         }
         
@@ -850,10 +851,10 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         loadAllModules(initServices, true);
 
-        int res = startModules((Map) initServices);
+        int result = startModules((Map) initServices);
 
-        if(Module.START_OK != res) {
-            throw new PeerGroupException("Failed to start peer group services. res : " + res);
+        if(Module.START_OK != result) {
+            throw new PeerGroupException("Failed to start peer group services. Result : " + result);
         }
 
         // Make sure all the required services are loaded.
@@ -895,6 +896,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * <p/>
      * Nothing special for now, but we might want to move some steps from
      * initFirst() in the future.
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     protected synchronized void initLast() throws PeerGroupException {
