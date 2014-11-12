@@ -88,6 +88,7 @@ import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
+import net.jxta.peergroup.ICachedPeerGroup;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.IJxtaLoader;
@@ -104,7 +105,7 @@ import net.jxta.service.Service;
  * A subclass of GenericPeerGroup that makes a peer group out of independent
  * plugin services listed in its impl advertisement.
  */
-public class StdPeerGroup extends GenericPeerGroup implements ICachedpeerGroup{
+public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 
     private final static transient Logger LOG = Logging.getLogger(StdPeerGroup.class.getName());
 

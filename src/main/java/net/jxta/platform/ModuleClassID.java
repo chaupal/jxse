@@ -120,8 +120,9 @@ import java.net.URI;
  *
  */
 public abstract class ModuleClassID extends ID {
+	private static final long serialVersionUID = -60597778277592049L;
 
-    /**
+	/**
      * Creates an ID by parsing the given URI.
      *
      * <p>This convenience factory method works as if by invoking the

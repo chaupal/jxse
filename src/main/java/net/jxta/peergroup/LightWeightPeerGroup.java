@@ -113,7 +113,7 @@ public class LightWeightPeerGroup implements PeerGroup {
 
     private static final Logger LOG = Logging.getLogger(LightWeightPeerGroup.class.getName());
     private PeerGroup group = null;
-    private ID assignedID = null;
+    //XXX does not seem to be used private ID assignedID = null;
     private ModuleImplAdvertisement implAdv = null;
     private final PeerGroupAdvertisement adv;
 
@@ -134,7 +134,7 @@ public class LightWeightPeerGroup implements PeerGroup {
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
         this.group = group;
-        this.assignedID = assignedID;
+        // XXX Not used apparently this.assignedID = assignedID;
         this.implAdv = (ModuleImplAdvertisement) implAdv;
     }
 
@@ -280,7 +280,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public Iterator getRoleMap(ID name) {
+    public Iterator<ID> getRoleMap(ID name) {
         if (group != null) {
             return group.getRoleMap(name);
         } else {
@@ -292,7 +292,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public boolean compatible(Element compat) {
+    public boolean compatible(Element<?> compat) {
         return group != null && group.compatible(compat);
     }
 
