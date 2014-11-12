@@ -7,7 +7,7 @@ import java.util.Collection;
 import net.jxta.document.Element;
 import net.jxta.impl.peergroup.CompatibilityEquater;
 import net.jxta.impl.peergroup.CompatibilityUtils;
-import net.jxta.module.IJxtaModuleService;
+import net.jxse.module.IJxtaModuleService;
 import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
