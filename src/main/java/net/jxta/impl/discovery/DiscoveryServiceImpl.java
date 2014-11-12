@@ -71,7 +71,8 @@ import net.jxta.id.ID;
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.SrdiManager;
 import net.jxta.impl.cm.Srdi;
-import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.cm.XIndiceAdvertisementCache;
+import net.jxta.peergroup.ICachedPeerGroup;
 import net.jxta.impl.protocol.DiscoveryConfigAdv;
 import net.jxta.impl.protocol.DiscoveryQuery;
 import net.jxta.impl.protocol.DiscoveryResponse;
@@ -197,9 +198,9 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         /**
          * The current default credential in serialized XML form.
          */
-        final XMLDocument credentialDoc;
+        final XMLDocument<?> credentialDoc;
 
-        CurrentCredential(Credential credential, XMLDocument credentialDoc) {
+        CurrentCredential(Credential credential, XMLDocument<?> credentialDoc) {
             this.credential = credential;
             this.credentialDoc = credentialDoc;
         }
@@ -226,13 +227,13 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
                 synchronized (DiscoveryServiceImpl.this) {
                     Credential cred = (Credential) evt.getNewValue();
-                    XMLDocument credentialDoc;
+                    XMLDocument<?> credentialDoc;
 
                     if (null != cred) {
 
                         try {
 
-                            credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
+                            credentialDoc = (XMLDocument<?>) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
 
                         } catch (Exception all) {
@@ -427,7 +428,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             Advertisement adv = null;
 
             try {
-                XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(assignedID);
+                XMLDocument<?> configDoc = (XMLDocument<?>) confAdv.getServiceParam(assignedID);
 
                 if (null != configDoc) {
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
@@ -447,7 +448,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             }
         }
 
-        cm = ((StdPeerGroup) group).getCacheManager();
+        cm = ((ICachedPeerGroup) group).getCacheManager();
         cm.setTrackDeltas(!localonly);
 
         if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
@@ -645,17 +646,17 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         } else {
 
-            XMLDocument doc;
+            XMLDocument<?> doc;
 
             try {
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument<?>) adv.getSignedDocument();
             } catch (Exception everything) {
                 IOException failure = new IOException("Failure removing Advertisement");
 
                 failure.initCause(everything);
                 throw failure;
             }
-            advName = CacheManager.createTmpName(doc);
+            advName = XIndiceAdvertisementCache.createTmpName(doc);
         }
 
         if (advName != null) {
@@ -697,11 +698,11 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         // if we dont have a unique id for the adv, use the hash method
         if ((null == advID) || advID.equals(ID.nullID)) {
 
-            XMLDocument doc;
+            XMLDocument<?> doc;
 
             try {
 
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument<?>) adv.getSignedDocument();
 
             } catch (Exception everything) {
 
@@ -714,7 +715,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
 
-                advName = CacheManager.createTmpName(doc);
+                advName = XIndiceAdvertisementCache.createTmpName(doc);
             } catch (IllegalStateException ise) {
                 IOException failure = new IOException("Failed to generate tempname from advertisement");
 
@@ -772,7 +773,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         try {
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                     MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
 
             res = new DiscoveryResponse(asDoc);
@@ -903,7 +904,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         try {
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
 
             dq = new DiscoveryQuery(asDoc);
 
@@ -1021,7 +1022,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * @param results   The results we are responding with(Advertisemets,Strings,InputStreams).
      * @param expirations   Expiration values for the results.
      */
-    private void respond(ResolverQueryMsg query, DiscoveryQuery dq, List results, List<Long> expirations) {
+    private void respond(ResolverQueryMsg query, DiscoveryQuery dq, List<?> results, List<Long> expirations) {
 
         if (localonly || stopped) {
             return;
@@ -1178,7 +1179,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private List<InputStream> rawSearch(int type, String attr, String value, int threshold, List<Long> expirations) {
 
         if (stopped) {
-            return new ArrayList();
+            return new ArrayList<InputStream>();
         }
 
         if (type == PEER) {
@@ -1237,7 +1238,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             try {
 
                 InputStream bis = results.get(i);
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
                 Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
                 advertisements.add(adv);
 
@@ -1323,11 +1324,11 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         } else {
 
-            XMLDocument doc;
+            XMLDocument<?> doc;
 
             try {
 
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument<?>) adv.getSignedDocument();
 
             } catch (Exception everything) {
 
@@ -1336,7 +1337,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             }
 
-            advName = CacheManager.createTmpName(doc);
+            advName = XIndiceAdvertisementCache.createTmpName(doc);
         }
 
         return cm.getExpirationtime(dirname[type], advName);
@@ -1369,11 +1370,11 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         } else {
 
-            XMLDocument doc;
+            XMLDocument<?> doc;
 
             try {
 
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument<?>) adv.getSignedDocument();
 
             } catch (Exception everything) {
 
@@ -1382,7 +1383,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             }
 
-            advName = CacheManager.createTmpName(doc);
+            advName = XIndiceAdvertisementCache.createTmpName(doc);
         }
         return cm.getLifetime(dirname[type], advName);
     }
@@ -1400,7 +1401,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         try {
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
             srdiMsg = new SrdiMessageImpl(asDoc);
 
         } catch (Exception e) {

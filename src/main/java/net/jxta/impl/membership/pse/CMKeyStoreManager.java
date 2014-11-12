@@ -58,7 +58,7 @@ package net.jxta.impl.membership.pse;
 
 import net.jxta.id.ID;
 import net.jxta.impl.cm.CacheManager;
-import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.peergroup.ICachedPeerGroup;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -130,7 +130,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
 
         keystore_provider = provider;
 
-        keystore_cm = ((StdPeerGroup) group).getCacheManager();
+        keystore_cm = ((ICachedPeerGroup) group).getCacheManager();
 
         keystore_location = location;
 

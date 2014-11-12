@@ -104,7 +104,7 @@ import net.jxta.service.Service;
  * A subclass of GenericPeerGroup that makes a peer group out of independent
  * plugin services listed in its impl advertisement.
  */
-public class StdPeerGroup extends GenericPeerGroup {
+public class StdPeerGroup extends GenericPeerGroup implements ICachedpeerGroup{
 
     private final static transient Logger LOG = Logging.getLogger(StdPeerGroup.class.getName());
 
