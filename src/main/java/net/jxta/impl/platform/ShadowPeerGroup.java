@@ -53,7 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-package net.jxta.impl.peergroup;
+package net.jxta.impl.platform;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.MimeMediaType;
@@ -63,6 +63,8 @@ import net.jxta.id.ID;
 import net.jxta.impl.content.ContentServiceImpl;
 //import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.peergroup.CompatibilityUtils;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
@@ -119,7 +121,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
         paramAdv.addProto(IModuleDefinitions.relayProtoClassID, IModuleDefinitions.refRelayProtoSpecID);
 
         // Pour our newParamAdv in implAdv
-        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+        XMLElement<?> paramElement = (XMLElement<?>) paramAdv.getDocument(MimeMediaType.XMLUTF8);
 
         implAdv.setParam(paramElement);
 

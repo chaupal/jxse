@@ -72,8 +72,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.jxta.impl.loader.DynamicJxtaLoader;
-import net.jxta.impl.peergroup.DefaultConfigurator;
-import net.jxta.impl.peergroup.NullConfigurator;
+import net.jxta.impl.platform.DefaultConfigurator;
+import net.jxta.impl.platform.NullConfigurator;
 
 /**
  * A factory for instantiating the World Peer Group. Every peer starts by

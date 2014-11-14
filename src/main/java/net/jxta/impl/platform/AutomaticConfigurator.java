@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl.peergroup;
+package net.jxta.impl.platform;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -169,7 +169,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         }
 
         // Check the HTTP Message Transport parameters.
-        XMLDocument http = (XMLDocument) advertisement.getServiceParam(IModuleDefinitions.httpProtoClassID);
+        XMLDocument http = (XMLDocument<?>) advertisement.getServiceParam(IModuleDefinitions.httpProtoClassID);
         HTTPAdv httpAdv = null;
         boolean httpEnabled = true;
 
@@ -177,13 +177,13 @@ public class AutomaticConfigurator extends NullConfigurator {
             try {
                 httpEnabled = advertisement.isSvcEnabled(IModuleDefinitions.httpProtoClassID);
 
-                XMLElement param = null;
+                XMLElement<?> param = null;
 
-                Enumeration httpChilds = http.getChildren(TransportAdvertisement.getAdvertisementType());
+                Enumeration<?> httpChilds = http.getChildren(TransportAdvertisement.getAdvertisementType());
 
                 // get the HTTPAdv from TransportAdv
                 if (httpChilds.hasMoreElements()) {
-                    param = (XMLElement) httpChilds.nextElement();
+                    param = (XMLElement<?>) httpChilds.nextElement();
                 }
 
                 if (null != param) {
@@ -246,8 +246,8 @@ public class AutomaticConfigurator extends NullConfigurator {
         }
 
         // Create new param docs that contain the updated adv
-        http = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-        XMLDocument httAdvDoc = (XMLDocument) httpAdv.getDocument(MimeMediaType.XMLUTF8);
+        http = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+        XMLDocument<?> httAdvDoc = (XMLDocument<?>) httpAdv.getDocument(MimeMediaType.XMLUTF8);
 
         StructuredDocumentUtils.copyElements(http, http, httAdvDoc);
         if (!httpEnabled) {
@@ -256,7 +256,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         advertisement.putServiceParam(IModuleDefinitions.httpProtoClassID, http);
 
         // Check the TCP Message Transport parameters.
-        XMLDocument tcp = (XMLDocument) advertisement.getServiceParam(IModuleDefinitions.tcpProtoClassID);
+        XMLDocument tcp = (XMLDocument<?>) advertisement.getServiceParam(IModuleDefinitions.tcpProtoClassID);
         TCPAdv tcpAdv = null;
         boolean tcpEnabled = true;
 
@@ -264,13 +264,13 @@ public class AutomaticConfigurator extends NullConfigurator {
             try {
                 tcpEnabled = advertisement.isSvcEnabled(IModuleDefinitions.tcpProtoClassID);
 
-                XMLElement param = null;
+                XMLElement<?> param = null;
 
-                Enumeration tcpChilds = tcp.getChildren(TransportAdvertisement.getAdvertisementType());
+                Enumeration<?> tcpChilds = tcp.getChildren(TransportAdvertisement.getAdvertisementType());
 
                 // get the TransportAdv
                 if (tcpChilds.hasMoreElements()) {
-                    param = (XMLElement) tcpChilds.nextElement();
+                    param = (XMLElement<?>) tcpChilds.nextElement();
                 }
 
                 if (null != param) {
@@ -331,9 +331,9 @@ public class AutomaticConfigurator extends NullConfigurator {
 
         }
 
-        tcp = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+        tcp = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
-        StructuredDocumentUtils.copyElements(tcp, tcp, (XMLDocument) tcpAdv.getDocument(MimeMediaType.XMLUTF8));
+        StructuredDocumentUtils.copyElements(tcp, tcp, (XMLDocument<?>) tcpAdv.getDocument(MimeMediaType.XMLUTF8));
         if (!tcpEnabled) {
             tcp.appendChild(tcp.createElement("isOff"));
         }
@@ -343,7 +343,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         RelayConfigAdv relayConfig = null;
 
         try {
-            XMLElement param = (XMLElement) advertisement.getServiceParam(IModuleDefinitions.relayProtoClassID);
+            XMLElement<?> param = (XMLElement<?>) advertisement.getServiceParam(IModuleDefinitions.relayProtoClassID);
 
             if (param != null) {
                 // XXX 20041027 backwards compatibility
@@ -378,7 +378,7 @@ public class AutomaticConfigurator extends NullConfigurator {
          }
          */
 
-        XMLDocument relayDoc = (XMLDocument) relayConfig.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> relayDoc = (XMLDocument<?>) relayConfig.getDocument(MimeMediaType.XMLUTF8);
 
         advertisement.putServiceParam(IModuleDefinitions.relayProtoClassID, relayDoc);
 
@@ -386,7 +386,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         RdvConfigAdv rdvAdv = null;
 
         try {
-            XMLElement param = (XMLElement) advertisement.getServiceParam(IModuleDefinitions.rendezvousClassID);
+            XMLElement<?> param = (XMLElement<?>) advertisement.getServiceParam(IModuleDefinitions.rendezvousClassID);
 
             if (param != null) {
                 // XXX 20041027 backwards compatibility
@@ -419,7 +419,7 @@ public class AutomaticConfigurator extends NullConfigurator {
          rdvAdv.addSeedingURI( "http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3" );
          }
          */
-        XMLDocument rdvDoc = (XMLDocument) rdvAdv.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> rdvDoc = (XMLDocument<?>) rdvAdv.getDocument(MimeMediaType.XMLUTF8);
 
         advertisement.putServiceParam(IModuleDefinitions.rendezvousClassID, rdvDoc);
 
@@ -440,7 +440,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         PSEConfigAdv pseConfig = null;
 
         try {
-            XMLElement param = (XMLElement) advertisement.getServiceParam(IModuleDefinitions.membershipClassID);
+            XMLElement<?> param = (XMLElement<?>) advertisement.getServiceParam(IModuleDefinitions.membershipClassID);
 
             if (param != null) {
                 // XXX 20041027 backwards compatibility
@@ -461,7 +461,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
             // restore default values.
             pseConfig = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
-            XMLDocument pseDoc = (XMLDocument) pseConfig.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> pseDoc = (XMLDocument<?>) pseConfig.getDocument(MimeMediaType.XMLUTF8);
 
             advertisement.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);
         }
@@ -484,7 +484,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             return false;
         }
 
-        for (Iterator la = IPUtils.getAllLocalAddresses().iterator(); la.hasNext() && !found;) {
+        for (Iterator<InetAddress> la = IPUtils.getAllLocalAddresses().iterator(); la.hasNext() && !found;) {
             for (InetAddress ia1 : ias) {
                 found |= ia1.equals(la.next());
             }

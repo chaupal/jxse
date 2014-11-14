@@ -891,7 +891,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * <code>initFirst</code> since <code>initFirst</code> may
      * be overLoaded and the overloading method may modify these parameters
      * when calling <code>super.initFirst</code>. (See
-     * {@link net.jxta.impl.peergroup.Platform} for an example of such a case).
+     * {@link net.jxta.impl.platform.Platform} for an example of such a case).
      * <p/>
      * Upon completion, the group object is marked as completely initialized
      * in all cases. Once a group object is completely initialized, it becomes

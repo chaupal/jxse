@@ -53,7 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.peergroup;
+package net.jxta.impl.platform;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -238,7 +238,7 @@ public class NullConfigurator {
 
             advStream = loadFile.toURL().openStream();
 
-            XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, advStream);
+            XMLDocument<?> xmlDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, advStream);
             PlatformConfig result = (PlatformConfig) AdvertisementFactory.newAdvertisement(xmlDoc);
 
             Logging.logCheckedDebug(LOG, "Recovered Platform Config from : ", loadFile);
@@ -294,7 +294,7 @@ public class NullConfigurator {
         OutputStream out = null;
 
         try {
-            XMLDocument aDoc = (XMLDocument) advertisement.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> aDoc = (XMLDocument<?>) advertisement.getDocument(MimeMediaType.XMLUTF8);
 
             if ("file".equalsIgnoreCase(saveFile.getScheme())) {
                 out = new FileOutputStream(new File(saveFile));

@@ -63,11 +63,13 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.peergroup.GenericPeerGroup;
+import net.jxta.impl.platform.ShadowPeerGroup;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,7 +77,6 @@ import java.net.URI;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import net.jxta.impl.peergroup.ShadowPeerGroup;
 
 /**
  * A factory for instantiating a Network Peer Group instances. The Network Peer

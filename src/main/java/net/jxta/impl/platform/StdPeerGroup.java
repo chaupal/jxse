@@ -53,7 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-package net.jxta.impl.peergroup;
+package net.jxta.impl.platform;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -85,6 +85,9 @@ import net.jxta.impl.membership.pse.DialogAuthenticator;
 import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.StringAuthenticator;
+import net.jxta.impl.peergroup.CompatibilityUtils;
+import net.jxta.impl.peergroup.GenericPeerGroup;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
@@ -235,7 +238,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 //        }
 
         // Insert the newParamAdv in implAdv
-        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+        XMLElement<?> paramElement = (XMLElement<?>) paramAdv.getDocument(MimeMediaType.XMLUTF8);
 
         implAdv.setParam(paramElement);
 
@@ -253,7 +256,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      * {@inheritDoc}
      */
     // @Override
-    public boolean compatible(Element compat) {
+    public boolean compatible(Element<?> compat) {
         return CompatibilityUtils.isCompatible(compat);
     }
 
@@ -924,13 +927,13 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
                 }
             }
             configInfo.append(indent);
-            Iterator eachProto = messageTransports.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Object>> eachProto = messageTransports.entrySet().iterator();
 
             if (eachProto.hasNext()) {
                 configInfo.append("\n\t\tMessage Transports :");
             }
             while (eachProto.hasNext()) {
-                Map.Entry anEntry = (Map.Entry) eachProto.next();
+                Map.Entry<ModuleClassID, Object> anEntry = eachProto.next();
                 ModuleClassID aMCID = (ModuleClassID) anEntry.getKey();
                 Module anMT = (Module) anEntry.getValue();
 

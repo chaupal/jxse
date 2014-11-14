@@ -53,7 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.peergroup;
+package net.jxta.impl.platform;
 
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.logging.Logger;

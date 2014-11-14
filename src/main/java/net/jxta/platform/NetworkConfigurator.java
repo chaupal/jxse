@@ -124,7 +124,7 @@ import net.jxta.impl.protocol.MulticastAdv;
  * management as well as configuration change management.
  * <p/>
  * Also by default, this class sets the default platform configurator to
- * {@link net.jxta.impl.peergroup.NullConfigurator}. <code>NullConfigurator<code>
+ * {@link net.jxta.impl.platform.NullConfigurator}. <code>NullConfigurator<code>
  * is a no operation configurator intended to prevent any other configurators from
  * being invoked.
  * <p/>
