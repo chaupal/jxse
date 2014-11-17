@@ -64,7 +64,6 @@ import net.jxta.impl.content.ContentServiceImpl;
 //import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.peergroup.CompatibilityUtils;
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;

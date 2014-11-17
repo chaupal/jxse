@@ -87,7 +87,6 @@ import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.impl.peergroup.GenericPeerGroup;
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;

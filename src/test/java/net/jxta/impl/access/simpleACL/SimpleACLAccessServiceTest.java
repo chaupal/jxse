@@ -84,7 +84,7 @@ import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
+import net.jxta.impl.platform.StdPeerGroupParamAdv;
 
 import org.junit.Ignore;
 
