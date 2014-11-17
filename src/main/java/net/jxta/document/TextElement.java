@@ -82,7 +82,7 @@ public interface TextElement<T extends TextElement< T >> extends Element<T> {
     /**
      * {@inheritDoc}
      */
-    StructuredTextDocument getRoot();
+    StructuredTextDocument<T> getRoot();
 
     /**
      * Get the name associated with an element.

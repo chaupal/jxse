@@ -84,12 +84,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     private static final String MCID_TAG = "MCID";
     private static final String PARAM_TAG = "Parm";
 
+    private static final String PRIVATE_KEY_TAG = "PrivKey";
+
     /**
      * A table of structured documents to be interpreted by each service.
      * For safe operation these elements should be immutable, but we're helpless
      * if they are not.
      */
-    private final Map<ID, StructuredDocument> params = new HashMap<ID, StructuredDocument>();
+    private final Map<ID, StructuredDocument<?>> params = new HashMap<ID, StructuredDocument<?>>();
 
     /**
      * A map of advertisements to be interpreted by each service.
@@ -122,6 +124,16 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     }
 
     /**
+     * The private key aims to pass a private key to the modules in a peergroup.
+     * It is not meant to be broadcasted. 
+     * XXX CP: This solution should be seen as a workaround. Currently it is used to pass
+     * the password to the PSEMembershipService, prior to creating the PseConfAdv. It hasd been
+     * introduced to circumvent a Catch-22 situation during initialisation 
+     */
+    private String privKey = null;
+
+ 
+    /**
      *  Default Constructor. We want all ConfigParams derived advertisements to
      *  pretty print. 
      */
@@ -138,7 +150,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         try {
             ConfigParams result = (ConfigParams) super.clone();
 
-            for (Map.Entry<ID, StructuredDocument> anEntry : params.entrySet()) {
+            for (Map.Entry<ID, StructuredDocument<?>> anEntry : params.entrySet()) {
                 result.params.put(anEntry.getKey(), StructuredDocumentUtils.copyAsDocument(anEntry.getValue()));
             }
 
@@ -177,6 +189,25 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     }
 
     /**
+     * Returns the private key
+     *
+     * @return the private key
+     */
+    public String getPrivateKey() {
+    	return privKey;
+    }
+
+    /**
+     * Sets the description
+     *
+     * @param privateKey the description
+     */
+    public void setPrivKey( String privateKey) {
+        this.privKey = privateKey;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -188,19 +219,31 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement elem = (XMLElement<?>) raw;
+        if (PRIVATE_KEY_TAG.equals(elem.getName())) {
+            String value = elem.getTextValue();
+            if (null == value) {
+                return false;
+            }
+            value = value.trim();
+            if (0 == value.length()) {
+                return false;
+            }
+            setPrivKey(value);
+            return true;
+        }
 
         if (SVC_TAG.equals(elem.getName())) {
             Attribute disabledAttr = elem.getAttribute("disabled");
             boolean isDisabled = (null != disabledAttr) && Boolean.parseBoolean(disabledAttr.getValue());
 
-            Enumeration<XMLElement> elems = elem.getChildren();
+            Enumeration<XMLElement<?>> elems = elem.getChildren();
 
             ID key = null;
             XMLElement param = null;
@@ -231,7 +274,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             if (key != null && param != null) {
                 if(!isDisabled) {
                     // Backwards compatibility support.
-                    Enumeration<XMLElement> isOff = param.getChildren("isOff");
+                    Enumeration<XMLElement<?>> isOff = param.getChildren("isOff");
 
                     isDisabled = isOff.hasMoreElements();
                 }
@@ -261,7 +304,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      */
     public boolean addDocumentElements(StructuredDocument adv) {
 
-        for (Map.Entry<ID, StructuredDocument> anEntry : params.entrySet()) {
+        for (Map.Entry<ID, StructuredDocument<?>> anEntry : params.entrySet()) {
             ID anID = anEntry.getKey();
             StructuredDocument aDoc = anEntry.getValue();
 
@@ -292,14 +335,19 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 ((Attributable)s).addAttribute("disabled", "true");
             }
 
-            Element e = adv.createElement(MCID_TAG, anID.toString());
+            Element<?> e = adv.createElement(MCID_TAG, anID.toString());
 
             s.appendChild(e);
 
-            StructuredDocument asDoc = (StructuredDocument) anAdv.getDocument(adv.getMimeType());
+            StructuredDocument<?> asDoc = (StructuredDocument<?>) anAdv.getDocument(adv.getMimeType());
 
             StructuredDocumentUtils.copyElements(adv, s, asDoc, PARAM_TAG);
         }
+        // private key is optional
+        if (getPrivateKey() != null) {
+            Element<?> e = adv.createElement(PRIVATE_KEY_TAG, getPrivateKey());
+            adv.appendChild(e);
+         }
 
         return true;
     }
@@ -345,14 +393,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         boolean isDisabled = false;
 
         if (param instanceof XMLElement) {
-            Enumeration<XMLElement> isOff = param.getChildren("isOff");
+            Enumeration<XMLElement<?>> isOff = param.getChildren("isOff");
 
             isDisabled = isOff.hasMoreElements();
 
             Advertisement adv = null;
 
             try {
-                adv = AdvertisementFactory.newAdvertisement((XMLElement) param);
+                adv = AdvertisementFactory.newAdvertisement((XMLElement<?>) param);
             } catch (RuntimeException ignored) {
                 // ignored
                 ;
@@ -364,7 +412,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             }
         }
 
-        StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
+        StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(param);
 
         if(isDisabled) {
             disabled.add(key);
@@ -480,8 +528,8 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * @return StructuredDocument The matching parameter document or null if
      *         none matched.
      */
-    public StructuredDocument getServiceParam(ID key) {
-        StructuredDocument param = params.get(key);
+    public StructuredDocument<?> getServiceParam(ID key) {
+        StructuredDocument<?> param = params.get(key);
 
         if (param == null) {
             Advertisement ad = ads.get(key);
@@ -490,13 +538,13 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 return null;
             }
 
-            return (XMLDocument) ad.getDocument(MimeMediaType.XMLUTF8);
+            return (XMLDocument<?>) ad.getDocument(MimeMediaType.XMLUTF8);
         }
 
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
 
         if(disabled.contains(key)) {
-            Enumeration<Element> isOffAlready = newDoc.getChildren("isOff");
+            Enumeration<Element<?>> isOffAlready = newDoc.getChildren("isOff");
 
             if(!isOffAlready.hasMoreElements()) {
                 newDoc.appendChild(newDoc.createElement("isOff", null));
@@ -515,9 +563,9 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      *
      * @return The removed parameter element or {@code null} if not found.
      */
-    public StructuredDocument removeServiceParam(ID key) {
+    public StructuredDocument<?> removeServiceParam(ID key) {
 
-        StructuredDocument param = params.remove(key);
+        StructuredDocument<?> param = params.remove(key);
 
         if (param == null) {
             Advertisement ad = ads.remove(key);
@@ -526,7 +574,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 return null;
             }
 
-            return (XMLDocument) ad.getDocument(MimeMediaType.XMLUTF8);
+            return (XMLDocument<?>) ad.getDocument(MimeMediaType.XMLUTF8);
         } else {
             ads.remove(key);
         }

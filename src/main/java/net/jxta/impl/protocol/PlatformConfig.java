@@ -110,7 +110,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
                 throw new IllegalArgumentException(advType + " only supports XLMElement");
             }
 
-            return new PlatformConfig((XMLElement) root);
+            return new PlatformConfig((XMLElement<?>) root);
         }
     }
 
@@ -134,9 +134,9 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
     /**
      * Descriptive meta-data about this peer.
      */
-    private Element description = null;
+    private Element<?> description = null;
 
-    /**
+   /**
      * Use the Instantiator through the factory
      */
     PlatformConfig() {}
@@ -160,11 +160,11 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
             throw new IllegalArgumentException( "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration<XMLElement> elements = doc.getChildren();
+        Enumeration<XMLElement<?>> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = elements.nextElement();
+            XMLElement<?> elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -291,7 +291,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      * @param description the description
      */
     public void setDescription(String description) {
-        StructuredDocument newdoc = null;
+        StructuredDocument<?> newdoc = null;
 
         if (null != description) {
             newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, DESC_TAG, description);
@@ -304,8 +304,8 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      *
      * @return the description
      */
-    public StructuredDocument getDesc() {
-        StructuredDocument newDoc = null;
+    public StructuredDocument<?> getDesc() {
+        StructuredDocument<?> newDoc = null;
 
         if (null != description) {
             newDoc = StructuredDocumentUtils.copyAsDocument(description);
@@ -318,7 +318,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      *
      * @param desc the description
      */
-    public void setDesc(Element desc) {
+    public void setDesc(Element<?> desc) {
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
         } else {
@@ -336,7 +336,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         String elName = elem.getName();
 
         if (DESC_TAG.equals(elName)) {
@@ -373,7 +373,6 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
             setName(value);
             return true;
         }
-
         return false;
     }
 
@@ -383,7 +382,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
     @Override
     public boolean addDocumentElements(StructuredDocument adv) {
 
-        Element e;
+        Element<?> e;
         // peer ID is optional. (at least for the PlatformConfig it is)
         PeerID peerID = getPeerID();
 
@@ -399,12 +398,10 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
         }
 
         // desc is optional
-        StructuredDocument desc = getDesc();
-
+        StructuredDocument<?> desc = getDesc();
         if (desc != null) {
             StructuredDocumentUtils.copyElements(adv, adv, desc);
         }
-
         super.addDocumentElements(adv);
 
         return true;

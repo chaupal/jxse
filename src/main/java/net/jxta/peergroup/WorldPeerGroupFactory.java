@@ -194,7 +194,7 @@ public final class WorldPeerGroupFactory {
      * @throws PeerGroupException Thrown for problems constructing the World
      * Peer Group.
      */
-    public WorldPeerGroupFactory(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
+    public WorldPeerGroupFactory(Class<?> worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
 
         world = newWorldPeerGroup(worldPeerGroupClass, config, storeHome);
     }
@@ -229,7 +229,7 @@ public final class WorldPeerGroupFactory {
      * @throws PeerGroupException Thrown for problems determining the class to
      * be used for the World Peer Group.
      */
-    private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
+    private static Class<?> getDefaultWorldPeerGroupClass() throws PeerGroupException {
 
         try {
             IJxtaLoader loader = DynamicJxtaLoader.getInstance();
@@ -262,7 +262,7 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      * @return the WorldPeerGroup
      */
-    private PeerGroup newWorldPeerGroup(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
+    private PeerGroup newWorldPeerGroup(Class<?> worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
         if (!storeHome.isAbsolute()) {
             LOG.error("storeHome must be an absolute URI.");
             throw new PeerGroupException("storeHome must be an absolute URI.");

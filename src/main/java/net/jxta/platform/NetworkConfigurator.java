@@ -2049,7 +2049,7 @@ public class NetworkConfigurator {
 
         if (relayConfig != null) {
             boolean isOff = ((mode & RELAY_OFF) == RELAY_OFF) || (relayConfig.isServerEnabled() && relayConfig.isClientEnabled());
-            XMLDocument relayDoc = (XMLDocument) relayConfig.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument relayDoc = (XMLDocument<?>) relayConfig.getDocument(MimeMediaType.XMLUTF8);
 
             if (isOff) {
                 relayDoc.appendChild(relayDoc.createElement("isOff"));
@@ -2058,7 +2058,7 @@ public class NetworkConfigurator {
         }
 
         if (rdvConfig != null) {
-            XMLDocument rdvDoc = (XMLDocument) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> rdvDoc = (XMLDocument<?>) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(IModuleDefinitions.rendezvousClassID, rdvDoc);
         }
         
@@ -2070,7 +2070,8 @@ public class NetworkConfigurator {
         }
         
         if (password == null) {
-            password = System.getProperty("impl.membership.pse.authentication.password", "");            
+            password = System.getProperty("impl.membership.pse.authentication.password", "");
+            advertisement.setPrivKey(password);
         }
 
         // Checking if certificate is present in platform configuration. If not - create it.
@@ -2091,7 +2092,7 @@ public class NetworkConfigurator {
                     Logging.logCheckedWarning(LOG, "Keystore location set, but is not absolute: ", keyStoreLocation);
                 }
             }
-            XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> pseDoc = (XMLDocument<?>) pseConf.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);                                  
         }
         
@@ -2129,7 +2130,7 @@ public class NetworkConfigurator {
 
         InputStream input = url.openStream();
         try {
-            XMLDocument document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
+            XMLDocument<?> document = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
             PlatformConfig platformConfig = (PlatformConfig) AdvertisementFactory.newAdvertisement(document);
             return platformConfig;
         } finally {

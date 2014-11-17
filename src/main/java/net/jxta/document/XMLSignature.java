@@ -92,16 +92,16 @@ public class XMLSignature  {
      * The XMLSignature element for an incoming adv
      * @param raw
      */
-    public XMLSignature(Element raw) {
+    public XMLSignature(Element<?> raw) {
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         
         if ("XMLSignature".equals(elem.getName())) {
 
-            Enumeration eachChild = elem.getChildren();
+            Enumeration<?> eachChild = elem.getChildren();
 
             while (eachChild.hasMoreElements()) {
-                XMLElement aChild = (XMLElement) eachChild.nextElement();
+                XMLElement<?> aChild = (XMLElement<?>) eachChild.nextElement();
 
                 if ("digest".equals(aChild.getName())) {
 
@@ -165,7 +165,7 @@ public class XMLSignature  {
     /**
      * Get the Key Element in order to attach it to an outgoing advertisement
      */
-    public XMLDocument getXMLSignatureDocument() {
+    public XMLDocument<?> getXMLSignatureDocument() {
 
         StringBuilder docBuilder = new StringBuilder();
         docBuilder.append("<XMLSignatureDocument><XMLSignature>");
@@ -204,7 +204,7 @@ public class XMLSignature  {
 
         try {
 
-            XMLDocument xmlSignatureDocument = (XMLDocument)StructuredDocumentFactory.newStructuredDocument(
+            XMLDocument<?> xmlSignatureDocument = (XMLDocument<?>)StructuredDocumentFactory.newStructuredDocument(
                     MimeMediaType.XMLUTF8,
                     new StringReader(docBuilder.toString()));
 

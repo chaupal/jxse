@@ -109,7 +109,7 @@ public abstract class Advertisement {
      */
     @Override
     public String toString() {
-        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> doc = (XMLDocument<?>) getDocument(MimeMediaType.XMLUTF8);
 
         // Force pretty printing
         doc.addAttribute("xml:space", "default");
@@ -243,12 +243,12 @@ public abstract class Advertisement {
     /**
      * The "xmlSignatureElement" is populated after a successful signing or verification.
      */
-    protected XMLElement xmlSignatureElement = null;
+    protected XMLElement<?> xmlSignatureElement = null;
 
     /**
      * The "xmlSignatureInfoElement" is populated after a successful signing or verification.
      */
-    protected XMLElement xmlSignatureInfoElement = null;
+    protected XMLElement<?> xmlSignatureInfoElement = null;
 
     /**
      * The "xmlSignature" is populated after a successful signing or verification.
@@ -299,7 +299,7 @@ public abstract class Advertisement {
         }
         else
         {
-            XMLDocument tempDoc =(XMLDocument) this.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> tempDoc =(XMLDocument<?>) this.getDocument(MimeMediaType.XMLUTF8);
             StructuredDocumentUtils.copyElements(tempDoc, tempDoc.getRoot(), this.xmlSignatureInfoElement);
             StructuredDocumentUtils.copyElements(tempDoc, tempDoc.getRoot(), this.xmlSignatureElement);
             return tempDoc;
@@ -363,7 +363,7 @@ public abstract class Advertisement {
         try
         {
             PSEMembershipService pseMembershipService = (PSEMembershipService)pseCredential.getSourceService();
-            XMLDocument tempDocNoSig = (XMLDocument)this.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> tempDocNoSig = (XMLDocument<?>)this.getDocument(MimeMediaType.XMLUTF8);
             PSEMembershipService.PSEAdvertismentSignatureToken pseAdvertismentSignatureToken = pseMembershipService.signAdvertisement(tempDocNoSig, includePublicKey, includePeerID);
             XMLSignatureInfo xmlSignatureInfo = pseAdvertismentSignatureToken.getXMLSignatureInfo();
             xmlSignatureInfoElement = xmlSignatureInfo.getXMLSignatureInfoDocument();
@@ -407,7 +407,7 @@ public abstract class Advertisement {
             }
 
             PSEMembershipService pseMembershipService = (PSEMembershipService)pseCredential.getSourceService();
-            XMLDocument tempDocNoSig = (XMLDocument)this.getSignedDocument();
+            XMLDocument<?> tempDocNoSig = (XMLDocument<?>)this.getSignedDocument();
             PSEMembershipService.PSEAdvertismentValidationToken pseAdvertismentValidationToken = pseMembershipService.validateAdvertisement(tempDocNoSig, true);
 
             if (pseAdvertismentValidationToken.isValid()) {
@@ -436,4 +436,9 @@ public abstract class Advertisement {
         return this.authenticated;
 
     }
+
+	protected boolean handleElement(Element<?> raw) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

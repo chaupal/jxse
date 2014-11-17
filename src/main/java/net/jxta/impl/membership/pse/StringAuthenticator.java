@@ -250,9 +250,9 @@ public class StringAuthenticator implements Authenticator {
 
                 // XXX bondolo 20040329 it may be appropriate to login
                 // something other than a peer id.
-                List peersOnly = new ArrayList();
+                List<ID> peersOnly = new ArrayList<ID>();
 
-                Iterator eachKey = Arrays.asList(allkeys).iterator();
+                Iterator<ID> eachKey = Arrays.asList(allkeys).iterator();
 
                 while (eachKey.hasNext()) {
                     ID aKey = (ID) eachKey.next();

@@ -115,10 +115,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.platform.NetworkConfigurator;
-import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
@@ -250,13 +247,13 @@ public final class PSEMembershipService implements MembershipService {
         ConfigParams configAdv = group.getConfigAdvertisement();
 
         // Get our peer-defined parameters in the configAdv
-        Element param = configAdv.getServiceParam(assignedID);
+        Element<?> param = configAdv.getServiceParam(assignedID);
 
         Advertisement paramsAdv = null;
 
         if (null != param) {
             try {
-                paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
+                paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement<?>) param);
             } catch (NoSuchElementException ignored) {                
             }
 
@@ -274,13 +271,8 @@ public final class PSEMembershipService implements MembershipService {
         authenticatorEngine = getDefaultPSEAuthenticatorEngineFactory().getInstance(this, config);        
         peerValidationEngine = getDefaultPSEPeerValidationEngineFactory().getInstance(this, config);
         KeyStoreManager storeManager = getDefaultKeyStoreManagerFactory().getInstance(this, config);        
-        
-        NetworkManager networkManager = JxtaApplication.findNetworkManager(group.getStoreHome());
-        assert networkManager != null;                                              
-
         try {            
-            NetworkConfigurator networkConfigurator = networkManager.getConfigurator();            
-            String membershipPassword = networkConfigurator.getPassword();
+            String membershipPassword = configAdv.getPrivateKey();
             
             pseStore = new PSEConfig(storeManager, membershipPassword.toCharArray());
             pseStore.initialize();            
@@ -390,7 +382,7 @@ public final class PSEMembershipService implements MembershipService {
                 try {
                     ID allTrustedCerts[] = pseStore.getTrustedCertsList();
 
-                    Iterator eachTrustedCert = Arrays.asList(allTrustedCerts).iterator();
+                    Iterator<ID> eachTrustedCert = Arrays.asList(allTrustedCerts).iterator();
 
                     newKey = true;
 
@@ -474,13 +466,13 @@ public final class PSEMembershipService implements MembershipService {
 
             if (null != newDefault) {
                 // include the root cert in the peer advertisement
-                XMLDocument paramDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+                XMLDocument<?> paramDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
                 Certificate peerCerts = new Certificate();
 
                 peerCerts.setCertificates(newDefault.getCertificateChain());
 
-                XMLDocument peerCertsAsDoc = (XMLDocument) peerCerts.getDocument(MimeMediaType.XMLUTF8);
+                XMLDocument<?> peerCertsAsDoc = (XMLDocument<?>) peerCerts.getDocument(MimeMediaType.XMLUTF8);
 
                 StructuredDocumentUtils.copyElements(paramDoc, paramDoc, peerCertsAsDoc, "RootCert");
 
@@ -668,7 +660,7 @@ public final class PSEMembershipService implements MembershipService {
      * {@inheritDoc}
      **/
     public void resign() {
-        Iterator eachCred = Arrays.asList(principals.toArray()).iterator();
+        Iterator<Object> eachCred = Arrays.asList(principals.toArray()).iterator();
 
         synchronized (this) {
             principals.clear();
@@ -690,7 +682,8 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    public Credential makeCredential(Element element) {
+    @Override
+    public Credential makeCredential(Element<?> element) {
 
         return new PSECredential(this, element);
     }
@@ -853,7 +846,7 @@ public final class PSEMembershipService implements MembershipService {
      * @throws SignatureException
      * @throws IOException
      */
-    public PSEAdvertismentSignatureToken signAdvertisement(XMLDocument advertismentDocument, boolean includePublicKey, boolean includePeerID) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException {
+    public PSEAdvertismentSignatureToken signAdvertisement(XMLDocument<?> advertismentDocument, boolean includePublicKey, boolean includePeerID) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException {
 
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
 
@@ -863,7 +856,7 @@ public final class PSEMembershipService implements MembershipService {
         PublicKey publicKey = defaultCredential.getCertificate().getPublicKey();
         XMLSignatureInfo xmlSignatureInfo = new XMLSignatureInfo(advDigest, group.getPeerID(), publicKey.getAlgorithm(), publicKey.getEncoded(), peerSecurityEngine.getSignatureAlgorithm(), includePublicKey, includePeerID);
 
-        XMLDocument xmlSignatureInfoElement = xmlSignatureInfo.getXMLSignatureInfoDocument();
+        XMLDocument<?> xmlSignatureInfoElement = xmlSignatureInfo.getXMLSignatureInfoDocument();
 
         messageDigest.reset();
 
@@ -910,9 +903,9 @@ public final class PSEMembershipService implements MembershipService {
         }
     }
 
-    private static List advertisementIgnoredElements = null;
+    private static List<String> advertisementIgnoredElements = null;
     static {
-        advertisementIgnoredElements = new ArrayList();
+        advertisementIgnoredElements = new ArrayList<String>();
         advertisementIgnoredElements.add("XMLSignatureInfo");
         advertisementIgnoredElements.add("XMLSignature");
     }
@@ -938,17 +931,17 @@ public final class PSEMembershipService implements MembershipService {
      * @throws IOException
      * @throws SignatureException
      */
-    public PSEAdvertismentValidationToken validateAdvertisement(XMLDocument advertismentDocument, boolean verifyKeyWithKeystore) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, KeyStoreException, IOException, SignatureException {
+    public PSEAdvertismentValidationToken validateAdvertisement(XMLDocument<?> advertismentDocument, boolean verifyKeyWithKeystore) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, KeyStoreException, IOException, SignatureException {
 
-        XMLElement xmlSignatureInfoElement = null;
+        XMLElement<?> xmlSignatureInfoElement = null;
         XMLSignatureInfo xmlSignatureInfo = null;
         XMLSignature xmlSignature = null;
 
-        Enumeration eachElem = advertismentDocument.getChildren();
+        Enumeration<?> eachElem = advertismentDocument.getChildren();
 
         while (eachElem.hasMoreElements()) {
 
-            XMLElement anElem = (XMLElement) eachElem.nextElement();
+            XMLElement<?> anElem = (XMLElement<?>) eachElem.nextElement();
 
             if ("XMLSignatureInfo".equals(anElem.getName())) {
                 xmlSignatureInfoElement = anElem;

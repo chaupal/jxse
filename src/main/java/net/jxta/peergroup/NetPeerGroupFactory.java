@@ -405,7 +405,7 @@ public final class NetPeerGroupFactory {
      * @throws PeerGroupException Thrown for errors instantiating the new Net
      * Peer Group instance.
      */
-    private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement desc) throws PeerGroupException {
+    private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement<?> desc) throws PeerGroupException {
     	final PeerGroup.GlobalRegistry globalRegistry = parentGroup.getGlobalRegistry();
         synchronized (globalRegistry) {
 
@@ -474,7 +474,7 @@ public final class NetPeerGroupFactory {
 
         final ID id;
         final String name;
-        final XMLElement desc;
+        final XMLElement<?> desc;
 
         /**
          * Constructor for loading the default Net Peer Group construction
@@ -483,7 +483,7 @@ public final class NetPeerGroupFactory {
         NetGroupTunables() {
             id = PeerGroupID.defaultNetPeerGroupID;
             name = "NetPeerGroup";
-            desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
+            desc = (XMLElement<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
         }
 
         /**
@@ -494,7 +494,7 @@ public final class NetPeerGroupFactory {
          * @param pgname the group name
          * @param pgdesc the group description
          */
-        NetGroupTunables(ID pgid, String pgname, XMLElement pgdesc) {
+        NetGroupTunables(ID pgid, String pgname, XMLElement<?> pgdesc) {
             id = pgid;
             name = pgname;
             desc = pgdesc;
@@ -510,7 +510,7 @@ public final class NetPeerGroupFactory {
         NetGroupTunables(ResourceBundle rsrcs, NetGroupTunables defaults) {
             ID idTmp;
             String nameTmp;
-            XMLElement descTmp;
+            XMLElement<?> descTmp;
 
             try {
                 String idTmpStr = rsrcs.getString("NetPeerGroupID").trim();
@@ -520,7 +520,7 @@ public final class NetPeerGroupFactory {
                 }
                 idTmp = IDFactory.fromURI(new URI(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + idTmpStr));
                 nameTmp = rsrcs.getString("NetPeerGroupName").trim();
-                descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc",
+                descTmp = (XMLElement<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc",
                         rsrcs.getString("NetPeerGroupDesc").trim());
             } catch (Exception failed) {
 

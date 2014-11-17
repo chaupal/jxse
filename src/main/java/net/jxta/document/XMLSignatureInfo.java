@@ -112,16 +112,16 @@ public class XMLSignatureInfo  {
      * The XMLSignatureInfo element for an incoming adv
      * @param raw
      */
-    public XMLSignatureInfo(Element raw) {
+    public XMLSignatureInfo(Element<?> raw) {
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         
         if ("XMLSignatureInfo".equals(elem.getName())) {
 
-            Enumeration eachChild = elem.getChildren();
+            Enumeration<?> eachChild = elem.getChildren();
 
             while (eachChild.hasMoreElements()) {
-                XMLElement aChild = (XMLElement) eachChild.nextElement();
+                XMLElement<?> aChild = (XMLElement<?>) eachChild.nextElement();
 
                 if ("peerid".equals(aChild.getName())) {
 
@@ -184,7 +184,7 @@ public class XMLSignatureInfo  {
      * @param doc
      * @return XMLElement containing peerID, digest, encodedkey, keyalgorithm
      */
-    public XMLDocument getXMLSignatureInfoDocument() {
+    public XMLDocument<?> getXMLSignatureInfoDocument() {
 
         StringBuilder docBuilder = new StringBuilder();
         docBuilder.append("<XMLSignatureInfoDocument><XMLSignatureInfo>");
@@ -244,7 +244,7 @@ public class XMLSignatureInfo  {
 
         try {
         
-            XMLDocument xmlSignatureInfoDocument = (XMLDocument)StructuredDocumentFactory.newStructuredDocument(
+            XMLDocument<?> xmlSignatureInfoDocument = (XMLDocument<?>)StructuredDocumentFactory.newStructuredDocument(
                     MimeMediaType.XMLUTF8,
                     new StringReader(docBuilder.toString()));
 

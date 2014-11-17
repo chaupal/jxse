@@ -189,8 +189,9 @@ public class MimeMediaType implements Serializable {
      * manages a media type parameter.
      */
     private static class parameter implements Comparable<parameter>, Serializable {
+		private static final long serialVersionUID = 425386214540599906L;
 
-        /**
+		/**
          * Attribute name.
          */
         final String attribute;

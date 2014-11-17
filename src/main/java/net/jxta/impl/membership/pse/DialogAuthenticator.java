@@ -125,9 +125,11 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
      *  <p/>FIXME bondolo 20040329 should be localizable.
      **/
     private class PasswordDialog extends JDialog implements ActionListener {
-
-        private boolean initKeyStore;
-        private final PeerID seedPeer;
+		private static final long serialVersionUID = -6431203796779628938L;
+		
+		private boolean initKeyStore;
+        
+		//private final PeerID seedPeer;
         private final X509Certificate seedCert;
         private final EncryptedPrivateKeyInfo seedKey;
 
@@ -135,7 +137,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
         private final JPasswordField storePassField;
 
         private final JLabel identityLabel;
-        private final JComboBox identityList;
+        private final JComboBox<JComboEntry> identityList;
 
         private final JLabel identityPassLabel;
         private final JPasswordField identityPassField;
@@ -167,7 +169,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
                 }
             });
 
-            this.seedPeer = seedPeer;
+            //this.seedPeer = seedPeer;
             this.seedCert = seedCert;
             this.seedKey = seedKey;
 
@@ -186,13 +188,13 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
             }
 
             if (!initKeyStore) {
-                identityList = new JComboBox();
+                identityList = new JComboBox<JComboEntry>();
             } else {
                 JComboEntry seedEntry = new JComboEntry(seedPeer, seedCert);
 
-                Object[] names = { seedEntry };
+                JComboEntry[] names = { seedEntry };
 
-                identityList = new JComboBox(names);
+                identityList = new JComboBox<JComboEntry>(names);
                 identityList.setMaximumRowCount(1);
             }
 
@@ -285,7 +287,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
                 ID[] roots = getIdentities(storePassField.getPassword());
 
                 if (null != roots) {
-                    Iterator eachRoot = Arrays.asList(roots).iterator();
+                    Iterator<ID> eachRoot = Arrays.asList(roots).iterator();
 
                     while (eachRoot.hasNext()) {
                         ID aPeer = (ID) eachRoot.next();

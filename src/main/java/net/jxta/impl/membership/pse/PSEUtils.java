@@ -827,7 +827,7 @@ public final class PSEUtils {
     public static byte[] base64Decode(Reader in) throws IOException {
         BASE64InputStream b64is = new BASE64InputStream(in);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
+        try{
         do {
             int c = b64is.read();
 
@@ -837,6 +837,10 @@ public final class PSEUtils {
 
             bos.write(c);
         } while (true);
+        }
+        finally{
+        	b64is.close();
+        }
 
         byte[] result = bos.toByteArray();
 
@@ -881,18 +885,18 @@ public final class PSEUtils {
      * @param messageDigest   The messageDigest to which .
      * @return An encrypted private key info or null if the key could not be
      */
-    public static void xmlElementDigest(XMLElement xmlElement, List ignoreXmlElementNames, MessageDigest messageDigest) {
+    public static void xmlElementDigest(XMLElement<?> xmlElement, List<String> ignoreXmlElementNames, MessageDigest messageDigest) {
         PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
-        Enumeration attributes = xmlElement.getAttributes();
+        Enumeration<Attribute> attributes = xmlElement.getAttributes();
         while(attributes.hasMoreElements()) {
             Attribute attribute = (Attribute)attributes.nextElement();
             PSEUtils.writeStringToDigest(attribute.getName(), messageDigest);
             PSEUtils.writeStringToDigest(attribute.getValue(), messageDigest);
         }
         PSEUtils.writeStringToDigest(xmlElement.getValue(), messageDigest);
-        Enumeration children = xmlElement.getChildren();
+        Enumeration<?> children = xmlElement.getChildren();
         while(children.hasMoreElements()) {
-            XMLElement xmlElementChild = (XMLElement)children.nextElement();
+            XMLElement<?> xmlElementChild = (XMLElement<?>)children.nextElement();
             if (ignoreXmlElementNames.contains(xmlElementChild.getName()))
                 continue;
             PSEUtils.xmlElementDigest(xmlElementChild, messageDigest);
@@ -905,18 +909,18 @@ public final class PSEUtils {
      * @param messageDigest   The messageDigest to which .
      * @return An encrypted private key info or null if the key could not be
      */
-    public static void xmlElementDigest(XMLElement xmlElement, MessageDigest messageDigest) {
+    public static void xmlElementDigest(XMLElement<?> xmlElement, MessageDigest messageDigest) {
         PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
-        Enumeration attributes = xmlElement.getAttributes();
+        Enumeration<Attribute> attributes = xmlElement.getAttributes();
         while(attributes.hasMoreElements()) {
             Attribute attribute = (Attribute)attributes.nextElement();
             PSEUtils.writeStringToDigest(attribute.getName(), messageDigest);
             PSEUtils.writeStringToDigest(attribute.getValue(), messageDigest);
         }
         PSEUtils.writeStringToDigest(xmlElement.getValue(), messageDigest);
-        Enumeration children = xmlElement.getChildren();
+        Enumeration<?> children = xmlElement.getChildren();
         while(children.hasMoreElements()) {
-            XMLElement xmlElementChild = (XMLElement)children.nextElement();
+            XMLElement<?> xmlElementChild = (XMLElement<?>)children.nextElement();
             PSEUtils.xmlElementDigest(xmlElementChild, messageDigest);
         }
     }
