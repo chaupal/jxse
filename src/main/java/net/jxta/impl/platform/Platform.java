@@ -71,7 +71,6 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.peergroup.core.IJxtaLoader;
 import net.jxta.peergroup.core.JxtaLoaderModuleManager;
 import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.ConfigParams;
@@ -202,8 +201,7 @@ public class Platform extends StdPeerGroup {
             try {
 
                 URL downloadablesURL = jxtaHome.resolve("Downloaded/").toURL();
-                IJxtaLoader loader = manager.getLoader();
-                loader.addURL(downloadablesURL);
+                 manager.addURL(downloadablesURL);
 
             } catch (MalformedURLException badPath) {
 
@@ -250,12 +248,11 @@ public class Platform extends StdPeerGroup {
     @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
         JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>)super.getModuleManager(); 
-        IJxtaLoader loader = manager.getLoader();
 
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 
         // initializes the peer config from its parent.
-        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refNetPeerGroupSpecID);
+        ModuleImplAdvertisement implAdv = manager.findModuleImplAdvertisement(IModuleDefinitions.refNetPeerGroupSpecID);
 
         return implAdv;
     }

@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.peergroup.core;
+package net.jxta.impl.loader;
 
 import net.jxta.peergroup.core.IJxtaLoader;
 import net.jxta.peergroup.core.Module;
@@ -70,14 +70,14 @@ import java.net.URLClassLoader;
  * and class loading will determine suitability using the provided
  * compatibility statements.
  */
-public abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
+abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
 
     /**
      *  Construct a new loader with the specified parent loader and
      *
      *  @param parent  the parent class loader for delegation.
      */
-    public JxtaLoader(ClassLoader parent) {
+    protected JxtaLoader(ClassLoader parent) {
         this(new URL[0], parent);
     }
 
@@ -88,7 +88,7 @@ public abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
      *  @param urls  the URLs from which to load classes and resources.
      *  @param parent  the parent class loader for delegation.
      */
-    public JxtaLoader(URL[] urls, ClassLoader parent) {
+    protected JxtaLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 

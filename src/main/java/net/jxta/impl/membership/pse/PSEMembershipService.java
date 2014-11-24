@@ -273,6 +273,8 @@ public final class PSEMembershipService implements MembershipService {
         KeyStoreManager storeManager = getDefaultKeyStoreManagerFactory().getInstance(this, config);        
         try {            
             String membershipPassword = configAdv.getPrivateKey();
+            if( membershipPassword == null )
+            	membershipPassword = "";
             
             pseStore = new PSEConfig(storeManager, membershipPassword.toCharArray());
             pseStore.initialize();            

@@ -260,10 +260,7 @@ public final class WorldPeerGroupFactory {
      * @return the WorldPeerGroup
      */
     private PeerGroup newWorldPeerGroup(Class<?> worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
-        
-    	//The root module manager uses the provided class for default loading 
-    	moduleManager = JxtaLoaderModuleManager.getRoot( worldPeerGroupClass );
-	
+        	
     	if (!storeHome.isAbsolute()) {
             LOG.error("storeHome must be an absolute URI.");
             throw new PeerGroupException("storeHome must be an absolute URI.");
@@ -290,10 +287,10 @@ public final class WorldPeerGroupFactory {
 
                 Logging.logCheckedInfo(LOG, "Making a new World Peer Group instance using : ", worldPeerGroupClass.getName());
 
-                Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);
+                Constructor<?> twoParams = worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);
 
                 try {
-                    result = twoParams.newInstance(config, storeHome);
+                    result = (PeerGroup) twoParams.newInstance(config, storeHome);
                 } catch (InvocationTargetException failure) {
                     // unwrap the real exception.
                     Throwable cause = failure.getCause();
@@ -307,6 +304,9 @@ public final class WorldPeerGroupFactory {
                         throw failure;
                     }
                 }
+            	//The root module manager uses the provided class for default loading 
+            	moduleManager = JxtaLoaderModuleManager.getRoot( worldPeerGroupClass );
+            	moduleManager.init();
 
                 result.init(null, PeerGroupID.worldPeerGroupID, null);
                 worldPeerGroups.put(storeHomeString, result);

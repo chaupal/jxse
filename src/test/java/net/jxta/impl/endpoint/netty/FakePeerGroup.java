@@ -21,7 +21,6 @@ import net.jxta.peer.PeerInfoService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeService;
-import net.jxta.peergroup.core.JxtaLoader;
 import net.jxta.peergroup.core.Module;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
@@ -76,8 +75,7 @@ public class FakePeerGroup implements PeerGroup {
     
     /* UNIMPLEMENTED, IRRELEVANT METHODS BEYOND THIS POINT */
     
-    @SuppressWarnings("unchecked")
-    public boolean compatible(Element compat) {
+    public boolean compatible(Element<?> compat) {
         throw new RuntimeException("not implemented");
     }
 
@@ -102,11 +100,7 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
-    public JxtaLoader getLoader() {
-        throw new RuntimeException("not implemented");
-    }
-
-    public MembershipService getMembershipService() {
+   public MembershipService getMembershipService() {
         throw new RuntimeException("not implemented");
     }
 
@@ -134,8 +128,7 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
-    @SuppressWarnings("unchecked")
-    public Iterator getRoleMap(ID name) {
+    public Iterator<ID> getRoleMap(ID name) {
         throw new RuntimeException("not implemented");
     }
 

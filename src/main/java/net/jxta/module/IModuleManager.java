@@ -7,6 +7,11 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 public interface IModuleManager<T extends Module> {
 
 	/**
+	 * initialize the manager
+	 */
+	public void init();
+	
+	/**
 	 * Register a factory with the manager
 	 * @param factory
 	 */

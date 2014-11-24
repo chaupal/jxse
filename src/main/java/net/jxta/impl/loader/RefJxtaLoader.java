@@ -68,7 +68,6 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.core.IJxtaLoader;
-import net.jxta.peergroup.core.JxtaLoader;
 import net.jxta.peergroup.core.Module;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;

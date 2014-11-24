@@ -70,12 +70,28 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 		factories = new ArrayList<IJxtaModuleFactory<T>>();
 	}
 
+	/**
+	 * initialize the manager
+	 */
+	public void init(){
+		
+	}
+
 	public IJxtaLoader getLoader() {
 		return loader;
 	}
 
 	public void registerFactory(IModuleFactory<T> factory) {
 		factories.add( (IJxtaModuleFactory<T>) factory );
+	}
+	
+	/**
+	 * Get the module manager for the given peergroup
+	 * @param peergroup
+	 * @return
+	 */
+	public IModuleManager<? extends Module> getModuleManagerforPeerGroup( PeerGroup peergroup ){
+		return managers.get( peergroup );
 	}
 	
     /**
@@ -123,6 +139,14 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 				return factory.getModuleImplAdvertisement();
     	}
 		return loader.findModuleImplAdvertisement( clss);
+	}
+
+	/**
+	 * Add a url to the loader
+	 * @param url
+	 */
+	public void addURL( URL url ){
+		loader.addURL(url);
 	}
 	
 	protected static IModuleManager<? extends Module> getModuleManager( PeerGroup peergroup){
@@ -202,8 +226,9 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 	 * @param peerGroupAdvertisement
 	 * @return
 	 */
-	public static IModuleManager<Module> createModuleManager( PeerGroup parentGroup, PeerGroupAdvertisement peerGroupAdvertisement ){
+	public static IModuleManager<Module> createModuleManager( PeerGroup peergroup, PeerGroupAdvertisement peerGroupAdvertisement ){
         IModuleManager<Module> manager = null;
+        PeerGroup parentGroup = peergroup.getParentGroup();
         if (null == parentGroup) {
 
             Logging.logCheckedDebug(LOG, "Setting up group loader -> static loader");
@@ -232,6 +257,7 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 
             Logging.logCheckedDebug(LOG, "Setting up group loader -> ", upLoader);
             manager = new JxtaLoaderModuleManager<Module>(upLoader );
+            managers.put( peergroup, manager);
         }
         return manager;
 		
@@ -255,6 +281,7 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 		if( root == null ){
 			staticLoader = new RefJxtaLoader( new URL[0], clzz.getClassLoader(), COMP_EQ);
 			root = new JxtaLoaderModuleManager<Module>( staticLoader );
+			root.init();
 		}
 		return root;
 	}

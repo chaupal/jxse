@@ -988,7 +988,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // Now that we have our PeerGroupAdvertisement, we can pull out
             // the config to see if we have any PeerGroupConfigAdv params
-            moduleManager = JxtaLoaderModuleManager.createModuleManager(this.getParentGroup(), peerGroupAdvertisement);
+            moduleManager = JxtaLoaderModuleManager.createModuleManager(this, peerGroupAdvertisement);
 
             // If we still do not have a config adv, make one with the parent group, or
             // a minimal one with minimal info in it.

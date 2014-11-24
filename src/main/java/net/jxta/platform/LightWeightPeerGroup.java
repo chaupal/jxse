@@ -72,8 +72,6 @@ import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.peergroup.PeerGroup.GlobalRegistry;
-import net.jxta.peergroup.core.IJxtaLoader;
 import net.jxta.peergroup.core.Module;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.pipe.PipeService;
@@ -197,17 +195,6 @@ public class LightWeightPeerGroup implements PeerGroup {
     public URI getStoreHome() {
         if (group != null) {
             return group.getStoreHome();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public IJxtaLoader getLoader() {
-        if (group != null) {
-            return ((LightWeightPeerGroup) group).getLoader();
         } else {
             return null;
         }
