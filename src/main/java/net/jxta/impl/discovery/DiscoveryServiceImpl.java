@@ -86,7 +86,7 @@ import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.*;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;

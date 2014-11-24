@@ -54,9 +54,11 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.platform;
+package net.jxta.peergroup.core;
 
 import net.jxta.id.ID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 
 import java.net.URI;
 
@@ -107,11 +109,9 @@ import java.net.URI;
  * on the possibly different quality of service.
  *
  * <p/>A ModuleSpecID embeds a base class identifier, which permits to verify that
- * a given Module specification is suitable for its intended use.
- *
- * @see net.jxta.peergroup.PeerGroup
- * @see net.jxta.platform.Module
- * @see net.jxta.platform.ModuleClassID
+ * a given Module specificnet.jxta.peergroup.coreits intended use.net.jxta.peergroup.core.peergroup.PeerGroup
+ * @see net.jxta.peergroup.core.Module
+ * @see net.jxta.peergroup.core.ModuleClassID
  * @see net.jxta.protocol.PeerAdvertisement
  * @see net.jxta.protocol.ModuleSpecAdvertisement
  * @see net.jxta.protocol.ModuleClassAdvertisement

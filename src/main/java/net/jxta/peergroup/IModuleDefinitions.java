@@ -59,8 +59,8 @@ package net.jxta.peergroup;
 import java.net.URI;
 
 import net.jxta.id.ID;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 
 /**
  * TODO: keesp: JxtaLoader removed
@@ -87,8 +87,8 @@ import net.jxta.platform.ModuleSpecID;
  * @see net.jxta.peergroup.PeerGroupFactory
  * @see net.jxta.protocol.PeerGroupAdvertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement
- * @see net.jxta.platform.ModuleSpecID
- * @see net.jxta.platform.ModuleClassID
+ * @see net.jxta.peergroup.core.ModuleSpecID
+ * @see net.jxta.peergroup.core.ModuleClassID
  */
 
 public interface IModuleDefinitions{

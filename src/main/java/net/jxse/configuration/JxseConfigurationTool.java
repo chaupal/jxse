@@ -62,6 +62,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.configuration.JxtaConfigurationException;
 import net.jxta.exception.JxtaException;
 import net.jxta.peer.PeerID;

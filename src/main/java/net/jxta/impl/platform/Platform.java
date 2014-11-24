@@ -71,7 +71,9 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.IJxtaLoader;
+import net.jxta.peergroup.core.IJxtaLoader;
+import net.jxta.peergroup.core.JxtaLoaderModuleManager;
+import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
@@ -188,11 +190,11 @@ public class Platform extends StdPeerGroup {
         // XXX 20080817 mcumings - Need to find a way to have this passed in
         //     so that we can use the passed-in loader as the overall root
         //     loader.
-        IJxtaLoader loader = getJxtaLoader();
+        JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) super.getModuleManager(); 
 
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
         if(null == implAdv) {
-            implAdv = loader.findModuleImplAdvertisement(getClass());
+            implAdv = manager.findModuleImplAdvertisement(getClass());
         }
 
         if (null != jxtaHome) {
@@ -200,6 +202,7 @@ public class Platform extends StdPeerGroup {
             try {
 
                 URL downloadablesURL = jxtaHome.resolve("Downloaded/").toURL();
+                IJxtaLoader loader = manager.getLoader();
                 loader.addURL(downloadablesURL);
 
             } catch (MalformedURLException badPath) {
@@ -246,7 +249,8 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        IJxtaLoader loader = getLoader();
+        JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>)super.getModuleManager(); 
+        IJxtaLoader loader = manager.getLoader();
 
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 
@@ -260,12 +264,13 @@ public class Platform extends StdPeerGroup {
      * {@inheritDoc}
      */
     @Override
-    protected void checkServices() throws ServiceNotFoundException {
+    protected boolean checkServices() throws ServiceNotFoundException {
         super.checkServices();
         Service ignored;
         ignored = lookupService(IModuleDefinitions.discoveryClassID);
         ignored = lookupService(IModuleDefinitions.rendezvousClassID);
         ignored = lookupService(IModuleDefinitions.peerinfoClassID);
+        return (ignored != null );
     }
 
     @Override

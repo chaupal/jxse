@@ -62,7 +62,7 @@ import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.document.*;
-import net.jxta.peergroup.WorldPeerGroupFactory;
+import net.jxta.platform.WorldPeerGroupFactory;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.protocol.ConfigParams;

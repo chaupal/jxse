@@ -68,7 +68,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleSpecID;
 
 /**
  *  Describes a peer group and references additional information required for
@@ -77,7 +77,7 @@ import net.jxta.platform.ModuleSpecID;
  *  subsequent documents can actually be found). This advertisement is indexed
  *  on "Name", "GID", and "Desc"
  *
- *  @see    net.jxta.platform.ModuleSpecID
+ *  @see    net.jxta.peergroup.core.ModuleSpecID
  *  @see    net.jxta.protocol.ModuleImplAdvertisement
  *  @see    net.jxta.peergroup.PeerGroup
  */

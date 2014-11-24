@@ -182,7 +182,6 @@ final class HttpClientMessenger extends BlockingMessenger {
 
         this.servletHttpTransport = servletHttpTransport;
 
-        EndpointAddress srcAddress = srcAddr;
         this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddr.toString(), null);
 
         String protoAddr = destAddr.getProtocolAddress();

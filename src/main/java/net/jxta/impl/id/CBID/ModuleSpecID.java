@@ -61,7 +61,7 @@ import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
 
 /**
- * An implementation of the {@link net.jxta.platform.ModuleSpecID} ID Type.
+ * An implementation of the {@link net.jxta.peergroup.core.ModuleSpecID} ID Type.
  */
 public final class ModuleSpecID extends net.jxta.impl.id.UUID.ModuleSpecID {
 
@@ -94,7 +94,7 @@ public final class ModuleSpecID extends net.jxta.impl.id.UUID.ModuleSpecID {
     }
 
     /**
-     * See {@link net.jxta.id.IDFactory.Instantiator#newModuleSpecID(net.jxta.platform.ModuleClassID)}.
+     * See {@link net.jxta.id.IDFactory.Instantiator#newModuleSpecID(net.jxta.peergroup.core.ModuleClassID)}.
      * @param classID the ModuleClassID
      */
     public ModuleSpecID(ModuleClassID classID) {
@@ -113,7 +113,7 @@ public final class ModuleSpecID extends net.jxta.impl.id.UUID.ModuleSpecID {
      * {@inheritDoc}
      */
     @Override
-    public net.jxta.platform.ModuleClassID getBaseClass() {
+    public net.jxta.peergroup.core.ModuleClassID getBaseClass() {
         return new ModuleClassID(getClassUUID(), new UUID(0L, 0L));
     }
 }

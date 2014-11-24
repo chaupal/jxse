@@ -271,21 +271,21 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
-    public net.jxta.platform.ModuleClassID newModuleClassID() {
+    public net.jxta.peergroup.core.ModuleClassID newModuleClassID() {
         return new ModuleClassID();
     }
 
     /**
      * {@inheritDoc}
      */
-    public net.jxta.platform.ModuleClassID newModuleClassID(net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.peergroup.core.ModuleClassID newModuleClassID(net.jxta.peergroup.core.ModuleClassID classID) {
         return new ModuleClassID((ModuleClassID) classID);
     }
 
     /**
      * {@inheritDoc}
      */
-    public net.jxta.platform.ModuleSpecID newModuleSpecID(net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.peergroup.core.ModuleSpecID newModuleSpecID(net.jxta.peergroup.core.ModuleClassID classID) {
         return new ModuleSpecID((ModuleClassID) classID);
     }
 

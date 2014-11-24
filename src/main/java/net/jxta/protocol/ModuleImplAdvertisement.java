@@ -57,6 +57,7 @@
 package net.jxta.protocol;
 
 import java.io.Serializable;
+
 import net.jxta.document.Element;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.document.MimeMediaType;
@@ -64,7 +65,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.ID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleSpecID;
 
 /**
  * A ModuleImplAdvertisement describes one of any number of published
@@ -81,7 +82,7 @@ import net.jxta.platform.ModuleSpecID;
  * reference implementation.
  *
  * @see net.jxta.id.ID
- * @see net.jxta.platform.ModuleSpecID
+ * @see net.jxta.peergroup.core.ModuleSpecID
  * @see net.jxta.document.Advertisement
  * @see net.jxta.document.StructuredDocument
  * @see net.jxta.document.Element
@@ -89,14 +90,15 @@ import net.jxta.platform.ModuleSpecID;
  * @see net.jxta.peergroup.PeerGroup
  */
 public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement implements Cloneable, Serializable {
-
-    private ModuleSpecID msid = null;
-    private StructuredDocument description = null;
-    private StructuredDocument compat = null;
+	private static final long serialVersionUID = 4961377933550939384L;
+	
+	private ModuleSpecID msid = null;
+    private StructuredDocument<?> description = null;
+    private StructuredDocument<?> compat = null;
     private String code = null;
     private String uri = null;
     private String provider = null;
-    private StructuredDocument param = null;
+    private StructuredDocument<?> param = null;
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -189,7 +191,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     public void setDescription(String description) {
 
         if (null != description) {
-            StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
+            StructuredDocument<?> newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
             setDesc(newdoc);
         } else {
@@ -202,9 +204,9 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @return the description
      */
-    public StructuredDocument getDesc() {
+    public StructuredDocument<?> getDesc() {
         if (null != description) {
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(description);
 
             return newDoc;
         } else {
@@ -217,7 +219,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @return the description
      */
-    public StructuredDocument getDescPriv() {
+    public StructuredDocument<?> getDescPriv() {
         return description;
     }
 
@@ -226,7 +228,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @param desc the description
      */
-    public void setDesc(Element desc) {
+    public void setDesc(Element<?> desc) {
 
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
@@ -244,7 +246,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * @return The compatibility statement as a StructuredDocument of 
      * unspecified content.
      */
-    public StructuredDocument getCompat() {
+    public StructuredDocument<?> getCompat() {
         return (compat == null ? null : StructuredDocumentUtils.copyAsDocument(compat));
     }
 
@@ -254,7 +256,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * @return The compatibility statement as a StructuredDocument of 
      * unspecified content.
      */
-    protected StructuredDocument getCompatPriv() {
+    protected StructuredDocument<?> getCompatPriv() {
         return compat;
     }
 
@@ -263,7 +265,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @param compat Element of an unspecified content.
      */
-    public void setCompat(Element compat) {
+    public void setCompat(Element<?> compat) {
         this.compat = (compat == null ? null : StructuredDocumentUtils.copyAsDocument(compat));
     }
 
@@ -349,7 +351,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @return A standalone structured document of unspecified content.
      */
-    public StructuredDocument getParam() {
+    public StructuredDocument<?> getParam() {
         return (param == null ? null : StructuredDocumentUtils.copyAsDocument(param));
     }
 
@@ -358,7 +360,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @return A standalone structured document of unspecified content.
      */
-    protected StructuredDocument getParamPriv() {
+    protected StructuredDocument<?> getParamPriv() {
         return param;
     }
 
@@ -367,7 +369,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      *
      * @param param Element of an unspecified content.
      */
-    public void setParam(Element param) {
+    public void setParam(Element<?> param) {
         this.param = (param == null ? null : StructuredDocumentUtils.copyAsDocument(param));
     }
 }

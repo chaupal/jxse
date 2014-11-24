@@ -66,7 +66,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 /**
@@ -168,11 +168,11 @@ public final class CompatibilityUtils {
      * @return compatibility statement document
      */
     @SuppressWarnings("unchecked")
-    public static XMLDocument createDefaultCompatStatement() {
+    public static XMLDocument<?> createDefaultCompatStatement() {
         XMLDocument doc = (XMLDocument)
                 StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Comp");
-        XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
+        XMLElement<?> e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
         doc.appendChild(e);
 
         e = doc.createElement(STD_COMPAT_BINDING, STD_COMPAT_BINDING_VALUE);
@@ -188,7 +188,7 @@ public final class CompatibilityUtils {
      * @return {@code true} if we are compatible with the provided statement
      *  otherwise {@code false}.
      */
-    public static boolean isCompatible(Element compat) {
+    public static boolean isCompatible(Element<?> compat) {
         boolean formatOk = false;
         boolean bindingOk = false;
 
@@ -197,7 +197,7 @@ public final class CompatibilityUtils {
         }
 
         try {
-            Enumeration<TextElement> hisChildren = ((TextElement)compat).getChildren();
+            Enumeration<TextElement<?>> hisChildren = ((TextElement)compat).getChildren();
             int i = 0;
             while (hisChildren.hasMoreElements()) {
                 // Stop after 2 elements; there shall not be more.
@@ -205,7 +205,7 @@ public final class CompatibilityUtils {
                     return false;
                 }
 
-                TextElement e = hisChildren.nextElement();
+                TextElement<?> e = hisChildren.nextElement();
                 String key = e.getKey();
                 String val = e.getValue().trim();
 

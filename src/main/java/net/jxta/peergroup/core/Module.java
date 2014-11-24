@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.platform;
+package net.jxta.peergroup.core;
 
 import net.jxta.document.Advertisement;
 import net.jxta.exception.PeerGroupException;
@@ -80,11 +80,11 @@ import net.jxta.peergroup.PeerGroup;
  * The "parent" PeerGroup of the World Peer Group is null.
  *
  * @see net.jxta.protocol.ModuleImplAdvertisement
- * @see net.jxta.platform.ModuleClassID
+ * @see net.jxta.peergroup.coree.ModuleClassID
  * @see net.jxta.peergroup.PeerGroup
  * @see net.jxta.document.Advertisement
  * @see net.jxta.id.ID
- * @see net.jxta.platform.Application
+ * @seenet.jxta.peergroup.corere.Application
  * @see net.jxta.service.Service
  **/
 public interface Module {

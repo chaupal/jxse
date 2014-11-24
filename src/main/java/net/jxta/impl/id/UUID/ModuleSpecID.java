@@ -57,9 +57,9 @@
 package net.jxta.impl.id.UUID;
 
 /**
- *  An implementation of the {@link net.jxta.platform.ModuleSpecID} ID Type.
+ *  An implementation of the {@link net.jxta.peergroup.core.ModuleSpecID} ID Type.
  */
-public class ModuleSpecID extends net.jxta.platform.ModuleSpecID {
+public class ModuleSpecID extends net.jxta.peergroup.core.ModuleSpecID {
     private final static int moduleClassIdOffset = 0;
     private final static int moduleSpecIdOffset = IDFormat.uuidSize;
     private final static int padOffset = ModuleSpecID.moduleSpecIdOffset + IDFormat.uuidSize;
@@ -106,7 +106,7 @@ public class ModuleSpecID extends net.jxta.platform.ModuleSpecID {
     }
 
     /**
-     *  See {@link net.jxta.id.IDFactory.Instantiator#newModuleSpecID(net.jxta.platform.ModuleClassID)}.
+     *  See {@link net.jxta.id.IDFactory.Instantiator#newModuleSpecID(net.jxta.peergroup.core.ModuleClassID)}.
      */
     public ModuleSpecID(ModuleClassID classID) {
         this(classID.getClassUUID(), UUIDFactory.newUUID());
@@ -158,7 +158,7 @@ public class ModuleSpecID extends net.jxta.platform.ModuleSpecID {
      *  {@inheritDoc}
      */
     @Override
-    public net.jxta.platform.ModuleClassID getBaseClass() {
+    public net.jxta.peergroup.core.ModuleClassID getBaseClass() {
         return new ModuleClassID(getClassUUID(), new UUID(0L, 0L));
     }
 
@@ -166,7 +166,7 @@ public class ModuleSpecID extends net.jxta.platform.ModuleSpecID {
      *  {@inheritDoc}
      */
     @Override
-    public boolean isOfSameBaseClass(net.jxta.platform.ModuleClassID classId) {
+    public boolean isOfSameBaseClass(net.jxta.peergroup.core.ModuleClassID classId) {
         return getClassUUID().equals(((ModuleClassID) classId).getClassUUID());
     }
 
@@ -174,7 +174,7 @@ public class ModuleSpecID extends net.jxta.platform.ModuleSpecID {
      *  {@inheritDoc}
      */
     @Override
-    public boolean isOfSameBaseClass(net.jxta.platform.ModuleSpecID specId) {
+    public boolean isOfSameBaseClass(net.jxta.peergroup.core.ModuleSpecID specId) {
         return getClassUUID().equals(((ModuleSpecID) specId).getClassUUID());
     }
 

@@ -68,7 +68,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.protocol.ModuleClassAdvertisement;
 
 import java.net.URI;

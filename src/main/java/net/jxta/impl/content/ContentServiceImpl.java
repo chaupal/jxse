@@ -63,7 +63,7 @@ import net.jxta.id.ID;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;

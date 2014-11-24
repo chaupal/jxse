@@ -71,7 +71,7 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.protocol.PeerAdvertisement;
 
 import java.net.URI;

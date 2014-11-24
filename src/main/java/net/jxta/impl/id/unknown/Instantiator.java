@@ -227,21 +227,21 @@ final class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      **/
-    public net.jxta.platform.ModuleClassID newModuleClassID() {
+    public net.jxta.peergroup.core.ModuleClassID newModuleClassID() {
         throw new ProviderException("unsupported id type");
     }
 
     /**
      * {@inheritDoc}
      **/
-    public net.jxta.platform.ModuleClassID newModuleClassID(final net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.peergroup.core.ModuleClassID newModuleClassID(final net.jxta.peergroup.core.ModuleClassID classID) {
         throw new ProviderException("unsupported id type");
     }
 
     /**
      * {@inheritDoc}
      **/
-    public net.jxta.platform.ModuleSpecID newModuleSpecID(final net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.peergroup.core.ModuleSpecID newModuleSpecID(final net.jxta.peergroup.core.ModuleClassID classID) {
         throw new ProviderException("unsupported id type");
     }
 

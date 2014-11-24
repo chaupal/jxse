@@ -115,7 +115,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
@@ -682,7 +682,6 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    @Override
     public Credential makeCredential(Element<?> element) {
 
         return new PSECredential(this, element);

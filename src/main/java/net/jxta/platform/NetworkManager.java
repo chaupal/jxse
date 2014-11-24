@@ -59,7 +59,9 @@ package net.jxta.platform;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+
 import javax.security.cert.CertificateException;
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.exception.ConfiguratorException;
@@ -72,7 +74,6 @@ import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
-import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerGroupAdvertisement;
@@ -142,7 +143,6 @@ public class NetworkManager implements RendezvousListener {
     private final Object networkConnectLock = "rendezvous connection lock";
     private PeerGroup netPeerGroup = null;
     private volatile boolean started = false;
-    private volatile boolean connected = false;
     private volatile boolean stopped = false;
     private RendezVousService rendezvous;
     private String instanceName = "NA";
@@ -153,7 +153,6 @@ public class NetworkManager implements RendezvousListener {
     private PeerID peerID = null;
     private NetworkConfigurator config;
     private boolean configPersistent = true;
-//    private boolean useDefaultSeeds;
     
     static final String DEFAULT_INSTANCE_HOME = ".jxta/";
     
@@ -234,30 +233,12 @@ public class NetworkManager implements RendezvousListener {
     }
 
     /**
-     * Setter for property 'instanceName'.
-     *
-     * @param instanceName Value to set for property 'instanceName'.
-     */
-    private void setInstanceName(String instanceName) {
-        this.instanceName = instanceName;
-    }
-
-    /**
      * Getter for property 'instanceHome'.
      *
      * @return Value for property 'instanceHome'.
      */
     public URI getInstanceHome() {
         return instanceHome;
-    }
-
-    /**
-     * Setter for property 'instanceHome'.
-     *
-     * @param instanceHome Value to set for property 'instanceHome'.
-     */
-    private void setInstanceHome(URI instanceHome) {
-        this.instanceHome = instanceHome;
     }
 
     /**
@@ -477,8 +458,7 @@ public class NetworkManager implements RendezvousListener {
 
         stopped = true;
         synchronized (networkConnectLock) {
-            connected = false;
-            networkConnectLock.notifyAll();
+             networkConnectLock.notifyAll();
         }
 
         rendezvous.removeListener(this);               
@@ -569,29 +549,10 @@ public class NetworkManager implements RendezvousListener {
         if (event.getType() == RendezvousEvent.RDVCONNECT || event.getType() == RendezvousEvent.RDVRECONNECT
                 || event.getType() == RendezvousEvent.BECAMERDV) {
             synchronized (networkConnectLock) {
-                connected = true;
                 networkConnectLock.notifyAll();
             }
         }
     }
-
-//    /**
-//     * if true uses the public rendezvous seeding service
-//     *
-//     * @param useDefaultSeeds if true uses the default development seeding service
-//     */
-//    public void setUseDefaultSeeds(boolean useDefaultSeeds) {
-//        this.useDefaultSeeds = useDefaultSeeds;
-//    }
-//
-//    /**
-//     * Returns true if useDefaultSeeds is set to true
-//     *
-//     * @return true if useDefaultSeeds is set to true
-//     */
-//    public boolean getUseDefaultSeeds() {
-//        return useDefaultSeeds;
-//    }
 
     /**
      * Registers a Runtime shutdown hook to cleanly shutdown the JXTA platform

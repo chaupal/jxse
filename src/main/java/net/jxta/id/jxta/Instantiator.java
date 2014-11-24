@@ -61,9 +61,9 @@ import net.jxta.content.ContentID;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.pipe.PipeID;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
 
 import java.io.IOException;
 import java.io.InputStream;

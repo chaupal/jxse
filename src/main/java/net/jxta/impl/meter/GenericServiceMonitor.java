@@ -63,8 +63,8 @@ import net.jxta.meter.MonitorResources;
 import net.jxta.meter.ServiceMetric;
 import net.jxta.meter.ServiceMonitorFilter;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 public abstract class GenericServiceMonitor implements ServiceMonitorImpl, Module {

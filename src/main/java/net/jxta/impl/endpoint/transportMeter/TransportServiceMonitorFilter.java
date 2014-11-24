@@ -61,8 +61,8 @@ import net.jxta.document.TextElement;
 import net.jxta.id.IDFactory;
 import net.jxta.meter.MonitorResources;
 import net.jxta.meter.ServiceMonitorFilter;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
 

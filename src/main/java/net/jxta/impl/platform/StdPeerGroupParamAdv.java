@@ -69,8 +69,9 @@ import net.jxta.id.IDFactory;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
+
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 import java.net.URI;
@@ -109,8 +110,8 @@ public class StdPeerGroupParamAdv {
      * The services which will be loaded for this peer group.
      * <p/>
      * <ul>
-     *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
-     *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *     <li>Keys anet.jxta.platform.core..platform.core.ModuleClassID}.</li>
+     *     <li>Valnet.jxta.platform.core..jxta.platform.core.ModuleSpecID} or
      *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
      * </ul>
      */ 
@@ -121,8 +122,8 @@ public class StdPeerGroupParamAdv {
      * group.
      * <p/>
      * <ul>
-     *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
-     *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *     net.jxta.platform.core.k net.jxta.platform.core.ModuleClassID}.</li>
+     *  net.jxta.platform.core.{@linnet.jxta.peergroup.coreore.ModuleSpecID} or
      *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
      * </ul>
      */ 
@@ -132,8 +133,7 @@ public class StdPeerGroupParamAdv {
      * The applications which will be loaded for this peer group.
      * <p/>
      * <ul>
-     *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
-     *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+ net.jxta.platform.core. are {@linet.jxta.peergroup.corecore.ModuleClassID}.</li>net.jxta.platform.core.alues are {@lnet.jxta.peergroup.core.core.ModuleSpecID} or
      *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
      * </ul>
      */ 
@@ -150,11 +150,11 @@ public class StdPeerGroupParamAdv {
      *
      * @param root the root element
      */
-    public StdPeerGroupParamAdv(Element root) {
+    public StdPeerGroupParamAdv(Element<?> root) {
         if (!(root instanceof XMLElement)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
-        initialize((XMLElement) root);
+        initialize((XMLElement<?>) root);
     }
 
     /**
@@ -162,7 +162,7 @@ public class StdPeerGroupParamAdv {
      *
      * @param doc The XML serialization of the advertisement.
      */
-    public StdPeerGroupParamAdv(XMLElement doc) {
+    public StdPeerGroupParamAdv(XMLElement<?> doc) {
         initialize(doc);
     }
 

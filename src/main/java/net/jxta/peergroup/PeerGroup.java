@@ -63,6 +63,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -77,9 +78,9 @@ import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.pipe.PipeService;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
@@ -113,8 +114,8 @@ import net.jxta.service.Service;
  * @see net.jxta.peergroup.PeerGroupFactory
  * @see net.jxta.protocol.PeerGroupAdvertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement
- * @see net.jxta.platform.ModuleSpecID
- * @see net.jxta.platform.ModuleClassID
+ * @see net.jxta.peergroup.core.ModuleSpecID
+ * @see net.jxta.peergroup.core.ModuleClassID
  */
 
 public interface PeerGroup extends Service {
@@ -421,7 +422,7 @@ public interface PeerGroup extends Service {
      * <p/>
      * Compatibility is checked and load is attempted. If compatible and loaded
      * successfully, the resulting Module is initialized and returned.
-     * In most cases {@link #loadModule(net.jxta.id.ID, net.jxta.platform.ModuleSpecID, int)} 
+     * In most cases {@link #loadModule(net.jxta.id.ID, net.jxta.peergroup.core.ModuleSpecID, int)} 
      * should be preferred, since unlike this method, it will try all
      * compatible implementation advertisements until one works. The home group 
      * of the new module (its' parent group if the new Module is a group) will 

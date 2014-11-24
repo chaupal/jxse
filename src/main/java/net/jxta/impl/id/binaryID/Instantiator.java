@@ -413,7 +413,7 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      *
      * @throws UnsupportedOperationException This form is not supported because a binary ID is meant to be created with a random ID.
      */
-    public net.jxta.platform.ModuleClassID newModuleClassID() {
+    public net.jxta.peergroup.core.ModuleClassID newModuleClassID() {
         throw new UnsupportedOperationException(
                 "This form is not supported because a binary ID is meant to be created with a random ID. Use UUID package instead.");
     }
@@ -423,7 +423,7 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      *
      * @throws UnsupportedOperationException This form is not supported because a binary ID is meant to be created with a random ID.
      */
-    public net.jxta.platform.ModuleClassID newModuleClassID(final net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.peergroup.core.ModuleClassID newModuleClassID(final net.jxta.peergroup.core.ModuleClassID classID) {
         throw new UnsupportedOperationException(
                 "This form is not supported because a binary ID is meant to be created with a random ID. Use UUID package instead.");
     }
@@ -433,7 +433,7 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      *
      * @throws UnsupportedOperationException This form is not supported because a binary ID is meant to be created with a random ID. Use UUID instead.
      */
-    public net.jxta.platform.ModuleSpecID newModuleSpecID(final net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.peergroup.core.ModuleSpecID newModuleSpecID(final net.jxta.peergroup.core.ModuleClassID classID) {
         throw new UnsupportedOperationException(
                 "This form is not supported because a binary ID is meant to be created with a random ID. Use UUID package instead.");
     }

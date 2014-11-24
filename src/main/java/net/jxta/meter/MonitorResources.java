@@ -65,8 +65,8 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaException;
 import net.jxta.id.ID;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 

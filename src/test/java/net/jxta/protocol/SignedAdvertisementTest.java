@@ -65,13 +65,13 @@ import net.jxta.document.*;
 import net.jxta.credential.Credential;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.membership.MembershipService;
-import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 
+import net.jxta.platform.WorldPeerGroupFactory;
 import net.jxta.exception.PeerGroupException;
-
 import net.jxta.impl.membership.pse.StringAuthenticator;
+
 import org.junit.Ignore;
 
 /**

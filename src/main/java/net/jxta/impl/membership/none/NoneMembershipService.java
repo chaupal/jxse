@@ -70,6 +70,7 @@ import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 import net.jxta.logging.Logging;
@@ -79,8 +80,6 @@ import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-
-import net.jxta.platform.ModuleSpecID;
 
 /**
  *  A Membership Service implementation which is intended to be used with peer

@@ -55,7 +55,7 @@ package net.jxta.impl.content;
 import java.util.logging.Logger;
 import net.jxta.content.Content;
 import net.jxta.content.ContentService;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.Module;
 import net.jxta.service.Service;
 import net.jxta.test.util.JUnitRuleMockery;
 

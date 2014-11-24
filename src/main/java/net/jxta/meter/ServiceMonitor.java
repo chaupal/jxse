@@ -56,8 +56,8 @@
 
 package net.jxta.meter;
 
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleClassID;
 
 /**
  *  The base interface for all ServiceMonitors

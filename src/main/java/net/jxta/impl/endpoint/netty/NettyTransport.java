@@ -25,7 +25,7 @@ import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;

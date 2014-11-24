@@ -58,11 +58,12 @@ package net.jxta.impl.content;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.jxta.document.Advertisement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.Module;
 import static net.jxta.impl.content.ModuleLifecycleState.*;
 
 /**

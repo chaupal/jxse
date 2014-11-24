@@ -53,7 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.peergroup;
+package net.jxta.platform;
 
 import net.jxta.access.AccessService;
 import net.jxta.discovery.DiscoveryService;
@@ -70,10 +70,13 @@ import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.PeerGroup.GlobalRegistry;
+import net.jxta.peergroup.core.IJxtaLoader;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.pipe.PipeService;
-import net.jxta.platform.IJxtaLoader;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;

@@ -69,10 +69,11 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;

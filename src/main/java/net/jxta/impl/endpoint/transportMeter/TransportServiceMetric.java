@@ -62,7 +62,7 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.IDFactory;
 import net.jxta.meter.MonitorResources;
 import net.jxta.meter.ServiceMetric;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
 

@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.peergroup;
+package net.jxta.platform;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
@@ -67,6 +67,9 @@ import net.jxta.impl.platform.ShadowPeerGroup;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.IModuleDefinitions;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -93,7 +96,7 @@ import java.util.ResourceBundle;
  * @since JXTA JSE 2.4
  *
  * @see net.jxta.peergroup.PeerGroup
- * @see net.jxta.peergroup.WorldPeerGroupFactory
+ * @see net.jxta.platform.WorldPeerGroupFactory
  */
 public final class NetPeerGroupFactory {
 

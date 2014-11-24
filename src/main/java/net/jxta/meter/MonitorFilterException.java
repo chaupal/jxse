@@ -56,7 +56,7 @@
 
 package net.jxta.meter;
 
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 
 /**
  * Monitor Filter Exception

@@ -54,8 +54,11 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.platform;
+package net.jxta.peergroup.core;
 
+import net.jxta.peergroup.core.IJxtaLoader;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 import java.net.URL;

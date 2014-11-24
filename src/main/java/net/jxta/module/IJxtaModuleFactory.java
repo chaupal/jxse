@@ -1,13 +1,13 @@
-package net.jxse.module;
+package net.jxta.module;
 
 import net.jxta.document.Advertisement;
 import net.jxta.impl.protocol.PlatformConfig;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-public interface IJxtaModuleService<T extends Module> extends IModuleService<T>{
+public interface IJxtaModuleFactory<T extends Module> extends IModuleFactory<T>{
 
 	/**
 	 * Get a module spec ID

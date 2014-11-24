@@ -63,14 +63,14 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.ID;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 
 /**
  * Formally documents the existence of a module class (identified by the
- * {@link net.jxta.platform.ModuleClassID} and may provide additional
+ * {@link net.jxta.peergroup.core.ModuleClassID} and may provide additional
  * descriptive metadata about the Module Class.
  *
- * @see net.jxta.platform.ModuleClassID
+ * @see net.jxta.peergroup.core.ModuleClassID
  */
 public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement implements Cloneable {
 

@@ -69,13 +69,13 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
-import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.JxtaLoaderModuleManager;
+import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
@@ -182,13 +182,13 @@ public final class ServletHttpTransportImpl implements ServletHttpTransport, Mod
         implAdvertisement = (ModuleImplAdvertisement) impl;
 
         // Get out invariable parameters from the implAdv
-        XMLElement param = (XMLElement) implAdvertisement.getParam();
+        XMLElement<?> param = (XMLElement<?>) implAdvertisement.getParam();
 
         if (param != null) {
-            Enumeration list = param.getChildren("Proto");
+            Enumeration<?> list = param.getChildren("Proto");
 
             if (list.hasMoreElements()) {
-                XMLElement pname = (XMLElement) list.nextElement();
+                XMLElement<?> pname = (XMLElement<?>) list.nextElement();
                 String configProtoName = pname.getTextValue();
                 if (null != configProtoName) {
                     HTTP_PROTOCOL_NAME = configProtoName.trim();
@@ -198,13 +198,13 @@ public final class ServletHttpTransportImpl implements ServletHttpTransport, Mod
 
         ConfigParams peerAdv = group.getConfigAdvertisement();
 
-        param = (XMLElement) peerAdv.getServiceParam(assignedID);
+        param = (XMLElement<?>) peerAdv.getServiceParam(assignedID);
 
-        Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<?> httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
         if (httpChilds.hasMoreElements()) {
-            param = (XMLElement) httpChilds.nextElement();
+            param = (XMLElement<?>) httpChilds.nextElement();
             Attribute typeAttr = param.getAttribute("type");
 
             if (!HTTPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
@@ -333,7 +333,7 @@ public final class ServletHttpTransportImpl implements ServletHttpTransport, Mod
             try {
 
                 // Use peer group class loader (useful for HttpMessageServlet)
-                final ClassLoader classLoader = GenericPeerGroup.getLoader().getClassLoader();
+                final ClassLoader classLoader = JxtaLoaderModuleManager.getClassLoader( group );
                 receiver = new HttpMessageReceiver(this, publicAddresses, usingInterface, usingPort, classLoader);
                 receiver.start();
 

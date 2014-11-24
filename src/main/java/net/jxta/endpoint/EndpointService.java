@@ -468,7 +468,7 @@ public interface EndpointService extends Service, EndpointListener {
      * Transports remove themselves from the list when stopped. This method
      * is normally only called from the stoppApp method of the transport. To
      * cleanly remove a transport, call the transport's
-     * {@link net.jxta.platform.Module#stopApp() stopApp()}and allow it to call
+     * {@link net.jxta.peergroup.core.Module#stopApp() stopApp()}and allow it to call
      * this method.
      *
      * @param transpt the MessageTransport to be removed.

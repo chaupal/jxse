@@ -58,7 +58,7 @@ package net.jxta.impl.meter;
 
 import net.jxta.exception.JxtaException;
 import net.jxta.meter.ServiceMonitor;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.service.Service;
 
 public interface ServiceMonitorResource extends Service {

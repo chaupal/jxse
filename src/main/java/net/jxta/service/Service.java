@@ -57,7 +57,7 @@
 package net.jxta.service;
 
 import net.jxta.document.Advertisement;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.Module;
 
 /**
  * This interface implements the peer group service interface. Peer groups
@@ -77,7 +77,7 @@ import net.jxta.platform.Module;
  * new peer group (via the PeerGroupAdvertisement of this group).
  *
  * @see         net.jxta.peergroup.PeerGroup
- * @see         net.jxta.platform.Application
+ * @see         net.jxta.peergroup.core.Application
  * @see         net.jxta.protocol.PeerGroupAdvertisement
  * @see         net.jxta.protocol.ModuleImplAdvertisement
  **/

@@ -13,8 +13,7 @@ import net.jxta.impl.protocol.GroupConfig;
 import net.jxta.impl.protocol.ModuleImplAdv;
 import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.peergroup.IModuleDefinitions;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
+import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.TransportAdvertisement;
 
 import org.junit.After;

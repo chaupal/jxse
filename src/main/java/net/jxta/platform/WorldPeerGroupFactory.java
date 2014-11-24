@@ -54,13 +54,18 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.peergroup;
+package net.jxta.platform;
 
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.platform.IJxtaLoader;
+import net.jxta.module.IModuleManager;
+import net.jxta.peergroup.IModuleDefinitions;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.core.JxtaLoaderModuleManager;
+import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -71,7 +76,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.jxta.impl.loader.DynamicJxtaLoader;
 import net.jxta.impl.platform.DefaultConfigurator;
 import net.jxta.impl.platform.NullConfigurator;
 
@@ -101,13 +105,20 @@ import net.jxta.impl.platform.NullConfigurator;
  * @since JXTA JSE 2.4
  *
  * @see net.jxta.peergroup.PeerGroup
- * @see net.jxta.peergroup.NetPeerGroupFactory
+ * @see net.jxta.platform.NetPeerGroupFactory
  */
 public final class WorldPeerGroupFactory {
 
     private final static transient Logger LOG = Logging.getLogger(WorldPeerGroupFactory.class.getName());
 
     private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<String, PeerGroup>();
+    
+    /**
+     * The module manager is a replacement for the jxta loader and allows for more controlled
+     * registration and management of modules. In order to work with the OSGI containers,
+     * the root classloader is always the one that 
+     */
+   private IModuleManager<? extends Module> moduleManager;
 
     /**
      * Our strong reference to the World Peer Group.
@@ -206,20 +217,7 @@ public final class WorldPeerGroupFactory {
      */
     public PeerGroup getWorldPeerGroup() {
         return world;
-//        return world.getInterface();
     }
-
-//    /**
-//     * Returns a weak (non-reference counted) interface object for the World
-//     * Peer Group.
-//     *
-//     * @return A weak (non-reference counted) interface object for the World
-//     * Peer Group.
-//     * @see PeerGroup#getWeakInterface()
-//     */
-//    public PeerGroup getWeakInterface() {
-//        return world.getWeakInterface();
-//    }
 
     /**
      * Determine the class to use for the World PeeerGroup. 
@@ -232,8 +230,7 @@ public final class WorldPeerGroupFactory {
     private static Class<?> getDefaultWorldPeerGroupClass() throws PeerGroupException {
 
         try {
-            IJxtaLoader loader = DynamicJxtaLoader.getInstance();
-
+            JxtaLoaderModuleManager<Module> loader = JxtaLoaderModuleManager.getRoot(WorldPeerGroupFactory.class );
             ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
 
             if(null == worldGroupImplAdv) {
@@ -263,7 +260,11 @@ public final class WorldPeerGroupFactory {
      * @return the WorldPeerGroup
      */
     private PeerGroup newWorldPeerGroup(Class<?> worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
-        if (!storeHome.isAbsolute()) {
+        
+    	//The root module manager uses the provided class for default loading 
+    	moduleManager = JxtaLoaderModuleManager.getRoot( worldPeerGroupClass );
+	
+    	if (!storeHome.isAbsolute()) {
             LOG.error("storeHome must be an absolute URI.");
             throw new PeerGroupException("storeHome must be an absolute URI.");
         }

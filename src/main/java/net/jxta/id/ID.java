@@ -73,8 +73,8 @@ import java.util.WeakHashMap;
  *  @see net.jxta.peer.PeerID
  *  @see net.jxta.peergroup.PeerGroupID
  *  @see net.jxta.pipe.PipeID
- *  @see net.jxta.platform.ModuleClassID
- *  @see net.jxta.platform.ModuleSpecID
+ *  @see net.jxta.peergroup.core.ModuleClassID
+ *  @see net.jxta.peergroup.core.ModuleSpecID
  *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
  */
 public abstract class ID implements java.io.Serializable {

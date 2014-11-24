@@ -90,14 +90,15 @@ import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
+import net.jxta.module.IModuleManager;
 import net.jxta.peergroup.ICachedPeerGroup;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.IJxtaLoader;
+import net.jxta.peergroup.core.JxtaLoaderModuleManager;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.platform.JxtaApplication;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -111,48 +112,12 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 
     private final static transient Logger LOG = Logging.getLogger(StdPeerGroup.class.getName());
 
-//    /**
-//     * This field is for backwards compatibility with broken code and will
-//     * be removed in the near future.  The correct way to obtain a compatibility
-//     * statement is to obtain it from a peer group's implementation
-//     * advertisement.
-//     *
-//     * @deprecated will be removed in 2.8
-//     */
-//    @Deprecated
-//    public static final XMLDocument STD_COMPAT =
-//            CompatibilityUtils.createDefaultCompatStatement();
-
-//    /**
-//     * This field is for backwards compatibility with broken code and will
-//     * be removed in the near future.  The correct way to obtain this
-//     * information is to obtain it from a peer group's implementation
-//     * advertisement.
-//     *
-//     * @deprecated will be removed in 2.8
-//     */
-//    @Deprecated
-//    public static final String MODULE_IMPL_STD_URI =
-//            CompatibilityUtils.getDefaultPackageURI();
-
-//    /**
-//     * This field is for backwards compatibility with broken code and will
-//     * be removed in the near future.  The correct way to obtain this
-//     * information is to obtain it from a peer group's implementation
-//     * advertisement.
-//     * 
-//     * @deprecated will be removed in 2.8
-//     */
-//    @Deprecated
-//    public static final String MODULE_IMPL_STD_PROVIDER =
-//            CompatibilityUtils.getDefaultProvider();
 
     /**
      * Static initializer.
      */
     static {
-        // XXX Force redefinition of StdPeerGroup implAdvertisement.
-        getJxtaLoader().defineClass(getDefaultModuleImplAdvertisement());
+        JxtaLoaderModuleManager.getRoot( StdPeerGroup.class ).defineClass(getDefaultModuleImplAdvertisement());
     }
 
     /**
@@ -169,8 +134,8 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      * A map of the Message Transports for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module}, but should also be
+     * <li>keys are {@link net.jxta.peergroup.core.ModuleClassID}</li>
+     * <li>values are {@link net.jxta.peergroup.core.Module}, but should also be
      * {@link net.jxta.endpoint.MessageTransport}</li>
      * </ul>
      */
@@ -180,15 +145,17 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      * A map of the applications for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module} or
+     * <li>keys are {@link net.jxta.peergroup.core.ModuleClassID}</li>
+     * <li>values are {@link net.jxta.peergroup.core.Module} or
      * {@link net.jxta.protocol.ModuleImplAdvertisement} or
-     * {@link net.jxta.platform.ModuleSpecID}</li>
+     * {@link net.jxta.peergroup.core.ModuleSpecID}</li>
      * </ul>
      */
     private final Map<ModuleClassID, Object> applications = new HashMap<ModuleClassID, Object>();
 
-    /**
+    private IModuleManager<Module> root = JxtaLoaderModuleManager.getRoot( StdPeerGroup.class );
+    
+    		/**
      * Cache for this group.
      */
     private CacheManager cm = null;
@@ -207,9 +174,6 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
 
         // set the services
-
-        // core services
-        IJxtaLoader loader = getJxtaLoader();
 
         paramAdv.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
 
@@ -251,6 +215,10 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
         // Empty
     }
 
+    protected IModuleManager<Module> getModuleManager(){
+    	return root;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -969,11 +937,9 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        IJxtaLoader loader = getLoader();
-
-        // grab an impl adv
-        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID);
-
+        JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) super.getModuleManager(); 
+        ModuleImplAdvertisement implAdv = 
+        		 manager.findModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID);
         return implAdv;
     }
 
@@ -990,8 +956,8 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      * Return a map of the applications for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module} or
+     * <li>keys are {@link net.jxta.peergroup.core.ModuleClassID}</li>
+     * <li>values are {@link net.jxta.peergroup.core.Module} or
      * {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
      * </ul>
      *

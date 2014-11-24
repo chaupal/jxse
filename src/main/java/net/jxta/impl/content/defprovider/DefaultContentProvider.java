@@ -87,6 +87,8 @@ import net.jxta.endpoint.Message;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.pipe.PipeMsgEvent;
 import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
@@ -105,8 +107,6 @@ import net.jxta.impl.content.ModuleWrapperFactory;
 import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeID;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 /**

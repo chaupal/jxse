@@ -54,9 +54,11 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.platform;
+package net.jxta.peergroup.core;
 
 import net.jxta.id.ID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 
 import java.net.URI;
 
@@ -92,12 +94,9 @@ import java.net.URI;
  * <p>
  * In the standard PeerGroup implementation of the java reference implementation
  * the various services are specified as a list of ModuleSpecID, for each of which
- * the group locates and loads an implementation as part of the group's
- * initialization.
- *
- * @see net.jxta.peergroup.PeerGroup
- * @see net.jxta.platform.Module
- * @see net.jxta.platform.ModuleClassID
+ * the group locates and loads an implementation as net.jxta.peergroup.core* initialization.net.jxta.peergroup.core.peergroup.PeerGroup
+ * @see net.jxta.peergroup.core.Module
+ * @see net.jxta.peergroup.core.ModuleClassID
  * @see net.jxta.protocol.ModuleSpecAdvertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement
  * @see net.jxta.id.ID

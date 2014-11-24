@@ -93,15 +93,15 @@ package net.jxta.impl.id.binaryID;
  *
  * @author Daniel Brookshier <a HREF="mailto:turbogeek@cluck.com">turbogeek@cluck.com</a>
  * @see net.jxta.peergroup.PeerGroup
- * @see net.jxta.platform.Module
- * @see net.jxta.platform.ModuleClassID
+ * @see net.jxta.peergroup.core.Module
+ * @see net.jxta.peergroup.core.ModuleClassID
  * @see net.jxta.protocol.ModuleSpecAdvertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement
  * @see net.jxta.id.ID
  * @see net.jxta.document.Advertisement
  */
 
-public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
+public final class ModuleSpecBinaryID extends net.jxta.peergroup.core.ModuleSpecID {
 
     protected BinaryID classID;
     protected BinaryID baseClassID;
@@ -222,7 +222,7 @@ public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
      * {@inheritDoc}
      */
     @Override
-    public net.jxta.platform.ModuleClassID getBaseClass() {
+    public net.jxta.peergroup.core.ModuleClassID getBaseClass() {
         return new ModuleClassBinaryID(baseClassID, new BinaryID(BinaryID.flagModuleClassID)
                 ,
                 new BinaryID(BinaryID.flagModuleSpecID), new BinaryID(BinaryID.flagModuleSpecID));
@@ -232,7 +232,7 @@ public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
      * {@inheritDoc}
      */
     @Override
-    public boolean isOfSameBaseClass(net.jxta.platform.ModuleClassID classId) {
+    public boolean isOfSameBaseClass(net.jxta.peergroup.core.ModuleClassID classId) {
         return baseClassID.equals(classId.getBaseClass());
     }
 
@@ -240,7 +240,7 @@ public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
      * {@inheritDoc}
      */
     @Override
-    public boolean isOfSameBaseClass(net.jxta.platform.ModuleSpecID specId) {
+    public boolean isOfSameBaseClass(net.jxta.peergroup.core.ModuleSpecID specId) {
         return getClassID().equals(((ModuleSpecBinaryID) specId).getClassID());
     }
 

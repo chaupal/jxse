@@ -1,7 +1,9 @@
-package net.jxta.platform;
+package net.jxta.peergroup.core;
 
 import java.net.URL;
 
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 /**

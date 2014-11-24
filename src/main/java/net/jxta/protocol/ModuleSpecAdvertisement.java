@@ -63,7 +63,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.ID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.ModuleSpecID;
 
 /**
  * Provides the references that describe a module specification. Typically this
@@ -95,7 +95,7 @@ import net.jxta.platform.ModuleSpecID;
  * version is completely dedicated to the specification that it proxies, both
  * sides may have the PipeID and type hard-coded.
  * 
- * @see net.jxta.platform.ModuleSpecID
+ * @see net.jxta.peergroup.core.ModuleSpecID
  * @see net.jxta.protocol.PipeAdvertisement
  * @see net.jxta.protocol.ModuleClassAdvertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement

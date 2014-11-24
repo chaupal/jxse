@@ -72,10 +72,10 @@ import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.JxtaApplication;
-import net.jxta.platform.JxtaLoader;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.JxtaLoader;
+import net.jxta.peergroup.core.JxtaLoaderModuleManager;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
@@ -263,7 +263,7 @@ public class PeerGroupTest {
      */
     @Test
     public void staticJxtaLoader() {
-        ClassLoader loader = (ClassLoader) GenericPeerGroup.getJxtaLoader();
+        ClassLoader loader = (ClassLoader) JxtaLoaderModuleManager.getRoot( PeerGroupTest.class ).getLoader();
         try {
             Class clazz = loader.loadClass("TestClass");
             fail("Static loader could see the test class: " + clazz);
@@ -277,6 +277,7 @@ public class PeerGroupTest {
      * This will make it easier to remove the static loader altogether at
      * some point in the future.
      */
+/*
     @Test
     public void staticInheritedOnly() {
         JxtaLoader staticLoader = (JxtaLoader) GenericPeerGroup.getJxtaLoader();
@@ -301,7 +302,8 @@ public class PeerGroupTest {
             group = parentGroup;
         } while (group != null);
     }
-
+*/
+    
     /**
      * Make sure each group has it's own, unique loader instance
      */

@@ -61,9 +61,9 @@ import net.jxta.content.ContentID;
 import net.jxta.id.jxta.IDFormat;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.core.ModuleClassID;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.pipe.PipeID;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.util.ClassFactory;
 
 import java.io.IOException;
@@ -567,7 +567,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  need to be distinguished from other instances of the same Module.
          *  The ModuleClassID will be created using the default ID Format.
          *
-         *  @see net.jxta.platform.Module
+         *  @see net.jxta.peergroup.core.Module
          *
          *  @return The newly created ModuleClassID.
          */
@@ -580,7 +580,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  appropriate for cases where it is necessary to distinguish instances
          *  of the same service interface.
          *
-         *  @see net.jxta.platform.Module
+         *  @see net.jxta.peergroup.core.Module
          *
          *  @param  baseClass   The ModuleClassID which will be used as a base
          *  class for this new role value instance.
@@ -592,7 +592,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  Creates a new  ModuleSpecID instance. A new random ModuleSpecID will
          *  be generated.
          *
-         *  @see net.jxta.platform.Module
+         *  @see net.jxta.peergroup.core.Module
          *
          *  @param baseClass   The ModuleClassID which will be used as a base
          *  class for this new ModuleSpecID.
@@ -1448,7 +1448,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  need to be distinguished from other instances of the same Module.
      *  The ModuleClassID will be created using the default ID Format.
      *
-     *  @see net.jxta.platform.Module
+     *  @see net.jxta.peergroup.core.Module
      *
      *  @return The newly created ModuleClassID.
      */
@@ -1463,7 +1463,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  where the module does not need to be distinguished from other
      *  instances of the same Module.
      *
-     * @see net.jxta.platform.Module
+     * @see net.jxta.peergroup.core.Module
      *
      * @param idformat The ID Format of the new ModuleClassID.
      * @return The newly created ModuleClassID.
@@ -1481,7 +1481,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  appropriate for cases where it is necessary to distinguish instances
      *  of the same service interface.
      *
-     *  @see net.jxta.platform.Module
+     *  @see net.jxta.peergroup.core.Module
      *
      *  @param  baseClass   The ModuleClassID which will be used as a base
      *  class for this new role value instance.
@@ -1504,7 +1504,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  Creates a new  ModuleSpecID instance. A new random ModuleSpecID will
      *  be generated.
      *
-     *  @see net.jxta.platform.Module
+     *  @see net.jxta.peergroup.core.Module
      *
      *  @param baseClass   The ModuleClassID which will be used as a base
      *  class for this new ModuleSpecID.

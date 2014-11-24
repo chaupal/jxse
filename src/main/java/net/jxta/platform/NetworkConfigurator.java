@@ -81,6 +81,7 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.TransportAdvertisement;
 
@@ -104,8 +105,8 @@ import java.util.NoSuchElementException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
-import net.jxta.exception.ConfiguratorException;
 
+import net.jxta.exception.ConfiguratorException;
 import net.jxta.impl.protocol.MulticastAdv;
 
 /**

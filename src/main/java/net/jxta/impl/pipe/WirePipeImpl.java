@@ -67,10 +67,10 @@ import net.jxta.id.ID;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.core.Module;
 import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
-import net.jxta.platform.Module;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 

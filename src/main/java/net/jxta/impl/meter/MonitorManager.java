@@ -63,7 +63,7 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.meter.*;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;

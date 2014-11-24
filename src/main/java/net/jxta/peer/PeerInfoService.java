@@ -62,7 +62,7 @@ import net.jxta.meter.MonitorListener;
 import net.jxta.meter.MonitorReport;
 import net.jxta.meter.PeerMonitorInfo;
 import net.jxta.meter.PeerMonitorInfoListener;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.service.Service;
 
 /**

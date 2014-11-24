@@ -59,7 +59,7 @@ package net.jxta.meter;
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
 import net.jxta.id.IDFactory;
-import net.jxta.platform.ModuleClassID;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.util.documentSerializable.DocumentSerializable;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;

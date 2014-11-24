@@ -92,8 +92,9 @@ import net.jxta.peergroup.PeerGroup;
  *  response consists of the unique value portion of the local peer id.
  */
 public class HttpMessageServlet extends HttpServlet {
+	private static final long serialVersionUID = -8416087370481058687L;
 
-    private final static transient Logger LOG = Logging.getLogger(HttpMessageServlet.class.getName());
+	private final static transient Logger LOG = Logging.getLogger(HttpMessageServlet.class.getName());
 
     /**
      *  The maximum duration in milliseconds we will keep a connection alive
@@ -597,7 +598,7 @@ public class HttpMessageServlet extends HttpServlet {
 
         }
 
-        for (Enumeration headers = req.getHeaderNames(); headers.hasMoreElements();) {
+        for (Enumeration<String> headers = req.getHeaderNames(); headers.hasMoreElements();) {
             String header = (String) headers.nextElement();
             builder.append("  HEADER[").append(header).append("]: ").append(req.getHeader(header)).append(nl);
         }
@@ -615,7 +616,7 @@ public class HttpMessageServlet extends HttpServlet {
         builder.append("  isSessionIdFromURL: ").append(req.isRequestedSessionIdFromURL()).append(nl);
         builder.append("  isSessionIdValid: ").append(req.isRequestedSessionIdValid()).append(nl);
 
-        for (Enumeration attributes = req.getAttributeNames(); attributes.hasMoreElements();) {
+        for (Enumeration<String> attributes = req.getAttributeNames(); attributes.hasMoreElements();) {
             String attribute = (String) attributes.nextElement();
             builder.append("  ATTRIBUTE[").append(attribute).append("]: ").append(req.getAttribute(attribute)).append(nl);
         }
@@ -625,7 +626,7 @@ public class HttpMessageServlet extends HttpServlet {
         builder.append("  CONTENT_TYPE: ").append(req.getContentType()).append(nl);
         builder.append("  LOCALE: ").append(req.getLocale().toString()).append(nl);
 
-        for (Enumeration parameters = req.getParameterNames(); parameters.hasMoreElements();) {
+        for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements();) {
             String parameter = (String) parameters.nextElement();
             builder.append("  PARAMETER[").append(parameter).append("]: ").append(req.getParameter(parameter)).append(nl);
         }

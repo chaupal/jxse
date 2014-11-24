@@ -67,10 +67,10 @@ import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.IJxtaLoader;
-import net.jxta.platform.JxtaLoader;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleSpecID;
+import net.jxta.peergroup.core.IJxtaLoader;
+import net.jxta.peergroup.core.JxtaLoader;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 import java.io.*;
@@ -86,6 +86,8 @@ import java.util.*;
  */
 public class RefJxtaLoader extends JxtaLoader {
 
+	private static final String S_RESOURCE_LOCATION = "META-INF/services/net.jxta.platform.Module";
+	
     private final static transient Logger LOG =
             Logging.getLogger(RefJxtaLoader.class.getName());
 
@@ -110,7 +112,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
     /**
      * <ul>
-     *     <li>Keys are {@link net.jxta.platform.ModuleSpecID}.</li>
+     *     net.jxta.platform.core.k net.jxta.platform.core.ModuleSpecID}.</li>
      *     <li>Values are {@link java.util.Map}.
      *         <ul>
      *             <li>Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8</li>
@@ -264,7 +266,7 @@ public class RefJxtaLoader extends JxtaLoader {
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         /*
          * First, we ask the super-class.  This will consult the local
-         * classes already laoded, the parent loader (if set), and the
+         * classes already loaded, the parent loader (if set), and the
          * system loader.  Failing those it will call the local
          * findClass(String) method.
          */
@@ -311,7 +313,7 @@ public class RefJxtaLoader extends JxtaLoader {
         // search for more compats via Jar SPI
         // results contain MSID, Class name, and description
         // if MSID matches, generate/discover MIA, then define the class.
-        locateModuleImplementations(spec);
+        locateModuleImplementations(getClassLoader(), spec);
 
         // search through compats again.
         // if found, return it
@@ -567,7 +569,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * 
      * @param msid ModuleSpecID to search for
      */
-    private void locateModuleImplementations(ModuleSpecID msid) {
+    private void locateModuleImplementations( ClassLoader loader, ModuleSpecID msid) {
 
         // LOGGING: was Finest
         Logging.logCheckedDebug(LOG, hashHex(), ": discoverModuleImplementations(MSID=", msid, ")");
@@ -576,8 +578,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
         try {
 
-            Enumeration<URL> allProviderLists = getResources("META-INF/services/net.jxta.platform.Module");
-
+            Enumeration<URL> allProviderLists = loader.getResources( S_RESOURCE_LOCATION );
             for (URL providers : Collections.list(allProviderLists)) {
 
                 List<ModuleImplAdvertisement> located = locateModuleImplementations(msid, providers);
