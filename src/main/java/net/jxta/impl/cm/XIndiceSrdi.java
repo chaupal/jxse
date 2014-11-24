@@ -348,7 +348,7 @@ public class XIndiceSrdi implements SrdiAPI {
         } else {
             res = new ArrayList<PeerID>();
 
-            IndexQuery iq = CacheManager.getIndexQuery(value);
+            IndexQuery iq =  XIndiceAdvertisementCache.getIndexQuery(value);
 
             try {
 

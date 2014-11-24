@@ -94,7 +94,7 @@ public class JxseInstantiatorTest {
     @Test
     public void testForName() {
 
-        Class FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
+        Class<?> FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
 
         assertTrue(FN!=null);
         assertTrue(FN.getSimpleName().compareTo("JxseInstantiatorDummyTestClass")==0);
@@ -107,9 +107,9 @@ public class JxseInstantiatorTest {
     @Test
     public void testInstantiate() {
 
-        Class FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
+        Class<?> FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
 
-        Class[] Types = { };
+        Class<?>[] Types = { };
         Object[] Values = new Object[0];
 
         JxseInstantiatorDummyTestClass Result = (JxseInstantiatorDummyTestClass) JxseInstantiator.instantiate(FN, Types, Values);
@@ -124,9 +124,9 @@ public class JxseInstantiatorTest {
     @Test
     public void testInstantiate_2() {
 
-        Class FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
+        Class<?> FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
 
-        Class[] Types = { int.class, boolean.class };
+        Class<?>[] Types = { int.class, boolean.class };
         Object[] Values = new Object[2];
         Values[0] = 33;
         Values[1] = true;
@@ -143,7 +143,7 @@ public class JxseInstantiatorTest {
     @Test
     public void testInstantiateWithNoParameterConstructor() {
 
-        Class FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
+        Class<?> FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
 
         JxseInstantiatorDummyTestClass Result = (JxseInstantiatorDummyTestClass) JxseInstantiator.instantiateWithNoParameterConstructor(FN);
 

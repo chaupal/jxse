@@ -64,8 +64,8 @@ import net.jxta.peergroup.PeerGroupID;
  * Dummy valid Jxse peer configuration for testing purposes
  */
 public class ValidJxsePeerConfiguration extends JxsePeerConfiguration {
-
-    public static final PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
+	private static final long serialVersionUID = 1L;
+	public static final PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
 
     /**
      * Simple constructor

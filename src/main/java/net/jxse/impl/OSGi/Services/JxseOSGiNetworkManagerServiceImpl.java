@@ -186,7 +186,6 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
      * Making sure any NetworkManager has been stopped
      */
     @Override
-    @SuppressWarnings("FinalizeDeclaration")
     protected void finalize() throws Throwable {
 
         if (this.TheNM!=null) {

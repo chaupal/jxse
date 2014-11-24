@@ -82,8 +82,9 @@ import java.net.URI;
  */
 @Deprecated
 public abstract class CodatID extends ID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Creates an ID by parsing the given URI.
      *
      * <p>This convenience factory method works as if by invoking the

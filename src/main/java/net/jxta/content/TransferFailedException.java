@@ -64,6 +64,7 @@ package net.jxta.content;
  * Use the higher level TransferException instead.
  */
 public class TransferFailedException extends TransferException {
+	private static final long serialVersionUID = 1L;
 
     /**
      * Creates a new transfer exception with the default message.

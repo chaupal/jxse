@@ -60,6 +60,7 @@ package net.jxta.endpoint;
  * outgoing message. The source of the event is the Message object.
  */
 public class OutgoingMessageEvent extends java.util.EventObject {
+	private static final long serialVersionUID = 1L;
 
     // Two low-cost msg events for reporting to selectors: success does not require an exception. An exception is too expensive
     // for overflow.  The message component is useless for select but we need a dummy src in order to construct an Event.  Note,

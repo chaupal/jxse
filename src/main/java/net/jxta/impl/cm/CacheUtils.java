@@ -59,7 +59,6 @@ package net.jxta.impl.cm;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;

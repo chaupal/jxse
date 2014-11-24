@@ -57,6 +57,7 @@
 package net.jxta.configuration;
 
 public class JxtaPeerConfiguration extends JxtaConfiguration {
+	private static final long serialVersionUID = 1L;
 
     /**
      * This constructor copies all entries from the provided parameter into this object,

@@ -132,8 +132,8 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	private static final String CREATE_DELTA_EXPIRY_INDEX_SQL
 		= "CREATE INDEX RecordExpiryIndex ON Record ( lifetime )";
 	
-	private static final String PUT_INDEXFIELD_SQL
-		= "INSERT INTO IndexField VALUES (?,?,?,?)";
+	//private static final String PUT_INDEXFIELD_SQL
+	//	= "INSERT INTO IndexField VALUES (?,?,?,?)";
 	
 //	static {
 //		if(!loadDbDriver(DATABASE_DRIVER)) {

@@ -73,8 +73,9 @@ import net.jxta.peergroup.PeerGroupID;
  *
  */
 public class JxsePeerConfiguration extends JxtaPeerConfiguration {
+	private static final long serialVersionUID = -214951190601997909L;
 
-    /**
+	/**
      * Types of connections mode to the JXTA network provided by the JXSE implementation.
      */
     public enum ConnectionMode {

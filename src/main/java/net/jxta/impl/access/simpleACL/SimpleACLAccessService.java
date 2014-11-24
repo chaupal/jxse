@@ -144,7 +144,7 @@ public class SimpleACLAccessService implements AccessService {
             this.offerer = offerer;
         }
 
-        protected SimpleACLOperation(SimpleACLAccessService source, Element root) {
+        protected SimpleACLOperation(SimpleACLAccessService source, Element<?> root) {
             this.source = source;
             initialize(root);
         }
@@ -198,7 +198,7 @@ public class SimpleACLAccessService implements AccessService {
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
+        public StructuredDocument<?> getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
 
             if (doc instanceof Attributable) {
@@ -207,7 +207,7 @@ public class SimpleACLAccessService implements AccessService {
                 ((Attributable) doc).addAttribute("type", "jxta:SimpleACLOp");
             }
 
-            Element e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
+            Element<?> e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
 
             doc.appendChild(e);
 
@@ -232,7 +232,7 @@ public class SimpleACLAccessService implements AccessService {
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
          */
-        protected boolean handleElement(TextElement elem) {
+        protected boolean handleElement(TextElement<?> elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
                     URI gID = new URI(elem.getTextValue().trim());
@@ -271,13 +271,13 @@ public class SimpleACLAccessService implements AccessService {
         /**
          *  Initialize from a portion of a structured document.
          */
-        protected void initialize(Element root) {
+        protected void initialize(Element<?> root) {
 
             if (!TextElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
             }
 
-            TextElement doc = (TextElement) root;
+            TextElement<?> doc = (TextElement<?>) root;
 
             String typedoctype = "";
 
@@ -296,11 +296,11 @@ public class SimpleACLAccessService implements AccessService {
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
             }
 
-            Enumeration elements = doc.getChildren();
+            Enumeration<?> elements = doc.getChildren();
 
             while (elements.hasMoreElements()) {
 
-                TextElement elem = (TextElement) elements.nextElement();
+                TextElement<?> elem = (TextElement<?>) elements.nextElement();
 
                 if (!handleElement(elem)) {
 
@@ -366,16 +366,16 @@ public class SimpleACLAccessService implements AccessService {
 
         PeerGroupAdvertisement configAdv = group.getPeerGroupAdvertisement();
 
-        TextElement myParam = (TextElement) configAdv.getServiceParam(assignedID);
+        TextElement<?> myParam = (TextElement<?>) configAdv.getServiceParam(assignedID);
 
         if (null == myParam) {
             throw new PeerGroupException("parameters for group access controls missing.");
         }
 
-        Enumeration allACLS = myParam.getChildren();
+        Enumeration<?> allACLS = myParam.getChildren();
 
         while (allACLS.hasMoreElements()) {
-            TextElement anACL = (TextElement) allACLS.nextElement();
+            TextElement<?> anACL = (TextElement<?>) allACLS.nextElement();
 
             if (!anACL.getName().equals("perm")) {
                 continue;
@@ -396,7 +396,7 @@ public class SimpleACLAccessService implements AccessService {
             }
 
             String identities = etcPasswd.substring(nextDelim + 1);
-            Set allowed = new HashSet();
+            Set<String> allowed = new HashSet<String>();
 
             StringTokenizer eachIdentity = new StringTokenizer(identities, ",");
 
@@ -490,7 +490,7 @@ public class SimpleACLAccessService implements AccessService {
     /**
      * {@inheritDoc}
      */
-    public PrivilegedOperation newPrivilegedOperation(Element source) {
+    public PrivilegedOperation newPrivilegedOperation(Element<?> source) {
         return new SimpleACLOperation(this, source);
     }
 

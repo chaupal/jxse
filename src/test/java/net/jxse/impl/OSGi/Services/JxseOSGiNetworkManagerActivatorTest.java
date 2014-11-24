@@ -60,8 +60,6 @@ import net.jxse.configuration.ValidJxsePeerConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.jxse.OSGi.Services.JxseOSGiNetworkManagerService;
 import net.jxse.OSGi.JxseOSGiFramework;
 import net.jxse.configuration.JxseHttpTransportConfiguration;

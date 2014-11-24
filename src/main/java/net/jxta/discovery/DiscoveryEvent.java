@@ -67,6 +67,7 @@ import java.util.EventObject;
  *  address of the responding peer
  */
 public class DiscoveryEvent extends EventObject {
+	private static final long serialVersionUID = 1L;
 
     private final DiscoveryResponseMsg response;
     private final int queryID;

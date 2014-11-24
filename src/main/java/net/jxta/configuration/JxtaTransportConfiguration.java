@@ -62,6 +62,7 @@ import java.util.Properties;
  * API to describe the configuration of transports necessary for a JXTA implementation.
  */
 public abstract class JxtaTransportConfiguration extends JxtaConfiguration {
+	private static final long serialVersionUID = 1L;
 
     /**
      * This constructor returns an empty configuration object.

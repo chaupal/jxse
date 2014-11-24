@@ -104,7 +104,7 @@ public final class AuthenticationCredential implements Credential {
     /**
      * Any optional information which is required by the requested authentication method.
      */
-    private Element identityInfo = null;
+    private Element<?> identityInfo = null;
 
     /**
      * The peergroup of this AuthenticationCredential
@@ -129,7 +129,7 @@ public final class AuthenticationCredential implements Credential {
      *                      Service. Consult the documentation for the specific Membership Service
      *                      you are using for details on how this information is used (if at all).
      */
-    public AuthenticationCredential(PeerGroup peergroup, String method, Element indentityInfo) {
+    public AuthenticationCredential(PeerGroup peergroup, String method, Element<?> indentityInfo) {
         this.peergroup = peergroup;
 
         authenticationMethod = method;
@@ -147,7 +147,7 @@ public final class AuthenticationCredential implements Credential {
      * @param root      the document containing the serialized representation of the
      *                  AuthenticationCredential.
      */
-    public AuthenticationCredential(PeerGroup peergroup, Element root) {
+    public AuthenticationCredential(PeerGroup peergroup, Element<?> root) {
 
         this.peergroup = peergroup;
 
@@ -223,7 +223,7 @@ public final class AuthenticationCredential implements Credential {
      * @return the StructuredDocument which represents this credential.
      * @throws Exception When errors occur.
      */
-    public StructuredDocument getDocument(MimeMediaType as) throws Exception {
+    public StructuredDocument<?> getDocument(MimeMediaType as) throws Exception {
 
         StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
 
@@ -233,7 +233,7 @@ public final class AuthenticationCredential implements Credential {
             ((Attributable) doc).addAttribute("type", "AuthenticationCredential");
         }
 
-        Element e = doc.createElement("Method", getMethod());
+        Element<?> e = doc.createElement("Method", getMethod());
 
         doc.appendChild(e);
 
@@ -275,7 +275,7 @@ public final class AuthenticationCredential implements Credential {
      * @return StructuredDocument Element containing the identity information which was
      *         originally provided when this AuthenticationCredential was created.
      */
-    public Element getIdentityInfo() {
+    public Element<?> getIdentityInfo() {
         return (null == identityInfo) ? null : StructuredDocumentUtils.copyAsDocument(identityInfo);
     }
 
@@ -285,7 +285,7 @@ public final class AuthenticationCredential implements Credential {
      * @param elem the element to be processed.
      * @return true if the element was recognized, otherwise false.
      */
-    protected boolean handleElement(TextElement elem) {
+    protected boolean handleElement(TextElement<?> elem) {
         if (elem.getName().equals("PeerGroupID")) {
             try {
                 URI gID = new URI(elem.getTextValue());
@@ -322,13 +322,13 @@ public final class AuthenticationCredential implements Credential {
         }
 
         if (elem.getName().equals("IdentityInfo")) {
-            Enumeration firstChild = elem.getChildren();
+            Enumeration<?> firstChild = elem.getChildren();
 
             if (!firstChild.hasMoreElements()) {
                 throw new IllegalArgumentException("Missing identity info");
             }
 
-            identityInfo = StructuredDocumentUtils.copyAsDocument((Element) firstChild.nextElement());
+            identityInfo = StructuredDocumentUtils.copyAsDocument((Element<?>) firstChild.nextElement());
 
             return true;
         }
@@ -342,13 +342,13 @@ public final class AuthenticationCredential implements Credential {
      *
      * @param root the element
      */
-    protected void initialize(Element root) {
+    protected void initialize(Element<?> root) {
 
         if (!TextElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
         }
 
-        TextElement doc = (TextElement) root;
+        TextElement<?> doc = (TextElement<?>) root;
 
         String typedoctype = "";
 
@@ -367,10 +367,10 @@ public final class AuthenticationCredential implements Credential {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            TextElement elem = (TextElement) elements.nextElement();
+            TextElement<?> elem = (TextElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());

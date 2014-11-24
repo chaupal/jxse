@@ -60,6 +60,7 @@ package net.jxta.configuration;
  * Generic JXTA configuration exception
  */
 public class JxtaConfigurationException extends Exception {
+	private static final long serialVersionUID = 1L;
 
     /**
      * {@inheritdoc}

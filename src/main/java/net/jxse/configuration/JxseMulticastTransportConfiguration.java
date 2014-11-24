@@ -63,8 +63,9 @@ import net.jxta.configuration.JxtaTransportConfiguration;
  * Defines the multicasting transport configuration when connecting to the JXTA network.
  */
 public class JxseMulticastTransportConfiguration extends JxtaTransportConfiguration {
+	private static final long serialVersionUID = -3773206863628240664L;
 
-    /**
+	/**
      * Transport name.
      */
     public static final String TRANSPORT_NAME = "MULTI";

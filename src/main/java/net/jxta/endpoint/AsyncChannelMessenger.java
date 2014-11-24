@@ -460,6 +460,8 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
         case ACTION_CONNECT:
             connectImpl();
             break;
+		default:
+			break;
         }
     }
 

@@ -148,7 +148,7 @@ public class JxseOSGiFramework {
         } else {
 
             // Retrieving OSGi framework launcher class
-            Class FrameworkLauncherClass = JxseInstantiator.forName(Configuration.getProperty("FRAMEWORK_LAUNCHER"));
+            Class<?> FrameworkLauncherClass = JxseInstantiator.forName(Configuration.getProperty("FRAMEWORK_LAUNCHER"));
 
             // Creating framework instance launcher
             JxseOSGiFrameworkLauncher TheLauncher = (JxseOSGiFrameworkLauncher) JxseInstantiator.instantiateWithNoParameterConstructor(FrameworkLauncherClass);
@@ -195,7 +195,7 @@ public class JxseOSGiFramework {
      * @param serviceAPIClass The service API Class
      * @return An OSGi service tracker
      */
-    public static ServiceTracker getServiceTracker(Class serviceAPIClass) {
+    public static ServiceTracker getServiceTracker(Class<?> serviceAPIClass) {
 
         return new ServiceTracker(INSTANCE.getBundleContext(), serviceAPIClass.getName(), null);
 

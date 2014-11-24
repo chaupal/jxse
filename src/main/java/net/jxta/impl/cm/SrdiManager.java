@@ -82,7 +82,6 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.protocol.SrdiMessage;

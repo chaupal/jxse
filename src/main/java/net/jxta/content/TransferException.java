@@ -60,6 +60,7 @@ package net.jxta.content;
  * Base exception for representing terminal Content transfer problems.
  */
 public class TransferException extends Exception {
+	private static final long serialVersionUID = 1L;
 
     /**
      * Creates a new transfer exception with the default message.

@@ -65,8 +65,9 @@ package net.jxta.endpoint;
  * @see net.jxta.endpoint.EndpointService
  */
 public class MessengerEvent extends java.util.EventObject {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * The newly created messenger.
      */
     final transient Messenger messenger;

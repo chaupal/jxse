@@ -160,5 +160,5 @@ public interface Credential {
      * @return The credential serialized to a Document.
      * @throws Exception if an error occurs
      */
-    public StructuredDocument getDocument(MimeMediaType asMimeType) throws Exception;
+    public StructuredDocument<?> getDocument(MimeMediaType asMimeType) throws Exception;
 }

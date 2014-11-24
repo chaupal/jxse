@@ -62,7 +62,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import net.jxta.document.Advertisement;
-import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.protocol.SrdiMessage.Entry;
 

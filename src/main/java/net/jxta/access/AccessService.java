@@ -140,5 +140,5 @@ public interface AccessService extends Service {
      *  representation of the privileged operation.
      *  @return The privileged operation object.
      **/
-    public PrivilegedOperation newPrivilegedOperation(Element source);
+    public PrivilegedOperation newPrivilegedOperation(Element<?> source);
 }

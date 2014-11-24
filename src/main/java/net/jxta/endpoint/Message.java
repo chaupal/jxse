@@ -738,7 +738,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         toString.append(modCount);
         toString.append("){");
 
-        Iterator allLineage = getMessageLineage();
+        Iterator<Integer> allLineage = getMessageLineage();
 
         while (allLineage.hasNext()) {
             toString.append(allLineage.next().toString());
@@ -751,7 +751,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         if (GLOBAL_TRACKING_ELEMENT) {
             toString.append("[");
-            Iterator eachUUID = getMessageElements("jxta", "Tracking UUID");
+            Iterator<?> eachUUID = getMessageElements("jxta", "Tracking UUID");
 
             while (eachUUID.hasNext()) {
                 toString.append("[");

@@ -75,6 +75,7 @@ import net.jxta.id.ID;
  * @see net.jxta.peergroup.PeerGroupID
  */
 public abstract class ContentID extends ID {
+	private static final long serialVersionUID = 1L;
 
     /**
      *

@@ -60,6 +60,7 @@ package net.jxta.content;
  * Exception to be thrown when an active transfer is cancelled.
  */
 public class TransferCancelledException extends TransferException {
+	private static final long serialVersionUID = 1L;
 
     /**
      * Create a new exception instance indicating that the transfer

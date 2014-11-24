@@ -666,7 +666,7 @@ public class ContentServiceImpl implements ContentService {
 
             try {
 
-                Class cl = loader.loadClass(str);
+                Class<?> cl = loader.loadClass(str);
                 provider = (ContentProviderSPI) cl.newInstance();
                 result.add(provider);
                 Logging.logCheckedDebug(LOG, "Added provider: ", str);

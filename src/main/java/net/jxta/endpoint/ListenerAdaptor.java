@@ -97,7 +97,7 @@ public class ListenerAdaptor implements Runnable {
     /**
      * The in progress messages.
      */
-    private final Map<IdentityReference, ListenerContainer> inprogress = new HashMap<IdentityReference, ListenerContainer>(32);
+    private final Map<IdentityReference, ListenerContainer<?,?>> inprogress = new HashMap<IdentityReference, ListenerContainer<?,?>>(32);
 
     /**
      * The thread that does the work.
@@ -266,8 +266,9 @@ public class ListenerAdaptor implements Runnable {
      * Any sort of listener type.
      */
     static abstract class ListenerContainer<S extends SimpleSelectable, L extends java.util.EventListener> extends ArrayList<L> {
+		private static final long serialVersionUID = 1L;
 
-        public ListenerContainer() {
+		public ListenerContainer() {
             super(1);
         }
 
@@ -441,7 +442,7 @@ public class ListenerAdaptor implements Runnable {
             try {
                 // It's only us now. Stopped is true.
                 IOException failed = new IOException("Endpoint interface terminated");
-                for (Map.Entry<IdentityReference, ListenerContainer> entry : inprogress.entrySet()) {
+                for (Map.Entry<IdentityReference, ListenerContainer<?,?>> entry : inprogress.entrySet()) {
                     SimpleSelectable simpleSelectable = entry.getKey().getObject();
                     ListenerContainer listeners = entry.getValue();
                     simpleSelectable.unregister(selector);
@@ -470,7 +471,7 @@ public class ListenerAdaptor implements Runnable {
 
         private SimpleSelectable simpleSelectable;
         private ListenerContainer listeners;
-        ListenerProcessor(ListenerContainer listeners, SimpleSelectable simpleSelectable) {
+        ListenerProcessor(ListenerContainer<?,?> listeners, SimpleSelectable simpleSelectable) {
             this.listeners = listeners;
             this.simpleSelectable = simpleSelectable;
         }

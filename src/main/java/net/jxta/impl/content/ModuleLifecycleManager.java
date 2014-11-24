@@ -139,7 +139,7 @@ public class ModuleLifecycleManager<T extends Module> {
          * {@inheritDoc}
          */
         public void unhandledPeerGroupException(
-                ModuleLifecycleTracker subject, PeerGroupException mlcx) {
+                ModuleLifecycleTracker<?> subject, PeerGroupException mlcx) {
             for (ModuleLifecycleListener listener : mlListeners) {
                 listener.unhandledPeerGroupException(subject, mlcx);
             }
@@ -149,7 +149,7 @@ public class ModuleLifecycleManager<T extends Module> {
          * {@inheritDoc}
          */
         public void moduleLifecycleStateUpdated(
-                ModuleLifecycleTracker subject, ModuleLifecycleState newState) {
+                ModuleLifecycleTracker<?> subject, ModuleLifecycleState newState) {
             for (ModuleLifecycleListener listener : mlListeners) {
                 listener.moduleLifecycleStateUpdated(subject, newState);
             }
@@ -246,7 +246,7 @@ public class ModuleLifecycleManager<T extends Module> {
      *  a stopped state, false to leave the Module in it's current state
      */
     public void removeModule(Module subordinate, boolean stopFirst) {
-        for (ModuleLifecycleTracker tracker : trackers) {
+        for (ModuleLifecycleTracker<?> tracker : trackers) {
             Module module = tracker.getModule();
             if (subordinate.equals(module)) {
                 // Stop on request
@@ -326,7 +326,7 @@ public class ModuleLifecycleManager<T extends Module> {
     public int getModuleCountInGoalState() {
         ModuleLifecycleState goalState = getGoalState();
         int result = 0;
-        for (ModuleLifecycleTracker tracker : trackers) {
+        for (ModuleLifecycleTracker<?> tracker : trackers) {
             ModuleLifecycleState tState = tracker.getState();
             switch(goalState) {
                 case INITIALIZED:
@@ -358,7 +358,7 @@ public class ModuleLifecycleManager<T extends Module> {
      *
      * @param tracker the tracker containing the stalled Module
      */
-    private void fireModuleStalled(ModuleLifecycleTracker tracker) {
+    private void fireModuleStalled(ModuleLifecycleTracker<?> tracker) {
         for (ModuleLifecycleManagerListener listener : mlmListeners) {
             listener.moduleStalled(this, tracker);
         }
@@ -369,7 +369,7 @@ public class ModuleLifecycleManager<T extends Module> {
      *
      * @param tracker the tracker containing the disabled Module
      */
-    private void fireModuleDisabled(ModuleLifecycleTracker tracker) {
+    private void fireModuleDisabled(ModuleLifecycleTracker<?> tracker) {
         for (ModuleLifecycleManagerListener listener : mlmListeners) {
             listener.moduleDisabled(this, tracker);
         }
@@ -443,7 +443,7 @@ public class ModuleLifecycleManager<T extends Module> {
      * Perform tracker initialization.
      */
     private void checkTrackersInit() {
-        for (ModuleLifecycleTracker tracker : trackers) {
+        for (ModuleLifecycleTracker<?> tracker : trackers) {
             tracker.init();
         }
     }
@@ -453,15 +453,15 @@ public class ModuleLifecycleManager<T extends Module> {
      * have different results requiring retries.
      */
     private void checkTrackersStart() {
-        List<ModuleLifecycleTracker> stalled =
-                new ArrayList<ModuleLifecycleTracker>();
+        List<ModuleLifecycleTracker<?>> stalled =
+                new ArrayList<ModuleLifecycleTracker<?>>();
         boolean progress;
         int stalls = 0;
         int maxIterations = trackers.size() * trackers.size();
         int iteration = 0;
 
         do {
-            List<ModuleLifecycleTracker> disabled = null;
+            List<ModuleLifecycleTracker<?>> disabled = null;
             progress = false;
             stalled.clear();
             for (ModuleLifecycleTracker<T> tracker : trackers) {
@@ -480,7 +480,7 @@ public class ModuleLifecycleManager<T extends Module> {
                 } else if (result == Module.START_DISABLED) {
                     if (disabled == null) {
                         // Lazy init
-                        disabled = new ArrayList<ModuleLifecycleTracker>();
+                        disabled = new ArrayList<ModuleLifecycleTracker<?>>();
                     }
                     disabled.add(tracker);
                     progress = true;
@@ -492,7 +492,7 @@ public class ModuleLifecycleManager<T extends Module> {
 
             // Check for and dereference disabled modules
             if (disabled != null) {
-                for (ModuleLifecycleTracker tracker : disabled) {
+                for (ModuleLifecycleTracker<?> tracker : disabled) {
                     fireModuleDisabled(tracker);
                     tracker.removeModuleLifecycleListener(proxy);
                     trackers.remove(tracker);
@@ -506,7 +506,7 @@ public class ModuleLifecycleManager<T extends Module> {
 
             // Too many attempts?
             if (++iteration >= maxIterations) {
-                for (ModuleLifecycleTracker tracker : stalled) {
+                for (ModuleLifecycleTracker<?> tracker : stalled) {
                     fireModuleStalled(tracker);
                 }
                 break;
@@ -520,7 +520,7 @@ public class ModuleLifecycleManager<T extends Module> {
 
             // Too many consecutive stalls?
             if (++stalls >= MAX_STALLS) {
-                for (ModuleLifecycleTracker tracker : stalled) {
+                for (ModuleLifecycleTracker<?> tracker : stalled) {
                     fireModuleStalled(tracker);
                 }
                 break;
@@ -533,7 +533,7 @@ public class ModuleLifecycleManager<T extends Module> {
      */
     private void checkTrackersStop() {
         Collections.reverse(started);
-        for (ModuleLifecycleTracker tracker : started) {
+        for (ModuleLifecycleTracker<?> tracker : started) {
             tracker.stopApp();
         }
         started.clear();

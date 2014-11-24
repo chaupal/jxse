@@ -66,10 +66,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxse.JxseInstantiator;
 import net.jxse.OSGi.JxseOSGiFrameworkLauncher;
 import net.jxta.configuration.JxtaConfiguration;
 import net.jxta.configuration.PropertiesUtil;
+
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.launch.Framework;
@@ -123,10 +125,10 @@ public class JxseOSGiFelixFrameworkLauncher implements JxseOSGiFrameworkLauncher
     static {
 
         // Creating configuration elements
-        Map configMap = new HashMap(0);
+        Map<String, Object> configMap = new HashMap<String, Object>(0);
 
         // For bundles/services to automatically activate
-        List list = new ArrayList();
+        List<Object> list = new ArrayList<Object>();
 
         // Preparing OSGi configuration
         for (String Item : PropertiesUtil.stringPropertyNames(Configuration)) {
@@ -135,7 +137,7 @@ public class JxseOSGiFelixFrameworkLauncher implements JxseOSGiFrameworkLauncher
 
                 // Adding an OSGi bundle/service to start
                 String Temp = Configuration.getProperty(Item);
-                Class TempCl = JxseInstantiator.forName(Temp);
+                Class<?> TempCl = JxseInstantiator.forName(Temp);
                 list.add(JxseInstantiator.instantiateWithNoParameterConstructor(TempCl));
 
             } else {

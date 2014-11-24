@@ -63,8 +63,9 @@ import net.jxta.configuration.JxtaTransportConfiguration;
  * Defines the http transport configuration when connecting to the JXTA network.
  */
 public class JxseHttp2TransportConfiguration extends JxtaTransportConfiguration {
+	private static final long serialVersionUID = 6221225155981594306L;
 
-    /**
+	/**
      * Transport name.
      */
     public static final String TRANSPORT_NAME = "HTTP2";

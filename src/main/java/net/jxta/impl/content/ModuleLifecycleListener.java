@@ -57,7 +57,7 @@
 package net.jxta.impl.content;
 
 import net.jxta.exception.PeerGroupException;
-import static net.jxta.impl.content.ModuleLifecycleState.*;
+//import static net.jxta.impl.content.ModuleLifecycleState.*;
 
 /**
  * This interface defines the API which must be implemented to be notified of
@@ -73,7 +73,7 @@ public interface ModuleLifecycleListener {
      * @param mlcx the exception that was thrown
      */
     void unhandledPeerGroupException(
-            ModuleLifecycleTracker subject, PeerGroupException mlcx);
+            ModuleLifecycleTracker<?> subject, PeerGroupException mlcx);
 
     /**
      * Called when a Module has changed lifecycle states.
@@ -83,6 +83,6 @@ public interface ModuleLifecycleListener {
      * @param newState the Module's new state
      */
     void moduleLifecycleStateUpdated(
-            ModuleLifecycleTracker subject, ModuleLifecycleState newState);
+            ModuleLifecycleTracker<?> subject, ModuleLifecycleState newState);
 
 }

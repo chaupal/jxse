@@ -63,8 +63,9 @@ import net.jxta.configuration.JxtaTransportConfiguration;
  * Defines the TCP transport configuration when connecting to the JXTA network.
  */
 public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
+	private static final long serialVersionUID = 8907996011625272948L;
 
-    /**
+	/**
      * Transport name.
      */
     public static final String TRANSPORT_NAME = "TCP";
