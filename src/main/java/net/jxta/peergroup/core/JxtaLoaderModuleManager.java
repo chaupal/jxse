@@ -47,7 +47,9 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
      * instead.
      * <p/>
      */
-    private static IJxtaLoader staticLoader;
+    //private static IJxtaLoader staticLoader;
+    
+    
     private static JxtaLoaderModuleManager<Module> root;
 
     private final static transient Logger LOG = Logging.getLogger( JxtaLoaderModuleManager.class.getName());
@@ -57,6 +59,8 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
     private static Map<PeerGroup, IModuleManager<? extends Module>> managers;
     
     private Collection<IJxtaModuleFactory<T>> factories;
+    
+    private IModuleClassTree<T>tree;
 
 	protected JxtaLoaderModuleManager( ClassLoader loader) {
 		this.loader = new RefJxtaLoader(new URL[0], loader, COMP_EQ );
@@ -83,15 +87,6 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 
 	public void registerFactory(IModuleFactory<T> factory) {
 		factories.add( (IJxtaModuleFactory<T>) factory );
-	}
-	
-	/**
-	 * Get the module manager for the given peergroup
-	 * @param peergroup
-	 * @return
-	 */
-	public IModuleManager<? extends Module> getModuleManagerforPeerGroup( PeerGroup peergroup ){
-		return managers.get( peergroup );
 	}
 	
     /**
@@ -149,13 +144,23 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 		loader.addURL(url);
 	}
 	
-	protected static IModuleManager<? extends Module> getModuleManager( PeerGroup peergroup){
+	/**
+	 * Get the module manager of the given peergroup
+	 * @param peergroup
+	 * @return
+	 */
+	public IModuleManager<? extends Module> getModuleManager( PeerGroup peergroup){
 		if( managers.isEmpty())
 			return root;
 		IModuleManager<? extends Module> manager = managers.get( peergroup );
 		return ( manager == null )? root: manager;
 	}
 
+	/**
+	 * Get the class loader of the given peergroup. This is the corresponding jxta loader
+	 * @param peergroup
+	 * @return
+	 */
 	public static ClassLoader getClassLoader( PeerGroup peergroup){
 		JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) managers.get( peergroup );
 		return (ClassLoader) manager.getLoader();
@@ -279,10 +284,36 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 	 */
 	public static JxtaLoaderModuleManager<Module> getRoot( Class<?> clzz ){
 		if( root == null ){
-			staticLoader = new RefJxtaLoader( new URL[0], clzz.getClassLoader(), COMP_EQ);
+			IJxtaLoader staticLoader = new RefJxtaLoader( new URL[0], clzz.getClassLoader(), COMP_EQ);
 			root = new JxtaLoaderModuleManager<Module>( staticLoader );
 			root.init();
 		}
 		return root;
+	}
+	
+	private static class IModuleClassTree<T extends Module>{
+		
+		private ModuleImplAdvertisement implAdv;
+		private Class<T> clzz;
+		
+		private Collection<IModuleClassTree<T>> children;
+		
+		IModuleClassTree( ModuleImplAdvertisement implAdv, Class<T> clzz ){
+			this.implAdv = implAdv;
+			this.clzz = clzz;
+			children = new ArrayList<IModuleClassTree<T>>();
+		}
+		
+		public void addChild( IModuleClassTree<T> child ){
+			this.children.add( child );
+		}
+
+		public void removeChild( IModuleClassTree<T> child ){
+			this.children.remove( child );
+		}
+
+		public IModuleClassTree<T>[] getChildren(){
+			return children.toArray( new IModuleClassTree[ this.children.size()]);
+		}
 	}
 }

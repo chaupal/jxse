@@ -314,7 +314,7 @@ public class PeerGroupTest {
     	IJxtaLoader lastLoader = manager.getLoader();
         PeerGroup group = pg111;
         do {
-        	JxtaLoaderModuleManager<? extends Module> pmm = (JxtaLoaderModuleManager<? extends Module>) manager.getModuleManagerforPeerGroup(group);
+        	JxtaLoaderModuleManager<? extends Module> pmm = (JxtaLoaderModuleManager<? extends Module>) manager.getModuleManager(group);
         	if (lastLoader == pmm.getLoader()) {
                 fail("Group loader was not unique");
             }
