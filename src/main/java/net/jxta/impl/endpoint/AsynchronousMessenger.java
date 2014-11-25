@@ -214,6 +214,8 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
                 case FAIL:
                     sendSucceeding = false;
                     break;
+				default:
+					break;
                 }
 
                 if(inputClosed.get() && sendQueue.isEmpty()) {

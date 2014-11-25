@@ -196,20 +196,20 @@ public class NettyTransport implements Module {
     private TCPAdv extractInstanceConfiguration(ID assignedID) {
         ConfigParams configAdvertisement = group.getConfigAdvertisement();
         
-        XMLElement instanceParameters = (XMLDocument) configAdvertisement.getServiceParam(assignedID);
+        XMLElement instanceParameters = (XMLDocument<?>) configAdvertisement.getServiceParam(assignedID);
         
         if(instanceParameters == null) {
             return null;
         }
         
-        Enumeration<XMLElement> adverts = instanceParameters.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<XMLElement<?>> adverts = instanceParameters.getChildren(TransportAdvertisement.getAdvertisementType());
         
         if(!adverts.hasMoreElements()) {
             return null;
         }
         
         try {
-            XMLElement adv = adverts.nextElement();
+            XMLElement<?> adv = adverts.nextElement();
             Advertisement advertisement = AdvertisementFactory.newAdvertisement(adv);
             if(!(advertisement instanceof TCPAdv)) {
                 throw new IllegalArgumentException("Service parameter for " + assignedID + " should be a " + TCPAdv.getAdvertisementType() + ", but is a " + advertisement.getAdvType());

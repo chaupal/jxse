@@ -163,7 +163,7 @@ public final class RelayTransport implements EndpointListener, Module {
             Advertisement adv = null;
 
             try {
-                XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(assignedID);
+                XMLDocument<?> configDoc = (XMLDocument<?>) confAdv.getServiceParam(assignedID);
 
                 if (null != configDoc) adv = AdvertisementFactory.newAdvertisement(configDoc);
 

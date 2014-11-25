@@ -200,7 +200,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          * @throws IOException if EOF or other IOException is encountered
          *                     during the reading of the header.
          */
-        private static HashMap readHeader(DataInputStream dis) throws IOException {
+        private static HashMap<Integer, String> readHeader(DataInputStream dis) throws IOException {
             // Read message signature
             char[] msgsig = new char[4];
 
@@ -284,7 +284,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          * @throws IOException if EOF or other IOException is encountered
          *                     during the reading of the header.
          */
-        private static HashMap readHeader(ByteBuffer buffer) throws IOException {
+        private static HashMap<Integer, String> readHeader(ByteBuffer buffer) throws IOException {
             // Read message signature
             char[] msgsig = new char[4];
 
@@ -678,7 +678,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 if(tempVerified)
                 {
                     EndpointAddress tempEA = new EndpointAddress(new String(tempSrcFromWire));
-                    Set<EndpointAddress> tempSet = (Set)paramMsg.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+                    Set<EndpointAddress> tempSet = (Set<EndpointAddress>)paramMsg.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
                     if(tempSet==null)
                     {
                         tempSet = new HashSet<EndpointAddress>();
@@ -689,7 +689,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                     } else {
                         tempSet.add(tempEA);
                     }
-                    Set<X509Certificate> tempCertSet = (Set)paramMsg.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                    Set<X509Certificate> tempCertSet = (Set<X509Certificate>)paramMsg.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
                     if(tempCertSet==null)
                     {
                         tempCertSet = new HashSet<X509Certificate>();
@@ -783,7 +783,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             DataInputStream dis = new DataInputStream(is);
 
-            HashMap idToNamespace = readHeader(dis);
+            HashMap<Integer, String> idToNamespace = readHeader(dis);
 
             int elementCnt = dis.readShort();
 
@@ -868,7 +868,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 LOG.debug("Reading " + msg + " from " + buffer);
             }
 
-            HashMap idToNamespace = readHeader(buffer);
+            HashMap<Integer,String> idToNamespace = readHeader(buffer);
 
             int elementCnt = buffer.getShort();
 
@@ -1223,7 +1223,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             DataOutputStream tempDOS = new DataOutputStream(sendTo);
             tempDOS.write(header);
 
-            Iterator eachElement = elements.listIterator();
+            Iterator<binaryElementProxy>  eachElement = elements.listIterator();
 
             while (eachElement.hasNext()) {
                 binaryElementProxy anElement = (binaryElementProxy) eachElement.next();
@@ -1434,7 +1434,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          */
         private void assignNamespaceIds() {
             int id = 0;
-            Iterator tempNamespaces = message.getMessageNamespaces();
+            Iterator<String> tempNamespaces = message.getMessageNamespaces();
 
             // insert the predefined namespaces.
             namespaceIDs.put("", id++);

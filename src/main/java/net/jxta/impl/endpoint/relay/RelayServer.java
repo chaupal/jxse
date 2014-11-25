@@ -642,7 +642,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     relayAdv = relayServerCache.getRandomCacheAdv();
                 }
                 if (relayAdv != null) {
-                    XMLDocument asDoc = (XMLDocument) relayAdv.getDocument(MimeMediaType.XMLUTF8);
+                    XMLDocument<?> asDoc = (XMLDocument<?>) relayAdv.getDocument(MimeMediaType.XMLUTF8);
 
                     MessageElement relayAdvElement = new TextDocumentMessageElement(RelayTransport.RELAY_ADV_ELEMENT, asDoc, null);
 
@@ -679,7 +679,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 RdvAdvertisement relayAdv = relayServerCache.getRandomCacheAdv();
 
                 if (relayAdv != null) {
-                    XMLDocument asDoc = (XMLDocument) relayAdv.getDocument(MimeMediaType.XMLUTF8);
+                    XMLDocument<?> asDoc = (XMLDocument<?>) relayAdv.getDocument(MimeMediaType.XMLUTF8);
 
                     MessageElement relayAdvElement = new TextDocumentMessageElement(RelayTransport.RELAY_ADV_ELEMENT, asDoc, null);
 
@@ -1076,7 +1076,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 // XMLUTF8 rather than the actual mime type associated with the
                 // MessageElement since the advertisement is often incorrectly
                 // stored as a String by older JXTA implementations.
-             	XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, me.getStream() );
+             	XMLDocument<?> advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, me.getStream() );
             	adv = AdvertisementFactory.newAdvertisement(advDocument);
 
             } catch (IOException failed) {
@@ -1282,7 +1282,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                         RelayTransport.setString(message, RelayTransport.PEERID_ELEMENT, server.peerId);
 
                         message.addMessageElement(RelayTransport.RELAY_NS,
-                                new TextDocumentMessageElement(RelayTransport.RELAY_ADV_ELEMENT, (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8), null));
+                                new TextDocumentMessageElement(RelayTransport.RELAY_ADV_ELEMENT, (XMLDocument<?>) adv.getDocument(MimeMediaType.XMLUTF8), null));
 
                         try {
                             outputPipe.send(message);
@@ -1535,7 +1535,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         /**
          *  {@inheritDoc}
          */
-        @SuppressWarnings("NotifyWhileNotSynced")
         public Selector wakeup() {
 
             synchronized (selectedClientKeys) {

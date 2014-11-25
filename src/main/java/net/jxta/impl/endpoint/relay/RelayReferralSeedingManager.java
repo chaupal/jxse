@@ -157,7 +157,7 @@ public class RelayReferralSeedingManager extends URISeedingManager {
         try {
             EndpointService ep = group.getEndpointService();
 
-            Iterator it = ep.getAllMessageTransports();
+            Iterator<MessageTransport> it = ep.getAllMessageTransports();
 
             while (it.hasNext()) {
                 MessageTransport mt = (MessageTransport) it.next();

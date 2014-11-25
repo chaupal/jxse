@@ -2072,8 +2072,8 @@ public class NetworkConfigurator {
         
         if (password == null) {
             password = System.getProperty("impl.membership.pse.authentication.password", "");
-            advertisement.setPrivKey(password);
         }
+        advertisement.setPrivKey(password);
 
         // Checking if certificate is present in platform configuration. If not - create it.
         if (cert == null) {

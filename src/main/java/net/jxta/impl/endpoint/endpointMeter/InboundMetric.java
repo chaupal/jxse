@@ -214,7 +214,7 @@ public class InboundMetric implements DocumentSerializable {
         timeToProcessInbound += other.timeToProcessInbound;
     }	
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
 
         DocumentSerializableUtilities.addString(element, "serviceName", serviceName);
         DocumentSerializableUtilities.addString(element, "serviceParam", serviceParameter);
@@ -248,9 +248,9 @@ public class InboundMetric implements DocumentSerializable {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("serviceName")) { 

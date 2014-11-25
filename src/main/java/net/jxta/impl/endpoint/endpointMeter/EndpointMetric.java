@@ -183,7 +183,7 @@ public class EndpointMetric implements DocumentSerializable {
         return demuxMessageProcessed;
     }
 		
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         if (endpointStartTime != 0) {
             DocumentSerializableUtilities.addLong(element, "endpointStartTime", endpointStartTime);
         }
@@ -223,9 +223,9 @@ public class EndpointMetric implements DocumentSerializable {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("endpointStartTime")) {

@@ -280,24 +280,24 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         ConfigParams configAdv = group.getConfigAdvertisement();
 
         // Get out invariable parameters from the implAdv
-        XMLElement param = (XMLElement) implAdvertisement.getParam();
+        XMLElement param = (XMLElement<?>) implAdvertisement.getParam();
 
         if (param != null) {
-            Enumeration<XMLElement> list = param.getChildren("Proto");
+            Enumeration<XMLElement<?>> list = param.getChildren("Proto");
             if (list.hasMoreElements()) {
-                XMLElement pname = list.nextElement();
+                XMLElement<?> pname = list.nextElement();
                 protocolName = pname.getTextValue();
             }
         }
 
         // Get our peer-defined parameters in the configAdv
-        param = (XMLElement) configAdv.getServiceParam(IModuleDefinitions.multicastProtoClassID);
+        param = (XMLElement<?>) configAdv.getServiceParam(IModuleDefinitions.multicastProtoClassID);
 
         if (null == param) {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
         }
 
-        Enumeration<XMLElement> multiChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<XMLElement<?>> multiChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
         if (multiChilds.hasMoreElements()) {

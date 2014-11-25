@@ -61,6 +61,6 @@ import net.jxta.document.Element;
 /**
  **/
 public interface DocumentSerializable {
-    public void initializeFrom(Element element) throws DocumentSerializationException;
-    public void serializeTo(Element element) throws DocumentSerializationException;
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException;
+    public void serializeTo(Element<?> element) throws DocumentSerializationException;
 }

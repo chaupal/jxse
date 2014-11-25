@@ -85,7 +85,7 @@ public final class EndpointUtils {
         try {
 
             // Get its EndpointService advertisement
-            XMLElement endpParam = (XMLElement) adv.getServiceParam(IModuleDefinitions.endpointClassID);
+            XMLElement<?> endpParam = (XMLElement<?>) adv.getServiceParam(IModuleDefinitions.endpointClassID);
 
             if (endpParam == null) {
                 Logging.logCheckedDebug(LOG, "No Endpoint Params");
@@ -93,11 +93,11 @@ public final class EndpointUtils {
             }
 
             // get the Route Advertisement element
-            Enumeration paramChilds = endpParam.getChildren(RouteAdvertisement.getAdvertisementType());
-            XMLElement param;
+            Enumeration<?> paramChilds = endpParam.getChildren(RouteAdvertisement.getAdvertisementType());
+            XMLElement<?> param;
 
             if (paramChilds.hasMoreElements()) {
-                param = (XMLElement) paramChilds.nextElement();
+                param = (XMLElement<?>) paramChilds.nextElement();
             } else {
                 Logging.logCheckedDebug(LOG, "No Route Adv in Peer Adv");
                 return null;

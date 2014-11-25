@@ -272,10 +272,7 @@ public final class PSEMembershipService implements MembershipService {
         peerValidationEngine = getDefaultPSEPeerValidationEngineFactory().getInstance(this, config);
         KeyStoreManager storeManager = getDefaultKeyStoreManagerFactory().getInstance(this, config);        
         try {            
-            String membershipPassword = configAdv.getPrivateKey();
-            if( membershipPassword == null )
-            	membershipPassword = "";
-            
+            String membershipPassword = configAdv.getPrivateKey();           
             pseStore = new PSEConfig(storeManager, membershipPassword.toCharArray());
             pseStore.initialize();            
         } catch (IOException ex) {                    

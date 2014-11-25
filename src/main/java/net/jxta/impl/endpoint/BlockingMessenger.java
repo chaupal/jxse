@@ -743,6 +743,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
             case ACTION_CONNECT:
                 cantConnect();
                 break;
+		default:
+			break;
         }
     }
 
