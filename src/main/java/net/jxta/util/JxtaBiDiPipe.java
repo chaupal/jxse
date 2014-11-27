@@ -160,7 +160,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     protected volatile boolean direct = false;
     protected volatile OutgoingMsgrAdaptor outgoing = null;
-    protected volatile StructuredDocument credentialDoc = null;
+    protected volatile StructuredDocument<?> credentialDoc = null;
     protected final Properties connectionProperties;
 
     /**
@@ -185,7 +185,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param direct     indicates a direct messenger pipe
      * @throws IOException if an io error occurs
      */
-    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct) throws IOException {
+    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument<?> credDoc, boolean isReliable, boolean direct) throws IOException {
         this(group, msgr, pipe, credDoc, isReliable, direct, null);
     }
 
@@ -201,7 +201,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param connectionProperties Properties associated with this connection
      * @throws IOException if an io error occurs
      */
-    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct, Properties connectionProperties) throws IOException {
+    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument<?> credDoc, boolean isReliable, boolean direct, Properties connectionProperties) throws IOException {
         if (msgr == null) {
             throw new IOException("Null Messenger");
         }
@@ -404,7 +404,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         private void init()
         {
             final long start = System.currentTimeMillis();
-            final ScheduledFuture[] holder = new ScheduledFuture[1];
+            final ScheduledFuture<?>[] holder = new ScheduledFuture[1];
             createOutputPipeWithListener();
             holder[0] = pipe.group.getTaskManager().getScheduledExecutorService().scheduleAtFixedRate(new Runnable()
             {
@@ -588,7 +588,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param group group context
      * @return The credDoc value
      */
-    protected static StructuredDocument getCredDoc(PeerGroup group) {
+    protected static StructuredDocument<?> getCredDoc(PeerGroup group) {
         try {
             MembershipService membership = group.getMembershipService();
             Credential credential = membership.getDefaultCredential();
@@ -609,7 +609,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      *
      * @return Credential StructuredDocument
      */
-    public StructuredDocument getCredentialDoc() {
+    public StructuredDocument<?> getCredentialDoc() {
         return credentialDoc;
     }
 
@@ -653,7 +653,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      *
      * @param doc Credential StructuredDocument
      */
-    public void setCredentialDoc(StructuredDocument doc) {
+    public void setCredentialDoc(StructuredDocument<?> doc) {
         this.credentialDoc = doc;
     }
 
@@ -678,11 +678,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         try {
             if (credentialDoc != null) {
                 msg.addMessageElement(JxtaServerPipe.nameSpace,
-                        new TextDocumentMessageElement(JxtaServerPipe.credTag, (XMLDocument) credentialDoc, null));
+                        new TextDocumentMessageElement(JxtaServerPipe.credTag, (XMLDocument<?>) credentialDoc, null));
             }
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.reqPipeTag,
-                            (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
+                            (XMLDocument<?>) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new StringMessageElement(JxtaServerPipe.reliableTag, Boolean.toString(isReliable), null));
@@ -700,7 +700,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.remPeerTag,
-                            (XMLDocument) peerAdv.getSignedDocument(), null));
+                            (XMLDocument<?>) peerAdv.getSignedDocument(), null));
             return msg;
         } catch (Throwable t) {
             if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
@@ -901,8 +901,8 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             if (element != null) {
                 // connect response
                 try {
-                    XMLDocument CredDoc = null;
-                    XMLDocument remotePipeDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                    XMLDocument<?> CredDoc = null;
+                    XMLDocument<?> remotePipeDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
 
                     remotePipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(remotePipeDoc);
                     if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
@@ -911,7 +911,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
                     element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.remPeerTag);
                     if (element != null) {
-                        XMLDocument remotePeerDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                        XMLDocument<?> remotePeerDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
 
                         remotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(remotePeerDoc);
                         if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
@@ -926,7 +926,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
                     element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.credTag);
                     if (element != null) {
-                        CredDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                        CredDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
                     }
                     if (pipeAdv.getType().equals(PipeService.UnicastSecureType) && (CredDoc == null || !checkCred(CredDoc))) {
                         // we're done here
@@ -1290,7 +1290,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param cred the credential document
      * @return always returns true
      */
-    protected boolean checkCred(StructuredDocument cred) {
+    protected boolean checkCred(StructuredDocument<?> cred) {
         // FIXME need to check credentials
         return true;
     }

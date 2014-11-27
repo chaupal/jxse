@@ -27,16 +27,15 @@ import java.util.Iterator;
  * @author Dawid Kurzyniec
  * @version 1.0
  */
-@SuppressWarnings("unchecked")
 public final class Utils {
 
     private Utils() {}
 
-    public static Object[] collectionToArray(Collection c) {
+    public static Object[] collectionToArray(Collection<?> c) {
         // guess the array size; expect to possibly be different
         int len = c.size();
         Object[] arr = new Object[len];
-        Iterator itr = c.iterator();
+        Iterator<?> itr = c.iterator();
         int idx = 0;
         while (true) {
             while (idx < len && itr.hasNext()) {
@@ -63,13 +62,13 @@ public final class Utils {
         }
     }
 
-    public static Object[] collectionToArray(Collection c, Object[] a) {
-        Class aType = a.getClass();
+    public static Object[] collectionToArray(Collection<?> c, Object[] a) {
+        Class<?> aType = a.getClass();
         // guess the array size; expect to possibly be different
         int len = c.size();
         Object[] arr = (a.length >= len ? a :
                         (Object[])Array.newInstance(aType.getComponentType(), len));
-        Iterator itr = c.iterator();
+        Iterator<?> itr = c.iterator();
         int idx = 0;
         while (true) {
             while (idx < len && itr.hasNext()) {
@@ -106,7 +105,7 @@ public final class Utils {
     /**
      * Taken from Arrays in backport-jsr166 3.1.
      */
-    public static Object[] copyOf(Object[] original, int newLength, Class newType) {
+    public static Object[] copyOf(Object[] original, int newLength, Class<?> newType) {
         Object[] arr = (newType == Object[].class) ? new Object[newLength] :
             (Object[])Array.newInstance(newType.getComponentType(), newLength);
         int len  = (original.length < newLength ? original.length : newLength);

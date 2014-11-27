@@ -16,10 +16,9 @@ import java.util.Iterator;
  * @author Doug Lea
  * @author Dawid Kurzyniec
  */
-@SuppressWarnings("unchecked")
-public abstract class AbstractMap extends java.util.AbstractMap {
+public abstract class AbstractMap<K extends Object, V extends Object> extends java.util.AbstractMap<K,V> {
 
-    transient Set keySet;
+    transient Set<K> keySet;
 
     /**
      * Sole constructor. (For invocation by subclass constructors, typically
@@ -30,16 +29,16 @@ public abstract class AbstractMap extends java.util.AbstractMap {
     /**
      * {@inheritDoc}
      */
-    public Set keySet() {
+    public Set<K> keySet() {
         if (keySet == null) {
-            keySet = new AbstractSet() { // from e.e.m.b. (overrides toArray)
+            keySet = new AbstractSet<K>() { // from e.e.m.b. (overrides toArray)
                 public int size() { return AbstractMap.this.size(); }
                 public boolean contains(Object e) { return AbstractMap.this.containsKey(e); }
-                public Iterator iterator() {
-                    return new Iterator() {
-                        final Iterator itr = AbstractMap.this.entrySet().iterator();
+                public Iterator<K> iterator() {
+                    return new Iterator<K>() {
+                        final Iterator<Entry<K,V>> itr = AbstractMap.this.entrySet().iterator();
                         public boolean hasNext() { return itr.hasNext(); }
-                        public Object next() { return ((Entry)itr.next()).getKey(); }
+                        public K next() { return itr.next().getKey(); }
                         public void remove() { itr.remove(); }
                     };
                 }
@@ -58,9 +57,9 @@ public abstract class AbstractMap extends java.util.AbstractMap {
      *
      * @since 1.6
      */
-    public static class SimpleEntry implements Entry {
-        private final Object key;
-        private Object value;
+    public static class SimpleEntry<K extends Object, V extends Object> implements Entry<K,V> {
+        private final K key;
+        private V value;
 
         /**
          * Creates an entry representing a mapping from the specified
@@ -69,7 +68,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          * @param key the key represented by this entry
          * @param value the value represented by this entry
          */
-        public SimpleEntry(Object key, Object value) {
+        public SimpleEntry(K key, V value) {
             this.key   = key;
             this.value = value;
         }
@@ -80,7 +79,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @param entry the entry to copy
          */
-        public SimpleEntry(Entry entry) {
+        public SimpleEntry(Entry<K,V> entry) {
             this.key   = entry.getKey();
             this.value = entry.getValue();
         }
@@ -90,7 +89,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @return the key corresponding to this entry
          */
-        public Object getKey() {
+        public K getKey() {
             return key;
         }
 
@@ -99,7 +98,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @return the value corresponding to this entry
          */
-        public Object getValue() {
+        public V getValue() {
             return value;
         }
 
@@ -110,15 +109,15 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          * @param value new value to be stored in this entry
          * @return the old value corresponding to the entry
          */
-        public Object setValue(Object value) {
-            Object oldValue = this.value;
+        public V setValue(V value) {
+            V oldValue = this.value;
             this.value = value;
             return oldValue;
         }
 
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry)) return false;
-            Map.Entry e = (Map.Entry)o;
+            Map.Entry<K,V> e = (Map.Entry<K,V>)o;
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 
@@ -149,9 +148,9 @@ public abstract class AbstractMap extends java.util.AbstractMap {
      *
      * @since 1.6
      */
-    public static class SimpleImmutableEntry implements Entry {
-        private final Object key;
-        private final Object value;
+    public static class SimpleImmutableEntry<K extends Object, V extends Object> implements Entry<K,V> {
+        private final K key;
+        private final V value;
 
         /**
          * Creates an entry representing a mapping from the specified
@@ -160,7 +159,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          * @param key the key represented by this entry
          * @param value the value represented by this entry
          */
-        public SimpleImmutableEntry(Object key, Object value) {
+        public SimpleImmutableEntry(K key, V value) {
             this.key   = key;
             this.value = value;
         }
@@ -171,7 +170,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @param entry the entry to copy
          */
-        public SimpleImmutableEntry(Entry entry) {
+        public SimpleImmutableEntry(Entry<K,V> entry) {
             this.key   = entry.getKey();
             this.value = entry.getValue();
         }
@@ -181,7 +180,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @return the key corresponding to this entry
          */
-        public Object getKey() {
+        public K getKey() {
             return key;
         }
 
@@ -190,7 +189,7 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @return the value corresponding to this entry
          */
-        public Object getValue() {
+        public V getValue() {
             return value;
         }
 
@@ -204,14 +203,14 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          * @return (Does not return)
          * @throws UnsupportedOperationException always
          */
-        public Object setValue(Object value) {
+        public V setValue( V value) {
             throw new UnsupportedOperationException();
         }
 
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry e = (Map.Entry)o;
+            Map.Entry<K,V> e = (Map.Entry<K,V>)o;
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 
