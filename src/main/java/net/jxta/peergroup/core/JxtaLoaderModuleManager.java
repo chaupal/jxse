@@ -163,6 +163,8 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 	 */
 	public static ClassLoader getClassLoader( PeerGroup peergroup){
 		JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) managers.get( peergroup );
+		if( manager == null )
+			return (ClassLoader) root.getLoader();
 		return (ClassLoader) manager.getLoader();
 	}
 

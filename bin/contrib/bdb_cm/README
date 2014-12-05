@@ -1,0 +1,10 @@
+This folder contains an implementation of the Cm and SrdiIndex interfaces using
+Oracle's Berkeley DB Java Edition as the storage backend. This contribution can
+be used under the terms of either Oracle's Berkeley DB Open Source License or
+Oracle's Berkeley DB Commercial License. Details can be found here:
+
+http://www.oracle.com/technology/software/products/berkeley-db/htdocs/licensing.html
+
+This implementation has been contributed by OneDrum:
+
+www.onedrum.com

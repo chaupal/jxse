@@ -432,7 +432,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         }
                     }
                 }
-            }, 0, 5, TimeUnit.SECONDS);
+            }, 0, 10, TimeUnit.SECONDS);
         }
 
         private void createOutputPipeWithListener()
