@@ -60,7 +60,9 @@ package net.jxta.impl.content.defprovider;
  * Base exception for representing terminal Content transfer problems.
  */
 public class TooManyClientsException extends Exception {
-    /**
+ 	private static final long serialVersionUID = 1L;
+
+	/**
      * Creates a new transfer exception with the default message.
      */
     public TooManyClientsException() {

@@ -120,7 +120,7 @@ public class ActiveTransferTracker {
     /**
      * Garbage collection task;
      */
-    private ScheduledFuture gcTask;
+    private ScheduledFuture<?> gcTask;
 
     /**
      * Map of clients being served, keyed off the destination pipe ID.

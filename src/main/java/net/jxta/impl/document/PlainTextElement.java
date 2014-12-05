@@ -143,8 +143,8 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
     /**
      * {@inheritDoc}
      */
-    public StructuredTextDocument getRoot() {
-        return (StructuredTextDocument) doc;
+    public StructuredTextDocument<PlainTextElement> getRoot() {
+        return doc;
     }
 
     /**

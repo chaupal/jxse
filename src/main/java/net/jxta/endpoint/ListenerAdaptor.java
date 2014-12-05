@@ -64,6 +64,7 @@ import net.jxta.util.SimpleSelector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -411,9 +412,9 @@ public class ListenerAdaptor implements Runnable {
                 try {
                     Collection<SimpleSelectable> changed = selector.select();
                     for (SimpleSelectable simpleSelectable : changed) {
-                        ListenerContainer listeners;
+                        ListenerContainer<SimpleSelectable,EventListener> listeners;
                         synchronized (this) {
-                            listeners = inprogress.get(simpleSelectable.getIdentityReference());
+                            listeners = (ListenerContainer<SimpleSelectable, EventListener>) inprogress.get(simpleSelectable.getIdentityReference());
                         }
                         if (listeners == null) {
                             simpleSelectable.unregister(selector);
@@ -444,7 +445,7 @@ public class ListenerAdaptor implements Runnable {
                 IOException failed = new IOException("Endpoint interface terminated");
                 for (Map.Entry<IdentityReference, ListenerContainer<?,?>> entry : inprogress.entrySet()) {
                     SimpleSelectable simpleSelectable = entry.getKey().getObject();
-                    ListenerContainer listeners = entry.getValue();
+                    ListenerContainer<SimpleSelectable,EventListener> listeners = (ListenerContainer<SimpleSelectable, EventListener>) entry.getValue();
                     simpleSelectable.unregister(selector);
 
                     if (listeners != null) {
@@ -470,8 +471,8 @@ public class ListenerAdaptor implements Runnable {
     private class ListenerProcessor implements Runnable {
 
         private SimpleSelectable simpleSelectable;
-        private ListenerContainer listeners;
-        ListenerProcessor(ListenerContainer<?,?> listeners, SimpleSelectable simpleSelectable) {
+        private ListenerContainer<SimpleSelectable,EventListener> listeners;
+        ListenerProcessor(ListenerContainer<SimpleSelectable,EventListener> listeners, SimpleSelectable simpleSelectable) {
             this.listeners = listeners;
             this.simpleSelectable = simpleSelectable;
         }

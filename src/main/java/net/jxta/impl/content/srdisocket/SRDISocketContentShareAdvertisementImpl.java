@@ -112,7 +112,7 @@ public class SRDISocketContentShareAdvertisementImpl
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance( Element root ) {
+        public Advertisement newInstance( Element<?> root ) {
             return new SRDISocketContentShareAdvertisementImpl( root );
         }
     };
@@ -127,7 +127,7 @@ public class SRDISocketContentShareAdvertisementImpl
     /**
      *  Construct a new AbstractPipeContentAdvertisement.
      */
-    public SRDISocketContentShareAdvertisementImpl(Element root) {
+    public SRDISocketContentShareAdvertisementImpl(Element<?> root) {
         super(root);
     }
 

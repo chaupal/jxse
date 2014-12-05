@@ -165,7 +165,7 @@ public class ContentServiceImpl implements ContentService {
             /**
              * {@inheritDoc}
              */
-            public void unhandledPeerGroupException(ModuleLifecycleTracker subject, PeerGroupException mlcx) {
+            public void unhandledPeerGroupException(ModuleLifecycleTracker<?> subject, PeerGroupException mlcx) {
 
                 Logging.logCheckedWarning(LOG, "Uncaught exception", mlcx);
 
@@ -175,7 +175,7 @@ public class ContentServiceImpl implements ContentService {
              * {@inheritDoc}
              */
             public void moduleLifecycleStateUpdated(
-                    ModuleLifecycleTracker subject,
+                    ModuleLifecycleTracker<?> subject,
                     ModuleLifecycleState newState) {
                 ContentProviderSPI provider =
                         (ContentProviderSPI) subject.getModule();
@@ -611,7 +611,7 @@ public class ContentServiceImpl implements ContentService {
 
         Logging.logCheckedDebug(LOG, "Locating providers");
 
-        Enumeration resources;
+        Enumeration<URL> resources;
         try {
             resources = loader.getResources(
                     "META-INF/services/" + ContentProviderSPI.class.getName());

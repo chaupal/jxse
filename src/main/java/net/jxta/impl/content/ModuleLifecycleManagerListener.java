@@ -76,7 +76,7 @@ public interface ModuleLifecycleManagerListener
      * @param subject the tracker monitoring the stalled Module
      */
     void moduleStalled(
-            ModuleLifecycleManager manager, ModuleLifecycleTracker subject);
+            ModuleLifecycleManager<?> manager, ModuleLifecycleTracker<?> subject);
 
     /**
      * Called when a Module has reported that it is disabled.  This occurs
@@ -89,6 +89,6 @@ public interface ModuleLifecycleManagerListener
      * @param subject the tracker monitoring the stalled Module
      */
     void moduleDisabled(
-            ModuleLifecycleManager manager, ModuleLifecycleTracker subject);
+            ModuleLifecycleManager<?> manager, ModuleLifecycleTracker<?> subject);
 
 }

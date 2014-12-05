@@ -77,15 +77,17 @@ import java.util.List;
  * full parser.
  */
 public class LiteXMLElement implements XMLElement<LiteXMLElement>, Serializable {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Defines a range of characters, probably within a string. The range is
      * deemed to be invalid if 'start' is -1.  A zero length range is, by
      * convention, described by an 'end' value of 'start' - 1.
      */
     protected static class charRange implements Comparable<charRange>, Serializable {
+		private static final long serialVersionUID = 1L;
 
-        /**
+		/**
          * Contains the start position of this range.
          */
         public int start;
@@ -238,7 +240,11 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement>, Serializable 
      * and <code>endTag</code> will be equal.
      */
     protected static class tagRange implements Comparable<tagRange>, Serializable {
-        public charRange startTag;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public charRange startTag;
         public charRange body;
         public charRange endTag;
 

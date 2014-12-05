@@ -147,8 +147,8 @@ public class ModuleWrapperFactory {
      * @return new proxy object using target as a backing instance
      */
     public static Module newWrapper(
-            Class[] interfaces, Module module) {
-        Class[] allInterfaces = interfaces;
+            Class<?>[] interfaces, Module module) {
+        Class<?>[] allInterfaces = interfaces;
         boolean notFound = true;
 
         for (int i=0; i<interfaces.length && notFound; i++) {

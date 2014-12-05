@@ -105,7 +105,7 @@ public class AlwaysAccessService implements AccessService {
             this.offerer = offerer;
         }
 
-        protected AlwaysOperation(AlwaysAccessService source, Element root) {
+        protected AlwaysOperation(AlwaysAccessService source, Element<?> root) {
             this.source = source;
             initialize(root);
         }
@@ -159,7 +159,7 @@ public class AlwaysAccessService implements AccessService {
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
+        public StructuredDocument<?> getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
 
             if (doc instanceof Attributable) {
@@ -168,7 +168,7 @@ public class AlwaysAccessService implements AccessService {
                 ((Attributable) doc).addAttribute("type", "jxta:AlwaysOp");
             }
 
-            Element e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
+            Element<?> e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
 
             doc.appendChild(e);
 
@@ -193,7 +193,7 @@ public class AlwaysAccessService implements AccessService {
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
          */
-        protected boolean handleElement(TextElement elem) {
+        protected boolean handleElement(TextElement<?> elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
                     URI gID = new URI(elem.getTextValue().trim());
@@ -232,13 +232,13 @@ public class AlwaysAccessService implements AccessService {
         /**
          *  Initialize from a portion of a structured document.
          */
-        protected void initialize(Element root) {
+        protected void initialize(Element<?> root) {
 
             if (!TextElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
             }
 
-            TextElement doc = (TextElement) root;
+            TextElement<?> doc = (TextElement<?>) root;
 
             String typedoctype = "";
 
@@ -257,11 +257,11 @@ public class AlwaysAccessService implements AccessService {
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
             }
 
-            Enumeration elements = doc.getChildren();
+            Enumeration<?> elements = doc.getChildren();
 
             while (elements.hasMoreElements()) {
 
-                TextElement elem = (TextElement) elements.nextElement();
+                TextElement<?> elem = (TextElement<?>) elements.nextElement();
 
                 if (!handleElement(elem)) {
 
@@ -397,7 +397,7 @@ public class AlwaysAccessService implements AccessService {
     /**
      * {@inheritDoc}
      */
-    public PrivilegedOperation newPrivilegedOperation(Element source) {
+    public PrivilegedOperation newPrivilegedOperation(Element<?> source) {
         return new AlwaysOperation(this, source);
     }
 }

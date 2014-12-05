@@ -1130,7 +1130,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public Iterator<MessageTransport> getAllMessageTransports() {
         if (null != parentEndpoint) {
-            return new SequenceIterator(getAllLocalTransports(), parentEndpoint.getAllMessageTransports());
+            return new SequenceIterator<MessageTransport>(getAllLocalTransports(), parentEndpoint.getAllMessageTransports());
         } else {
             return getAllLocalTransports();
         }

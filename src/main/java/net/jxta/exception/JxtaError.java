@@ -62,8 +62,9 @@ package net.jxta.exception;
  */
 
 public class JxtaError extends Error {
-    
-    /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Construct a new JxtaError with no detailed message.
      *
      */

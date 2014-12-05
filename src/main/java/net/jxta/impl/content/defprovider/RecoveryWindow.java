@@ -93,7 +93,7 @@ public class RecoveryWindow {
     private static class Node {
         public long offset;
         public byte[] data;
-        public Reference previous;
+        public Reference<Node> previous;
         public Node next;
     }
 

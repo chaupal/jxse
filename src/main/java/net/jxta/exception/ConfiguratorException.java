@@ -70,8 +70,8 @@ import java.util.List;
  */
 
 public class ConfiguratorException extends JxtaException {
-
-    private List<Throwable> causes = null;
+	private static final long serialVersionUID = 1L;
+	private List<Throwable> causes = null;
 
     /**
      * Constucts a {@link JxtaException} with no specified details.
@@ -120,7 +120,7 @@ public class ConfiguratorException extends JxtaException {
      *
      * @param ex causes
      */
-    public ConfiguratorException(List ex) {
+    public ConfiguratorException(List<Throwable> ex) {
         super();
 
         addCauses(ex);
@@ -134,7 +134,7 @@ public class ConfiguratorException extends JxtaException {
      * @param msg message
      * @param ex  causes
      */
-    public ConfiguratorException(String msg, List ex) {
+    public ConfiguratorException(String msg, List<Throwable> ex) {
         super(msg);
 
         addCauses(ex);
@@ -170,7 +170,7 @@ public class ConfiguratorException extends JxtaException {
      *
      * @param c The causes
      */
-    public void addCauses(List c) {
+    public void addCauses(List<Throwable> c) {
         if (c != null) {
             for (Object aC : c) {
                 addCause((Throwable) aC);

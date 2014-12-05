@@ -69,8 +69,9 @@ import java.lang.reflect.UndeclaredThrowableException;
  * a simplified XML implementation.
  */
 public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteXMLElement>, Serializable {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * {@inheritDoc}
      */
     private final static class Instantiator implements StructuredDocumentFactory.TextInstantiator {
@@ -113,28 +114,28 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, String doctype) {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, String doctype) {
             return new LiteXMLDocument(mimeType, doctype);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value) {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, String doctype, String value) {
             return new LiteXMLDocument(mimeType, doctype, value);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
             return new LiteXMLDocument(mimeType, source);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, Reader source) throws IOException {
             return new LiteXMLDocument(mimeType, source);
         }
     }   

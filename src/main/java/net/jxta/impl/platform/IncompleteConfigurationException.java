@@ -61,7 +61,7 @@ public class IncompleteConfigurationException extends ConfiguratorException {
      *
      * @param ex causes
      */
-    public IncompleteConfigurationException(List<?> ex) {
+    public IncompleteConfigurationException(List<Throwable> ex) {
         super(ex);
     }
 }

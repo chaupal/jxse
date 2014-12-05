@@ -123,7 +123,7 @@ public class DataRequest {
     /**
      * Build request object from existing XML document.
      */
-    public DataRequest(Element root) {
+    public DataRequest(Element<?> root) {
         initialize(root);
     }
 
@@ -150,9 +150,9 @@ public class DataRequest {
      *  @param raw the element to be processed.
      *  @return true if the element was recognized, otherwise false.
      **/
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
         PipeAdvertisement pAdv;
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         ContentID contentId;
         URI uri;
         int i;
@@ -199,7 +199,7 @@ public class DataRequest {
             return true;
         } else if (elem.getName().equals(tagAdv)) {
             try {
-                XMLDocument xml = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(
+                XMLDocument<?> xml = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                         MimeMediaType.XMLUTF8, new StringReader(elem.getTextValue()) );
                 pAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(xml);
                 setResponsePipe(pAdv);
@@ -218,8 +218,8 @@ public class DataRequest {
      *  Intialize a Discovery Query from a portion of a structured document.
      *  @param root document to intialize from
      */
-    protected void initialize(Element root) {
-        XMLElement doc = (XMLElement) root;
+    protected void initialize(Element<?> root) {
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         if(!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() +
@@ -232,9 +232,9 @@ public class DataRequest {
                     "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
         while (elements.hasMoreElements()) {
-            Element elem = (Element) elements.nextElement();
+            Element<?> elem = (Element<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element : ", elem);
@@ -248,10 +248,10 @@ public class DataRequest {
     public Document getDocument(MimeMediaType asMimeType) {
         StructuredTextDocument doc = (StructuredTextDocument)
             StructuredDocumentFactory.newStructuredDocument(asMimeType, tagRoot);
-        Element e;
+        Element<?> e;
 
         if (doc instanceof XMLDocument) {
-            XMLDocument xmlDoc = (XMLDocument) doc;
+            XMLDocument<?> xmlDoc = (XMLDocument<?>) doc;
             xmlDoc.addAttribute("xmlns:jxta", "http://jxta.org");
         }
 

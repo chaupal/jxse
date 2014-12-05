@@ -94,7 +94,7 @@ public abstract class AbstractPipeContentShareAdvertisement
     /**
      *  Construct a new AbstractPipeContentShareAdvertisement.
      */
-    public AbstractPipeContentShareAdvertisement(Element root) {
+    public AbstractPipeContentShareAdvertisement(Element<?> root) {
         super(root);
     }
 
@@ -136,11 +136,11 @@ public abstract class AbstractPipeContentShareAdvertisement
      *  {@inheritDoc}
      */
     @Override
-    protected boolean handleElement( Element raw ) {
+    protected boolean handleElement( Element<?> raw ) {
         if ( super.handleElement( raw ) )
             return true;
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         String nm = elem.getName();
 
         if (nm.equals(PipeAdvertisement.getAdvertisementType())) {
@@ -163,12 +163,12 @@ public abstract class AbstractPipeContentShareAdvertisement
      */
     @Override
     public Document getDocument( MimeMediaType encodeAs ) {
-        StructuredDocument adv =
-                (StructuredDocument) super.getDocument( encodeAs );
+        StructuredDocument<?> adv =
+                (StructuredDocument<?>) super.getDocument( encodeAs );
 
         PipeAdvertisement pAdv = getPipeAdvertisement();
         if (pAdv != null) {
-            StructuredTextDocument advDoc = (StructuredTextDocument)
+            StructuredTextDocument<?> advDoc = (StructuredTextDocument<?>)
             pAdv.getDocument(encodeAs);
             StructuredDocumentUtils.copyElements(adv, adv, advDoc);
         }

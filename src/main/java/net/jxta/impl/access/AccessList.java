@@ -195,7 +195,7 @@ public class AccessList {
     }
 
     private void init(InputStream stream) throws IOException {
-        XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, stream);
+        XMLDocument<?> doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, stream);
 
         initialize(doc);
     }
@@ -213,12 +213,12 @@ public class AccessList {
      *
      * @param root root element
      */
-    public AccessList(Element root) {
+    public AccessList(Element<?> root) {
         if (!(root instanceof XMLElement)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         if (!getAdvertisementType().equals(doc.getName())) {
             throw new IllegalArgumentException(
@@ -345,10 +345,10 @@ public class AccessList {
         StructuredDocument adv = StructuredDocumentFactory.newStructuredDocument(asMimeType, getAdvertisementType());
 
         if (adv instanceof XMLDocument) {
-            ((XMLDocument) adv).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) adv).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element e;
+        Element<?> e;
 
         if (grantAll) {
             e = adv.createElement(GRANTALL_TAG, Boolean.valueOf(grantAll).toString());
@@ -384,12 +384,12 @@ public class AccessList {
      *
      * @param doc the element
      */
-    protected void initialize(XMLElement doc) {
+    protected void initialize(XMLElement<?> doc) {
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (GRANTALL_TAG.equals(elem.getName())) {
                 grantAll = Boolean.getBoolean(elem.getTextValue());
@@ -450,7 +450,7 @@ public class AccessList {
     public String toString() {
 
         try {
-            XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> doc = (XMLDocument<?>) getDocument(MimeMediaType.XMLUTF8);
 
             return doc.toString();
         } catch (Throwable e) {

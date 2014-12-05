@@ -231,7 +231,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             new ArrayList<DefaultContentShareAdvertisementImpl>();
 
     // Initialized via transferInit()
-    private ScheduledFuture periodicTask;
+    private ScheduledFuture<?> periodicTask;
     private PipeAdvertisement responsePipeAdv;
     private InputPipe responsePipe;
     private Content content;
@@ -703,8 +703,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
     public void processMessage(Message msg) {
         ByteArrayMessageElement bmsge;
         MessageElement msge;
-        ListIterator it;
-        StructuredDocument doc;
+        ListIterator<MessageElement> it;
+        StructuredDocument<?> doc;
         DataResponse resp;
         byte data[] = null;
 
@@ -969,7 +969,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
      */
     private void sendRequest(Node node, int idx) {
 
-        XMLDocument doc;
+        XMLDocument<?> doc;
         DataRequest req;
         Message msg;
 
@@ -987,7 +987,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         req.setQueryID(idx);
         req.setResponsePipe(responsePipeAdv);
 
-        doc = (XMLDocument) req.getDocument(MimeMediaType.XMLUTF8);
+        doc = (XMLDocument<?>) req.getDocument(MimeMediaType.XMLUTF8);
         MessageElement msge = new TextDocumentMessageElement(
                 DefaultContentProvider.MSG_ELEM_NAME, doc, null);
         msg = new Message();

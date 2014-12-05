@@ -112,7 +112,7 @@ public class DefaultContentShareAdvertisementImpl
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance( Element root ) {
+        public Advertisement newInstance( Element<?> root ) {
             return new DefaultContentShareAdvertisementImpl( root );
         }
     };
@@ -127,7 +127,7 @@ public class DefaultContentShareAdvertisementImpl
     /**
      *  Construct a new AbstractPipeContentAdvertisement.
      */
-    public DefaultContentShareAdvertisementImpl(Element root) {
+    public DefaultContentShareAdvertisementImpl(Element<?> root) {
         super(root);
     }
 

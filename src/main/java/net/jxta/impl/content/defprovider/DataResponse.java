@@ -136,7 +136,7 @@ public class DataResponse {
     /**
      * Build response object from existing XML document.
      */
-    public DataResponse(Element root) {
+    public DataResponse(Element<?> root) {
         initialize(root);
     }
 
@@ -163,8 +163,8 @@ public class DataResponse {
      *  @param raw the element to be processed.
      *  @return true if the element was recognized, otherwise false.
      **/
-    protected boolean handleElement(Element raw) {
-        XMLElement elem = (XMLElement) raw;
+    protected boolean handleElement(Element<?> raw) {
+        XMLElement<?> elem = (XMLElement<?>) raw;
         Attribute attr;
         ContentID contentId;
         URI uri;
@@ -227,8 +227,8 @@ public class DataResponse {
      *  Intialize a Discovery Query from a portion of a structured document.
      *  @param root document to intialize from
      */
-    protected void initialize(Element root) {
-        XMLElement doc = (XMLElement) root;
+    protected void initialize(Element<?> root) {
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         if(!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() +
@@ -241,9 +241,9 @@ public class DataResponse {
                     "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
         while (elements.hasMoreElements()) {
-            Element elem = (Element) elements.nextElement();
+            Element<?> elem = (Element<?>) elements.nextElement();
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element : ", elem);
             }
@@ -254,13 +254,13 @@ public class DataResponse {
      * Read in an XML document.
      */
     public Document getDocument(MimeMediaType asMimeType) {
-        StructuredDocument doc = (StructuredTextDocument)
+        StructuredDocument doc = (StructuredTextDocument<?>)
         StructuredDocumentFactory.newStructuredDocument(asMimeType, tagRoot);
         Attribute attr;
-        Element e;
+        Element<?> e;
 
         if (doc instanceof XMLDocument) {
-            XMLDocument xmlDoc = (XMLDocument) doc;
+            XMLDocument<?> xmlDoc = (XMLDocument<?>) doc;
             xmlDoc.addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
@@ -280,7 +280,7 @@ public class DataResponse {
             e = doc.createElement(tagEOF);
             doc.appendChild(e);
             attr = new Attribute(attrReached, Boolean.toString(getEOF()));
-            ((XMLElement) e).addAttribute(attr);
+            ((XMLElement<?>) e).addAttribute(attr);
         }
 
         return doc;

@@ -60,8 +60,9 @@ package net.jxta.exception;
  *
  */
 public class ServiceNotFoundException extends JxtaException {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      *  Constructs an Exception with no specified detail message.
      */
     public ServiceNotFoundException() {

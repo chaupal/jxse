@@ -131,7 +131,7 @@ public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance( net.jxta.document.Element root ) {
+        public Advertisement newInstance( net.jxta.document.Element<?> root ) {
             return new ContentShareAdvertisementImpl( root );
         }
     };
@@ -150,12 +150,12 @@ public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
      *
      * @param root root element of the advertisement
      */
-    public ContentShareAdvertisementImpl( Element root ) {
+    public ContentShareAdvertisementImpl( Element<?> root ) {
         if( !XMLElement.class.isInstance( root ) )
             throw new IllegalArgumentException(
                     getClass().getName() + " only supports XMLElement" );
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String doctype = doc.getName();
 
@@ -171,11 +171,11 @@ public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
                     + doc.getName() );
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement( elem )) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -190,12 +190,12 @@ public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
      *  {@inheritDoc}
      */
     @Override
-    protected boolean handleElement( Element raw ) {
+    protected boolean handleElement( Element<?> raw ) {
 
         if ( super.handleElement( raw ) )
             return true;
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         String nm = elem.getName();
 
         if (nm.equals(contentAdvTag)) {
@@ -218,16 +218,16 @@ public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
      */
     @Override
     public Document getDocument( MimeMediaType encodeAs ) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument( encodeAs );
-        Element e;
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument( encodeAs );
+        Element<?> e;
 
         ContentAdvertisement cAdv = getContentAdvertisement();
         if (cAdv != null) {
             e = adv.createElement(contentIDTag, cAdv.getContentID().toString());
             adv.appendChild(e);
 
-            StructuredTextDocument advDoc =
-                    (StructuredTextDocument) cAdv.getDocument(encodeAs);
+            StructuredTextDocument<?> advDoc =
+                    (StructuredTextDocument<?>) cAdv.getDocument(encodeAs);
             StructuredDocumentUtils.copyElements(adv, adv, advDoc);
         }
 

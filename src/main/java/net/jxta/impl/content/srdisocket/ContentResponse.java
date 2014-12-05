@@ -120,7 +120,7 @@ public class ContentResponse {
     /**
      * Build response object from existing XML document.
      */
-    public ContentResponse(Element root) {
+    public ContentResponse(Element<?> root) {
         initialize(root);
     }
 
@@ -147,8 +147,8 @@ public class ContentResponse {
      *  @param raw the element to be processed.
      *  @return true if the element was recognized, otherwise false.
      **/
-    protected boolean handleElement(Element raw) {
-        XMLElement elem = (XMLElement) raw;
+    protected boolean handleElement(Element<?> raw) {
+        XMLElement<?> elem = (XMLElement<?>) raw;
         ContentID contentId;
         URI uri;
 
@@ -175,8 +175,8 @@ public class ContentResponse {
      *  Intialize a Content Response from a portion of a structured document.
      *  @param root document to intialize from
      */
-    protected void initialize(Element root) {
-        XMLElement doc = (XMLElement) root;
+    protected void initialize(Element<?> root) {
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         if(!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() +
@@ -189,9 +189,9 @@ public class ContentResponse {
                     "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
         while (elements.hasMoreElements()) {
-            Element elem = (Element) elements.nextElement();
+            Element<?> elem = (Element<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element : ", elem);
@@ -204,13 +204,13 @@ public class ContentResponse {
      */
     public Document getDocument(MimeMediaType asMimeType) {
         StructuredDocument doc =
-                (StructuredTextDocument)
+                (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(
                 asMimeType, tagRoot);
-        Element e;
+        Element<?> e;
 
         if (doc instanceof XMLDocument) {
-            XMLDocument xmlDoc = (XMLDocument) doc;
+            XMLDocument<?> xmlDoc = (XMLDocument<?>) doc;
             xmlDoc.addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
@@ -286,7 +286,7 @@ public class ContentResponse {
         size |= in.read() << 8;
         size |= in.read();
         LimitInputStream limitIn = new LimitInputStream(in, size);
-        StructuredDocument responseDoc =
+        StructuredDocument<?> responseDoc =
                 StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, limitIn);
         return new ContentResponse(responseDoc);

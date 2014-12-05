@@ -652,8 +652,8 @@ public class DefaultContentProvider implements
     private void processMessage(Message msg) {
 
         MessageElement msge;
-        ListIterator it;
-        StructuredDocument doc;
+        ListIterator<MessageElement> it;
+        StructuredDocument<?> doc;
         DataRequest req;
 
         // LOGGING: was Finest
@@ -754,11 +754,11 @@ public class DefaultContentProvider implements
     private void sendDataResponse(DataResponse resp, OutputPipe destPipe,
             byte[] data) {
         MessageElement msge;
-        XMLDocument doc;
+        XMLDocument<?> doc;
         Message msg;
 
         msg = new Message();
-        doc = (XMLDocument) resp.getDocument(MimeMediaType.XMLUTF8);
+        doc = (XMLDocument<?>) resp.getDocument(MimeMediaType.XMLUTF8);
         msge = new TextDocumentMessageElement(MSG_ELEM_NAME, doc, null);
         msg.addMessageElement(MSG_NAMESPACE, msge);
 

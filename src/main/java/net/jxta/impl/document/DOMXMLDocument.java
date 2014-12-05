@@ -132,28 +132,28 @@ public class DOMXMLDocument extends DOMXMLElement implements XMLDocument<DOMXMLE
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, String doctype) {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, String doctype) {
             return new DOMXMLDocument(mimeType, doctype);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value) {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, String doctype, String value) {
             return new DOMXMLDocument(mimeType, doctype, value);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
             return new DOMXMLDocument(mimeType, source);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, Reader source) throws IOException {
             return new DOMXMLDocument(mimeType, source);
         }
 

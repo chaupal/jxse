@@ -64,13 +64,13 @@ import java.util.NoSuchElementException;
 /**
  *  This class lets you combine a number of iterators.
  */
-public class SequenceIterator implements Iterator {
+public class SequenceIterator<T extends Object> implements Iterator<T> {
 
-    private Iterator iterators;
+    private Iterator<Iterator<T>> iterators;
 
-    private Iterator current = null;
+    private Iterator<T> current = null;
 
-    private Iterator previous = null;
+    private Iterator<T> previous = null;
 
     /**
      * Creates a new instance of SequenceIterator
@@ -78,15 +78,15 @@ public class SequenceIterator implements Iterator {
      * @param iterators An iterator containing instances of Iterator. This
      * iterator will iterate over all of the item in these iterators.
      **/
-    public SequenceIterator(Iterator iterators) {
+    public SequenceIterator(Iterator<Iterator<T>> iterators) {
         this.iterators = iterators;
     }
 
     /**
      * Creates a new instance of SequenceIterator
      **/
-    public SequenceIterator(Iterator first, Iterator second) {
-        List iterators = new ArrayList(2);
+    public SequenceIterator(Iterator<T> first, Iterator<T> second) {
+        List<Iterator<T>> iterators = new ArrayList<Iterator<T>>(2);
 
         iterators.add(first);
         iterators.add(second);
@@ -105,7 +105,7 @@ public class SequenceIterator implements Iterator {
                     return false;
                 }
 
-                current = (Iterator) iterators.next();
+                current = iterators.next();
             } while (!current.hasNext());
         }
 
@@ -115,7 +115,7 @@ public class SequenceIterator implements Iterator {
     /**
      *  {@inheritDoc}
      **/
-    public Object next() {
+    public T next() {
         if (!hasNext()) {
             throw new NoSuchElementException("no next element");
         }

@@ -115,28 +115,28 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, String doctype) {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, String doctype) {
             return new PlainTextDocument(mimeType, doctype);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value) {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, String doctype, String value) {
             return new PlainTextDocument(mimeType, doctype, value);
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
             throw new ProviderException("PlainTextDocument does not support input");
         }
 
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
+        public StructuredDocument<?> newInstance(MimeMediaType mimeType, Reader source) throws IOException {
             throw new ProviderException("PlainTextDocument does not support input");
         }
 
