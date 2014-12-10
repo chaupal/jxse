@@ -189,7 +189,7 @@ public class Platform extends StdPeerGroup {
         // XXX 20080817 mcumings - Need to find a way to have this passed in
         //     so that we can use the passed-in loader as the overall root
         //     loader.
-        JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) super.getModuleManager(); 
+        JxtaLoaderModuleManager<Module> manager = (JxtaLoaderModuleManager<Module>) super.getModuleManager(); 
 
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
         if(null == implAdv) {
@@ -247,7 +247,7 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>)super.getModuleManager(); 
+        JxtaLoaderModuleManager<Module> manager = (JxtaLoaderModuleManager<Module>) super.getModuleManager(); 
 
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 

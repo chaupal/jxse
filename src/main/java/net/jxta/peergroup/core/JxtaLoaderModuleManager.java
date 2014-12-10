@@ -18,6 +18,7 @@ import net.jxta.impl.protocol.PeerGroupConfigFlag;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.module.IJxtaModuleFactory;
+import net.jxta.module.IJxtaModuleManager;
 import net.jxta.module.IModuleFactory;
 import net.jxta.module.IModuleManager;
 import net.jxta.module.ModuleException;
@@ -26,7 +27,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 
-public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager<T>{
+public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>{
 
     /**
      * Default compatibility equater instance.
@@ -56,7 +57,7 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 
     private IJxtaLoader loader;
     
-    private static Map<PeerGroup, IModuleManager<? extends Module>> managers;
+    private static Map<PeerGroup, IModuleManager<? extends Module, ? extends IModuleFactory<?>>> managers;
     
     private Collection<IJxtaModuleFactory<T>> factories;
     
@@ -64,13 +65,13 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 
 	protected JxtaLoaderModuleManager( ClassLoader loader) {
 		this.loader = new RefJxtaLoader(new URL[0], loader, COMP_EQ );
-		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
+		managers = new HashMap<PeerGroup, IModuleManager<? extends Module, ? extends IModuleFactory<?>>>();
 		factories = new ArrayList<IJxtaModuleFactory<T>>();
 	}
 
 	private JxtaLoaderModuleManager( IJxtaLoader loader) {
 		this.loader = loader;
-		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
+		managers = new HashMap<PeerGroup, IModuleManager<? extends Module, ? extends IModuleFactory<?>>>();
 		factories = new ArrayList<IJxtaModuleFactory<T>>();
 	}
 
@@ -85,10 +86,14 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 		return loader;
 	}
 
-	public void registerFactory(IModuleFactory<T> factory) {
+	public void registerFactory(IJxtaModuleFactory<T> factory) {
 		factories.add( (IJxtaModuleFactory<T>) factory );
 	}
-	
+
+	public void unregisterFactory(IJxtaModuleFactory<T> factory) {
+		factories.add( (IJxtaModuleFactory<T>) factory );
+	}
+
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the 
      *  context of this ClassLoader.
@@ -149,10 +154,10 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 	 * @param peergroup
 	 * @return
 	 */
-	public IModuleManager<? extends Module> getModuleManager( PeerGroup peergroup){
+	public IModuleManager<? extends Module, ? extends IModuleFactory<?>> getModuleManager( PeerGroup peergroup){
 		if( managers.isEmpty())
 			return root;
-		IModuleManager<? extends Module> manager = managers.get( peergroup );
+		IModuleManager<? extends Module, ? extends IModuleFactory<?>> manager = managers.get( peergroup );
 		return ( manager == null )? root: manager;
 	}
 
@@ -233,8 +238,8 @@ public class JxtaLoaderModuleManager<T extends Module> implements IModuleManager
 	 * @param peerGroupAdvertisement
 	 * @return
 	 */
-	public static IModuleManager<Module> createModuleManager( PeerGroup peergroup, PeerGroupAdvertisement peerGroupAdvertisement ){
-        IModuleManager<Module> manager = null;
+	public static IModuleManager<Module, ? extends IModuleFactory<?>> createModuleManager( PeerGroup peergroup, PeerGroupAdvertisement peerGroupAdvertisement ){
+        IModuleManager<Module, ? extends IModuleFactory<?>> manager = null;
         PeerGroup parentGroup = peergroup.getParentGroup();
         if (null == parentGroup) {
 

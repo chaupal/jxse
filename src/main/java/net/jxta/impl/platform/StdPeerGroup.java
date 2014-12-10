@@ -90,7 +90,7 @@ import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
-import net.jxta.module.IModuleManager;
+import net.jxta.module.IJxtaModuleManager;
 import net.jxta.peergroup.ICachedPeerGroup;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
@@ -153,7 +153,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      */
     private final Map<ModuleClassID, Object> applications = new HashMap<ModuleClassID, Object>();
 
-    private IModuleManager<Module> root = JxtaLoaderModuleManager.getRoot( StdPeerGroup.class );
+    private IJxtaModuleManager<Module> root = JxtaLoaderModuleManager.getRoot( StdPeerGroup.class );
     
     		/**
      * Cache for this group.
@@ -215,7 +215,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
         // Empty
     }
 
-    protected IModuleManager<Module> getModuleManager(){
+    protected IJxtaModuleManager<Module> getModuleManager(){
     	return root;
     }
     
@@ -332,7 +332,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 
         loadAllModules(applications, false); // Apps are non-privileged;
 
-        res = startModules((Map) applications);
+        res = startModules((Map<ModuleClassID,Object>) applications);
 
         return res;
     }
@@ -391,7 +391,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      *
      * @param services The services to start.
      */
-    private int startModules(Map<ModuleClassID,Module> services) {
+    private int startModules(Map<ModuleClassID,Object> services) {
         int iterations = 0;
         int maxIterations = services.size() * services.size() + iterations + 1;
 
@@ -404,12 +404,12 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 
             Logging.logCheckedDebug(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
 
-            Iterator<Map.Entry<ModuleClassID, Module>> eachService = services.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Object>> eachService = services.entrySet().iterator();
 
             while (eachService.hasNext()) {
-                Map.Entry<ModuleClassID, Module> anEntry = eachService.next();
+                Map.Entry<ModuleClassID, Object> anEntry = eachService.next();
                 ModuleClassID mcid = anEntry.getKey();
-                Module aModule = anEntry.getValue();
+                Module aModule = (Module) anEntry.getValue();
 
                 int res;
 
@@ -485,7 +485,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 
                 failed.append("\nThe following services could not be started : ");
 
-                for (Map.Entry<ModuleClassID, Module> aService : services.entrySet()) {
+                for (Map.Entry<ModuleClassID, Object> aService : services.entrySet()) {
                     failed.append("\n\t");
                     failed.append(aService.getKey());
                     failed.append(" : ");
@@ -616,7 +616,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
             Map<ModuleClassID, Object> tempMsMap = new HashMap<ModuleClassID, Object>();
             tempMsMap.put(IModuleDefinitions.membershipClassID, tempMsSpec);
             loadAllModules(tempMsMap,true);
-            int tempRes = startModules((Map)tempMsMap);
+            int tempRes = startModules( tempMsMap );
             if(Module.START_OK ==tempRes)
             {
                 MembershipService tempMs = this.getMembershipService();
@@ -937,7 +937,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) super.getModuleManager(); 
+        JxtaLoaderModuleManager<Module> manager = (JxtaLoaderModuleManager<Module>) super.getModuleManager(); 
         ModuleImplAdvertisement implAdv = 
         		 manager.findModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID);
         return implAdv;

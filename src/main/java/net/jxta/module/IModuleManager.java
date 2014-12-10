@@ -4,7 +4,7 @@ import net.jxta.peergroup.core.Module;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-public interface IModuleManager<T extends Module> {
+public interface IModuleManager<T extends Module, U extends IModuleFactory<T>> {
 
 	/**
 	 * initialize the manager
@@ -15,7 +15,13 @@ public interface IModuleManager<T extends Module> {
 	 * Register a factory with the manager
 	 * @param factory
 	 */
-	public void registerFactory( IModuleFactory<T> factory );
+	public void registerFactory( U factory );
+
+	/**
+	 * Register a factory with the manager
+	 * @param factory
+	 */
+	public void unregisterFactory( U factory );
 
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the 

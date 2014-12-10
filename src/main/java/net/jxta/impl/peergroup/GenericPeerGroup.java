@@ -93,6 +93,8 @@ import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
+import net.jxta.module.IJxtaModuleFactory;
+import net.jxta.module.IJxtaModuleManager;
 import net.jxta.module.IModuleManager;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
@@ -215,7 +217,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * registration and management of modules. When a module manager is registered for the first
      * time, it takes over a root loader, which normally has been set up in the factory class
      */
-    private IModuleManager<? extends Module> moduleManager = JxtaLoaderModuleManager.getRoot();
+    private IJxtaModuleManager<Module> moduleManager = JxtaLoaderModuleManager.getRoot();
 
     public GenericPeerGroup() {
         // Start building our peer adv.
@@ -259,7 +261,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         jxtaHome = newHome;
     }
 
-    protected IModuleManager<? extends Module> getModuleManager() {
+    protected IJxtaModuleManager<Module> getModuleManager() {
 		return moduleManager;
 	}
 
@@ -988,7 +990,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // Now that we have our PeerGroupAdvertisement, we can pull out
             // the config to see if we have any PeerGroupConfigAdv params
-            moduleManager = JxtaLoaderModuleManager.createModuleManager(this, peerGroupAdvertisement);
+            moduleManager = (IJxtaModuleManager<Module>) JxtaLoaderModuleManager.createModuleManager(this, peerGroupAdvertisement);
 
             // If we still do not have a config adv, make one with the parent group, or
             // a minimal one with minimal info in it.
