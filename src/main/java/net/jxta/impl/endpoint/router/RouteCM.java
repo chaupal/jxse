@@ -142,19 +142,19 @@ class RouteCM implements Module {
         // extract Router service configuration properties
 
         ConfigParams confAdv = group.getConfigAdvertisement();
-        XMLElement paramBlock = null;
+        XMLElement<?> paramBlock = null;
 
         if (confAdv != null) {
-            paramBlock = (XMLElement) confAdv.getServiceParam(assignedID);
+            paramBlock = (XMLElement<?>) confAdv.getServiceParam(assignedID);
         }
 
         if (paramBlock != null) {
             // get our tunable router parameter
-            Enumeration param;
+            Enumeration<?> param;
 
             param = paramBlock.getChildren("useCM");
             if (param.hasMoreElements()) {
-                useCMConfig = Boolean.getBoolean(((XMLElement) param.nextElement()).getTextValue());
+                useCMConfig = Boolean.getBoolean(((XMLElement<?>) param.nextElement()).getTextValue());
             }
         }
 

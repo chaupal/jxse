@@ -186,9 +186,9 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         /**
          *	The current default credential in serialized XML form.
          */
-        final XMLDocument credentialDoc;
+        final XMLDocument<?> credentialDoc;
 
-        CurrentCredential(Credential credential, XMLDocument credentialDoc) {
+        CurrentCredential(Credential credential, XMLDocument<?> credentialDoc) {
             this.credential = credential;
             this.credentialDoc = credentialDoc;
         }
@@ -220,13 +220,13 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
                 synchronized (RouteResolver.this) {
                     Credential cred = (Credential) evt.getNewValue();
-                    XMLDocument credentialDoc;
+                    XMLDocument<?> credentialDoc;
 
                     if (null != cred) {
 
                         try {
 
-                            credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
+                            credentialDoc = (XMLDocument<?>) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
 
                         } catch (Exception all) {
@@ -262,19 +262,19 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
         // extract Router service configuration properties
         ConfigParams confAdv = group.getConfigAdvertisement();
-        XMLElement paramBlock = null;
+        XMLElement<?> paramBlock = null;
 
         if (confAdv != null) {
-            paramBlock = (XMLElement) confAdv.getServiceParam(assignedID);
+            paramBlock = (XMLElement<?>) confAdv.getServiceParam(assignedID);
         }
 
         if (paramBlock != null) {
             // get our tunable router parameter
-            Enumeration param;
+            Enumeration<?> param;
 
             param = paramBlock.getChildren("useRouteResolver");
             if (param.hasMoreElements()) {
-                useRouteResolver = Boolean.getBoolean(((XMLElement) param.nextElement()).getTextValue());
+                useRouteResolver = Boolean.getBoolean(((XMLElement<?>) param.nextElement()).getTextValue());
             }
         }
 
@@ -349,10 +349,10 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                 // set the initial version of the default credential.
                 currentCredential = null;
                 Credential credential = membership.getDefaultCredential();
-                XMLDocument credentialDoc;
+                XMLDocument<?> credentialDoc;
 
                 if (null != credential) {
-                    credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
+                    credentialDoc = (XMLDocument<?>) credential.getDocument(MimeMediaType.XMLUTF8);
                     currentCredential = new CurrentCredential(credential, credentialDoc);
                 }
 
@@ -451,7 +451,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
             Logging.logCheckedDebug(LOG, "Sending query for peer : ", peer);
 
-            XMLDocument credentialDoc;
+            XMLDocument<?> credentialDoc;
             CurrentCredential current = currentCredential;
 
             if (null != current) {
@@ -566,7 +566,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
             Reader ip = new StringReader(response.getResponse());
 
-            XMLDocument asDoc = (XMLDocument)
+            XMLDocument<?> asDoc = (XMLDocument<?>)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
 
             doc = new RouteResponse(asDoc);
@@ -816,7 +816,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
         try {
             Reader ip = new StringReader(query.getQuery());
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
             routeQuery = new RouteQuery(asDoc, this.group);
         } catch (RuntimeException e) {
             Logging.logCheckedDebug(LOG, "Malformed Route query\n", e);
@@ -1036,10 +1036,11 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
             routeResponse.setDestRoute(route);
             routeResponse.setSrcRoute(myRoute);
 
-            if (routeResponse == null) {
-                Logging.logCheckedDebug(LOG, "error creating route response");
-                return ResolverService.OK;
-            }
+            // CP: DEAD CODE
+            //if (routeResponse == null) {
+             //   Logging.logCheckedDebug(LOG, "error creating route response");
+             //   return ResolverService.OK;
+            //}
 
             // construct a response from the query
             ResolverResponseMsg res = query.makeResponse();
@@ -1160,7 +1161,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
             Logging.logCheckedDebug(LOG, "Received a SRDI messsage in group", group.getPeerGroupName());
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
             srdiMsg = new SrdiMessageImpl(asDoc);
 
         } catch (Exception e) {

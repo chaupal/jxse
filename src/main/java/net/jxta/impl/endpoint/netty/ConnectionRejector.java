@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
@@ -19,7 +19,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * 
  * @author iain.mcginniss@onedrum.com
  */
-@ChannelPipelineCoverage("all")
+@Sharable
 public class ConnectionRejector extends SimpleChannelUpstreamHandler {
 
     private static final Logger LOG = Logger.getLogger(ConnectionRejector.class.getName());

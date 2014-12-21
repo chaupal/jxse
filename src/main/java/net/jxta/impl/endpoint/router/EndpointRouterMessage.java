@@ -109,9 +109,9 @@ public class EndpointRouterMessage {
     private EndpointAddress lastHop = null; // Plain PeerID
 
     private transient Vector<AccessPointAdvertisement> forwardGateways = null;
-    private transient Vector<XMLElement> forwardCache = null;
+    private transient Vector<XMLElement<?>> forwardCache = null;
     private transient Vector<AccessPointAdvertisement> reverseGateways = null;
-    private transient Vector<XMLElement> reverseCache = null;
+    private transient Vector<XMLElement<?>> reverseCache = null;
     private transient RouteAdvertisement radv = null;
 
     // A flag that represents the existence of data.  Which is
@@ -162,9 +162,9 @@ public class EndpointRouterMessage {
                 return;
             }
 
-            XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(rmElem);
+            XMLDocument doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(rmElem);
 
-            Enumeration<XMLElement> each;
+            Enumeration<XMLElement<?>> each;
             XMLElement e;
 
             each = doc.getChildren();
@@ -199,9 +199,9 @@ public class EndpointRouterMessage {
                                 forwardGateways = new Vector<AccessPointAdvertisement>();
                             }
                             if (forwardCache == null) {
-                                forwardCache = new Vector<XMLElement>();
+                                forwardCache = new Vector<XMLElement<?>>();
                             }
-                            XMLElement aXpt = eachXpt.nextElement();
+                            XMLElement<?> aXpt = eachXpt.nextElement();
                             AccessPointAdvertisement xptAdv = (AccessPointAdvertisement)
                                     AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -213,12 +213,12 @@ public class EndpointRouterMessage {
                     }
 
                     if (e.getName().equals(GatewayReverseTag)) {
-                        for (Enumeration<XMLElement> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
+                        for (Enumeration<XMLElement<?>> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
                             if (reverseGateways == null) {
                                 reverseGateways = new Vector<AccessPointAdvertisement>();
                             }
                             if (reverseCache == null) {
-                                reverseCache = new Vector<XMLElement>();
+                                reverseCache = new Vector<XMLElement<?>>();
                             }
                             XMLElement aXpt = eachXpt.nextElement();
                             AccessPointAdvertisement xptAdv = (AccessPointAdvertisement)
@@ -276,13 +276,13 @@ public class EndpointRouterMessage {
         // The element was either created or changed. Replace whatever
         // if anything was in the message
 
-        XMLDocument doc = (XMLDocument)
+        XMLDocument doc = (XMLDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, Name);
 
         doc.addAttribute("xmlns:jxta", "http://jxta.org");
         doc.addAttribute("xml:space", "preserve");
 
-        XMLElement e;
+        XMLElement<?> e;
 
         if (srcAddress != null) {
             e = doc.createElement(SrcTag, srcAddress.toString());
@@ -323,7 +323,7 @@ public class EndpointRouterMessage {
             } else {
                 for (AccessPointAdvertisement gateway : forwardGateways) {
                     try {
-                        XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
+                        XMLDocument<?> xptDoc = (XMLDocument<?>) gateway.getDocument(MimeMediaType.XMLUTF8);
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception ignored) {
                         //ignored
@@ -339,7 +339,7 @@ public class EndpointRouterMessage {
 
             if (reverseCache != null) {
 
-                for (XMLElement xptDoc : reverseCache) {
+                for (XMLElement<?> xptDoc : reverseCache) {
 
                     try {
 
@@ -361,7 +361,7 @@ public class EndpointRouterMessage {
 
                     try {
 
-                        XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
+                        XMLDocument<?> xptDoc = (XMLDocument<?>) gateway.getDocument(MimeMediaType.XMLUTF8);
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
 
                     } catch (Exception e1) {
@@ -378,7 +378,7 @@ public class EndpointRouterMessage {
             		PSECredential tempCred = (PSECredential)membershipService.getDefaultCredential();
             		radv.sign(tempCred, true, false);
             	}
-                XMLDocument radvDoc = (XMLDocument) radv.getSignedDocument();
+                XMLDocument<?> radvDoc = (XMLDocument<?>) radv.getSignedDocument();
                 StructuredDocumentUtils.copyElements(doc, doc, radvDoc);
 
             } catch (Exception e1) {
@@ -497,7 +497,7 @@ public class EndpointRouterMessage {
         rmDirty = true;
         if (reverseGateways == null) {
             reverseGateways = new Vector<AccessPointAdvertisement>();
-            reverseCache = new Vector<XMLElement>();
+            reverseCache = new Vector<XMLElement<?>>();
         }
 
         reverseGateways.add(0, apa);
@@ -507,7 +507,7 @@ public class EndpointRouterMessage {
         }
 
         // if we still have a cache (we where able to keep it conistent, update it
-        XMLDocument apDoc = (XMLDocument) apa.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> apDoc = (XMLDocument<?>) apa.getDocument(MimeMediaType.XMLUTF8);
 
         reverseCache.add(0, apDoc);
     }

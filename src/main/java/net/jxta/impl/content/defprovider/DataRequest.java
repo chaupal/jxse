@@ -246,7 +246,7 @@ public class DataRequest {
      * Read in an XML document.
      */
     public Document getDocument(MimeMediaType asMimeType) {
-        StructuredTextDocument doc = (StructuredTextDocument)
+        StructuredTextDocument doc = (StructuredTextDocument<?>)
             StructuredDocumentFactory.newStructuredDocument(asMimeType, tagRoot);
         Element<?> e;
 

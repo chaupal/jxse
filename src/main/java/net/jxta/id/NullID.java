@@ -60,8 +60,9 @@ package net.jxta.id;
  * The NullID is often used as a placeholder in fields which are uninitialized.
  */
 public final class NullID extends ID {
+	private static final long serialVersionUID = 1L;
 
-    final static String JXTAFormat = "jxta";
+	final static String JXTAFormat = "jxta";
 
     final static String UNIQUEVALUE = "Null";
 

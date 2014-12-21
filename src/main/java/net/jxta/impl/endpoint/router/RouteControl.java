@@ -385,7 +385,7 @@ public class RouteControl implements RouteController {
 
         try {
             // get the direct routes
-            for (Iterator it = router.getAllCachedMessengerDestinations(); it.hasNext();) {
+            for (Iterator<EndpointAddress> it = router.getAllCachedMessengerDestinations(); it.hasNext();) {
                 ea = (EndpointAddress) it.next();
                 AccessPointAdvertisement ap = (AccessPointAdvertisement)
                         AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());

@@ -56,6 +56,7 @@
 
 package net.jxta.impl.endpoint.tls;
 
+import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -395,7 +396,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         try {
             serviceCert = membership.getPSEConfig().getTrustedCertificateChain(assignedID);
 
-            Enumeration eachCred = membership.getCurrentCredentials();
+            Enumeration<Credential> eachCred = membership.getCurrentCredentials();
 
             while (eachCred.hasMoreElements()) {
                 PSECredential aCred = (PSECredential) eachCred.nextElement();

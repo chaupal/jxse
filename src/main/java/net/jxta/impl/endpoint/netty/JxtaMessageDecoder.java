@@ -8,7 +8,7 @@ import net.jxta.peergroup.PeerGroup;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
 /**
@@ -17,7 +17,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
  * 
  * @author iain.mcginniss@onedrum.com
  */
-@ChannelPipelineCoverage("all")
+@Sharable
 public class JxtaMessageDecoder extends OneToOneDecoder {
 
     public static final String NAME = "jxtaMessageDecoder";
