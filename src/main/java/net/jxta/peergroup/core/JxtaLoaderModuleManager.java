@@ -170,7 +170,7 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		JxtaLoaderModuleManager<? extends Module> manager = (JxtaLoaderModuleManager<? extends Module>) managers.get( peergroup );
 		if( manager == null )
 			return (ClassLoader) root.getLoader();
-		return (ClassLoader) manager.getLoader();
+		return (ClassLoader) manager.getLoader().getClassLoader();
 	}
 
     @Override
