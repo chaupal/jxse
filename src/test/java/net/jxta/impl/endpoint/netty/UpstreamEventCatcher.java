@@ -5,10 +5,10 @@ import java.util.Queue;
 
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelHandler.Sharable;//PipelineCoverage;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 
-@ChannelPipelineCoverage("one")
+@Sharable//ChannelPipelineCoverage("one")
 public class UpstreamEventCatcher implements ChannelUpstreamHandler {
 
     public static final String NAME = "upstreamCatcher";

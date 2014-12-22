@@ -6,7 +6,7 @@ import net.jxta.impl.endpoint.netty.NettyTransport;
 
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
-import org.jboss.netty.channel.socket.httptunnel.HttpTunnelClientChannelFactory;
+import org.jboss.netty.channel.socket.http.HttpTunnelingClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.httptunnel.HttpTunnelServerChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -24,7 +24,7 @@ public class NettyHttpTunnelTransport extends NettyTransport {
     @Override
     protected ClientSocketChannelFactory createClientSocketChannelFactory() {
         NioClientSocketChannelFactory nioFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
-        return new HttpTunnelClientChannelFactory(nioFactory);
+        return new HttpTunnelingClientSocketChannelFactory(nioFactory);
     }
 
     @Override

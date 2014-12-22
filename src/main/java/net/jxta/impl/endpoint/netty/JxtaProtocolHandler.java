@@ -20,7 +20,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelHandler.Sharable;//PipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -37,7 +37,7 @@ import org.jboss.netty.util.Timer;
 
  * @author iain.mcginniss@onedrum.com
  */
-@ChannelPipelineCoverage("one")
+@Sharable //ChannelPipelineCoverage("one")
 public class JxtaProtocolHandler extends SimpleChannelHandler implements ChannelHandler, ChannelFutureListener {
     
     private static final Logger LOG = Logging.getLogger(JxtaProtocolHandler.class.getName());
@@ -141,6 +141,8 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
                 } else {
                     makingProgress = false;
                 }
+			default:
+				break;
             }
         }
     }
