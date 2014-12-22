@@ -196,13 +196,13 @@ public class NettyTransport implements Module {
     private TCPAdv extractInstanceConfiguration(ID assignedID) {
         ConfigParams configAdvertisement = group.getConfigAdvertisement();
         
-        XMLElement instanceParameters = (XMLDocument<?>) configAdvertisement.getServiceParam(assignedID);
+        XMLElement<?> instanceParameters = (XMLDocument<?>) configAdvertisement.getServiceParam(assignedID);
         
         if(instanceParameters == null) {
             return null;
         }
         
-        Enumeration<XMLElement<?>> adverts = instanceParameters.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<XMLElement<?>> adverts = (Enumeration<XMLElement<?>>) instanceParameters.getChildren(TransportAdvertisement.getAdvertisementType());
         
         if(!adverts.hasMoreElements()) {
             return null;
