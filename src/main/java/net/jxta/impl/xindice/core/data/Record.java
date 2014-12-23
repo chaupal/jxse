@@ -72,11 +72,11 @@ public final class Record {
    
     private Key key = null;
     private Value value = null;
-    private Map meta = null;
+    private Map<?,?> meta = null;
 
     public Record() {}
 
-    public Record(Key key, Value value, Map meta) {
+    public Record(Key key, Value value, Map<? extends Object, ? extends Object> meta) {
         this.key = key;
         this.value = value;
         this.meta = meta;

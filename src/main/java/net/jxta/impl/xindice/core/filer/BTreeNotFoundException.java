@@ -63,7 +63,9 @@ import net.jxta.impl.xindice.core.FaultCodes;
  * can't be found in the BTree.
  */
 public final class BTreeNotFoundException extends BTreeException {
-    public BTreeNotFoundException() {
+ 	private static final long serialVersionUID = 1L;
+
+	public BTreeNotFoundException() {
         super(FaultCodes.IDX_VALUE_NOT_FOUND);
     }
 

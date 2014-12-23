@@ -141,7 +141,7 @@ public class PeerMonitorInfo implements DocumentSerializable {
     /**
      * @inheritDoc
      **/
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addBoolean(element, "allowsMonitoring", allowsMonitoring);
         DocumentSerializableUtilities.addLong(element, "lastResetTime", lastResetTime);
         DocumentSerializableUtilities.addLong(element, "runningTime", runningTime);
@@ -166,7 +166,7 @@ public class PeerMonitorInfo implements DocumentSerializable {
     /**
      * @inheritDoc
      **/
-    public void initializeFrom(Element element) throws DocumentSerializationException {
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
         int numModuleClassIDs = DocumentSerializableUtilities.getInt(element, "numModuleClassIDs", 0);
 
         moduleClassIDs = new ModuleClassID[numModuleClassIDs];
@@ -177,8 +177,8 @@ public class PeerMonitorInfo implements DocumentSerializable {
         reportRates = new long[numReportRates];	
         int reportRateIndex = 0;
 			
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (Element) e.nextElement();
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (Element<?>) e.nextElement();
             String key = (String) childElement.getKey();
 
             if (key.equals("allowsMonitoring")) { 

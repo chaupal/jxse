@@ -67,7 +67,7 @@ import java.io.UnsupportedEncodingException;
  * underlying byte array is not.
  *
  */
-public class Value implements Comparable {
+public class Value implements Comparable<Object> {
 
     protected byte[] data = null;
     protected int pos = 0;

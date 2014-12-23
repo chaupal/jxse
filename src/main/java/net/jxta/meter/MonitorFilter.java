@@ -148,7 +148,7 @@ public class MonitorFilter implements DocumentSerializable {
      *
      * @return Iterator of ServiceMonitor ClassIDs
      **/
-    public Iterator getModuleClassIDs() {
+    public Iterator<ModuleClassID> getModuleClassIDs() {
         return serviceMonitorFilters.keySet().iterator();
     }
 
@@ -157,7 +157,7 @@ public class MonitorFilter implements DocumentSerializable {
      *
      * @return Iterator of all ServiceMonitorFilters subfilters
      **/
-    public Iterator getServiceMonitorFilters() {
+    public Iterator<ServiceMonitorFilter> getServiceMonitorFilters() {
         return serviceMonitorFilters.values().iterator();
     }
 	
@@ -175,11 +175,11 @@ public class MonitorFilter implements DocumentSerializable {
      *
      * @return Iterator
      **/
-    public Iterator getUnknownModuleClassIDs() {
+    public Iterator<ModuleClassID> getUnknownModuleClassIDs() {
         if (unknownModuleClassIDs != null) {
             return unknownModuleClassIDs.iterator();
         } else {
-            return 	new LinkedList().iterator();
+            return 	new LinkedList<ModuleClassID>().iterator();
         } 
     }
 	
@@ -194,13 +194,13 @@ public class MonitorFilter implements DocumentSerializable {
     /**
      * {@inheritDoc}
      **/
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addString(element, "description", description);
 
-        for (Iterator i = serviceMonitorFilters.values().iterator(); i.hasNext();) {
+        for (Iterator<ServiceMonitorFilter> i = serviceMonitorFilters.values().iterator(); i.hasNext();) {
             ServiceMonitorFilter serviceMonitorFilter = (ServiceMonitorFilter) i.next();
 			
-            Element serviceElement = DocumentSerializableUtilities.createChildElement(element, "service");	
+            Element<?> serviceElement = DocumentSerializableUtilities.createChildElement(element, "service");	
 
             DocumentSerializableUtilities.addString(serviceElement, "moduleClassID"
                     ,
@@ -212,9 +212,9 @@ public class MonitorFilter implements DocumentSerializable {
     /**
      * {@inheritDoc}
      **/
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element serviceElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> serviceElement = (TextElement<?>) e.nextElement();
             String tagName = (String) serviceElement.getKey();
 			
             if (tagName.equals("service")) {
@@ -226,7 +226,7 @@ public class MonitorFilter implements DocumentSerializable {
                         ServiceMonitorFilter serviceMonitorFilter = MonitorResources.createServiceMonitorFilter(moduleClassID);
 
                         serviceMonitorFilter.init(moduleClassID);
-                        Element serviceMonitorFilterElement = DocumentSerializableUtilities.getChildElement(serviceElement
+                        Element<?> serviceMonitorFilterElement = DocumentSerializableUtilities.getChildElement(serviceElement
                                 ,
                                 "serviceFilter");
 

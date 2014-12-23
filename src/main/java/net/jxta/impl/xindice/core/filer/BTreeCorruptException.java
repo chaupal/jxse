@@ -64,7 +64,9 @@ import net.jxta.impl.xindice.core.FaultCodes;
  */
 
 public final class BTreeCorruptException extends BTreeException {
-    public BTreeCorruptException() {
+	private static final long serialVersionUID = 1L;
+
+	public BTreeCorruptException() {
         super(FaultCodes.IDX_CORRUPTED);
     }
 

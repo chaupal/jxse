@@ -64,8 +64,9 @@ import java.util.EventObject;
  *  Container for Pipe Message events.
  */
 public class PipeMsgEvent extends EventObject {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      *  The received Message
      */
     private final Message message;

@@ -137,7 +137,11 @@ public class MonitorEvent {
         return peerGroupID;
     }
 
-    /**
+    protected int getRequestId() {
+		return requestId;
+	}
+
+	/**
      * MonitorFilter provided when the report was requested
      */
     public MonitorFilter getMonitorFilter() {

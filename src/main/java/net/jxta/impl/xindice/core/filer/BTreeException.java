@@ -63,7 +63,9 @@ import net.jxta.impl.xindice.core.FaultCodes;
  * in the managing of the BTree.
  */
 public class BTreeException extends FilerException {
-    public BTreeException(int faultCode) {
+	private static final long serialVersionUID = 1L;
+
+	public BTreeException(int faultCode) {
         super(faultCode);
     }
 

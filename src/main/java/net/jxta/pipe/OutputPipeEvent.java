@@ -62,8 +62,9 @@ import java.util.EventObject;
  *  Container for OutputPipeEvent events.
  */
 public class OutputPipeEvent extends EventObject {
+	private static final long serialVersionUID = 1L;
 
-    private OutputPipe outputpipe;
+	private OutputPipe outputpipe;
 
     private String pipeID;
 

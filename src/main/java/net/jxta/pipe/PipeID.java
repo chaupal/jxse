@@ -70,8 +70,9 @@ import java.net.URI;
  * @see net.jxta.protocol.PipeAdvertisement
  */
 public abstract class PipeID extends ID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Creates an ID by parsing the given URI.
      *
      * <p>This convenience factory method works as if by invoking the

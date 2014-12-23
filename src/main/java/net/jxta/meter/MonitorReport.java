@@ -131,7 +131,7 @@ public class MonitorReport implements DocumentSerializable {
      * Get the contained service-specific ServiceMetrics
      *
      **/
-    public Iterator getServiceMetrics() {
+    public Iterator<ServiceMetric> getServiceMetrics() {
         return serviceMetrics.values().iterator();
     }
 
@@ -172,26 +172,26 @@ public class MonitorReport implements DocumentSerializable {
      *
      * @return Iterator
      **/
-    public Iterator getUnknownModuleClassIDs() {
+    public Iterator<ModuleClassID> getUnknownModuleClassIDs() {
         if (unknownModuleClassIDs != null) {
             return unknownModuleClassIDs.iterator();
         } else {
-            return 	new LinkedList().iterator();
+            return 	new LinkedList<ModuleClassID>().iterator();
         }
     }
 
     /**
      * {@inheritDoc}
      **/
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addLong(element, "toTime", toTime);
         DocumentSerializableUtilities.addLong(element, "fromTime", fromTime);
         DocumentSerializableUtilities.addBoolean(element, "isCumulative", isCumulative);
 
-        for (Iterator i = serviceMetrics.values().iterator(); i.hasNext();) {
+        for (Iterator<ServiceMetric> i = serviceMetrics.values().iterator(); i.hasNext();) {
             ServiceMetric serviceMetric = (ServiceMetric) i.next();
 
-            Element serviceMetricElement = DocumentSerializableUtilities.createChildElement(element, "service");
+            Element<?> serviceMetricElement = DocumentSerializableUtilities.createChildElement(element, "service");
 
             DocumentSerializableUtilities.addString(serviceMetricElement, "moduleClassID"
                     ,
@@ -204,9 +204,9 @@ public class MonitorReport implements DocumentSerializable {
     /**
      * {@inheritDoc}
      **/
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 
             if (tagName.equals("toTime")) {
@@ -224,7 +224,7 @@ public class MonitorReport implements DocumentSerializable {
                         ServiceMetric serviceMetric = MonitorResources.createServiceMetric(moduleClassID);
 
                         serviceMetric.init(moduleClassID);
-                        Element serviceMetricElement = DocumentSerializableUtilities.getChildElement(childElement, "serviceMetric");
+                        Element<?> serviceMetricElement = DocumentSerializableUtilities.getChildElement(childElement, "serviceMetric");
 
                         serviceMetric.initializeFrom(serviceMetricElement);
                         serviceMetrics.put(moduleClassID, serviceMetric);

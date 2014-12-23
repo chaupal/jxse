@@ -62,7 +62,9 @@ import net.jxta.peergroup.core.ModuleClassID;
  * Monitor Filter Exception
  */
 public class MonitorFilterException extends MonitorException {
-    public final static String SERVICE_NOT_SUPPORTED = "Service Not Supported";
+	private static final long serialVersionUID = 1L;
+
+	public final static String SERVICE_NOT_SUPPORTED = "Service Not Supported";
     public final static String REPORT_RATE_NOT_SUPPORTED = "Report Rate Not Supported";
     ModuleClassID moduleClassID;
     long reportRate;

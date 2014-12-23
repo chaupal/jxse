@@ -63,8 +63,9 @@ import java.util.EventObject;
  *  Container for PeerInfoEvent events.
  */
 public class PeerInfoEvent extends EventObject {
+	private static final long serialVersionUID = 1L;
 
-    private PeerInfoResponseMessage piResp = null;
+	private PeerInfoResponseMessage piResp = null;
     private int queryID = -1;
 
     /**

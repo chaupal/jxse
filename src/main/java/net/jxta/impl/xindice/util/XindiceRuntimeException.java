@@ -28,7 +28,9 @@ import java.io.PrintWriter;
  * @version CVS $Revision: 1.2 $, $Date: 2007/01/26 02:13:52 $
  */
 public class XindiceRuntimeException extends RuntimeException {
-    protected Throwable cause;
+	private static final long serialVersionUID = 1L;
+
+	protected Throwable cause;
 
     public XindiceRuntimeException() {}
 

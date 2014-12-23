@@ -64,7 +64,9 @@ import net.jxta.impl.xindice.util.XindiceException;
  * Indexes, and XMLObjects.
  */
 public class DBException extends XindiceException {
-    public FaultCodes fault;
+ 	private static final long serialVersionUID = 1L;
+
+ 	public FaultCodes fault;
 
     public DBException() {
         this(FaultCodes.GEN_UNKNOWN, null, null);

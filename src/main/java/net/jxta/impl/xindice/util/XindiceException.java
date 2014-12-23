@@ -64,8 +64,9 @@ package net.jxta.impl.xindice.util;
  */
 
 public class XindiceException extends Exception {
+	private static final long serialVersionUID = 1L;
 
-    public XindiceException() {}
+	public XindiceException() {}
 
     public XindiceException(String message) {
         super(message);
