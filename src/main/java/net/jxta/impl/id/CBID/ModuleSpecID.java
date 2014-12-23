@@ -64,8 +64,9 @@ import net.jxta.impl.id.UUID.UUIDFactory;
  * An implementation of the {@link net.jxta.peergroup.core.ModuleSpecID} ID Type.
  */
 public final class ModuleSpecID extends net.jxta.impl.id.UUID.ModuleSpecID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Constructor. Used only internally.
      */
     protected ModuleSpecID() {

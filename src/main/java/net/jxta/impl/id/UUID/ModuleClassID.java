@@ -60,8 +60,9 @@ package net.jxta.impl.id.UUID;
  *  An implementation of the {@link net.jxta.peergroup.core.ModuleClassID} ID Type.
  */
 public class ModuleClassID extends net.jxta.peergroup.core.ModuleClassID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      *  Location of the class id
      */
     private final static int moduleClassIdOffset = 0;

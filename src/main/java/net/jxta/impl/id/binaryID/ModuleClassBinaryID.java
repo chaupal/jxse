@@ -126,8 +126,9 @@ import net.jxta.peergroup.PeerGroupID;
  */
 
 public final class ModuleClassBinaryID extends net.jxta.peergroup.core.ModuleClassID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * The id data
      */
     protected BinaryID classID;

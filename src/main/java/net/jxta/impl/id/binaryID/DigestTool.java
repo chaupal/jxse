@@ -56,6 +56,7 @@
 
 package net.jxta.impl.id.binaryID;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -341,9 +342,11 @@ public class DigestTool {
         byte[] digest1 = generateHash(clearTextID);
         byte[] digest2;
 
+        java.io.ByteArrayOutputStream bos = null;
+        net.jxta.impl.util.BASE64InputStream decoder = null;
         try {
-            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-            net.jxta.impl.util.BASE64InputStream decoder = new net.jxta.impl.util.BASE64InputStream(
+            bos = new java.io.ByteArrayOutputStream();
+            decoder = new net.jxta.impl.util.BASE64InputStream(
                     new java.io.StringReader(testHash));
 
             while (true) {
@@ -360,6 +363,16 @@ public class DigestTool {
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Failed to create a digest.\n", e);
             return false;
+        }
+        finally{
+        	try {
+        		if( bos != null )
+        			bos.close();
+        		if( decoder != null )
+        			decoder.close();
+        	} catch (IOException e) {				// TODO Auto-generated catch block
+        		e.printStackTrace();
+        	}
         }
 
         if (digest1.length != digest2.length) {

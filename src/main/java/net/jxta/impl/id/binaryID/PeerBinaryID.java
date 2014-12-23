@@ -69,8 +69,9 @@ import java.net.URI;
  * @see net.jxta.impl.id.UUID.UUIDFactory
  */
 public final class PeerBinaryID extends net.jxta.peer.PeerID {
+	private static final long serialVersionUID = 1L;
 
-    private final static transient Logger LOG = Logging.getLogger(PeerBinaryID.class.getName());
+	private final static transient Logger LOG = Logging.getLogger(PeerBinaryID.class.getName());
 
     /**
      * This is the id string used in the XML of the id. The format is TX0..Xn where T is the type and X0 through Xn are the base64 encoded id.

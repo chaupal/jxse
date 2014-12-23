@@ -253,7 +253,11 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
     }
 
-    /**
+    protected PeerGroup getPeerGroup() {
+		return peerGroup;
+	}
+
+	/**
      * {@inheritDoc}
      */
     public synchronized void close() {

@@ -70,8 +70,9 @@ import java.util.logging.Logger;
  */
 
 public class BinaryID implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    private final static transient Logger LOG = Logger.getLogger(BinaryID.class.getName());
+	private final static transient Logger LOG = Logger.getLogger(BinaryID.class.getName());
     public static String UUIDEncoded = "uuid";
     public final static int flagsSize = 1;
 

@@ -71,8 +71,9 @@ import java.net.URI;
  * @see net.jxta.peergroup.PeerGroupID
  */
 public final class PipeBinaryID extends net.jxta.pipe.PipeID {
+	private static final long serialVersionUID = 1L;
 
-    private final static transient Logger LOG = Logging.getLogger(PipeBinaryID.class.getName());
+	private final static transient Logger LOG = Logging.getLogger(PipeBinaryID.class.getName());
 
     /**
      * The id data

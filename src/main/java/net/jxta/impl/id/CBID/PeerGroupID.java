@@ -68,8 +68,9 @@ import java.security.ProviderException;
  * An implementation of the {@link net.jxta.peergroup.PeerGroupID} ID Type.
  */
 public class PeerGroupID extends net.jxta.impl.id.UUID.PeerGroupID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Intializes contents from provided ID.
      *
      * @param id the ID data

@@ -60,8 +60,9 @@ package net.jxta.impl.id.UUID;
  *  An implementation of the {@link net.jxta.peer.PeerID} ID Type.
  */
 public class PeerID extends net.jxta.peer.PeerID {
+	private static final long serialVersionUID = 1L;
 
-    protected final static int groupIdOffset = 0;
+	protected final static int groupIdOffset = 0;
     protected final static int idOffset = PeerID.groupIdOffset + IDFormat.uuidSize;
     protected final static int padOffset = PeerID.idOffset + IDFormat.uuidSize;
 

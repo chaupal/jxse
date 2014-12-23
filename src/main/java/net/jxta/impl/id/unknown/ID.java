@@ -72,8 +72,9 @@ import java.net.URI;
  *
  **/
 public final class ID extends net.jxta.id.ID {
+	private static final long serialVersionUID = 1L;
 
-    String  unqiueValue;
+	String  unqiueValue;
 
     /**
      *  Constructor for IDs.

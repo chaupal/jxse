@@ -328,7 +328,7 @@ public class WirePipeImpl implements EndpointListener {
 
         try {
 
-            XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
+            XMLDocument<?> doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(elem);
             header = new WireHeader(doc);
 
         } catch (Exception e) {

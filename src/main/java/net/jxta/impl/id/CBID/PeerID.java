@@ -68,8 +68,9 @@ import java.security.ProviderException;
  * An implementation of the {@link net.jxta.peer.PeerID} ID Type.
  */
 public class PeerID extends net.jxta.impl.id.UUID.PeerID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Used only internally.
      */
     protected PeerID() {

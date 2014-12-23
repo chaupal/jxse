@@ -131,7 +131,7 @@ public class TransportMetric implements DocumentSerializable {
         return transportBindingMetrics.size();
     }
 	
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addString(element, "endpointAddress", endpointAddress.toString());
         DocumentSerializableUtilities.addString(element, "protocol", protocol);
 
@@ -142,9 +142,9 @@ public class TransportMetric implements DocumentSerializable {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("endpointAddress")) {

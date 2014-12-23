@@ -187,9 +187,9 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         /**
          * The current default credential in serialized XML form.
          */
-        final XMLDocument credentialDoc;
+        final XMLDocument<?> credentialDoc;
 
-        CurrentCredential(Credential credential, XMLDocument credentialDoc) {
+        CurrentCredential(Credential credential, XMLDocument<?> credentialDoc) {
             this.credential = credential;
             this.credentialDoc = credentialDoc;
         }
@@ -221,13 +221,13 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
                 synchronized (PipeResolver.this) {
                     Credential cred = (Credential) evt.getNewValue();
-                    XMLDocument credentialDoc;
+                    XMLDocument<?> credentialDoc;
 
                     if (null != cred) {
 
                         try {
 
-                            credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
+                            credentialDoc = (XMLDocument<?>) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
 
                         } catch (Exception all) {
@@ -253,8 +253,9 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      * A pipe resolver event.
      */
     static class Event extends EventObject {
-
-        private final ID peerid;
+		private static final long serialVersionUID = 1L;
+		
+		private final ID peerid;
         private final ID pipeid;
         private final String type;
         private final int queryID;
@@ -378,10 +379,10 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 // set the initial version of the default credential.
                 currentCredential = null;
                 Credential credential = membership.getDefaultCredential();
-                XMLDocument credentialDoc;
+                XMLDocument<?> credentialDoc;
 
                 if (null != credential) {
-                    credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
+                    credentialDoc = (XMLDocument<?>) credential.getDocument(MimeMediaType.XMLUTF8);
                     currentCredential = new CurrentCredential(credential, credentialDoc);
                 }
 
@@ -431,11 +432,11 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         Logging.logCheckedDebug(LOG, "Starting for :", query.getQueryId(), " from ", srcAddr);
 
         Reader queryReader = new StringReader(query.getQuery());
-        StructuredTextDocument doc = null;
+        StructuredTextDocument<?> doc = null;
 
         try {
 
-            doc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, queryReader);
+            doc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, queryReader);
 
         } catch (IOException e) {
 
@@ -615,11 +616,11 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         Logging.logCheckedDebug(LOG, "got a response for \'", response.getQueryId(), "\'");
 
         Reader resp = new StringReader(response.getResponse());
-        StructuredTextDocument doc = null;
+        StructuredTextDocument<?> doc = null;
 
         try {
 
-            doc = (StructuredTextDocument)
+            doc = (StructuredTextDocument<?>)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, resp);
 
         } catch (Throwable e) {
@@ -759,7 +760,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         try {
 
-            StructuredTextDocument asDoc = (StructuredTextDocument)
+            StructuredTextDocument<?> asDoc = (StructuredTextDocument<?>)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
             srdiMsg = new SrdiMessageImpl(asDoc);
 
@@ -1110,7 +1111,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             pipeQry.addPeerID((PeerID) targetPeer);
         }
 
-        StructuredTextDocument asDoc = (StructuredTextDocument) pipeQry.getDocument(MimeMediaType.XMLUTF8);
+        StructuredTextDocument<?> asDoc = (StructuredTextDocument<?>) pipeQry.getDocument(MimeMediaType.XMLUTF8);
 
         // build the resolver query
         ResolverQuery query = new ResolverQuery();

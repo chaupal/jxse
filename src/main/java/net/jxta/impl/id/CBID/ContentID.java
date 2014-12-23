@@ -64,8 +64,9 @@ import net.jxta.impl.id.UUID.IDBytes;
  *  An implementation of the {@link net.jxta.content.ContentID} ID Type.
  */
 public class ContentID extends net.jxta.impl.id.UUID.ContentID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Intializes contents from provided bytes. 
      *
      * @param id the ID data

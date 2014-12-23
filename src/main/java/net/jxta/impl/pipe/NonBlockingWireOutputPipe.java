@@ -188,7 +188,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
         header.setTTL(destPeers.isEmpty() ? 200 : 1);
         header.setMsgId(WirePipe.createMsgId());
 
-        XMLDocument asDoc = (XMLDocument) header.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> asDoc = (XMLDocument<?>) header.getDocument(MimeMediaType.XMLUTF8);
         MessageElement elem = new TextDocumentMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAME, asDoc, null);
 
         Message msg = message.clone();

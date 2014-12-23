@@ -115,7 +115,7 @@ public class TransportServiceMonitorFilter implements ServiceMonitorFilter {
     public void includeTransport(ModuleSpecID transportModuleClassID, String subProtocol) {// todo: how is this used???
     }
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addString(element, "moduleClassID", moduleClassID.toString());
 
         DocumentSerializableUtilities.addBoolean(element, "includeAllTransports", includeAllTransports);
@@ -125,9 +125,9 @@ public class TransportServiceMonitorFilter implements ServiceMonitorFilter {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 
             if (tagName.equals("moduleClassID")) {

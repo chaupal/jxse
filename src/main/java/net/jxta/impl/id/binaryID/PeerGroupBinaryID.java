@@ -74,8 +74,9 @@ import java.net.URI;
  * @see net.jxta.peergroup.PeerGroupID
  */
 public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
+	private static final long serialVersionUID = 1L;
 
-    private final static transient Logger LOG = Logging.getLogger(PeerGroupBinaryID.class.getName());
+	private final static transient Logger LOG = Logging.getLogger(PeerGroupBinaryID.class.getName());
 
     /**
      * This is the id string used in the XML of the id. The format is TX0..Xn where T is the type and X0 through Xn are the base64 encoded id.

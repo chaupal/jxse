@@ -67,8 +67,9 @@ import java.security.ProviderException;
  * An implementation of the {@link net.jxta.pipe.PipeID} ID Type.
  */
 public class PipeID extends net.jxta.impl.id.UUID.PipeID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Used only internally
      */
     protected PipeID() {

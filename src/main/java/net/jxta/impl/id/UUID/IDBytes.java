@@ -69,8 +69,9 @@ import java.util.zip.Checksum;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
  */
 public final class IDBytes implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      *  The bytes.
      */
     public final byte[] bytes;

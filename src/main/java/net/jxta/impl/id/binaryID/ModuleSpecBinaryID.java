@@ -102,8 +102,9 @@ package net.jxta.impl.id.binaryID;
  */
 
 public final class ModuleSpecBinaryID extends net.jxta.peergroup.core.ModuleSpecID {
+	private static final long serialVersionUID = 1L;
 
-    protected BinaryID classID;
+	protected BinaryID classID;
     protected BinaryID baseClassID;
     protected BinaryID specID;
 

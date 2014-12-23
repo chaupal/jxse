@@ -66,8 +66,9 @@ import java.security.ProviderException;
  *  An implementation of the {@link net.jxta.codat.CodatID} ID Type.
  */
 public class CodatID extends net.jxta.codat.CodatID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * size of a SHA1 hash. I would use MessageDigest.getDigestLength, but
      * possible exceptions make it difficult to do.
      */

@@ -225,11 +225,16 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 //		return myInterface;
 //	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public ModuleImplAdvertisement getImplAdvertisement() {
 		return implAdvertisement;
+	}
+
+	protected PipeService getMyInterface() {
+		return myInterface;
 	}
 
 	/**

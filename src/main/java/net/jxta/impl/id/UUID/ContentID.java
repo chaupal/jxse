@@ -80,8 +80,9 @@ import java.security.NoSuchAlgorithmException;
  * </pre>
  */
 public class ContentID extends net.jxta.content.ContentID {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Location of the group id in the byte array.
      */
     protected final static int groupIdOffset = 0;
