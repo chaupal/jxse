@@ -74,7 +74,7 @@ public abstract class ResolverQueryMsg {
     /**
      * credential
      */
-    private StructuredDocument credential = null;
+    private StructuredDocument<?> credential = null;
 
     /**
      * Resolver query handler
@@ -112,7 +112,7 @@ public abstract class ResolverQueryMsg {
      *
      * @return String credential
      */
-    public StructuredDocument getCredential() {
+    public StructuredDocument<?> getCredential() {
         return credential;
     }
 
@@ -209,7 +209,7 @@ public abstract class ResolverQueryMsg {
      *
      * @param cred string representing credential
      */
-    public void setCredential(StructuredDocument cred) {
+    public void setCredential(StructuredDocument<?> cred) {
         this.credential = cred;
     }
 
@@ -297,7 +297,7 @@ public abstract class ResolverQueryMsg {
         String ToResolve = System.getProperty("RESOLVER_QUERY_MSG_IMPL", RESOLVER_QUERY_MSG_IMPL);
 
         // Retrieving implementing class
-        Class ToInstantiate = JxseInstantiator.forName(ToResolve);
+        Class<?> ToInstantiate = JxseInstantiator.forName(ToResolve);
 
         // Instantiating object
         return (ResolverQueryMsg) JxseInstantiator.instantiateWithNoParameterConstructor(ToInstantiate);

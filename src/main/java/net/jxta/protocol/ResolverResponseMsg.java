@@ -68,7 +68,7 @@ import net.jxta.document.StructuredDocument;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
  **/
 public abstract class ResolverResponseMsg {
-    private StructuredDocument credential = null;
+    private StructuredDocument<?> credential = null;
 
     private String handlername = null;
 
@@ -84,7 +84,7 @@ public abstract class ResolverResponseMsg {
      *
      *@return    StructuredDocument credential
      */
-    public StructuredDocument getCredential() {
+    public StructuredDocument<?> getCredential() {
         return credential;
     }
 
@@ -155,7 +155,7 @@ public abstract class ResolverResponseMsg {
      *@param  cred  string credential
      */
 
-    public void setCredential(StructuredDocument cred) {
+    public void setCredential(StructuredDocument<?> cred) {
         this.credential = cred;
     }
 
@@ -209,7 +209,7 @@ public abstract class ResolverResponseMsg {
         String ToResolve = System.getProperty("RESOLVER_RESPONSE_MSG_IMPL", RESOLVER_RESPONSE_MSG_IMPL);
 
         // Retrieving implementing class
-        Class ToInstantiate = JxseInstantiator.forName(ToResolve);
+        Class<?> ToInstantiate = JxseInstantiator.forName(ToResolve);
 
         // Instantiating object
         return (ResolverResponseMsg) JxseInstantiator.instantiateWithNoParameterConstructor(ToInstantiate);

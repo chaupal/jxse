@@ -87,7 +87,7 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
     /**
      *  Descriptive meta-data about this module.
      */
-    private Element description = null;
+    private Element<?> description = null;
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -172,7 +172,7 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
     public void setDescription(String description) {
 
         if (null != description) {
-            StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
+            StructuredDocument<?> newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
             setDesc(newdoc);
         } else {
@@ -185,9 +185,9 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      *
      * @return the description
      */
-    public StructuredDocument getDesc() {
+    public StructuredDocument<?> getDesc() {
         if (null != description) {
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(description);
 
             return newDoc;
         } else {
@@ -200,7 +200,7 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      *
      * @param desc the description
      */
-    public void setDesc(Element desc) {
+    public void setDesc(Element<?> desc) {
 
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);

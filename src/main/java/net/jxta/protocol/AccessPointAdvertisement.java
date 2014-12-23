@@ -355,7 +355,7 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
             routeBuf.append(peerId.toString());
         }
 
-        Enumeration e = getEndpointAddresses();
+        Enumeration<?> e = getEndpointAddresses();
 
         while (e.hasMoreElements()) {
             routeBuf.append("\n Addr=").append(e.nextElement());

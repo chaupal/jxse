@@ -298,7 +298,7 @@ public abstract class ClassFactory<K, I> {
              * itself as part of class initialization.
              */
 
-            Class ignored = Class.forName(className);
+            Class<?> ignored = Class.forName(className);
             registeredSomething = true;
 
         } catch (ClassNotFoundException ignored) {

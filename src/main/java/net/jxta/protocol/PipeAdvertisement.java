@@ -100,7 +100,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
     /**
      * Descriptive meta-data about this pipe.
      */
-    private Element description = null;
+    private Element<?> description = null;
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -284,7 +284,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
     public void setDescription(String description) {
 
         if (null != description) {
-            StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
+            StructuredDocument<?> newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
             setDesc(newdoc);
         } else {
@@ -297,9 +297,9 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      *
      *  @return The description meta-data for the pipe described by this advertisement.
      */
-    public StructuredDocument getDesc() {
+    public StructuredDocument<?> getDesc() {
         if (null != description) {
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(description);
 
             return newDoc;
         }
@@ -311,7 +311,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      *
      *  @param desc The description meta-data for the pipe described by this advertisement.
      */
-    public void setDesc(Element desc) {
+    public void setDesc(Element<?> desc) {
 
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);

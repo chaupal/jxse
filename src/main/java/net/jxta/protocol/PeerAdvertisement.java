@@ -107,12 +107,12 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
     /**
      * Descriptive meta-data about this peer.
      */
-    private Element description = null;
+    private Element<?> description = null;
 
     /**
      * A table of structured documents to be interpreted by each service.
      */
-    private final Map<ID, StructuredDocument> serviceParams = new HashMap<ID, StructuredDocument>();
+    private final Map<ID, StructuredDocument<?>> serviceParams = new HashMap<ID, StructuredDocument<?>>();
 
     /**
      * Counts the changes made to this object. We rely on implementations to
@@ -297,7 +297,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
     public void setDescription(String description) {
 
         if (null != description) {
-            StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
+            StructuredDocument<?> newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
             setDesc(newdoc);
         } else {
@@ -312,9 +312,9 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      *
      * @return the description
      */
-    public StructuredDocument getDesc() {
+    public StructuredDocument<?> getDesc() {
         if (null != description) {
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(description);
 
             return newDoc;
         } else {
@@ -327,7 +327,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      *
      * @param desc the description
      */
-    public void setDesc(Element desc) {
+    public void setDesc(Element<?> desc) {
 
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
@@ -347,16 +347,16 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      *
      * @param params The whole set of parameters.
      */
-    public void setServiceParams(Hashtable<ID, ? extends Element> params) {
+    public void setServiceParams(Hashtable<ID, ? extends Element<?>> params) {
         serviceParams.clear();
 
         if (params == null) {
             return;
         }
 
-        for (Map.Entry<ID, ? extends Element> anEntry : params.entrySet()) {
-            Element e = anEntry.getValue();
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(e);
+        for (Map.Entry<ID, ? extends Element<?>> anEntry : params.entrySet()) {
+            Element<?> e = anEntry.getValue();
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(e);
 
             serviceParams.put(anEntry.getKey(), newDoc);
         }
@@ -374,12 +374,12 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      *
      * @return all of the parameters.
      */
-    public Hashtable<ID, StructuredDocument> getServiceParams() {
-        Hashtable<ID, StructuredDocument> copy = new Hashtable<ID, StructuredDocument>();
+    public Hashtable<ID, StructuredDocument<?>> getServiceParams() {
+        Hashtable<ID, StructuredDocument<?>> copy = new Hashtable<ID, StructuredDocument<?>>();
 
-        for (Map.Entry<ID, StructuredDocument> anEntry : serviceParams.entrySet()) {
-            Element e = anEntry.getValue();
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(e);
+        for (Map.Entry<ID, StructuredDocument<?>> anEntry : serviceParams.entrySet()) {
+            Element<?> e = anEntry.getValue();
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(e);
 
             copy.put(anEntry.getKey(), newDoc);
         }
@@ -397,14 +397,14 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      * @param param The parameter, as an element. What is stored is a copy as a
      *              standalone StructuredDocument which type is the element's name.
      */
-    public void putServiceParam(ID key, Element param) {
+    public void putServiceParam(ID key, Element<?> param) {
         if (param == null) {
             serviceParams.remove(key);
             incModCount();
             return;
         }
 
-        StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
+        StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(param);
 
         serviceParams.put(key, newDoc);
 
@@ -420,8 +420,8 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      * @return StructuredDocument The matching parameter document or null if
      *         none matched. The document type id "Param".
      */
-    public StructuredDocument getServiceParam(ID key) {
-        StructuredDocument param = serviceParams.get(key);
+    public StructuredDocument<?> getServiceParam(ID key) {
+        StructuredDocument<?> param = serviceParams.get(key);
 
         if (param == null) {
             return null;
@@ -439,8 +439,8 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      * @return Element the removed parameter element or null if not found.
      *         This is actually a StructureDocument of type "Param".
      */
-    public StructuredDocument removeServiceParam(ID key) {
-        Element param = serviceParams.remove(key);
+    public StructuredDocument<?> removeServiceParam(ID key) {
+        Element<?> param = serviceParams.remove(key);
 
         if (param == null) {
             return null;

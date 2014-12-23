@@ -80,7 +80,7 @@ public abstract class PeerInfoResponseMessage {
     private PeerID tpid = null;
 
     /** String representing response  */
-    private StructuredDocument response = null;
+    private StructuredDocument<?> response = null;
 
     /**
      * Time in seconds since this peer was started.
@@ -152,7 +152,7 @@ public abstract class PeerInfoResponseMessage {
      * @return a structured document representing request
      *
      */
-    public Element getResponse() {
+    public Element<?> getResponse() {
         if (null != response) {
             return StructuredDocumentUtils.copyAsDocument(response);
         } else {
@@ -166,7 +166,7 @@ public abstract class PeerInfoResponseMessage {
      * @param response a structured document representing a peerinfo request
      *
      */
-    public void setResponse(Element response) {
+    public void setResponse(Element<?> response) {
         if (null != response) {
             this.response = StructuredDocumentUtils.copyAsDocument(response);
         } else {

@@ -1022,7 +1022,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // Merge service params with those specified by the group (if any). The only
             // policy, right now, is to give peer params the precedence over group params.
-            Hashtable<ID, StructuredDocument> grpParams = peerGroupAdvertisement.getServiceParams();
+            Hashtable<ID, StructuredDocument<?>> grpParams = peerGroupAdvertisement.getServiceParams();
             Enumeration<ID> keys = grpParams.keys();
 
             while (keys.hasMoreElements()) {

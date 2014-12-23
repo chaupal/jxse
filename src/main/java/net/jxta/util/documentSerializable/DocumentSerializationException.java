@@ -61,7 +61,9 @@ import net.jxta.exception.JxtaException;
 /**
  **/
 public class DocumentSerializationException extends JxtaException {
-    public DocumentSerializationException(String message) {
+ 	private static final long serialVersionUID = 1L;
+
+	public DocumentSerializationException(String message) {
         super(message);
     }
 

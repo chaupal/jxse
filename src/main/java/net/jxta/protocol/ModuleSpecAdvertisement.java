@@ -105,7 +105,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
 
     private ModuleSpecID id = null;
     private String name = null;
-    private Element description = null;
+    private Element<?> description = null;
     private String creator = null;
     private String uri = null;
     private String version = null;
@@ -115,7 +115,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     
     private ModuleSpecID proxySpecID = null;
     private ModuleSpecID authSpecID = null;
-    private StructuredDocument param = null;
+    private StructuredDocument<?> param = null;
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -228,7 +228,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     public void setDescription(String description) {
 
         if (null != description) {
-            StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
+            StructuredDocument<?> newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
             setDesc(newdoc);
         } else {
@@ -241,9 +241,9 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
      *
      * @return the description
      **/
-    public StructuredDocument getDesc() {
+    public StructuredDocument<?> getDesc() {
         if (null != description) {
-            StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
+            StructuredDocument<?> newDoc = StructuredDocumentUtils.copyAsDocument(description);
 
             return newDoc;
         } else {
@@ -256,7 +256,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
      *
      * @param desc the description
      **/
-    public void setDesc(Element desc) {
+    public void setDesc(Element<?> desc) {
 
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
@@ -326,7 +326,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
      *
      * @return Element parameters as an Element of unspecified content.
      **/
-    public StructuredDocument getParam() {
+    public StructuredDocument<?> getParam() {
         return (param == null ? null : StructuredDocumentUtils.copyAsDocument(param));
     }
 
@@ -336,7 +336,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
      * @return StructuredDocument A stand-alone structured document of
      * unspecified content.
      **/
-    protected StructuredDocument getParamPriv() {
+    protected StructuredDocument<?> getParamPriv() {
         return param;
     }
 
@@ -345,7 +345,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
      *
      * @param param Element of an unspecified content.
      **/
-    public void setParam(Element param) {
+    public void setParam(Element<?> param) {
         this.param = (param == null ? null : StructuredDocumentUtils.copyAsDocument(param));
     }
 

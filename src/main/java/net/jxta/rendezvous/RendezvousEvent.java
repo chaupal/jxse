@@ -64,8 +64,9 @@ import java.util.EventObject;
  *  rendezvous service generating the event
  */
 public class RendezvousEvent extends EventObject {
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      *  Rendezvous connection event
      */
     public final static int RDVCONNECT = 0;

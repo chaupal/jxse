@@ -1257,8 +1257,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            @SuppressWarnings("unchecked")
-            Map.Entry e = (Map.Entry) o;
+            Map.Entry<?,?> e = (Map.Entry<?,?>) o;
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 

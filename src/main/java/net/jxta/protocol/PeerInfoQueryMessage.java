@@ -80,7 +80,7 @@ public abstract class PeerInfoQueryMessage {
     private PeerID tpid = null;
 
     /* representing request  */
-    private StructuredDocument request = null;
+    private StructuredDocument<?> request = null;
 
     public PeerInfoQueryMessage() {
         super();
@@ -142,7 +142,7 @@ public abstract class PeerInfoQueryMessage {
      *
      * @since JXTA 1.0
      */
-    public Element getRequest() {
+    public Element<?> getRequest() {
         if (null != request) {
             return StructuredDocumentUtils.copyAsDocument(request);
         } else {
@@ -156,7 +156,7 @@ public abstract class PeerInfoQueryMessage {
      *
      * @since JXTA 1.0
      */
-    public void setRequest(Element request) {
+    public void setRequest(Element<?> request) {
         if (null != request) {
             this.request = StructuredDocumentUtils.copyAsDocument(request);
         } else {

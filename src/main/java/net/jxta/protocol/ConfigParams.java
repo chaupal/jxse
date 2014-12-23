@@ -306,7 +306,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
         for (Map.Entry<ID, StructuredDocument<?>> anEntry : params.entrySet()) {
             ID anID = anEntry.getKey();
-            StructuredDocument aDoc = anEntry.getValue();
+            StructuredDocument<?> aDoc = anEntry.getValue();
 
             Element s = adv.createElement(SVC_TAG);
 

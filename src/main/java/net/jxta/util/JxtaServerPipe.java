@@ -109,7 +109,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     private final Object closeLock = new Object();
     private boolean bound = false;
     private boolean closed = false;
-    protected StructuredDocument myCredentialDoc = null;
+    protected StructuredDocument<?> myCredentialDoc = null;
 
     private volatile ServerPipeAcceptListener listener;
     private final QueuingServerPipeAcceptor defaultListener;
@@ -381,7 +381,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
         PipeAdvertisement outputPipeAdv = null;
         PeerAdvertisement peerAdv = null;
-        StructuredDocument credDoc = null;
+        StructuredDocument<?> credDoc = null;
         Properties connectionProperties = null;
         try {
             MessageElement el = msg.getMessageElement(nameSpace, credTag);
@@ -392,13 +392,13 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             el = msg.getMessageElement(nameSpace, reqPipeTag);
             if (el != null) {
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(el);
                 outputPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
             }
 
             el = msg.getMessageElement(nameSpace, remPeerTag);
             if (el != null) {
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(el);
                 peerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
             }
 
@@ -507,7 +507,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
         if (myCredentialDoc != null) {
             msg.addMessageElement(JxtaServerPipe.nameSpace,
-                    new TextDocumentMessageElement(credTag, (XMLDocument) myCredentialDoc, null));
+                    new TextDocumentMessageElement(credTag, (XMLDocument<?>) myCredentialDoc, null));
         }
 
         final String neverAllowDirectBreaksRelay = Boolean.toString(false);
@@ -515,10 +515,10 @@ public class JxtaServerPipe implements PipeMsgListener {
                 new StringMessageElement(JxtaServerPipe.directSupportedTag, neverAllowDirectBreaksRelay, null));
 
         msg.addMessageElement(JxtaServerPipe.nameSpace,
-                new TextDocumentMessageElement(remPipeTag, (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
+                new TextDocumentMessageElement(remPipeTag, (XMLDocument<?>) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
 
         msg.addMessageElement(nameSpace,
-                new TextDocumentMessageElement(remPeerTag, (XMLDocument) peerAdv.getSignedDocument(), null));
+                new TextDocumentMessageElement(remPeerTag, (XMLDocument<?>) peerAdv.getSignedDocument(), null));
         if (msgr instanceof TcpMessenger) {
             ((TcpMessenger) msgr).sendMessageDirect(msg, null, null, true);
         } else {
@@ -550,7 +550,7 @@ public class JxtaServerPipe implements PipeMsgListener {
      *
      * @return Credential StructuredDocument
      */
-    public StructuredDocument getCredentialDoc() {
+    public StructuredDocument<?> getCredentialDoc() {
         return myCredentialDoc;
     }
 
@@ -560,7 +560,7 @@ public class JxtaServerPipe implements PipeMsgListener {
      *
      * @param doc Credential StructuredDocument
      */
-    public void setCredentialDoc(StructuredDocument doc) {
+    public void setCredentialDoc(StructuredDocument<?> doc) {
         this.myCredentialDoc = doc;
     }
 

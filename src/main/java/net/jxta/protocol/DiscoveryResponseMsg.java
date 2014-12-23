@@ -263,7 +263,7 @@ public abstract class DiscoveryResponseMsg {
      *
      *  @param  responses List of responses
      */
-    public void setResponses(List responses) {
+    public void setResponses(List<?> responses) {
         this.responses.clear();
 
         for (Object response : responses) {
@@ -359,7 +359,7 @@ public abstract class DiscoveryResponseMsg {
             // Convert the responses.
             for (String aResponse : responses) {
                 try {
-                    XMLDocument anXMLDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
+                    XMLDocument<?> anXMLDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                             ,
                             new StringReader(aResponse));
                     Advertisement anAdv = AdvertisementFactory.newAdvertisement(anXMLDoc);
