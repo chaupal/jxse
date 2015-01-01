@@ -516,7 +516,7 @@ public class TreeMap<K extends Object, V extends Object> extends AbstractMap<K,V
     /**
      * return parent of node p, or null if p is null
      */
-    static Entry parentOf(Entry p) {
+    static Entry<?,?> parentOf(Entry<?,?> p) {
         return (p == null) ? null : p.parent;
     }
 
@@ -530,14 +530,14 @@ public class TreeMap<K extends Object, V extends Object> extends AbstractMap<K,V
     /**
      * return left child of node p, or null if p is null
      */
-    private static Entry leftOf(Entry p) {
+    private static Entry<?,?> leftOf(Entry<?,?> p) {
         return (p == null) ? null : p.left;
     }
 
     /**
      * return right child of node p, or null if p is null
      */
-    private static Entry rightOf(Entry p) {
+    private static Entry<?,?> rightOf(Entry<?,?> p) {
         return (p == null) ? null : p.right;
     }
 
@@ -580,7 +580,7 @@ public class TreeMap<K extends Object, V extends Object> extends AbstractMap<K,V
 
         while (x != null && x != root && x.parent.color == Entry.RED) {
             if (parentOf(x) == leftOf(parentOf(parentOf(x)))) {
-                Entry<K,V> y = rightOf(parentOf(parentOf(x)));
+                Entry<K,V> y = (Entry<K, V>) rightOf(parentOf(parentOf(x)));
                 if (colorOf(y) == Entry.RED) {
                     setColor(parentOf(x), Entry.BLACK);
                     setColor(y, Entry.BLACK);
@@ -589,32 +589,32 @@ public class TreeMap<K extends Object, V extends Object> extends AbstractMap<K,V
                 }
                 else {
                     if (x == rightOf(parentOf(x))) {
-                        x = parentOf(x);
+                        x = (Entry<K, V>) parentOf(x);
                         rotateLeft(x);
                     }
                     setColor(parentOf(x), Entry.BLACK);
                     setColor(parentOf(parentOf(x)), Entry.RED);
                     if (parentOf(parentOf(x)) != null)
-                        rotateRight(parentOf(parentOf(x)));
+                        rotateRight((Entry<K, V>) parentOf(parentOf(x)));
                 }
             }
             else {
-                Entry<Object, Object> y = leftOf(parentOf(parentOf(x)));
+                Entry<Object, Object> y = (Entry<Object, Object>) leftOf(parentOf(parentOf(x)));
                 if (colorOf(y) == Entry.RED) {
                     setColor(parentOf(x), Entry.BLACK);
                     setColor(y, Entry.BLACK);
                     setColor(parentOf(parentOf(x)), Entry.RED);
-                    x = parentOf(parentOf(x));
+                    x = (Entry<K, V>) parentOf(parentOf(x));
                 }
                 else {
                     if (x == leftOf(parentOf(x))) {
-                        x = parentOf(x);
+                        x = (Entry<K, V>) parentOf(x);
                         rotateRight(x);
                     }
                     setColor(parentOf(x), Entry.BLACK);
                     setColor(parentOf(parentOf(x)), Entry.RED);
                     if (parentOf(parentOf(x)) != null)
-                        rotateLeft(parentOf(parentOf(x)));
+                        rotateLeft((Entry<K, V>) parentOf(parentOf(x)));
                 }
             }
         }
@@ -626,56 +626,56 @@ public class TreeMap<K extends Object, V extends Object> extends AbstractMap<K,V
         Entry<K,V> x = e;
         while (x != root && colorOf(x) == Entry.BLACK) {
             if (x == leftOf(parentOf(x))) {
-                Entry<Object, Object> sib = rightOf(parentOf(x));
+                Entry<Object, Object> sib = (Entry<Object, Object>) rightOf(parentOf(x));
                 if (colorOf(sib) == Entry.RED) {
                     setColor(sib, Entry.BLACK);
                     setColor(parentOf(x), Entry.RED);
-                    rotateLeft(parentOf(x));
-                    sib = rightOf(parentOf(x));
+                    rotateLeft((Entry<K, V>) parentOf(x));
+                    sib = (Entry<Object, Object>) rightOf(parentOf(x));
                 }
                 if (colorOf(leftOf(sib)) == Entry.BLACK &&
                     colorOf(rightOf(sib)) == Entry.BLACK) {
                     setColor(sib, Entry.RED);
-                    x = parentOf(x);
+                    x = (Entry<K, V>) parentOf(x);
                 }
                 else {
                     if (colorOf(rightOf(sib)) == Entry.BLACK) {
                         setColor(leftOf(sib), Entry.BLACK);
                         setColor(sib, Entry.RED);
                         rotateRight((Entry<K, V>) sib);
-                        sib = rightOf(parentOf(x));
+                        sib = (Entry<Object, Object>) rightOf(parentOf(x));
                     }
                     setColor(sib, colorOf(parentOf(x)));
                     setColor(parentOf(x), Entry.BLACK);
                     setColor(rightOf(sib), Entry.BLACK);
-                    rotateLeft(parentOf(x));
+                    rotateLeft((Entry<K, V>) parentOf(x));
                     x = root;
                 }
             }
             else {
-                Entry<Object, Object> sib = leftOf(parentOf(x));
+                Entry<Object, Object> sib = (Entry<Object, Object>) leftOf(parentOf(x));
                 if (colorOf(sib) == Entry.RED) {
                     setColor(sib, Entry.BLACK);
                     setColor(parentOf(x), Entry.RED);
-                    rotateRight(parentOf(x));
-                    sib = leftOf(parentOf(x));
+                    rotateRight((Entry<K, V>) parentOf(x));
+                    sib = (Entry<Object, Object>) leftOf(parentOf(x));
                 }
                 if (colorOf(rightOf(sib)) == Entry.BLACK &&
                     colorOf(leftOf(sib)) == Entry.BLACK) {
                     setColor(sib, Entry.RED);
-                    x = parentOf(x);
+                    x = (Entry<K, V>) parentOf(x);
                 }
                 else {
                     if (colorOf(leftOf(sib)) == Entry.BLACK) {
                         setColor(rightOf(sib), Entry.BLACK);
                         setColor(sib, Entry.RED);
                         rotateLeft((Entry<K, V>) sib);
-                        sib = leftOf(parentOf(x));
+                        sib = (Entry<Object, Object>) leftOf(parentOf(x));
                     }
                     setColor(sib, colorOf(parentOf(x)));
                     setColor(parentOf(x), Entry.BLACK);
                     setColor(leftOf(sib), Entry.BLACK);
-                    rotateRight(parentOf(x));
+                    rotateRight((Entry<K, V>) parentOf(x));
                     x = root;
                 }
             }

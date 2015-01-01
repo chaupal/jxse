@@ -1,27 +1,22 @@
 package net.jxta.module;
 
-import net.jxta.peergroup.core.Module;
+import net.jxta.impl.modulemanager.ModuleException;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-public interface IModuleManager<T extends Module, U extends IModuleFactory<T>> {
+public interface IModuleManager<T extends Object> {
 
 	/**
-	 * initialize the manager
-	 */
-	public void init();
-	
-	/**
-	 * Register a factory with the manager
+	 * Register a builder with the manager
 	 * @param factory
 	 */
-	public void registerFactory( U factory );
+	public void registerBuilder( IModuleBuilder<T> builder );
 
 	/**
-	 * Register a factory with the manager
+	 * Register a builder with the manager
 	 * @param factory
 	 */
-	public void unregisterFactory( U factory );
+	public void unregisterBuilder( IModuleBuilder<T> builder );
 
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the 

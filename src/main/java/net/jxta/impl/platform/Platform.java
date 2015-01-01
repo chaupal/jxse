@@ -201,7 +201,7 @@ public class Platform extends StdPeerGroup {
             try {
 
                 URL downloadablesURL = jxtaHome.resolve("Downloaded/").toURL();
-                 manager.addURL(downloadablesURL);
+                manager.addURL(downloadablesURL);
 
             } catch (MalformedURLException badPath) {
 

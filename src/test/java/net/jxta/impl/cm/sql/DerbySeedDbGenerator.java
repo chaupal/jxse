@@ -3,6 +3,7 @@ package net.jxta.impl.cm.sql;
 import java.io.File;
 import java.io.IOException;
 
+import net.jxta.impl.cm.sql.derby.DerbyAdvertisementCache;
 import net.jxta.impl.util.threads.TaskManager;
 
 public class DerbySeedDbGenerator {

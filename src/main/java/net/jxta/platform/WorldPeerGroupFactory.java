@@ -60,7 +60,6 @@ import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.module.IJxtaModuleFactory;
 import net.jxta.module.IModuleManager;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
@@ -119,7 +118,7 @@ public final class WorldPeerGroupFactory {
      * registration and management of modules. In order to work with the OSGI containers,
      * the root classloader is always the one that 
      */
-   private IModuleManager<Module, IJxtaModuleFactory<Module>> moduleManager;
+   private IModuleManager<Module> moduleManager;
 
     /**
      * Our strong reference to the World Peer Group.
@@ -307,7 +306,6 @@ public final class WorldPeerGroupFactory {
                 }
             	//The root module manager uses the provided class for default loading 
             	moduleManager = JxtaLoaderModuleManager.getRoot( worldPeerGroupClass );
-            	moduleManager.init();
 
                 result.init(null, PeerGroupID.worldPeerGroupID, null);
                 worldPeerGroups.put(storeHomeString, result);

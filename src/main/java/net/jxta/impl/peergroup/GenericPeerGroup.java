@@ -93,9 +93,7 @@ import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
-import net.jxta.module.IJxtaModuleFactory;
 import net.jxta.module.IJxtaModuleManager;
-import net.jxta.module.IModuleManager;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -877,7 +875,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * @throws PeerGroupException if a group initialization error occurs
      */
     protected void initFirst(PeerGroup homeGroup, ID assignedID, Advertisement impl) throws PeerGroupException {
-
         this.implAdvertisement = (ModuleImplAdvertisement) impl;
         this.parentGroup = homeGroup;
 
@@ -988,9 +985,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 published = true;
             }
 
-            // Now that we have our PeerGroupAdvertisement, we can pull out
-            // the config to see if we have any PeerGroupConfigAdv params
+            // We can now create a new module manager for this peer group and initialise it.
             moduleManager = (IJxtaModuleManager<Module>) JxtaLoaderModuleManager.createModuleManager(this, peerGroupAdvertisement);
+        	moduleManager.init( homeGroup, assignedID, impl);
 
             // If we still do not have a config adv, make one with the parent group, or
             // a minimal one with minimal info in it.
@@ -1020,6 +1017,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             }
 
+            // Now that we have our PeerGroupAdvertisement, we can pull out
+            // the config to see if we have any PeerGroupConfigAdv params
             // Merge service params with those specified by the group (if any). The only
             // policy, right now, is to give peer params the precedence over group params.
             Hashtable<ID, StructuredDocument<?>> grpParams = peerGroupAdvertisement.getServiceParams();

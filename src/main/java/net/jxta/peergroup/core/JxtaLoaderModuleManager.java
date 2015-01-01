@@ -6,29 +6,39 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
 import net.jxta.impl.loader.RefJxtaLoader;
+import net.jxta.impl.modulemanager.ImplAdvertisementComparable;
+import net.jxta.impl.modulemanager.JxtaModuleBuilder;
+import net.jxta.impl.modulemanager.ModuleException;
 import net.jxta.impl.peergroup.CompatibilityEquater;
 import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigFlag;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.module.IJxtaModuleFactory;
+import net.jxta.module.IJxtaModuleDescriptor;
 import net.jxta.module.IJxtaModuleManager;
-import net.jxta.module.IModuleFactory;
+import net.jxta.module.IModuleBuilder;
+import net.jxta.module.IModuleDescriptor;
 import net.jxta.module.IModuleManager;
-import net.jxta.module.ModuleException;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
+import net.jxta.util.cardinality.Cardinality;
+import net.jxta.util.cardinality.CardinalityException;
+import net.jxta.util.cardinality.ICardinality;
 
 public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>{
 
+	public static final String S_ERR_INVALID_BUILDER = "The builder is not of the required interface: ";
     /**
      * Default compatibility equater instance.
      */
@@ -48,50 +58,76 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
      * instead.
      * <p/>
      */
-    //private static IJxtaLoader staticLoader;
-    
-    
     private static JxtaLoaderModuleManager<Module> root;
 
     private final static transient Logger LOG = Logging.getLogger( JxtaLoaderModuleManager.class.getName());
 
     private IJxtaLoader loader;
     
-    private static Map<PeerGroup, IModuleManager<? extends Module, ? extends IModuleFactory<?>>> managers;
+    private static Map<PeerGroup, IModuleManager<? extends Module>> managers;
     
-    private Collection<IJxtaModuleFactory<T>> factories;
+    private Collection<IModuleBuilder<T>> builders;
     
-    private IModuleClassTree<T>tree;
-
+    private boolean started;
+    
 	protected JxtaLoaderModuleManager( ClassLoader loader) {
 		this.loader = new RefJxtaLoader(new URL[0], loader, COMP_EQ );
-		managers = new HashMap<PeerGroup, IModuleManager<? extends Module, ? extends IModuleFactory<?>>>();
-		factories = new ArrayList<IJxtaModuleFactory<T>>();
+		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
+		builders = new ArrayList<IModuleBuilder<T>>();
+		this.started = false;
 	}
 
 	private JxtaLoaderModuleManager( IJxtaLoader loader) {
 		this.loader = loader;
-		managers = new HashMap<PeerGroup, IModuleManager<? extends Module, ? extends IModuleFactory<?>>>();
-		factories = new ArrayList<IJxtaModuleFactory<T>>();
+		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
+		builders = new ArrayList<IModuleBuilder<T>>();
+		this.started = false;
 	}
 
-	/**
-	 * initialize the manager
-	 */
-	public void init(){
-		
+	public void init(PeerGroup group, ID assignedID, Advertisement implAdv)
+			throws PeerGroupException {
 	}
 
 	public IJxtaLoader getLoader() {
 		return loader;
 	}
 
-	public void registerFactory(IJxtaModuleFactory<T> factory) {
-		factories.add( (IJxtaModuleFactory<T>) factory );
+	/**
+	 * Get a list of all the cardinalities which are equal to the given reference
+	 * @return
+	 */
+	protected Collection<ICardinality> getCardinalityCollection( IModuleDescriptor reference ){
+		Collection<ICardinality> collection = new ArrayList<ICardinality>();
+    	for( IModuleBuilder<T> builder: builders ){
+    		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
+			for( IModuleDescriptor mdesc: descriptors ){
+				if( mdesc.compareTo( reference ) == 0 )
+					collection.add( mdesc );  
+			}
+		}
+    	return collection;
+	}
+	
+	/**
+	 * Registers a builder if the cardinality allows it.
+	 */
+	public void registerBuilder(IModuleBuilder<T> builder) {
+		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
+		Collection<ICardinality> collection = null;
+		int result = 0;
+		for( IModuleDescriptor descriptor: descriptors ){
+			if(!descriptor.isInitialised())
+				descriptor.init();
+			collection = getCardinalityCollection(descriptor);
+			result = Cardinality.accept(collection, descriptor );
+			if( result != 0 )	
+				throw new CardinalityException( this, descriptor, result);
+		}
+		builders.add( builder );
 	}
 
-	public void unregisterFactory(IJxtaModuleFactory<T> factory) {
-		factories.add( (IJxtaModuleFactory<T>) factory );
+	public void unregisterBuilder(IModuleBuilder<T> builder) {
+		builders.remove( builder );
 	}
 
     /**
@@ -103,9 +139,15 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
      *  {@code null} if there is no known association.
      */
     public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid){
-    	for( IJxtaModuleFactory<T> factory: factories ){
-    		if( factory.getModuleSpecID().equals( msid ))
-    			return factory.getModuleImplAdvertisement();
+    	for( IModuleBuilder<T> builder: builders ){
+    		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
+    		for( IModuleDescriptor descriptor: descriptors ){
+        		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+        			continue;
+    			IJxtaModuleDescriptor jdescriptor = (IJxtaModuleDescriptor) descriptor;
+        		if( jdescriptor.getModuleSpecID().equals( msid ))
+        			return jdescriptor.getModuleImplAdvertisement();
+    		}
     	}
     	return loader.findModuleImplAdvertisement(msid);
     }
@@ -120,12 +162,68 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		return null;
 	}
 
-	public Class<?> defineClass( ModuleImplAdvertisement impl ){
-    	for( IJxtaModuleFactory<T> factory: factories ){
-    		if( factory.getModuleSpecID().equals( impl.getModuleSpecID() ))
-				return factory.createModule().getClass();
+	/**
+	 * Returns the builders corresponding to the given impl advertisement. The result is also sorted for
+	 * version numbers, if they are included, with the highest version first.
+	 * @param impl
+	 * @return
+	 */
+	protected boolean hasBuilder( ModuleImplAdvertisement impl ){
+		for( IModuleBuilder<T> builder: builders ){
+    		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
+    		for( IModuleDescriptor descriptor: descriptors ){
+        		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+        			continue;
+    			IJxtaModuleDescriptor jdescriptor = (IJxtaModuleDescriptor) descriptor;
+        		ImplAdvertisementComparable comp = new ImplAdvertisementComparable( jdescriptor.getModuleImplAdvertisement() );
+    			if( comp.compareTo( impl ) == 0 )
+					return true;
+    		}
     	}
-		return loader.defineClass(impl);
+		return false;
+	}
+
+	/**
+	 * Retuens the builders corresponding to the given impl advertisement. The result is also sorted for
+	 * version numbers, if they are included, with the highest version first.
+	 * @param impl
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected IModuleBuilder<T>[] findBuilders( ModuleImplAdvertisement impl ){
+    	Map<IModuleDescriptor, IModuleBuilder<T>> found = new HashMap<IModuleDescriptor,IModuleBuilder<T>>( );
+		for( IModuleBuilder<T> builder: builders ){
+    		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
+    		for( IModuleDescriptor descriptor: descriptors ){
+        		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+        			continue;
+    			IJxtaModuleDescriptor jdescriptor = (IJxtaModuleDescriptor) descriptor;
+        		ImplAdvertisementComparable comp = new ImplAdvertisementComparable( jdescriptor.getModuleImplAdvertisement() );
+    			if( comp.compareTo( impl ) == 0 )
+					found.put( jdescriptor, builder );
+    		}
+    	}
+		Collection<IModuleBuilder<T>> results = found.values();//Already sorted for version numbers 
+		return results.toArray( new IModuleBuilder[ results.size() ]);
+	}
+
+	/**
+	 * Register a builder, based on the impl Adv.If the builder already exists, a false is returned,
+	 * otherwise a true is given 
+	 * @param implAdv
+	 * @return
+	 */
+	public boolean register( ModuleImplAdvertisement implAdv ){
+    	IModuleBuilder<T>[] jbuilders = this.findBuilders(implAdv);
+    	if(( jbuilders != null ) && ( jbuilders.length > 0 )){
+        	JxtaModuleBuilder<T> jbuilder = (JxtaModuleBuilder<T>) jbuilders[0];
+    		jbuilder.getRepresentedClass(implAdv);
+    		return false;
+    	}
+    	JxtaModuleBuilder<T> builder = new JxtaModuleBuilder<T>( this.loader ); 
+    	builder.getRepresentedClass(implAdv);
+    	this.registerBuilder( builder );
+    	return builders.contains( builder );
 	}
 
 	/**
@@ -134,9 +232,15 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	 * @return
 	 */
 	public ModuleImplAdvertisement findModuleImplAdvertisement( Class<? extends Module> clss ){
-    	for( IJxtaModuleFactory<T> factory: factories ){
-    		if( factory.getRepresentedClassName().equals( clss.getCanonicalName() ))
-				return factory.getModuleImplAdvertisement();
+    	for( IModuleBuilder<T> builder: builders ){
+    		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
+    		for( IModuleDescriptor descriptor: descriptors ){
+        		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+        			continue;
+    			IJxtaModuleDescriptor jdescriptor = (IJxtaModuleDescriptor) descriptor;
+    			if( jdescriptor.getRepresentedClassName().equals( clss.getCanonicalName() ))
+    				return jdescriptor.getModuleImplAdvertisement();
+    		}
     	}
 		return loader.findModuleImplAdvertisement( clss);
 	}
@@ -154,10 +258,10 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	 * @param peergroup
 	 * @return
 	 */
-	public IModuleManager<? extends Module, ? extends IModuleFactory<?>> getModuleManager( PeerGroup peergroup){
+	public IModuleManager<? extends Module> getModuleManager( PeerGroup peergroup){
 		if( managers.isEmpty())
 			return root;
-		IModuleManager<? extends Module, ? extends IModuleFactory<?>> manager = managers.get( peergroup );
+		IModuleManager<? extends Module> manager = managers.get( peergroup );
 		return ( manager == null )? root: manager;
 	}
 
@@ -238,8 +342,8 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	 * @param peerGroupAdvertisement
 	 * @return
 	 */
-	public static IModuleManager<Module, ? extends IModuleFactory<?>> createModuleManager( PeerGroup peergroup, PeerGroupAdvertisement peerGroupAdvertisement ){
-        IModuleManager<Module, ? extends IModuleFactory<?>> manager = null;
+	public static IModuleManager<Module> createModuleManager( PeerGroup peergroup, PeerGroupAdvertisement peerGroupAdvertisement ){
+        IModuleManager<Module> manager = null;
         PeerGroup parentGroup = peergroup.getParentGroup();
         if (null == parentGroup) {
 
@@ -293,34 +397,20 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		if( root == null ){
 			IJxtaLoader staticLoader = new RefJxtaLoader( new URL[0], clzz.getClassLoader(), COMP_EQ);
 			root = new JxtaLoaderModuleManager<Module>( staticLoader );
-			root.init();
 		}
 		return root;
 	}
+
+	protected boolean hasStarted(){
+		return this.started;
+	}
 	
-	private static class IModuleClassTree<T extends Module>{
-		
-		private ModuleImplAdvertisement implAdv;
-		private Class<T> clzz;
-		
-		private Collection<IModuleClassTree<T>> children;
-		
-		IModuleClassTree( ModuleImplAdvertisement implAdv, Class<T> clzz ){
-			this.implAdv = implAdv;
-			this.clzz = clzz;
-			children = new ArrayList<IModuleClassTree<T>>();
-		}
-		
-		public void addChild( IModuleClassTree<T> child ){
-			this.children.add( child );
-		}
+	public int startApp(String[] args) {		// TODO Auto-generated method stub
+		this.started = true;
+		return 0;
+	}
 
-		public void removeChild( IModuleClassTree<T> child ){
-			this.children.remove( child );
-		}
-
-		public IModuleClassTree<T>[] getChildren(){
-			return children.toArray( new IModuleClassTree[ this.children.size()]);
-		}
+	public void stopApp() {
+		this.started = false;
 	}
 }

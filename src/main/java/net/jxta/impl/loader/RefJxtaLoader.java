@@ -85,7 +85,7 @@ import java.util.*;
  */
 public class RefJxtaLoader extends JxtaLoader {
 
-	private static final String S_RESOURCE_LOCATION = "META-INF/services/net.jxta.platform.Module";
+	public static final String S_RESOURCE_LOCATION = "META-INF/services/net.jxta.platform.Module";
 	
     private final static transient Logger LOG =
             Logging.getLogger(RefJxtaLoader.class.getName());

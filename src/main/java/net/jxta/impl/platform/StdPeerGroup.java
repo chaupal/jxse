@@ -117,7 +117,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
      * Static initializer.
      */
     static {
-        JxtaLoaderModuleManager.getRoot( StdPeerGroup.class ).defineClass(getDefaultModuleImplAdvertisement());
+        JxtaLoaderModuleManager.getRoot( StdPeerGroup.class ).register(getDefaultModuleImplAdvertisement());
     }
 
     /**

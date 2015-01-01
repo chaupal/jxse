@@ -56,6 +56,7 @@
 
 package net.jxta.impl.id.binaryID;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -194,9 +195,10 @@ public class BinaryID implements Serializable {
      * @return returns the data part of the array.
      */
     public byte[] toByteArray() {
-        try {
+    	net.jxta.impl.util.BASE64InputStream decoder = null;
+    	try {
             java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-            net.jxta.impl.util.BASE64InputStream decoder = new net.jxta.impl.util.BASE64InputStream(
+            decoder = new net.jxta.impl.util.BASE64InputStream(
                     new java.io.StringReader(encodedValue.substring(1)));
 
             while (true) {
@@ -214,6 +216,14 @@ public class BinaryID implements Serializable {
             LOG.log(Level.SEVERE, "Unable to decode binary value.\n", e);
             throw new RuntimeException("Unable to encode binary value.");
         }
+    	finally{
+    		if( decoder != null )
+				try {
+					decoder.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+    	}
 
     }
 
