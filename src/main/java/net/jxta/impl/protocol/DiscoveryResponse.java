@@ -132,12 +132,12 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
      *
      *@param  root  Description of the Parameter
      */
-    public DiscoveryResponse(Element root) {
+    public DiscoveryResponse(Element<?> root) {
 
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
         String docName = doc.getName();
 
         if (!getAdvertisementType().equals(docName)) {
@@ -153,14 +153,14 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
     @Override
     public Document getDocument(MimeMediaType asMimeType) {
 
-        StructuredTextDocument adv = (StructuredTextDocument)
+        StructuredTextDocument adv = (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(asMimeType, getAdvertisementType());
 
         if (adv instanceof XMLDocument) {
-            ((XMLDocument) adv).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) adv).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element e;
+        Element<?> e;
 
         e = adv.createElement(countTag, Integer.toString(responses.size()));
         adv.appendChild(e);
@@ -184,7 +184,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
         }
 
         Enumeration<String> advs = getResponses();
-        Enumeration exps = getExpirations();
+        Enumeration<?> exps = getExpirations();
 
         try {
             while (advs.hasMoreElements()) {
@@ -215,15 +215,15 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
      *
      *@param  doc  Document
      */
-    private void readIt(XMLElement doc) {
+    private void readIt(XMLElement<?> doc) {
         Vector<String> res = new Vector<String>();
         Vector<Long> exps = new Vector<Long>();
 
         try {
-            Enumeration elements = doc.getChildren();
+            Enumeration<?> elements = doc.getChildren();
 
             while (elements.hasMoreElements()) {
-                XMLElement elem = (XMLElement) elements.nextElement();
+                XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
                 if (elem.getName().equals(typeTag)) {
                     type = Integer.parseInt(elem.getTextValue());
@@ -239,7 +239,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
 
                     peerString = peerString.trim();
                     if (peerString.length() > 0) {
-                        XMLDocument xmlPeerAdv = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(
+                        XMLDocument<?> xmlPeerAdv = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                                 MimeMediaType.XMLUTF8, new StringReader(peerString));
 
                         setPeerAdvertisement((PeerAdvertisement) AdvertisementFactory.newAdvertisement(xmlPeerAdv));
@@ -313,7 +313,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
     public String toString() {
 
         try {
-            XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> doc = (XMLDocument<?>) getDocument(MimeMediaType.XMLUTF8);
 
             return doc.toString();
         } catch (Throwable e) {

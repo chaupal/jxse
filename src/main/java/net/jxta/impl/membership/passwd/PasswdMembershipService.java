@@ -147,7 +147,7 @@ public class PasswdMembershipService implements MembershipService {
             this.signedPeerID = signedPeerID;
         }
 
-        protected PasswdCredential(PasswdMembershipService source, Element root) throws PeerGroupException {
+        protected PasswdCredential(PasswdMembershipService source, Element<?> root) throws PeerGroupException {
 
             this.source = source;
 
@@ -274,7 +274,7 @@ public class PasswdMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
+        public StructuredDocument<?> getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
 
             if (doc instanceof XMLDocument) {
@@ -286,7 +286,7 @@ public class PasswdMembershipService implements MembershipService {
                 ((Attributable) doc).addAttribute("type", "jxta:PasswdCred");
             }
 
-            Element e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
+            Element<?> e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
 
             doc.appendChild(e);
 
@@ -309,7 +309,7 @@ public class PasswdMembershipService implements MembershipService {
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
          */
-        protected boolean handleElement(XMLElement elem) {
+        protected boolean handleElement(XMLElement<?> elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
                     URI gID = new URI(elem.getTextValue());
@@ -356,13 +356,13 @@ public class PasswdMembershipService implements MembershipService {
         /**
          *  Intialize from a portion of a structured document.
          */
-        protected void initialize(Element root) {
+        protected void initialize(Element<?> root) {
 
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
             }
 
-            XMLElement doc = (XMLElement) root;
+            XMLElement<?> doc = (XMLElement<?>) root;
 
             String typedoctype = "";
             Attribute itsType = ((Attributable) root).getAttribute("type");
@@ -378,11 +378,11 @@ public class PasswdMembershipService implements MembershipService {
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
             }
 
-            Enumeration elements = doc.getChildren();
+            Enumeration<?> elements = doc.getChildren();
 
             while (elements.hasMoreElements()) {
 
-                XMLElement elem = (XMLElement) elements.nextElement();
+                XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
                 if (!handleElement(elem)) {
                     Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());
@@ -519,12 +519,12 @@ public class PasswdMembershipService implements MembershipService {
     /**
      * The current set of principals associated with this peer within this peegroup.
      */
-    private List principals;
+    private List<Credential> principals;
 
     /**
      * The set of AuthenticationCredentials which were used to establish the principals.
      */
-    private List authCredentials;
+    private List<Credential> authCredentials;
 
     /**
      * The ModuleImplAdvertisement which was used to instantiate this service.
@@ -535,7 +535,7 @@ public class PasswdMembershipService implements MembershipService {
      * An internal table containing the identity and password pairs as parsed from the
      * the PeerGroupAdvertisement.
      */
-    private Map logins = null;
+    private Map<String, String> logins = null;
 
     /**
      *  property change support
@@ -546,8 +546,8 @@ public class PasswdMembershipService implements MembershipService {
      *  Default constructor. Normally only called by the peer group.
      */
     public PasswdMembershipService() throws PeerGroupException {
-        principals = new ArrayList();
-        authCredentials = new ArrayList();
+        principals = new ArrayList<Credential>();
+        authCredentials = new ArrayList<Credential>();
 
 //        support = new PropertyChangeSupport(getInterface());
         support = new PropertyChangeSupport(this);
@@ -618,16 +618,16 @@ public class PasswdMembershipService implements MembershipService {
 
         PeerGroupAdvertisement configAdv = group.getPeerGroupAdvertisement();
 
-        XMLElement myParam = (XMLElement) configAdv.getServiceParam(assignedID);
+        XMLElement<?> myParam = (XMLElement<?>) configAdv.getServiceParam(assignedID);
 
-        logins = new HashMap();
+        logins = new HashMap<String, String>();
 
         if (null == myParam) {
             throw new PeerGroupException("parameters for group passwords missing");
         }
 
-        for (Enumeration allLogins = myParam.getChildren(); allLogins.hasMoreElements();) {
-            XMLElement aLogin = (XMLElement) allLogins.nextElement();
+        for (Enumeration<?> allLogins = myParam.getChildren(); allLogins.hasMoreElements();) {
+            XMLElement<?> aLogin = (XMLElement<?>) allLogins.nextElement();
 
             if (aLogin.getName().equals("login")) {
                 String etcPasswd = aLogin.getTextValue();
@@ -793,7 +793,7 @@ public class PasswdMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      */
-    public Credential makeCredential(Element element) throws PeerGroupException, Exception {
+    public Credential makeCredential(Element<?> element) throws PeerGroupException, Exception {
 
         return new PasswdCredential(this, element);
     }

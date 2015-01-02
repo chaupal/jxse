@@ -93,11 +93,9 @@ public class LoggingTest {
 
     @Test
     public void testGetCaller() {
-
         assertNull(Logging.getCaller(null));
         assertNull(Logging.getCaller(new StackTraceElement[0]));
         assertNotNull(Logging.getCaller(new Exception().getStackTrace()));
-
     }
 
     /*

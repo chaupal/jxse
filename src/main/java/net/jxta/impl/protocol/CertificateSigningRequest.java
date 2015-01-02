@@ -96,7 +96,7 @@ public class CertificateSigningRequest {
         super();
     }
 
-    public CertificateSigningRequest(Element root) {
+    public CertificateSigningRequest(Element<?> root) {
         this();
         initialize(root);
     }
@@ -121,12 +121,12 @@ public class CertificateSigningRequest {
     /**
      *  Initializes the message from a document.
      **/
-    protected void initialize(Element root) {
+    protected void initialize(Element<?> root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String docName = doc.getName();
 
@@ -173,13 +173,13 @@ public class CertificateSigningRequest {
             throw failure;
         }
 
-        StructuredTextDocument doc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(encodeAs
+        StructuredTextDocument<?> doc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(encodeAs
                 ,
                 getMessageType(), encodedCSR);
 
         if (doc instanceof XMLDocument) {
-            ((XMLDocument) doc).addAttribute("xmlns:jxta", "http://jxta.org");
-            ((XMLDocument) doc).addAttribute("xml:space", "preserve");
+            ((XMLDocument<?>) doc).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) doc).addAttribute("xml:space", "preserve");
         }
 
         return doc;

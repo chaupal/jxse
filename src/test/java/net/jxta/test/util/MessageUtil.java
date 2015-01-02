@@ -230,7 +230,7 @@ public class MessageUtil {
 
             msg.addMessageElement("jxta", el);
 
-            XMLDocument doc = (XMLDocument) peeradv.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> doc = (XMLDocument<?>) peeradv.getDocument(MimeMediaType.XMLUTF8);
 
             msg.replaceMessageElement("jxta", new TextDocumentMessageElement(StdRendezVousService.ConnectRequest, doc, null));
         } catch (Exception e) {

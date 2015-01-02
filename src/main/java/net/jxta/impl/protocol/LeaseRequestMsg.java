@@ -139,7 +139,7 @@ public class LeaseRequestMsg {
     /**
      *  The credential of the client.
      */
-    private XMLElement credential = null;
+    private XMLElement<?> credential = null;
 
     /**
      *  The optional peer advertisement of the client.
@@ -155,7 +155,7 @@ public class LeaseRequestMsg {
     /**
      *  Options
      */
-    private List options = new ArrayList();
+    private List<String> options = new ArrayList<String>();
 
     /**
      *  New LeaseRequestMsg
@@ -165,12 +165,12 @@ public class LeaseRequestMsg {
     /**
      * Construct from a XLMElement
      */
-    public LeaseRequestMsg(Element root) {
+    public LeaseRequestMsg(Element<?> root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String doctype = doc.getName();
 
@@ -187,7 +187,7 @@ public class LeaseRequestMsg {
                     + "'. Should be : " + getMessageType());
         }
 
-        Enumeration eachAttr = doc.getAttributes();
+        Enumeration<?> eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
 
@@ -228,11 +228,11 @@ public class LeaseRequestMsg {
             }
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) 
                 Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
@@ -358,8 +358,8 @@ public class LeaseRequestMsg {
      *  @return The credential associated with this request if any. May be
      *  {@code null} to indicate that no credential was provided.
      */
-    public XMLElement getCredential() {
-        return (XMLElement) ((null != credential) ? StructuredDocumentUtils.copyAsDocument(credential) : null);
+    public XMLElement<?> getCredential() {
+        return (XMLElement<?>) ((null != credential) ? StructuredDocumentUtils.copyAsDocument(credential) : null);
     }
 
     /**
@@ -368,8 +368,8 @@ public class LeaseRequestMsg {
      *  @param newCred The credential associated with this request if any. May
      *  be {@code null} to indicate that no credential is being provided.
      */
-    public void setCredential(XMLElement newCred) {
-        this.credential = (XMLElement) ((null != newCred) ? StructuredDocumentUtils.copyAsDocument(newCred) : null);
+    public void setCredential(XMLElement<?> newCred) {
+        this.credential = (XMLElement<?>) ((null != newCred) ? StructuredDocumentUtils.copyAsDocument(newCred) : null);
     }
 
     /**
@@ -381,10 +381,10 @@ public class LeaseRequestMsg {
         return "jxta:LeaseRequestMsg";
     }
 
-    protected boolean handleElement(XMLElement elem) {
+    protected boolean handleElement(XMLElement<?> elem) {
 
         if (CLIENT_CRED_TAG.equals(elem.getName())) {
-            credential = (XMLElement) StructuredDocumentUtils.copyAsDocument(elem);
+            credential = (XMLElement<?>) StructuredDocumentUtils.copyAsDocument(elem);
 
             return true;
         }
@@ -427,14 +427,14 @@ public class LeaseRequestMsg {
             throw new IllegalStateException("Invalid referral advertisements request value.");
         }
 
-        StructuredDocument msg = StructuredDocumentFactory.newStructuredDocument(mediaType, getMessageType());
+        StructuredDocument<?> msg = StructuredDocumentFactory.newStructuredDocument(mediaType, getMessageType());
 
         if (!(msg instanceof Attributable)) {
             throw new UnsupportedOperationException("Only 'Attributable' document types are supported.");
         }
 
         if (msg instanceof XMLDocument) {
-            ((XMLDocument) msg).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) msg).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
         ((Attributable) msg).addAttribute(CLIENT_ID_ATTR, getClientID().toString());

@@ -107,9 +107,9 @@ public class AdvUtil {
                 tcpAdv.setServer(inetAddress + ":" + port);
             }
             tcpAdv.setInterfaceAddress(inetAddress);
-            StructuredDocument tcp = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            StructuredDocument<?> tcp = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
-            StructuredDocumentUtils.copyElements(tcp, tcp, (StructuredDocument)
+            StructuredDocumentUtils.copyElements(tcp, tcp, (StructuredDocument<?>)
                     tcpAdv.getDocument(MimeMediaType.XMLUTF8));
             peerAdvertisement.putServiceParam(IModuleDefinitions.tcpProtoClassID, tcp);
         } catch (Exception e) {

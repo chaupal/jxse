@@ -125,7 +125,7 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element root) {
+        public Advertisement newInstance(Element<?> root) {
             return new AccessPointAdv(root);
         }
     }
@@ -161,12 +161,12 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
      *
      * @param root the element
      */
-    private AccessPointAdv(Element root) {
+    private AccessPointAdv(Element<?> root) {
         if (!(root instanceof XMLElement)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String doctype = doc.getName();
 
@@ -182,11 +182,11 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -250,13 +250,13 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
         if (PID_TAG.equals(elem.getName())) {
             String uri = elem.getTextValue();
@@ -293,18 +293,18 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         if (getPeerID() != null) {
-            Element e = adv.createElement(PID_TAG, getPeerID().toString());
+            Element<?> e = adv.createElement(PID_TAG, getPeerID().toString());
 
             adv.appendChild(e);
         }
 
-        Enumeration each = getEndpointAddresses();
+        Enumeration<?> each = getEndpointAddresses();
 
         while (each.hasMoreElements()) {
-            Element e2 = adv.createElement(EA_TAG, each.nextElement().toString());
+            Element<?> e2 = adv.createElement(EA_TAG, each.nextElement().toString());
 
             adv.appendChild(e2);
         }

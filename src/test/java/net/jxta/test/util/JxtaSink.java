@@ -122,8 +122,8 @@ public class JxtaSink implements Runnable {
 
         try {
             while ((keysAdded = acceptSelector.select()) > 0) {
-                Set readyKeys = acceptSelector.selectedKeys();
-                Iterator i = readyKeys.iterator();
+                Set<SelectionKey> readyKeys = acceptSelector.selectedKeys();
+                Iterator<SelectionKey> i = readyKeys.iterator();
 
                 while (i.hasNext()) {
                     SelectionKey sk = (SelectionKey) i.next();

@@ -134,12 +134,12 @@ public class HTTPAdv extends TransportAdvertisement {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element root) {
+        public Advertisement newInstance(Element<?> root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
             }
 
-            return new HTTPAdv((XMLElement) root);
+            return new HTTPAdv((XMLElement<?>) root);
         }
     }
 
@@ -175,7 +175,7 @@ public class HTTPAdv extends TransportAdvertisement {
      *
      *  @param doc The XML serialization of the advertisement.
      */
-    private HTTPAdv(XMLElement doc) {
+    private HTTPAdv(XMLElement<?> doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -198,11 +198,11 @@ public class HTTPAdv extends TransportAdvertisement {
             publicAddressOnly = (options.indexOf(PublicAddressOnlyAttr) != -1);
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -249,13 +249,13 @@ public class HTTPAdv extends TransportAdvertisement {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
         String tag = elem.getName();
 
@@ -347,7 +347,7 @@ public class HTTPAdv extends TransportAdvertisement {
             setProtocol("http");
         }
 
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         if (adv instanceof Attributable) {
             // Only one flag for now. Easy.
@@ -356,25 +356,25 @@ public class HTTPAdv extends TransportAdvertisement {
             }
         }
 
-        Element e1 = adv.createElement(ProtocolTag, getProtocol());
+        Element<?> e1 = adv.createElement(ProtocolTag, getProtocol());
 
         adv.appendChild(e1);
 
         if (null != getInterfaceAddress()) {
-            Element e2 = adv.createElement(IntfAddrTag, getInterfaceAddress());
+            Element<?> e2 = adv.createElement(IntfAddrTag, getInterfaceAddress());
 
             adv.appendChild(e2);
         }
 
-        Element e3 = adv.createElement(ConfModeTag, getConfigMode());
+        Element<?> e3 = adv.createElement(ConfModeTag, getConfigMode());
 
         adv.appendChild(e3);
 
-        Element e4 = adv.createElement(PortTag, Integer.toString(getPort()));
+        Element<?> e4 = adv.createElement(PortTag, Integer.toString(getPort()));
 
         adv.appendChild(e4);
 
-        Element ext;
+        Element<?> ext;
 
         if (proxy != null) {
             ext = adv.createElement(ProxyTag, proxy);

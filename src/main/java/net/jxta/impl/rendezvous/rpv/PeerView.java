@@ -421,7 +421,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         // the defaults (edge peer/no auto-rdv)
         if (confAdv != null) {
             try {
-                XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(rdvService.getAssignedID());
+                XMLDocument<?> configDoc = (XMLDocument<?>) confAdv.getServiceParam(rdvService.getAssignedID());
 
                 if (null != configDoc) {
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
@@ -488,7 +488,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         // initialize strategies
         replyStrategy = new PeerViewRandomWithReplaceStrategy(localView);
 
-        kickRecipientStrategy = new PeerViewRandomStrategy(localView);
+        kickRecipientStrategy = new PeerViewRandomStrategy<PeerViewDestination>(localView);
 
         kickAdvertisementStrategy = new PeerViewRandomWithReplaceStrategy(localView);
 
@@ -538,7 +538,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         try {
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(me);
             adv = AdvertisementFactory.newAdvertisement(asDoc);
 
         } catch (RuntimeException failed) {
@@ -555,7 +555,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         if (!(adv instanceof RdvAdvertisement)) {
 
-            Logging.logCheckedWarning(LOG, "Response does not contain radv (", adv.getAdvertisementType(), ")");
+            Logging.logCheckedWarning(LOG, "Response does not contain radv (", Advertisement.getAdvertisementType(), ")");
             return;
 
         }
@@ -576,7 +576,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             try {
 
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(me);
                 Advertisement routeAdv = AdvertisementFactory.newAdvertisement(asDoc);
 
                 if (!(routeAdv instanceof RouteAdvertisement)) {
@@ -778,7 +778,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("fallsthrough")
+    @SuppressWarnings("fallthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
         if (closed) {
@@ -1216,7 +1216,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         RdvAdvertisement radv = content.getRdvAdvertisement();
 
-        XMLDocument doc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> doc = (XMLDocument<?>) radv.getDocument(MimeMediaType.XMLUTF8);
         String msgName = response ? RESPONSE_ELEMENT_NAME : MESSAGE_ELEMENT_NAME;
 
         MessageElement msge = new TextDocumentMessageElement(msgName, doc, null);
@@ -1237,7 +1237,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             if (localra != null) {
                 try {
 
-                    XMLDocument radoc = (XMLDocument) localra.getDocument(MimeMediaType.XMLUTF8);
+                    XMLDocument<?> radoc = (XMLDocument<?>) localra.getDocument(MimeMediaType.XMLUTF8);
                     msge = new TextDocumentMessageElement(SRCROUTEADV_ELEMENT_NAME, radoc, null);
                     msg.addMessageElement(MESSAGE_NAMESPACE, msge);
 
@@ -1934,7 +1934,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             if (!tailSet.isEmpty()) {
                 if (self.equals(tailSet.first())) {
-                    Iterator eachTail = tailSet.iterator();
+                    Iterator<PeerViewDestination> eachTail = tailSet.iterator();
 
                     eachTail.next(); // self
 

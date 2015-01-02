@@ -213,9 +213,9 @@ public class DelegateClassLoader extends SecureClassLoader {
      * {@inheritDoc}
      */
     @Override
-    public Class loadClass(final String name, final boolean resolve)
+    public Class<?> loadClass(final String name, final boolean resolve)
             throws ClassNotFoundException {
-        Class result = null;
+        Class<?> result = null;
         URL res = null;
         long findStart=0;
         long findTime;
@@ -361,7 +361,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      */
     @Override
     public URL findResource(final String name) {
-        Enumeration anEnum;
+        Enumeration<URL> anEnum;
 
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("findResource(" + name + ")");
@@ -470,9 +470,9 @@ public class DelegateClassLoader extends SecureClassLoader {
      * @param classDataURL class data resource URL
      * @return class definition
      */
-    private Class defineClass(final String name, final URL classDataURL) {
+    private Class<?> defineClass(final String name, final URL classDataURL) {
         byte[] data;
-        Class result = null;
+        Class<?> result = null;
 
         // Load the class data
         try {

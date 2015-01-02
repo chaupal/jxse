@@ -181,12 +181,12 @@ public class LimitedRangeRdvMsg {
      *
      * @param root the element
      */
-    public LimitedRangeRdvMsg(Element root) {
+    public LimitedRangeRdvMsg(Element<?> root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         if (!doc.getName().equals(getMessageType())) {
             throw new IllegalArgumentException(
@@ -194,11 +194,11 @@ public class LimitedRangeRdvMsg {
                     + "'. Should be : " + getMessageType());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -367,7 +367,7 @@ public class LimitedRangeRdvMsg {
      * @param elem the element to be processed.
      * @return true if the element was recognized, otherwise false.
      */
-    protected boolean handleElement(XMLElement elem) {
+    protected boolean handleElement(XMLElement<?> elem) {
 
         String value = elem.getTextValue();
 
@@ -447,10 +447,10 @@ public class LimitedRangeRdvMsg {
         StructuredDocument msg = StructuredDocumentFactory.newStructuredDocument(mediaType, getMessageType());
 
         if (msg instanceof XMLDocument) {
-            ((XMLDocument) msg).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) msg).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element e = msg.createElement(TTL_ELEMENT, Integer.toString(getTTL()));
+        Element<?> e = msg.createElement(TTL_ELEMENT, Integer.toString(getTTL()));
 
         msg.appendChild(e);
 

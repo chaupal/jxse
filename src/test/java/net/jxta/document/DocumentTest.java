@@ -118,10 +118,10 @@ public final class DocumentTest extends TestCase {
         public void spew(XMLElement element) {
             System.out.println(element.getValue());
 
-            Enumeration<XMLElement> children = element.getChildren();
+            Enumeration<XMLElement<?>> children = element.getChildren();
 
             while (children.hasMoreElements()) {
-                XMLElement child = children.nextElement();
+                XMLElement<?> child = children.nextElement();
 
                 spew(child);
             }
@@ -132,7 +132,7 @@ public final class DocumentTest extends TestCase {
         final String useDocType = "Test";
         StructuredTextDocument doc = null;
 
-        doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType);
+        doc = (StructuredTextDocument<?>) instantiator.newInstance(type, useDocType);
 
         assertTrue("could not construct object for type : " + type, doc != null);
 
@@ -147,7 +147,7 @@ public final class DocumentTest extends TestCase {
         doc.appendChild(testElement);
 
         try {
-            Element firstchild = (Element) doc.getChildren().nextElement();
+            Element<?> firstchild = (Element<?>) doc.getChildren().nextElement();
 
             assertTrue("added a single element, but something else was returned", testElement.equals(firstchild));
         } catch (Exception e) {
@@ -185,7 +185,7 @@ public final class DocumentTest extends TestCase {
 
         if (type.getSubtype().equalsIgnoreCase("XML")) {
             try {
-                TextElement testElement5 = doc.createElement("really wrong and long", "1");
+                TextElement<?> testElement5 = doc.createElement("really wrong and long", "1");
 
                 fail("Tag names with spaces should be disallowed");
             } catch (Exception failed) {// that's ok
@@ -194,35 +194,35 @@ public final class DocumentTest extends TestCase {
 
         int count = 0;
 
-        for (Enumeration<Element> eachChild = doc.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+        for (Enumeration<Element<?>> eachChild = doc.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
             ;
         }
 
         assertTrue("Doc didnt have one child", 1 == count);
 
         count = 0;
-        for (Enumeration<Element> eachChild = doc.getChildren("element"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+        for (Enumeration<Element<?>> eachChild = doc.getChildren("element"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
             ;
         }
 
         assertTrue("Doc didnt have one child named 'element'", 1 == count);
 
         count = 0;
-        for (Enumeration<Element> eachChild = doc.getChildren("bogus"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+        for (Enumeration<Element<?>> eachChild = doc.getChildren("bogus"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
             ;
         }
 
         assertTrue(" Doc shouldnt have had a child named 'bogus'", 0 == count);
 
         count = 0;
-        for (Enumeration<Element> eachChild = testElement.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+        for (Enumeration<Element<?>> eachChild = testElement.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
             ;
         }
 
         assertTrue("element didnt have expected number of children", 3 == count);
 
         count = 0;
-        for (Enumeration<Element> eachChild = testElement.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+        for (Enumeration<Element<?>> eachChild = testElement.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
             ;
         }
 
@@ -231,7 +231,7 @@ public final class DocumentTest extends TestCase {
         // This check also is important for checking that the behaviour of the
         // tree is correct when there are nodes with the same name as the parent in subtrees.
 
-        Element testElement3 = doc.createElement(useName, useValue);
+        Element<?> testElement3 = doc.createElement(useName, useValue);
 
         testElement2.appendChild(testElement3);
 
@@ -239,16 +239,16 @@ public final class DocumentTest extends TestCase {
         testElement2.appendChild(testElement3);
 
         count = 0;
-        for (Enumeration eachChild = testElement2.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+        for (Enumeration<?> eachChild = testElement2.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
             ;
         }
 
         assertTrue("element didnt have expected number of children named '" + useName + "'", 2 == count);
 
-        StructuredDocument likeMe = null;
+        StructuredDocument<?> likeMe = null;
 
         try {
-            likeMe = (StructuredTextDocument) instantiator.newInstance(doc.getMimeType(), doc.getStream());
+            likeMe = (StructuredTextDocument<?>) instantiator.newInstance(doc.getMimeType(), doc.getStream());
         } catch (java.security.ProviderException thrown) {
             ;
         } catch (Throwable thrown) {
@@ -289,14 +289,14 @@ public final class DocumentTest extends TestCase {
                     docAsString.charAt(eachChar) == docFromElement.charAt(eachChar));
         }
 
-        Element testElement4 = doc.createElement("shortname", "shortvalue");
-        Element testElement5 = doc.createElement(
+        Element<?> testElement4 = doc.createElement("shortname", "shortvalue");
+        Element<?> testElement5 = doc.createElement(
                 "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
                 "shortvalue");
-        Element testElement6 = doc.createElement(
+        Element<?> testElement6 = doc.createElement(
                 "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
                 "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
-        Element testElement7 = doc.createElement("shortname",
+        Element<?> testElement7 = doc.createElement("shortname",
                 "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
 
         doc.appendChild(testElement4);
@@ -338,20 +338,20 @@ public final class DocumentTest extends TestCase {
     private void _testConstructors(StructuredDocumentFactory.Instantiator instantiator, MimeMediaType type) {
         try {
             final String useDocType = "Test";
-            StructuredTextDocument doc = null;
+            StructuredTextDocument<?> doc = null;
 
-            doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType);
+            doc = (StructuredTextDocument<?>) instantiator.newInstance(type, useDocType);
 
-            doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType, null);
+            doc = (StructuredTextDocument<?>) instantiator.newInstance(type, useDocType, null);
 
-            doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType, "value");
+            doc = (StructuredTextDocument<?>) instantiator.newInstance(type, useDocType, "value");
 
             String stringdoc = doc.toString();
 
             if (type.getSubtype().equalsIgnoreCase("XML")) {
                 try {
 
-                    doc = (StructuredTextDocument) instantiator.newInstance(type, "Really wrong and long");
+                    doc = (StructuredTextDocument<?>) instantiator.newInstance(type, "Really wrong and long");
 
                     fail("Tag names with spaces should be disallowed");
                 } catch (Exception failed) {// that's ok
@@ -359,13 +359,13 @@ public final class DocumentTest extends TestCase {
             }
 
             try {
-                doc = (StructuredTextDocument) instantiator.newInstance(type, new ByteArrayInputStream(stringdoc.getBytes()));
+                doc = (StructuredTextDocument<?>) instantiator.newInstance(type, new ByteArrayInputStream(stringdoc.getBytes()));
             } catch (ProviderException notsupported) {// thats ok.
             }
 
             if (instantiator instanceof StructuredDocumentFactory.TextInstantiator) {
                 try {
-                    doc = (StructuredTextDocument) ((StructuredDocumentFactory.TextInstantiator) instantiator).newInstance(type
+                    doc = (StructuredTextDocument<?>) ((StructuredDocumentFactory.TextInstantiator) instantiator).newInstance(type
                             ,
                             new StringReader(stringdoc));
                 } catch (ProviderException notsupported) {// thats ok.
@@ -380,7 +380,7 @@ public final class DocumentTest extends TestCase {
     public void _testAttributesSolo(StructuredDocumentFactory.Instantiator instantiator, MimeMediaType type) {
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            StructuredDocument doc = instantiator.newInstance(type, "Message");
+            StructuredDocument<?> doc = instantiator.newInstance(type, "Message");
 
             assertTrue("should be no attributes", !((Attributable) doc).getAttributes().hasMoreElements());
 
@@ -392,7 +392,7 @@ public final class DocumentTest extends TestCase {
             assertTrue("updating attribute gave wrong result", "123".equals(old));
             doc.sendToStream(os);
 
-            List attrs = Collections.list(((Attributable) doc).getAttributes());
+            List<Attribute> attrs = Collections.list(((Attributable) doc).getAttributes());
 
             assertTrue("should be 1 attribute", 1 == attrs.size());
 
@@ -416,7 +416,7 @@ public final class DocumentTest extends TestCase {
         try {
             String doc = "<?xml version=\"1.0\"?><whatever/>";
 
-            XMLDocument xmldoc = (XMLDocument) instantiator.newInstance(type, new StringReader(doc));
+            XMLDocument xmldoc = (XMLDocument<?>) instantiator.newInstance(type, new StringReader(doc));
             Element anElement = xmldoc.createElement("whynot");
 
             xmldoc.appendChild(anElement);
@@ -433,7 +433,7 @@ public final class DocumentTest extends TestCase {
 
             StringReader reader = new StringReader(writer.toString());
 
-            XMLDocument roundtrip = (XMLDocument) instantiator.newInstance(xmldoc.getMimeType(), reader);
+            XMLDocument<?> roundtrip = (XMLDocument<?>) instantiator.newInstance(xmldoc.getMimeType(), reader);
 
             System.out.println(roundtrip.toString());
 
@@ -443,7 +443,7 @@ public final class DocumentTest extends TestCase {
 
             StringReader secondroundreader = new StringReader(secondroundwriter.toString());
 
-            XMLDocument secondroundtrip = (XMLDocument) instantiator.newInstance(roundtrip.getMimeType(), secondroundreader);
+            XMLDocument<?> secondroundtrip = (XMLDocument<?>) instantiator.newInstance(roundtrip.getMimeType(), secondroundreader);
 
             System.out.println(secondroundtrip.toString());
         } catch (Throwable everything) {
@@ -508,7 +508,7 @@ public final class DocumentTest extends TestCase {
         try {
             // create document
             MimeMediaType mime = new MimeMediaType("text/xml");
-            XMLDocument document = (XMLDocument) LiteXMLDocument.INSTANTIATOR.newInstance(mime, "items");
+            XMLDocument document = (XMLDocument<?>) LiteXMLDocument.INSTANTIATOR.newInstance(mime, "items");
 
             for (int i = 0; i < 10; i++) {
                 XMLElement testElem = document.createElement("item");
@@ -532,18 +532,18 @@ public final class DocumentTest extends TestCase {
 
             InputStream is = new ByteArrayInputStream(out.toByteArray());
 
-            XMLDocument document2 = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(mime, is);
+            XMLDocument document2 = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(mime, is);
 
-            Enumeration<XMLElement> eachOrig = document.getChildren();
-            Enumeration<XMLElement> eachNew = document2.getChildren();
+            Enumeration<XMLElement<?>> eachOrig = document.getChildren();
+            Enumeration<XMLElement<?>> eachNew = document2.getChildren();
 
             while (eachOrig.hasMoreElements()) {
                 if (!eachNew.hasMoreElements()) {
                     fail("Enumeration did not end at same time.");
                 }
 
-                XMLElement anOrig = eachOrig.nextElement();
-                XMLElement aNew = eachNew.nextElement();
+                XMLElement<?> anOrig = eachOrig.nextElement();
+                XMLElement<?> aNew = eachNew.nextElement();
 
                 assertEquals("Elements names should be equivalent", aNew.getKey(), anOrig.getKey());
                 assertEquals("Elements values should be equivalent", aNew.getValue(), anOrig.getValue());
@@ -570,12 +570,12 @@ public final class DocumentTest extends TestCase {
         try {
             for (int depth = 1; depth <= 10; depth++) {
                 // create document
-                document = (XMLDocument) LiteXMLDocument.INSTANTIATOR.newInstance(MimeMediaType.XML_DEFAULTENCODING, "items");
+                document = (XMLDocument<?>) LiteXMLDocument.INSTANTIATOR.newInstance(MimeMediaType.XML_DEFAULTENCODING, "items");
                 for (int elemCount = 1; elemCount <= 2; elemCount++) {
                     XMLElement parentElem = document;
 
                     for (int layer = 1; layer <= depth; layer++) {
-                        XMLElement testElem = document.createElement("item");
+                        XMLElement<?> testElem = document.createElement("item");
 
                         parentElem.appendChild(testElem);
                         testElem.addAttribute("name", depth + "-" + elemCount + ":" + layer);
@@ -588,17 +588,17 @@ public final class DocumentTest extends TestCase {
                 document.sendToWriter(out);
                 Reader is = new StringReader(out.toString());
 
-                document2 = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
-                Enumeration<Element> eachOrig = document.getChildren();
-                Enumeration<Element> eachNew = document2.getChildren();
+                document2 = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
+                Enumeration<Element<?>> eachOrig = document.getChildren();
+                Enumeration<Element<?>> eachNew = document2.getChildren();
 
                 // FIXME 20050607 bondolo comparison doesn't recurse.
                 while (eachOrig.hasMoreElements()) {
                     if (!eachNew.hasMoreElements()) {
                         fail("Enumeration did not end at same time.");
                     }
-                    XMLElement anOrig = (XMLElement) eachOrig.nextElement();
-                    XMLElement aNew = (XMLElement) eachNew.nextElement();
+                    XMLElement<?> anOrig = (XMLElement<?>) eachOrig.nextElement();
+                    XMLElement<?> aNew = (XMLElement<?>) eachNew.nextElement();
 
                     assertEquals("Elements names should be equivalent", aNew.getKey(), anOrig.getKey());
                     assertEquals("Elements values should be equivalent", aNew.getValue(), anOrig.getValue());
@@ -620,12 +620,12 @@ public final class DocumentTest extends TestCase {
     }
 
     public void testIssue13XX() {
-        XMLDocument document = null;
+        XMLDocument<?> document = null;
 
         try {
             Reader is = new StringReader(badlittleimpl);
 
-            document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
+            document = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
 
             System.err.println(document);
         } catch (Throwable everything) {
@@ -637,12 +637,12 @@ public final class DocumentTest extends TestCase {
     }
 
     public void testIssue15() {
-        XMLDocument document = null;
+        XMLDocument<?> document = null;
 
         try {
             Reader is = new StringReader(badInclusion);
 
-            document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
+            document = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
 
             System.err.println(document);
         } catch (Throwable everything) {

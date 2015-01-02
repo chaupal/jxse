@@ -61,8 +61,9 @@ import java.util.EventObject;
  * Container for PeerViewEvent events.
  */
 public class PeerViewEvent extends EventObject {
+	private static final long serialVersionUID = 1L;
 
-    public static final int ADD = 10;
+	public static final int ADD = 10;
     public static final int REMOVE = 11;
     public static final int FAIL = 12;
 

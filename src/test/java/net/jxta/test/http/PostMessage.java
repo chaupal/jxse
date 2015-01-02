@@ -145,19 +145,19 @@ public class PostMessage extends GetMessage {
         if (to != null) {
             from = to;
 
-            List cookies = new ArrayList();
+            List<String> cookies = new ArrayList<String>();
 
-            for (Iterator h = response.getHeaders(Constants.MIME.Key.COOKIE); h.hasNext();) {
+            for (Iterator<String> h = response.getHeaders(Constants.MIME.Key.COOKIE); h.hasNext();) {
                 cookies.add((String) h.next());
             }
 
-            for (Iterator h = response.getHeaders(Constants.MIME.Key.SET_COOKIE); h.hasNext();) {
+            for (Iterator<String> h = response.getHeaders(Constants.MIME.Key.SET_COOKIE); h.hasNext();) {
                 cookies.add((String) h.next());
             }
 
             response.removeHeaders();
 
-            for (Iterator c = cookies.iterator(); c.hasNext();) {
+            for (Iterator<String> c = cookies.iterator(); c.hasNext();) {
                 response.setHeader(Constants.MIME.Key.COOKIE, (String) c.next());
             }
 
@@ -180,9 +180,9 @@ public class PostMessage extends GetMessage {
 
     @Override
     public String toString() {
-        java.lang.Class clazz = getClass();
+        java.lang.Class<?> clazz = getClass();
         java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
-        java.util.HashMap map = new java.util.HashMap();
+        java.util.HashMap<String, Object> map = new java.util.HashMap<String, Object>();
         java.lang.String object = null;
         java.lang.Object value = null;
 

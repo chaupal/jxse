@@ -123,7 +123,7 @@ public class MessageTest extends TestCase {
      **/
     public void testMessageAddGetElement() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element1", "test2", null);
@@ -165,7 +165,7 @@ public class MessageTest extends TestCase {
 
         assertTrue("element was added, modcounts should differ", initialModCount != afterAddModCount);
 
-        Iterator elements = msg1.getMessageElements();
+        Iterator<MessageElement> elements = msg1.getMessageElements();
 
         assertTrue("message should have had an element", elements.hasNext());
 
@@ -185,8 +185,8 @@ public class MessageTest extends TestCase {
      **/
     public void testMessageGetMessageElements() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
-        List    namespaces = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
+        List<String>    namespaces = new ArrayList<String>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element2", "test2", null);
@@ -206,8 +206,8 @@ public class MessageTest extends TestCase {
 
         // check if all of the elements are returned
         Message.ElementIterator eachElement = msg1.getMessageElements();
-        Iterator eachListElement = list.iterator();
-        Iterator eachNamesElement = namespaces.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
+        Iterator<String> eachNamesElement = namespaces.iterator();
 
         while (eachElement.hasNext()) {
             MessageElement aElement = eachElement.next();
@@ -226,8 +226,8 @@ public class MessageTest extends TestCase {
      **/
     public void testMessageGetMessageElementsNamed() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
-        List    namespaces = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
+        List<String>    namespaces = new ArrayList<String>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element2", "test2", null);
@@ -241,8 +241,8 @@ public class MessageTest extends TestCase {
 
         // check if all of the elements are returned
         Message.ElementIterator eachElement = msg1.getMessageElements("element1");
-        Iterator eachListElement = list.iterator();
-        Iterator eachNamesElement = namespaces.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
+        Iterator<String> eachNamesElement = namespaces.iterator();
 
         while (eachElement.hasNext()) {
             MessageElement aElement = eachElement.next();
@@ -262,7 +262,7 @@ public class MessageTest extends TestCase {
      **/
     public void testMessagegeGetMessageElementsOfNamespace() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element2", "test2", null);
@@ -277,7 +277,7 @@ public class MessageTest extends TestCase {
 
         // check if all of the elements of the namespace "not-default" are returned.
         Message.ElementIterator eachElement = msg1.getMessageElementsOfNamespace("not-default");
-        Iterator eachListElement = list.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
 
         while (eachElement.hasNext()) {
             MessageElement aElement = eachElement.next();
@@ -296,7 +296,7 @@ public class MessageTest extends TestCase {
      **/
     public void testMessagegeGetMessageElementsMimeType() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
+        List< MessageElement>    list = new ArrayList<MessageElement>();
         MimeMediaType foo = MimeMediaType.valueOf("text/foo");
         MimeMediaType bar = MimeMediaType.valueOf("text/bar");
 
@@ -312,7 +312,7 @@ public class MessageTest extends TestCase {
 
         // check if all of the elements matching type "foo" are returned.
         Message.ElementIterator eachElement = msg1.getMessageElements(foo);
-        Iterator eachListElement = list.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
 
         while (eachElement.hasNext()) {
             MessageElement aElement = eachElement.next();
@@ -333,7 +333,7 @@ public class MessageTest extends TestCase {
      **/
     public void testMessagegeGetMessageElementsNamespaceMimeType() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
         MimeMediaType foo = MimeMediaType.valueOf("text/foo");
         MimeMediaType bar = MimeMediaType.valueOf("text/bar");
 
@@ -350,7 +350,7 @@ public class MessageTest extends TestCase {
 
         // check if all of the elements matching type "foo" are returned.
         Message.ElementIterator eachElement = msg1.getMessageElements("not-default", foo);
-        Iterator eachListElement = list.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
 
         while (eachElement.hasNext()) {
             MessageElement aElement = eachElement.next();
@@ -405,7 +405,7 @@ public class MessageTest extends TestCase {
 
     public void testMessageGetNamespaces() {
         Message msg1 = new Message("default");
-        Set namespaces = new HashSet();
+        Set<String> namespaces = new HashSet<String>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", (MessageElement) null);
         MessageElement elm2 = new StringMessageElement("element2", "test2", (MessageElement) null);
@@ -416,7 +416,7 @@ public class MessageTest extends TestCase {
         msg1.addMessageElement("not-default", elm2);
         namespaces.add("not-default");
 
-        Iterator eachNamespace = msg1.getMessageNamespaces();
+        Iterator<String> eachNamespace = msg1.getMessageNamespaces();
 
         while (eachNamespace.hasNext()) {
             String aNamespace = (String) eachNamespace.next();
@@ -444,7 +444,7 @@ public class MessageTest extends TestCase {
 
         assertTrue("element was added, modcounts should differ", initialModCount != afterAddModCount);
 
-        Iterator elements = msg1.getMessageElements();
+        Iterator<MessageElement> elements = msg1.getMessageElements();
 
         assertTrue("message should have had an element", elements.hasNext());
 
@@ -502,7 +502,7 @@ public class MessageTest extends TestCase {
      **/
     public void testMessageLength() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element1", "test23", null);
@@ -552,8 +552,8 @@ public class MessageTest extends TestCase {
      **/
     public void testMessageRemoveElement() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
-        List    namespaces = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
+        List<String>    namespaces = new ArrayList<String>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element2", "test2", null);
@@ -573,8 +573,8 @@ public class MessageTest extends TestCase {
 
         // check if all of the elements are returned
         Message.ElementIterator eachElement = msg1.getMessageElements();
-        Iterator eachListElement = list.iterator();
-        Iterator eachNamesElement = namespaces.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
+        Iterator<String> eachNamesElement = namespaces.iterator();
 
         while (eachElement.hasNext()) {
             MessageElement aElement = eachElement.next();
@@ -592,7 +592,7 @@ public class MessageTest extends TestCase {
 
     public void testIssue991() {
         Message msg1 = new Message();
-        List    list = new ArrayList();
+        List<MessageElement>    list = new ArrayList<MessageElement>();
 
         MessageElement elm1 = new StringMessageElement("element1", "test1", null);
         MessageElement elm2 = new StringMessageElement("element2", "test2", null);
@@ -621,7 +621,7 @@ public class MessageTest extends TestCase {
 
         // Remove an element.
         Message.ElementIterator eachElement = msg1.getMessageElements();
-        Iterator eachListElement = list.iterator();
+        Iterator<MessageElement> eachListElement = list.iterator();
 
         eachElement.next();
         eachListElement.next(); // "", elm1
@@ -667,7 +667,7 @@ public class MessageTest extends TestCase {
 
         msg1.addMessageElement("not-default", elm2);
 
-        Iterator allElems = msg1.getMessageElements();
+        Iterator<MessageElement> allElems = msg1.getMessageElements();
 
         MessageElement elm3 = (MessageElement) allElems.next();
 

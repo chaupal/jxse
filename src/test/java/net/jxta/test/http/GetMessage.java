@@ -117,12 +117,12 @@ public class GetMessage
         return ((this.message != null) ? this.message.getHeader(key) : null);
     }
 
-    public Iterator getHeaderKeys() {
+    public Iterator<String> getHeaderKeys() {
         return ((this.message != null) ? this.message.getHeaderKeys() : Collections.EMPTY_LIST.iterator());
     }
 
-    public void setHeaders(Map headers) {
-        Iterator keys = headers.keySet().iterator();
+    public void setHeaders(Map<String, Object> headers) {
+        Iterator<String> keys = headers.keySet().iterator();
 
         while (keys.hasNext()) {
             String key = (String) keys.next();
@@ -168,9 +168,9 @@ public class GetMessage
 
     @Override
     public String toString() {
-        java.lang.Class clazz = getClass();
+        java.lang.Class<?> clazz = getClass();
         java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
-        java.util.HashMap map = new java.util.HashMap();
+        java.util.HashMap<String, Object> map = new java.util.HashMap<String, Object>();
         java.lang.String object = null;
         java.lang.Object value = null;
 
@@ -350,18 +350,18 @@ public class GetMessage
         URL u = null;
         Message reply = null;
         String key = null;
-        List values = null;
+        List<String> values = null;
         StringBuilder sb = new StringBuilder();
 
         if (response != null && response.getBody() != null) {
             sb.append(response.getBody());
         }
 
-        for (Iterator keys = (response != null ? response.getHeaderKeys() : Collections.EMPTY_MAP.keySet().iterator()); keys.hasNext();) {
+        for (Iterator<String> keys = (response != null ? response.getHeaderKeys() : Collections.EMPTY_MAP.keySet().iterator()); keys.hasNext();) {
             key = (String) keys.next();
-            values = new ArrayList();
+            values = new ArrayList<String>();
 
-            for (Iterator h = response.getHeaders(key); h.hasNext();) {
+            for (Iterator<String> h = response.getHeaders(key); h.hasNext();) {
                 values.add((String) h.next());
             }
 
@@ -420,7 +420,7 @@ public class GetMessage
         String value = null;
 
         if (this.message != null) {
-            for (Iterator keys = this.message.getHeaderKeys(); keys.hasNext();) {
+            for (Iterator<String> keys = this.message.getHeaderKeys(); keys.hasNext();) {
                 key = (String) keys.next();
                 value = this.message.getHeader(key);
                 connection.setRequestProperty(key, value);
@@ -428,9 +428,9 @@ public class GetMessage
         }
 
         boolean doOutput = (this.method == Constants.HTTP.POST && this.message != null && this.message.hasBody());
-        Map defaultHeaders = ((!doOutput) ? Util.getDefaultGetHeaders() : Util.getDefaultPostHeaders());
+        Map<String, Object> defaultHeaders = ((!doOutput) ? Util.getDefaultGetHeaders() : Util.getDefaultPostHeaders());
 
-        for (Iterator keys = defaultHeaders.keySet().iterator(); keys.hasNext();) {
+        for (Iterator<String> keys = defaultHeaders.keySet().iterator(); keys.hasNext();) {
             key = (String) keys.next();
 
             if (connection.getRequestProperty(key) == null) {
@@ -451,7 +451,7 @@ public class GetMessage
         connection.setDoOutput(doOutput);
         connection.setDoInput(true);
         connection.setUseCaches(false);
-        connection.setFollowRedirects(followRedirects);
+        HttpURLConnection.setFollowRedirects(followRedirects);
         connection.setInstanceFollowRedirects(followRedirects);
 
         return connection;
@@ -461,9 +461,9 @@ public class GetMessage
         return u.openConnection();
     }
 
-    private Map getResponseHeaders() {
-        Map headers = new HashMap();
-        Map m = this.connection.getHeaderFields();
+    private Map<String, Object> getResponseHeaders() {
+        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, List<String>> m = this.connection.getHeaderFields();
 
         headers.putAll(m);
         headers.remove(null);

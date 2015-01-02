@@ -403,14 +403,11 @@ public class RefJxtaLoader extends JxtaLoader {
                 
                 URI uri = URI.create(impl.getUri());
                 Class<?> clazz = loadClass(impl.getCode(), uri, false);
-                loaded = verifyAndCast(clazz);
-                
-            } catch (IllegalArgumentException iax) {            	
-                
+                loaded = verifyAndCast(clazz);             
+            } catch (IllegalArgumentException iax) {            	             
                 Logging.logCheckedDebug(LOG, ": Caught exception\n", iax);
                 throw new ClassFormatError("Class '" + impl.getCode() + "' could not be loaded from : " + impl.getUri());                
-            } catch (ClassNotFoundException failed) {
-            	
+            } catch (ClassNotFoundException failed) {     	
                 Logging.logCheckedDebug(LOG, hashHex(), ": Caught exception\n", failed);
                 throw new ClassFormatError("Class '" + impl.getCode() + "' could not be loaded from : " + impl.getUri());
             }

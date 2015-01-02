@@ -227,7 +227,7 @@ public class CmXIndiceImplTest {
     private void createPipe(boolean expired) {
         ID advID;
         String advName;
-        StructuredTextDocument doc = null;
+        StructuredTextDocument<?> doc = null;
 
         long t0 = System.currentTimeMillis();
 
@@ -298,17 +298,17 @@ public class CmXIndiceImplTest {
             List<InputStream> searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + i, 1, null);
 
             assertNotNull("Null search result", searchResults);
-            Enumeration result = Collections.enumeration(searchResults);
+            Enumeration<InputStream> result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("empty Search Result for query attr=Name value=CmTestPeer" + i, result.hasMoreElements());
             while (result.hasMoreElements()) {
                 ByteArrayInputStream dataStream = (ByteArrayInputStream) result.nextElement();
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
-                Enumeration en = doc.getChildren("Name");
+                StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
+                Enumeration<?> en = doc.getChildren("Name");
 
                 while (en.hasMoreElements()) {
-                    String val = (String) ((Element) en.nextElement()).getValue();
+                    String val = (String) ((Element<?>) en.nextElement()).getValue();
 
                     assertTrue("Name mismatch ", val.equals("CmTestPeer" + i));
                 }
@@ -337,17 +337,17 @@ public class CmXIndiceImplTest {
         try {
             searchResults = cm.search(dirname[0], "Name", "*" + queryString, 10, null);
             assertNotNull("Null search result", searchResults);
-            Enumeration result = Collections.enumeration(searchResults);
+            Enumeration<InputStream> result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("Enumerator empty", result.hasMoreElements());
             while (result.hasMoreElements()) {
                 ByteArrayInputStream dataStream = (ByteArrayInputStream) result.nextElement();
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
-                Enumeration en = doc.getChildren("Name");
+                StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
+                Enumeration<?> en = doc.getChildren("Name");
 
                 while (en.hasMoreElements()) {
-                    String val = (String) ((Element) en.nextElement()).getValue();
+                    String val = (String) ((Element<?>) en.nextElement()).getValue();
 
                     System.out.println("EndsWith: Queried for *" + queryString + ", found: " + val);
                     assertTrue("result returned " + val + " does not end with " + queryString, val.endsWith(queryString));
@@ -378,17 +378,17 @@ public class CmXIndiceImplTest {
         try {
             searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + queryString + "*", 10, null);
             assertNotNull("Null search result", searchResults);
-            Enumeration result = Collections.enumeration(searchResults);
+            Enumeration<InputStream> result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("Enumerator empty", result.hasMoreElements());
             while (result.hasMoreElements()) {
                 ByteArrayInputStream dataStream = (ByteArrayInputStream) result.nextElement();
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
-                Enumeration en = doc.getChildren("Name");
+                StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
+                Enumeration<?> en = doc.getChildren("Name");
 
                 while (en.hasMoreElements()) {
-                    String val = (String) ((Element) en.nextElement()).getValue();
+                    String val = (String) ((Element<?>) en.nextElement()).getValue();
 
                     System.out.println("StartsWith: Queried for CmTestPeer" + queryString + "*, found: " + val);
                     assertTrue("result returned " + val + " does not start with CmTestPeer" + queryString
@@ -421,17 +421,17 @@ public class CmXIndiceImplTest {
         try {
             searchResults = cm.search(dirname[0], "Name", "*" + queryString + "*", 10, null);
             assertNotNull("Null search result", searchResults);
-            Enumeration result = Collections.enumeration(searchResults);
+            Enumeration<InputStream> result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("Enumerator empty", result.hasMoreElements());
             while (result.hasMoreElements()) {
                 ByteArrayInputStream dataStream = (ByteArrayInputStream) result.nextElement();
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
-                Enumeration en = doc.getChildren("Name");
+                StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
+                Enumeration<?> en = doc.getChildren("Name");
 
                 while (en.hasMoreElements()) {
-                    String val = (String) ((Element) en.nextElement()).getValue();
+                    String val = (String) ((Element<?>) en.nextElement()).getValue();
 
                     System.out.println("Contains: Queried for *" + queryString + "*, found: " + val);
                     assertTrue("result returned " + val + " does not contain " + queryString, val.indexOf(queryString) != -1);
@@ -631,15 +631,15 @@ public class CmXIndiceImplTest {
                 try {
                     synchronized (cm) {
                         List<InputStream> searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + "*", 10, null);
-                        Enumeration result = Collections.enumeration(searchResults);
+                        Enumeration<InputStream> result = Collections.enumeration(searchResults);
 
                         while (result.hasMoreElements() && !failed) {
                             ByteArrayInputStream dataStream = (ByteArrayInputStream) result.nextElement();
-                            StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
-                            Enumeration en = doc.getChildren("PID");
+                            StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
+                            Enumeration<?> en = doc.getChildren("PID");
 
                             while (en.hasMoreElements() && !failed) {
-                                String val = (String) ((Element) en.nextElement()).getValue();
+                                String val = (String) ((Element<?>) en.nextElement()).getValue();
                                 String fn = val.substring(offset);
 
                                 System.out.println("mt (Q) " + id + " " + (count++) + " " + fn);

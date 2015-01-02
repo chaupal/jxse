@@ -92,7 +92,7 @@ public class TcpConnection implements Runnable {
     private EndpointAddress fullDstAddress = null;
     private transient InetAddress inetAddress = null;
     private boolean initiator;
-    private transient WatchedInputStream inputStream = null;
+    private transient WatchedInputStream<Object> inputStream = null;
     private transient WelcomeMessage itsWelcome = null;
 
     private transient long lastUsed = System.currentTimeMillis();
@@ -111,10 +111,10 @@ public class TcpConnection implements Runnable {
     private int connectionTimeOut = 10 * 1000;
 
     // Connections that are watched often - io in progress
-    List ShortCycle = Collections.synchronizedList(new ArrayList());
+    List<Object> ShortCycle = Collections.synchronizedList(new ArrayList<Object>());
 
     // Connections that are watched rarely - idle or waiting for input
-    List LongCycle = Collections.synchronizedList(new ArrayList());
+    List<Object> LongCycle = Collections.synchronizedList(new ArrayList<Object>());
 
     /**
      *  only one outgoing message per connection.
@@ -606,7 +606,7 @@ public class TcpConnection implements Runnable {
 
         outputStream = new WatchedOutputStream(sharedSocket.getOutputStream());
         outputStream.setWatchList(ShortCycle);
-        inputStream = new WatchedInputStream(sharedSocket.getInputStream());
+        inputStream = new WatchedInputStream<Object>(sharedSocket.getInputStream());
         outputStream.setWatchList(LongCycle);
 
         if ((inputStream == null) || (outputStream == null)) {

@@ -250,7 +250,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         RdvAdvertisement radv = PeerView.createRdvAdvertisement(group.getPeerAdvertisement(), name);
 
-        XMLDocument doc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> doc = (XMLDocument<?>) radv.getDocument(MimeMediaType.XMLUTF8);
 
         MessageElement msge = new TextDocumentMessageElement(PeerView.MESSAGE_ELEMENT_NAME, doc, null);
 
@@ -290,7 +290,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         try {
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
+            XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(me);
             adv = AdvertisementFactory.newAdvertisement(asDoc);
 
         } catch (RuntimeException failed) {
@@ -307,7 +307,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         if (!(adv instanceof RdvAdvertisement)) {
 
-            Logging.logCheckedWarning(LOG, "Response does not contain radv (", adv.getAdvertisementType(), ")");
+            Logging.logCheckedWarning(LOG, "Response does not contain radv (", Advertisement.getAdvertisementType(), ")");
             return;
 
         }
@@ -328,7 +328,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
             try {
 
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(me);
                 Advertisement routeAdv = AdvertisementFactory.newAdvertisement(asDoc);
 
                 if (!(routeAdv instanceof RouteAdvertisement)) {

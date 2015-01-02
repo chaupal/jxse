@@ -144,7 +144,7 @@ public class LeaseResponseMsg {
     /**
      *  Credential of the server.
      */
-    private XMLElement credential = null;
+    private XMLElement<?> credential = null;
 
     /**
      *  Ordered list of referral advertisements.
@@ -172,12 +172,12 @@ public class LeaseResponseMsg {
      * Construct from a StructuredDocument
      * @param root the element
      */
-    public LeaseResponseMsg(Element root) {
+    public LeaseResponseMsg(Element<?> root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String doctype = doc.getName();
 
@@ -194,7 +194,7 @@ public class LeaseResponseMsg {
                     + "'. Should be : " + getMessageType());
         }
 
-        Enumeration eachAttr = doc.getAttributes();
+        Enumeration<?> eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
 
@@ -229,11 +229,11 @@ public class LeaseResponseMsg {
             }
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
 
@@ -427,8 +427,8 @@ public class LeaseResponseMsg {
      *  @return The credential associated with this response if any. May be 
      *  {@code null} to indicate that no credential was provided.
      */
-    public XMLElement getCredential() {
-        return (XMLElement) ((null != credential) ? StructuredDocumentUtils.copyAsDocument(credential) : null);
+    public XMLElement<?> getCredential() {
+        return (XMLElement<?>) ((null != credential) ? StructuredDocumentUtils.copyAsDocument(credential) : null);
     }
 
     /**
@@ -438,8 +438,8 @@ public class LeaseResponseMsg {
      *  @param newCred The credential associated with this response if any. May 
      *  be {@code null} to indicate that no credential is being provided.
      */
-    public void setCredential(XMLElement newCred) {
-        this.credential = (XMLElement) ((null != newCred) ? StructuredDocumentUtils.copyAsDocument(newCred) : null);
+    public void setCredential(XMLElement<?> newCred) {
+        this.credential = (XMLElement<?>) ((null != newCred) ? StructuredDocumentUtils.copyAsDocument(newCred) : null);
     }
 
     /**
@@ -457,11 +457,11 @@ public class LeaseResponseMsg {
      *  @param elem The element to process.
      *  @return If {@code true} then the element was processed otherwise {@code false}.
      */
-    protected boolean handleElement(XMLElement elem) {
+    protected boolean handleElement(XMLElement<?> elem) {
 
         if (SERVER_ADV_TAG.equals(elem.getName())) {
 
-            Enumeration eachAttr = elem.getAttributes();
+            Enumeration<?> eachAttr = elem.getAttributes();
 
             while (eachAttr.hasMoreElements()) {
 
@@ -493,7 +493,7 @@ public class LeaseResponseMsg {
 
             long expiration = Long.MIN_VALUE;
 
-            Enumeration eachAttr = elem.getAttributes();
+            Enumeration<?> eachAttr = elem.getAttributes();
 
             while (eachAttr.hasMoreElements()) {
 
@@ -530,7 +530,7 @@ public class LeaseResponseMsg {
             referralAdvExps.add(expiration);
             return true;
         } else if (SERVER_CRED_TAG.equals(elem.getName())) {
-            credential = (XMLElement) StructuredDocumentUtils.copyAsDocument(elem);
+            credential = (XMLElement<?>) StructuredDocumentUtils.copyAsDocument(elem);
 
             return true;
         }
@@ -566,14 +566,14 @@ public class LeaseResponseMsg {
             throw new IllegalStateException("Illegal Lease offered.");
         }
 
-        StructuredDocument msg = StructuredDocumentFactory.newStructuredDocument(mediaType, getMessageType());
+        StructuredDocument<?> msg = StructuredDocumentFactory.newStructuredDocument(mediaType, getMessageType());
 
         if (!(msg instanceof Attributable)) {
             throw new UnsupportedOperationException("Only 'Attributable' document types are supported.");
         }
 
         if (msg instanceof XMLDocument) {
-            ((XMLDocument) msg).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) msg).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
         ((Attributable) msg).addAttribute(SERVER_ID_ATTR, getServerID().toString());
@@ -586,10 +586,10 @@ public class LeaseResponseMsg {
             StructuredDocumentUtils.copyElements(msg, msg, credential, SERVER_CRED_TAG);
         }
 
-        Element e;
+        Element<?> e;
 
         if (null != serverAdv) {
-            e = StructuredDocumentUtils.copyElements(msg, msg, (StructuredDocument) serverAdv.getDocument(mediaType)
+            e = StructuredDocumentUtils.copyElements(msg, msg, (StructuredDocument<?>) serverAdv.getDocument(mediaType)
                     ,
                     SERVER_ADV_TAG);
 
@@ -605,7 +605,7 @@ public class LeaseResponseMsg {
         Iterator<Long> eachReferralAdvExp = referralAdvExps.iterator();
 
         for (RdvAdvertisement aReferralAdv : referralAdvs) {
-            e = StructuredDocumentUtils.copyElements(msg, msg, (StructuredDocument) aReferralAdv.getDocument(mediaType)
+            e = StructuredDocumentUtils.copyElements(msg, msg, (StructuredDocument<?>) aReferralAdv.getDocument(mediaType)
                     ,
                     REFERRAL_ADV_TAG);
 

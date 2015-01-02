@@ -69,11 +69,11 @@ class Util {
     static Advertisement getAdvFromFile(File f) throws IOException, InvocationTargetException {
 
         FileInputStream in = null;
-        XMLDocument advDocument = null;
+        XMLDocument<?> advDocument = null;
 
         try {
             in = new FileInputStream(f);
-            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in );
+            advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in );
 
             return AdvertisementFactory.newAdvertisement(advDocument);	
 	

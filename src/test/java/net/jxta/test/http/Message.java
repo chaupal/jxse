@@ -74,13 +74,13 @@ import java.net.URL;
 
 public class Message {
 
-    private static List sessionIds = null;
-    private Map headers = null;
+    private static List<String> sessionIds = null;
+    private Map<String, Object> headers = null;
     private String body = null;
     private URL referer = null;
 
     static {
-        sessionIds = new ArrayList();
+        sessionIds = new ArrayList<String>();
 
         sessionIds.add(Constants.Session.ID);
         sessionIds.add(Constants.Session.NS_ID);
@@ -90,7 +90,7 @@ public class Message {
         this(null, null);
     }
 
-    public Message(Map headers) {
+    public Message(Map<String, Object> headers) {
         this(headers, null);
     }
 
@@ -98,23 +98,23 @@ public class Message {
         this(null, body);
     }
 
-    public Message(Map headers, String body) {
+    public Message(Map<String, Object> headers, String body) {
         this.headers = headers;
         this.body = body;
     }
 
     public String getHeader(String key) {
-        Iterator i = getHeaders(key);
+        Iterator<String> i = getHeaders(key);
 
         return (i.hasNext() ? (String) i.next() : null);
     }
 
-    public Iterator getHeaders(String key) {
-        List values = new ArrayList();
+    public Iterator<String> getHeaders(String key) {
+        List<String> values = new ArrayList<String>();
         String k = null;
         Object o = null;
 
-        for (Iterator i = getHeaderKeys(); i != null && i.hasNext();) {
+        for (Iterator<String> i = getHeaderKeys(); i != null && i.hasNext();) {
             k = (String) i.next();
 
             if (k.equalsIgnoreCase(key)) {
@@ -123,7 +123,7 @@ public class Message {
                 if (o instanceof String) {
                     values.add((String) o);
                 } else if (o instanceof Collection) {
-                    values.addAll((Collection) o);
+                    values.addAll((Collection<String>) o);
                 }
             }
         }
@@ -131,7 +131,7 @@ public class Message {
         return values.iterator();
     }
 
-    public Iterator getHeaderKeys() {
+    public Iterator<String> getHeaderKeys() {
         return ((this.headers != null) ? this.headers.keySet().iterator() : Collections.EMPTY_LIST.iterator());
     }
 
@@ -141,16 +141,16 @@ public class Message {
 
     public void setHeader(String key, Object value) {
         if (this.headers == null) {
-            this.headers = new HashMap();
+            this.headers = new HashMap<String, Object>();
         }
 
         this.headers.put(key, value);
     }
 
-    public void setHeaders(Map headers) {
+    public void setHeaders(Map<String, Object> headers) {
         String key = null;
 
-        for (Iterator i = headers.keySet().iterator(); i.hasNext();) {
+        for (Iterator<String> i = headers.keySet().iterator(); i.hasNext();) {
             key = (String) i.next();
 
             setHeader(key, headers.get(key));
@@ -202,9 +202,9 @@ public class Message {
 
     @Override
     public String toString() {
-        java.lang.Class clazz = getClass();
+        java.lang.Class<?> clazz = getClass();
         java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
-        java.util.Map map = new java.util.HashMap();
+        java.util.Map<String, Object> map = new java.util.HashMap<String, Object>();
         java.lang.String object = null;
         java.lang.Object value = null;
 
@@ -237,7 +237,7 @@ public class Message {
         String prefix = null;
 
         if (value != null) {
-            for (Iterator i = sessionIds.iterator(); i.hasNext();) {
+            for (Iterator<String> i = sessionIds.iterator(); i.hasNext();) {
                 id = (String) i.next();
 
                 if (value.indexOf(id) > -1) {

@@ -96,12 +96,12 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element root) {
+        public Advertisement newInstance(Element<?> root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-            return new DiscoveryConfigAdv((XMLElement) root);
+            return new DiscoveryConfigAdv((XMLElement<?>) root);
         }
     }
 
@@ -167,7 +167,7 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
      * 
      * @param doc the element
      */
-    private DiscoveryConfigAdv(XMLElement doc) {
+    private DiscoveryConfigAdv(XMLElement<?> doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -251,7 +251,7 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument<?> adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         if (adv instanceof Attributable) {
             Attributable attrDoc = (Attributable) adv;
