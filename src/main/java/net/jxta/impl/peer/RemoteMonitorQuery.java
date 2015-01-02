@@ -179,7 +179,7 @@ public class RemoteMonitorQuery implements DocumentSerializable {
         return remoteMonitorQuery;
     }
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addString(element, "requestType", requestType);
 
         if (monitorFilter != null) {
@@ -203,9 +203,9 @@ public class RemoteMonitorQuery implements DocumentSerializable {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("requestType")) { 

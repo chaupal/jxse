@@ -122,14 +122,14 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      *
      * @param root the element
      */
-    public ResolverQuery(Element root) {
+    public ResolverQuery(Element<?> root) {
 
         this();
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
         String doctype = doc.getName();
 
         if (!getAdvertisementType().equals(doctype)) {
@@ -162,12 +162,12 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      *
      * @param doc the element
      */
-    public void readIt(XMLElement doc) {
+    public void readIt(XMLElement<?> doc) {
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            TextElement elem = (TextElement) elements.nextElement();
+            TextElement<?> elem = (TextElement<?>) elements.nextElement();
 
             if (elem.getName().equals(handlernameTag)) {
                 setHandlerName(elem.getTextValue());
@@ -187,9 +187,9 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
             // Set source route
             if (elem.getName().equals(srcRouteTag)) {
 
-                for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                for (Enumeration<?> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
 
-                    XMLElement aXpt = (XMLElement) eachXpt.nextElement();
+                    XMLElement<?> aXpt = (XMLElement<?>) eachXpt.nextElement();
                     RouteAdvertisement routeAdv = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(aXpt);
 
                     if (null != routeAdv.getDestPeerID()) {
@@ -265,13 +265,13 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
             throw new IllegalStateException("Route does not define a destination.");
         }
 
-        StructuredTextDocument adv = (StructuredTextDocument)
+        StructuredTextDocument adv = (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(encodeAs, getAdvertisementType());
 
         if (adv instanceof XMLDocument) {
-            ((XMLDocument) adv).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) adv).addAttribute("xmlns:jxta", "http://jxta.org");
         }
-        Element e;
+        Element<?> e;
 
         e = adv.createElement(handlernameTag, getHandlerName());
         adv.appendChild(e);

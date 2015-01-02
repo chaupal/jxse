@@ -62,7 +62,7 @@ import net.jxta.protocol.PeerInfoQueryMessage;
 import net.jxta.protocol.PeerInfoResponseMessage;
 
 interface PeerInfoHandler {
-    public void processRequest(int queryId, PeerID requestSourceID, PeerInfoQueryMessage peerInfoQueryMessage, Element requestElement, PeerInfoMessenger peerInfoMessenger);
-    public void processResponse(int queryId, PeerInfoResponseMessage peerInfoResponseMessage, Element responseElement, PeerInfoMessenger peerInfoMessenger);
+    public void processRequest(int queryId, PeerID requestSourceID, PeerInfoQueryMessage peerInfoQueryMessage, Element<?> requestElement, PeerInfoMessenger peerInfoMessenger);
+    public void processResponse(int queryId, PeerInfoResponseMessage peerInfoResponseMessage, Element<?> responseElement, PeerInfoMessenger peerInfoMessenger);
 }
 

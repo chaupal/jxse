@@ -29,15 +29,19 @@ public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T
 		super.addDescriptor( new JxtaModuleDescriptor( implAdv ));
 		return clss;
 	}
+
 	
+	@Override
+	protected boolean onInitBuilder(IModuleDescriptor descriptor) {
+		return false;
+	}
+
 	/**
 	 * Build the module. We know the class should be correct, so we override the warning
 	 */
 	@SuppressWarnings("unchecked")
-	public T buildModule(IModuleDescriptor descriptor) throws ModuleException {
-		if( !super.canBuild(descriptor))
-			return null;
-		
+	@Override
+	public T onBuildModule(IModuleDescriptor descriptor){
 		IJxtaModuleDescriptor jd = (IJxtaModuleDescriptor) descriptor;
 		Class<T> clss = (Class<T>) loader.defineClass( jd.getModuleImplAdvertisement());
 		try {

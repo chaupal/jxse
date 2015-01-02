@@ -58,6 +58,7 @@ package net.jxta.impl.peer;
 
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
+import net.jxta.id.ID;
 import net.jxta.meter.MonitorFilter;
 import net.jxta.meter.MonitorReport;
 import net.jxta.meter.PeerMonitorInfo;
@@ -102,7 +103,7 @@ public class RemoteMonitorResponse implements DocumentSerializable {
     private PeerMonitorInfo peerMonitorInfo;
 	
     private long reportRates[];
-    private LinkedList supportedModuleClassIDs;
+    private LinkedList<ID> supportedModuleClassIDs;
 
     public RemoteMonitorResponse() {} // for serialization.
 	
@@ -277,7 +278,7 @@ public class RemoteMonitorResponse implements DocumentSerializable {
         return remoteMonitorResponse;	
     }		
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addString(element, "responseType", responseType);
         DocumentSerializableUtilities.addInt(element, "requestId", requestId);
 		
@@ -306,9 +307,9 @@ public class RemoteMonitorResponse implements DocumentSerializable {
         }
     }
 	
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("responseType")) { 

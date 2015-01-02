@@ -12,6 +12,8 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 	private Collection<IModuleBuilderListener<T>> listeners; 
 	private Collection<IModuleDescriptor> descriptors; 
 	
+	private static final String S_ERR_INVALID_DESCRIPTOR = "The builder cannot build a module from the given descriptor: ";
+	
 	public AbstractModuleBuilder() {
 		super();
 		listeners = new ArrayList<IModuleBuilderListener<T>>();
@@ -41,10 +43,38 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 		return descriptors.toArray( new IModuleDescriptor[ this.descriptors.size()]);
 	}
 
+	/**
+	 * Build the module
+	 * @return
+	 */
+	protected abstract boolean onInitBuilder( IModuleDescriptor descriptor);
+	
+	public boolean initBuilder(IModuleDescriptor descriptor) throws ModuleException {
+		boolean result = this.onInitBuilder( descriptor);
+		for( IModuleBuilderListener<T> listener: listeners )
+			listener.notifyModuleBuilt( new ModuleEvent<T>( this, descriptor ));
+		return result;
+	}
+
 	public boolean canBuild(IModuleDescriptor descriptor) {
 		for( IModuleDescriptor desc: descriptors )
 			if( desc.equals( descriptor ))
 				return true;
 		return false;
 	}
+
+	/**
+	 * Build the module
+	 * @return
+	 */
+	protected abstract T onBuildModule( IModuleDescriptor descriptor);
+	
+	public T buildModule(IModuleDescriptor descriptor) throws ModuleException {
+		if(!this.canBuild(descriptor))
+			throw new ModuleException( S_ERR_INVALID_DESCRIPTOR + descriptor );
+		T module = this.onBuildModule( descriptor);
+		for( IModuleBuilderListener<T> listener: listeners )
+			listener.notifyModuleBuilt( new ModuleEvent<T>( this, descriptor, module));
+		return module;
+	}	
 }
