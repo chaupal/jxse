@@ -15,6 +15,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.loader.RefJxtaLoader;
 import net.jxta.impl.modulemanager.ImplAdvertisementComparable;
+import net.jxta.impl.modulemanager.ImplAdvModuleDescriptor;
 import net.jxta.impl.modulemanager.JxtaModuleBuilder;
 import net.jxta.impl.modulemanager.ModuleException;
 import net.jxta.impl.peergroup.CompatibilityEquater;
@@ -23,6 +24,7 @@ import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigFlag;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+import net.jxta.module.IJxtaModuleBuilder;
 import net.jxta.module.IJxtaModuleDescriptor;
 import net.jxta.module.IJxtaModuleManager;
 import net.jxta.module.IModuleBuilder;
@@ -157,11 +159,6 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		return (T) loadModule( loader, adv );
 	}
 
-	public T[] getModules(ModuleSpecID id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/**
 	 * Returns the builders corresponding to the given impl advertisement. The result is also sorted for
 	 * version numbers, if they are included, with the highest version first.
@@ -216,8 +213,8 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	public boolean register( ModuleImplAdvertisement implAdv ){
     	IModuleBuilder<T>[] jbuilders = this.findBuilders(implAdv);
     	if(( jbuilders != null ) && ( jbuilders.length > 0 )){
-        	JxtaModuleBuilder<T> jbuilder = (JxtaModuleBuilder<T>) jbuilders[0];
-    		jbuilder.getRepresentedClass(implAdv);
+        	IJxtaModuleBuilder<T> jbuilder = (IJxtaModuleBuilder<T>) jbuilders[0];
+    		jbuilder.getRepresentedClass( new ImplAdvModuleDescriptor( implAdv));
     		return false;
     	}
     	JxtaModuleBuilder<T> builder = new JxtaModuleBuilder<T>( this.loader ); 
@@ -245,14 +242,6 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		return loader.findModuleImplAdvertisement( clss);
 	}
 
-	/**
-	 * Add a url to the loader
-	 * @param url
-	 */
-	public void addURL( URL url ){
-		loader.addURL(url);
-	}
-	
 	/**
 	 * Get the module manager of the given peergroup
 	 * @param peergroup

@@ -105,7 +105,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element root) {
+        public Advertisement newInstance(Element<?> root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(advType + " only supports XLMElement");
             }
@@ -330,7 +330,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;

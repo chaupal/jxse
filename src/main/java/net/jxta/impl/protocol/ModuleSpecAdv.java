@@ -130,12 +130,12 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
          * {@inheritDoc}
          */
 
-        public Advertisement newInstance(net.jxta.document.Element root) {
+        public Advertisement newInstance(net.jxta.document.Element<?> root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
             }
 
-            return new ModuleSpecAdv((XMLElement) root);
+            return new ModuleSpecAdv((XMLElement<?>) root);
         }
     }
 
@@ -149,7 +149,7 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
      *
      *  @param doc The XML serialization of the advertisement.
      */
-    private ModuleSpecAdv(XMLElement doc) {
+    private ModuleSpecAdv(XMLElement<?> doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -164,11 +164,11 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -194,13 +194,13 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
         String nm = elem.getName();
 
@@ -301,9 +301,9 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
             throw new IllegalStateException("Module Spec Advertisement did not contain a module spec id.");
         }
 
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
-        Element e;
+        Element<?> e;
 
         e = adv.createElement(idTag, getModuleSpecID().toString());
         adv.appendChild(e);
@@ -314,7 +314,7 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
         }
 
         // desc is optional
-        StructuredDocument desc = getDesc();
+        StructuredDocument<?> desc = getDesc();
 
         if (desc != null) {
             StructuredDocumentUtils.copyElements(adv, adv, desc);
@@ -332,7 +332,7 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
         PipeAdvertisement pipeAdv = getPipeAdvertisement();
 
         if (pipeAdv != null) {
-            StructuredTextDocument advDoc = (StructuredTextDocument)
+            StructuredTextDocument<?> advDoc = (StructuredTextDocument<?>)
                     pipeAdv.getDocument(encodeAs);
 
             StructuredDocumentUtils.copyElements(adv, adv, advDoc);

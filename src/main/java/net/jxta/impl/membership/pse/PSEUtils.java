@@ -800,15 +800,19 @@ public final class PSEUtils {
     public static String base64Encode(byte[] in, boolean wrap) throws IOException {
         StringWriter base64 = new StringWriter();
 
-        BASE64OutputStream b64os;
-
-        if (wrap) {
-            b64os = new BASE64OutputStream(base64, 72);
-        } else {
-            b64os = new BASE64OutputStream(base64);
+        BASE64OutputStream b64os = null;
+        try{
+        	if (wrap) {
+        		b64os = new BASE64OutputStream(base64, 72);
+        	} else {
+        		b64os = new BASE64OutputStream(base64);
+        	}
+        	b64os.write(in);
         }
-        b64os.write(in);
-        b64os.close();
+        finally{
+        	if( b64os != null )
+        		b64os.close();
+        }
 
         String encoded = base64.toString();
 

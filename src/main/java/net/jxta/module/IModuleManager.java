@@ -35,11 +35,4 @@ public interface IModuleManager<T extends Object> {
 	 * @throws ModuleException 
 	 */
 	public T getModule( ModuleImplAdvertisement adv ) throws ModuleException;
-	
-	/**
-	 * Get all the modules conforming to the given module spec id.
-	 * @param id
-	 * @return
-	 */
-	public T[] getModules( ModuleSpecID id );
 }

@@ -11,13 +11,45 @@ import net.jxta.module.IModuleDescriptor;
 import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.util.cardinality.Cardinality;
+import net.jxta.util.cardinality.Cardinality.Denominator;
 
 public abstract class AbstractJxtaModuleDescriptor extends AbstractModuleDescriptor
 		implements IJxtaModuleDescriptor {
 
 	private ModuleSpecID specID;
 	private  ModuleImplAdvertisement implAdv;
+	private Cardinality cardinality;
+	private String version;
 
+	protected AbstractJxtaModuleDescriptor() {
+		this( null, Denominator.ONE );
+	}
+
+	protected AbstractJxtaModuleDescriptor( Denominator denominator) {
+		this( null, denominator );
+	}
+
+	protected AbstractJxtaModuleDescriptor( String version, Denominator denominator) {
+		super();
+		this.version = version;
+		this.cardinality = Cardinality.create(denominator);
+		this.prepare();
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public Cardinality getCardinality() {
+		return cardinality;
+	}
+
+	/**
+	 * Prepare the descriptor
+	 */
+	protected abstract void prepare();
+	
 	public ModuleClassID getModuleClassID() {
 		return this.specID.getBaseClass();
 	}

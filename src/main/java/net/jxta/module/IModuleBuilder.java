@@ -3,7 +3,18 @@ package net.jxta.module;
 import net.jxta.impl.modulemanager.ModuleException;
 
 public interface IModuleBuilder<T extends Object> {
-  
+ 
+	/**
+	 * Initialise the builder
+	 */
+	public void initialise( IModuleDescriptor descriptor );
+
+	/**
+	 * Returns true when the builder is initialsied
+	 * @return
+	 */
+	public boolean isInitialised();
+
 	/**
 	 * Add a module builder listener
 	 * @param listener

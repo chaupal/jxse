@@ -96,11 +96,11 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
 
     public PeerInfoResponseMsg() {}
 
-    public PeerInfoResponseMsg(Element root) {
+    public PeerInfoResponseMsg(Element<?> root) {
         initialize(root);
     }
 
-    private void initialize(Element root) {
+    private void initialize(Element<?> root) {
 
         if (!TextElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
@@ -111,14 +111,14 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
         setUptime(0);
         setTimestamp(0);
 
-        TextElement doc = (TextElement) root;
+        TextElement<?> doc = (TextElement<?>) root;
 
-        Enumeration elements;
+        Enumeration<?> elements;
 
         elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            TextElement element = (TextElement) elements.nextElement();
+            TextElement<?> element = (TextElement<?>) elements.nextElement();
             String elementName = element.getName();
 
             if (elementName.equals("sourcePid")) {
@@ -160,10 +160,10 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
             }
 
             if (elementName.equals("response")) {
-                Enumeration elems = element.getChildren();
+                Enumeration<?> elems = element.getChildren();
 
                 if (elems.hasMoreElements()) {
-                    setResponse(StructuredDocumentUtils.copyAsDocument((Element) elems.nextElement()));
+                    setResponse(StructuredDocumentUtils.copyAsDocument((Element<?>) elems.nextElement()));
                 }
             }
 
@@ -173,9 +173,9 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
 
-        StructuredTextDocument doc = (StructuredTextDocument)
+        StructuredTextDocument doc = (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType());
-        TextElement e;
+        TextElement<?> e;
 
         if (doc instanceof Attributable) {
             ((Attributable) doc).addAttribute("xmlns:jxta", "http://jxta.org");
@@ -187,7 +187,7 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
         e = doc.createElement("targetPid", getTargetPid().toString());
         doc.appendChild(e);
 
-        Element response = getResponse();
+        Element<?> response = getResponse();
 
         if (null != response) {
             e = doc.createElement("response");
@@ -204,6 +204,4 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
 
         return doc;
     }
-
 }
-

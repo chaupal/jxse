@@ -130,12 +130,12 @@ public class MulticastAdv extends TransportAdvertisement {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(net.jxta.document.Element root) {
+        public Advertisement newInstance(net.jxta.document.Element<?> root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
             }
 
-            return new MulticastAdv((XMLElement) root);
+            return new MulticastAdv((XMLElement<?>) root);
         }
     }
 
@@ -165,7 +165,7 @@ public class MulticastAdv extends TransportAdvertisement {
         setProtocol("tcp");
     }
 
-    private MulticastAdv(XMLElement doc) {
+    private MulticastAdv(XMLElement<?> doc) {
         this();
 
         String doctype = doc.getName();
@@ -192,11 +192,11 @@ public class MulticastAdv extends TransportAdvertisement {
 //            publicAddressOnly = (options.indexOf(PublicAddressOnlyAttr) != -1);
 //        }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
@@ -640,13 +640,13 @@ public class MulticastAdv extends TransportAdvertisement {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
         if (elem.getName().equals(MULTICAST_OFF_TAG)) {
             setMulticastState(false);
@@ -755,7 +755,7 @@ public class MulticastAdv extends TransportAdvertisement {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         if (!(adv instanceof Attributable)) {
             throw new IllegalStateException("Only Attributable document types allowed.");
@@ -817,7 +817,7 @@ public class MulticastAdv extends TransportAdvertisement {
 //            }
 //        }
 
-        Element proto = adv.createElement("Protocol", getProtocol());
+        Element<?> proto = adv.createElement("Protocol", getProtocol());
 
         adv.appendChild(proto);
 
@@ -839,7 +839,7 @@ public class MulticastAdv extends TransportAdvertisement {
         String interfaceAddr = getInterfaceAddress();
 
         if (null != interfaceAddr) {
-            Element interfaceAddrr = adv.createElement("InterfaceAddress", interfaceAddr);
+            Element<?> interfaceAddrr = adv.createElement("InterfaceAddress", interfaceAddr);
             adv.appendChild(interfaceAddrr);
         }
 
@@ -860,32 +860,32 @@ public class MulticastAdv extends TransportAdvertisement {
 //        }
 
         if (!getMulticastState()) {
-            Element mOff = adv.createElement(MULTICAST_OFF_TAG);
+            Element<?> mOff = adv.createElement(MULTICAST_OFF_TAG);
             adv.appendChild(mOff);
         }
 
         if (null != getMulticastAddr()) {
-            Element mAddrr = adv.createElement(MULTICAST_ADDRESS_TAG, getMulticastAddr());
+            Element<?> mAddrr = adv.createElement(MULTICAST_ADDRESS_TAG, getMulticastAddr());
             adv.appendChild(mAddrr);
         }
 
         if (null != this.getMulticastInterface()) {
-            Element mInterace = adv.createElement(MULTICAST_INTERFACE_TAG, getMulticastInterface());
+            Element<?> mInterace = adv.createElement(MULTICAST_INTERFACE_TAG, getMulticastInterface());
             adv.appendChild(mInterace);
         }
 
         if (-1 != getMulticastPort()) {
-            Element mPort = adv.createElement(MULTICAST_PORT_TAG, Integer.toString(getMulticastPort()));
+            Element<?> mPort = adv.createElement(MULTICAST_PORT_TAG, Integer.toString(getMulticastPort()));
             adv.appendChild(mPort);
         }
 
         if (-1 != getMulticastPoolSize()) {
-            Element poolEl = adv.createElement(MCAST_THREAD_POOL, Integer.toString(getMulticastPoolSize()));
+            Element<?> poolEl = adv.createElement(MCAST_THREAD_POOL, Integer.toString(getMulticastPoolSize()));
             adv.appendChild(poolEl);
         }
 
         if (-1 != getMulticastSize()) {
-            Element mSize = adv.createElement("MulticastSize", Integer.toString(getMulticastSize()));
+            Element<?> mSize = adv.createElement("MulticastSize", Integer.toString(getMulticastSize()));
             adv.appendChild(mSize);
         }
 
@@ -909,5 +909,4 @@ public class MulticastAdv extends TransportAdvertisement {
 //    public boolean getServerEnabled() {
 //        return serverEnabled;
 //    }
-
 }

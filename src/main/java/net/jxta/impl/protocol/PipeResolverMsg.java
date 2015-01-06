@@ -138,16 +138,16 @@ public class PipeResolverMsg extends PipeResolverMessage {
 
     public PipeResolverMsg() {}
 
-    public PipeResolverMsg(Element root) {
+    public PipeResolverMsg(Element<?> root) {
         initialize(root);
     }
 
-    private void initialize(Element root) {
+    private void initialize(Element<?> root) {
         if (!TextElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
         }
 
-        TextElement doc = (TextElement) root;
+        TextElement<?> doc = (TextElement<?>) root;
 
         String docName = doc.getName();
 
@@ -156,10 +156,10 @@ public class PipeResolverMsg extends PipeResolverMessage {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + docName);
         }
 
-        Enumeration each = doc.getChildren();
+        Enumeration<?> each = doc.getChildren();
 
         while (each.hasMoreElements()) {
-            TextElement elem = (TextElement) each.nextElement();
+            TextElement<?> elem = (TextElement<?>) each.nextElement();
 
             if (elem.getName().equals(MsgTypeTag)) {
                 String msgtype = elem.getTextValue();
@@ -212,7 +212,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
 
                 try {
                 	setInputPeerAdv((PeerAdvertisement) AdvertisementFactory
-							.newAdvertisement((XMLDocument) StructuredDocumentFactory
+							.newAdvertisement((XMLDocument<?>) StructuredDocumentFactory
 									.newStructuredDocument(
 											MimeMediaType.XMLUTF8,
 											new StringReader(peerAdv))));
@@ -259,7 +259,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredTextDocument doc = (StructuredTextDocument)
+        StructuredTextDocument doc = (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType());
 
         if (doc instanceof Attributable) {
@@ -284,7 +284,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
             throw new IllegalStateException("Pipe type was never set or is invalid.");
         }
 
-        Element element;
+        Element<?> element;
 
         if (PipeResolverMessage.MessageType.QUERY.equals(msgType)) {
             element = doc.createElement(MsgTypeTag, QueryMsgType);
@@ -304,7 +304,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
         }
 
         // Write the peer ids.
-        Set peers = getPeerIDs();
+        Set<ID> peers = getPeerIDs();
 
         if (PipeResolverMessage.MessageType.ANSWER.equals(msgType) && peers.isEmpty()) {
             throw new IllegalStateException("An ANSWER message must contain at least one peer as part of the response.");
@@ -330,7 +330,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
                             "Provided Peer Advertisement does not refer to one of the peers in the response list.");
                 }
 
-                StructuredTextDocument asDoc = (StructuredTextDocument) peerAdv.getSignedDocument();
+                StructuredTextDocument asDoc = (StructuredTextDocument<?>) peerAdv.getSignedDocument();
 
                 element = doc.createElement(PeerAdvTag, asDoc.toString());
                 doc.appendChild(element);
@@ -341,4 +341,3 @@ public class PipeResolverMsg extends PipeResolverMessage {
         return doc;
     }
 }
-

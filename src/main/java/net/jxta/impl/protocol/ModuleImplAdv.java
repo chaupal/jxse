@@ -99,8 +99,9 @@ import java.util.Enumeration;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#advert-mia> target='_blank'>JXTA Protocols Specification - Advertisements : Module Implementation Advertisement</a>
  */
 public class ModuleImplAdv extends ModuleImplAdvertisement {
+	private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logging.getLogger(ModuleImplAdv.class.getName());
+	private static final Logger LOG = Logging.getLogger(ModuleImplAdv.class.getName());
 
     private static final String msidTag = "MSID";
     private static final String compTag = "Comp";
@@ -133,12 +134,12 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element root) {
+        public Advertisement newInstance(Element<?> root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
             }
 
-            return new ModuleImplAdv((XMLElement) root);
+            return new ModuleImplAdv((XMLElement<?>) root);
         }
     }
 
@@ -152,7 +153,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
      *
      * @param root The portion of a document containing the ModuleImplAdv.
      */
-    private ModuleImplAdv(XMLElement doc) {
+    private ModuleImplAdv(XMLElement<?> doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -167,11 +168,11 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
 
@@ -193,7 +194,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
             throw new IllegalArgumentException("Code was not initialized by advertisement");
         }
 
-        Element compat = getCompat();
+        Element<?> compat = getCompat();
 
         if (null == compat) {
             throw new IllegalArgumentException("Compatibility statement was not initialized by advertisement");
@@ -212,13 +213,13 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
         String nm = elem.getName();
 
@@ -275,7 +276,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         // sanity check time!
 
@@ -289,7 +290,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
             throw new IllegalStateException("Code is not initialized.");
         }
 
-        Element compat = getCompatPriv();
+        Element<?> compat = getCompatPriv();
 
         if (null == compat) {
             throw new IllegalStateException("Compatibility statement is not initialized.");
@@ -297,7 +298,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
 
         // create the document
 
-        Element e;
+        Element<?> e;
 
         e = adv.createElement(msidTag, getModuleSpecID().toString());
         adv.appendChild(e);
@@ -327,7 +328,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
             adv.appendChild(e);
         }
 
-        Element param = getParamPriv();
+        Element<?> param = getParamPriv();
 
         // Copy the param document as an element of adv.
         if (param != null) {

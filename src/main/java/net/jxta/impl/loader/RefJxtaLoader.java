@@ -652,7 +652,7 @@ public class RefJxtaLoader extends JxtaLoader {
                     if (parts.length == 1) {
 
                         // Standard Jar SPI format:  Class name
-                        mAdv = locateModuleImplAdvertisement(parts[0]);
+                        mAdv = locateModuleImplAdvertisement( hashHex(), parts[0]);
 
                     } else if (parts.length == 3) {
 
@@ -666,7 +666,7 @@ public class RefJxtaLoader extends JxtaLoader {
                             continue;
                         }
 
-                        mAdv = locateModuleImplAdvertisement(code);
+                        mAdv = locateModuleImplAdvertisement( hashHex(), code);
 
                         if (mAdv == null) {
                             // Create one
@@ -712,6 +712,104 @@ public class RefJxtaLoader extends JxtaLoader {
     }
 
     /**
+     * Register instance classes given a URL to a file containing modules which
+     * must be found on the current class path. Each line of the file contains a 
+     * module spec ID, the class name and the Module description. The fields are 
+     * separated by whitespace. Comments are marked with a '#', the pound sign. 
+     * Any text following # on any line in the file is ignored.
+     *
+     * @param specID ModuleSpecID that we are seeking implementations of
+     * @param providers URL to a resource containing a list of providers.
+     * @return list of discovered ModuleImplAdvertisements for the specified
+     *  ModuleSpecID, or null if no results were found.
+     */
+    public static List<ModuleImplAdvertisement> locateModuleImplementations( String hashHex, URL providers) {
+
+        List<ModuleImplAdvertisement> result = null;
+        InputStream urlStream = null;
+
+       try {
+            urlStream = providers.openStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
+
+            String provider;
+
+            while ((provider = reader.readLine()) != null) {
+                int comment = provider.indexOf('#');
+
+                if (comment != -1) {
+                    provider = provider.substring(0, comment);
+                }
+
+                provider = provider.trim();
+
+                if (0 == provider.length()) {
+                    continue;
+                }
+
+                try {
+
+                    ModuleImplAdvertisement mAdv = null;
+                    String[] parts = provider.split("\\s", 3);
+
+                    if (parts.length == 1) {
+
+                        // Standard Jar SPI format:  Class name
+                        mAdv = locateModuleImplAdvertisement( hashHex, parts[0]);
+
+                    } else if (parts.length == 3) {
+
+                        // Current non-standard format: MSID, Class name, Description
+                        ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
+                        String code = parts[1];
+                        String description = parts[2];
+
+                        mAdv = locateModuleImplAdvertisement( hashHex, code);
+
+                        if (mAdv == null) {
+                            // Create one
+                            mAdv = CompatibilityUtils.createModuleImplAdvertisement(msid, code, description);
+                        }
+
+                    } else {
+
+                        Logging.logCheckedWarning(LOG, hashHex, ": Failed to register \'", provider, "\'");
+
+                    }
+
+                    if (mAdv != null) {
+                        if (result == null) {
+                            result = new ArrayList<ModuleImplAdvertisement>();
+                        }
+                        result.add(mAdv);
+                    }
+                } catch (Exception allElse) {
+
+                    Logging.logCheckedWarning(LOG, hashHex, ": Failed to register \'", provider, "\'\n", allElse);
+
+                }
+
+            }
+
+        } catch (IOException ex) {
+
+            Logging.logCheckedWarning(LOG, hashHex, ": Failed to read provider list ", providers, "\n", ex);
+
+        } finally {
+            if (null != urlStream) {
+                try {
+                    urlStream.close();
+                } catch (IOException ignored) {
+
+                }
+            }
+        }
+
+        return result;
+
+    }
+
+    /**
      * Attempts to locate the ModuleImplAdvertisement of a module by
      * the use of reflection.
      * 
@@ -719,7 +817,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return ModuleImplAdvertisement found by introspection, or null if
      *  the ModuleImplAdvertisement could not be discovered in this manner
      */
-    private ModuleImplAdvertisement locateModuleImplAdvertisement(String className) {
+    private static ModuleImplAdvertisement locateModuleImplAdvertisement( String hashHex, String className) {
 
         try {
 
@@ -731,7 +829,7 @@ public class RefJxtaLoader extends JxtaLoader {
         } catch(Exception ex) {
 
             // LOGGING: was Finest
-            Logging.logCheckedDebug(LOG, hashHex(), ": Could not introspect Module for MIA: ", className, "\n", ex);
+            Logging.logCheckedDebug(LOG, hashHex, ": Could not introspect Module for MIA: ", className, "\n", ex);
 
         }
 
@@ -747,7 +845,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return Module subtype class
      * @throws ClassNotFoundException if class was not of the proper type
      */
-    private Class<? extends Module> verifyAndCast(Class<?> clazz)
+    private static Class<? extends Module> verifyAndCast(Class<?> clazz)
     throws ClassNotFoundException {
         try {
             return clazz.asSubclass(Module.class);

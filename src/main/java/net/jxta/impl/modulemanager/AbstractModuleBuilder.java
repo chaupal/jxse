@@ -5,12 +5,14 @@ import java.util.Collection;
 
 import net.jxta.module.IModuleBuilder;
 import net.jxta.module.IModuleBuilderListener;
+import net.jxta.module.IModuleBuilderListener.BuildEvents;
 import net.jxta.module.IModuleDescriptor;
 
 public abstract class AbstractModuleBuilder<T extends Object> implements IModuleBuilder<T> {
 
 	private Collection<IModuleBuilderListener<T>> listeners; 
 	private Collection<IModuleDescriptor> descriptors; 
+	private boolean initialised;
 	
 	public AbstractModuleBuilder() {
 		super();
@@ -21,6 +23,22 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 	public void activate(){ /* DO NOTHING */};
 	public void deactivate(){ /* DO NOTHING */};
 	
+	/**
+	 * Initialise the builder, and return true when the initialisation was succesful
+	 * @return
+	 */
+	protected abstract boolean onInitBuilder( IModuleDescriptor descriptor );
+	
+	public void initialise( IModuleDescriptor descriptor){
+		this.initialised = this.onInitBuilder( descriptor );
+		for( IModuleBuilderListener<T> listener: this.listeners )
+			listener.notifyModuleBuilt( new ModuleEvent<T>( this, BuildEvents.INITIALSED ));
+	}
+	
+	public boolean isInitialised() {
+		return initialised;
+	}
+
 	protected void addDescriptor(IModuleDescriptor descriptor) {
 		this.descriptors.add(descriptor);
 	}
@@ -46,5 +64,14 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 			if( desc.equals( descriptor ))
 				return true;
 		return false;
+	}
+
+	protected abstract T onBuildModule( IModuleDescriptor descriptor );
+	
+	public T buildModule(IModuleDescriptor descriptor) throws ModuleException {
+		T module = this.onBuildModule( descriptor );
+		for( IModuleBuilderListener<T> listener: this.listeners )
+			listener.notifyModuleBuilt( new ModuleEvent<T>( this, BuildEvents.INITIALSED ));
+		return module;
 	}
 }

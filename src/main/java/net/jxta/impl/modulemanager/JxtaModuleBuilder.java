@@ -2,6 +2,7 @@ package net.jxta.impl.modulemanager;
 
 import net.jxta.document.Advertisement;
 import net.jxta.impl.protocol.PlatformConfig;
+import net.jxta.module.IJxtaModuleBuilder;
 import net.jxta.module.IJxtaModuleDescriptor;
 import net.jxta.module.IModuleDescriptor;
 import net.jxta.peergroup.core.IJxtaLoader;
@@ -12,7 +13,7 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.util.cardinality.Cardinality;
 import net.jxta.util.cardinality.Cardinality.Denominator;
 
-public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T>{
+public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T> implements IJxtaModuleBuilder<T>{
 
 	private IJxtaLoader loader;
 	
@@ -20,8 +21,29 @@ public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T
 		this.loader = loader;
 	}
 
+	public void initialise() {
+		// TODO Auto-generated method stub	
+	}
+
+	@Override
+	protected boolean onInitBuilder(IModuleDescriptor descriptor) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	protected T onBuildModule(IModuleDescriptor descriptor) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 	/* (non-Javadoc)
 	 * @see net.jxta.module.IJxtaModuleBuilder#getRepresentedClass(net.jxta.protocol.ModuleImplAdvertisement)
+	 */
+	/* (non-Javadoc)
+	 * @see net.jxta.impl.modulemanager.IJxtaModuleBuilder#getRepresentedClass(net.jxta.protocol.ModuleImplAdvertisement)
 	 */
 	@SuppressWarnings("unchecked")
 	public Class<T> getRepresentedClass( ModuleImplAdvertisement implAdv){
@@ -29,7 +51,14 @@ public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T
 		super.addDescriptor( new JxtaModuleDescriptor( implAdv ));
 		return clss;
 	}
+
 	
+	public Class<? extends Module> getRepresentedClass(
+			IModuleDescriptor descriptor) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * Build the module. We know the class should be correct, so we override the warning
 	 */
@@ -118,5 +147,11 @@ public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T
 			// TODO Auto-generated method stub
 			return null;
 		}
+	}
+
+
+	public IJxtaModuleDescriptor getDescriptor(ModuleImplAdvertisement adv) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
