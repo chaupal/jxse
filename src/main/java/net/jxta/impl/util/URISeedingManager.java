@@ -483,13 +483,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
         if (isXML) {
             // Read in XML format seeds. (a list of Route Advertisements)
-            XMLDocument xmldoc = (XMLDocument) 
+            XMLDocument xmldoc = (XMLDocument<?>) 
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, seeds);
 
-            Enumeration<XMLElement> eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
+            Enumeration<XMLElement<?>> eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
 
             while (eachRA.hasMoreElements()) {
-                XMLElement anRAElement = eachRA.nextElement();
+                XMLElement<?> anRAElement = eachRA.nextElement();
                 RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(anRAElement);
 
                 result.add(ra);

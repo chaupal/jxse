@@ -82,6 +82,7 @@ import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.platform.WorldPeerGroupFactory;
+import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
@@ -108,7 +109,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
 
                     StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(newGroupImpl.getParam());
 
-                    Map services = params.getServices();
+                    Map<ModuleClassID, Object> services = params.getServices();
 
                     ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(IModuleDefinitions.accessClassID);
 
@@ -127,7 +128,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
                     // replace it
                     services.put(IModuleDefinitions.accessClassID, implAdv);
 
-                    newGroupImpl.setParam((Element) params.getDocument(MimeMediaType.XMLUTF8));
+                    newGroupImpl.setParam((Element<?>) params.getDocument(MimeMediaType.XMLUTF8));
 
                     if (!newGroupImpl.getModuleSpecID().equals(IModuleDefinitions.allPurposePeerGroupSpecID)) {
                         newGroupImpl.setModuleSpecID(IDFactory.newModuleSpecID(newGroupImpl.getModuleSpecID().getBaseClass()));

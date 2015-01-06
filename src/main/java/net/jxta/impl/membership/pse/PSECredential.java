@@ -550,7 +550,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * @return the certificate chain associated with this credential.
      */
     public X509Certificate[] getCertificateChain() {
-        List certList = certs.getCertificates();
+        List<? extends Certificate> certList = certs.getCertificates();
 
         return (X509Certificate[]) certList.toArray(new X509Certificate[certList.size()]);
     }

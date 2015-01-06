@@ -215,7 +215,7 @@ public class RouteQuery  {
                     "Can not construct : " + getClass().getName() + " from doc containing a " + doctype);
         }
 
-        Enumeration<XMLElement> elements = doc.getChildren();
+        Enumeration<XMLElement<?>> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
             XMLElement elem = elements.nextElement();
@@ -235,8 +235,8 @@ public class RouteQuery  {
             }
 
             if (elem.getName().equals(srcRouteTag)) {
-                for (Enumeration<XMLElement> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
-                    XMLElement aXpt = eachXpt.nextElement();
+                for (Enumeration<XMLElement<?>> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                    XMLElement<?> aXpt = eachXpt.nextElement();
 
                     RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -264,7 +264,7 @@ public class RouteQuery  {
         }
     }
 
-    public StructuredDocument getDocument(MimeMediaType asMimeType) {
+    public StructuredDocument<?> getDocument(MimeMediaType asMimeType) {
         if(null == getDestPeerID()) {
             throw new IllegalStateException("Destination peer not initialized");
         }
@@ -276,7 +276,7 @@ public class RouteQuery  {
             ((Attributable) adv).addAttribute("xml:space", "preserve");
         }
 
-        Element e;
+        Element<?> e;
 
         PeerID dest = getDestPeerID();
 
@@ -291,7 +291,7 @@ public class RouteQuery  {
             PSEMembershipService tempPSE = (PSEMembershipService)this.group.getMembershipService();
             PSECredential tempCred = (PSECredential)tempPSE.getDefaultCredential();
             route.sign(tempCred, true, true);
-            StructuredDocument xptDoc = (StructuredDocument) route.getSignedDocument();
+            StructuredDocument<?> xptDoc = (StructuredDocument<?>) route.getSignedDocument();
 
             StructuredDocumentUtils.copyElements(adv, e, xptDoc);
         }
@@ -309,7 +309,7 @@ public class RouteQuery  {
      */
     @Override
     public String toString() {
-        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> doc = (XMLDocument<?>) getDocument(MimeMediaType.XMLUTF8);
 
         doc.addAttribute("xml:space", "default");
 

@@ -58,7 +58,6 @@ package net.jxta.impl.util;
 
 import junit.framework.*;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 

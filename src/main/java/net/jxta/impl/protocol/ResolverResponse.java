@@ -122,14 +122,14 @@ public class ResolverResponse extends ResolverResponseMsg {
      *
      * @param root the element
      */
-    public ResolverResponse(Element root) {
+    public ResolverResponse(Element<?> root) {
 
         this();
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
         String doctype = doc.getName();
 
         if (!getAdvertisementType().equals(doctype)) {
@@ -149,11 +149,11 @@ public class ResolverResponse extends ResolverResponseMsg {
         }
     }
 
-    public void readIt(TextElement doc) {
-        Enumeration elements = doc.getChildren();
+    public void readIt(TextElement<?> doc) {
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            TextElement elem = (TextElement) elements.nextElement();
+            TextElement<?> elem = (TextElement<?>) elements.nextElement();
 
             if (elem.getName().equals(handlernameTag)) {
                 setHandlerName(elem.getTextValue());
@@ -182,14 +182,14 @@ public class ResolverResponse extends ResolverResponseMsg {
     @Override
     public Document getDocument(MimeMediaType asMimeType) {
 
-        StructuredTextDocument adv = (StructuredTextDocument)
+        StructuredTextDocument adv = (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(asMimeType, getAdvertisementType());
 
         if (adv instanceof Attributable) {
             ((Attributable) adv).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element e;
+        Element<?> e;
 
         e = adv.createElement(handlernameTag, getHandlerName());
         adv.appendChild(e);

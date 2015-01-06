@@ -131,12 +131,12 @@ public class TCPAdv extends TransportAdvertisement {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(net.jxta.document.Element root) {
+        public Advertisement newInstance(net.jxta.document.Element<?> root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
             }
 
-            return new TCPAdv((XMLElement) root);
+            return new TCPAdv((XMLElement<?>) root);
         }
     }
 
@@ -165,7 +165,7 @@ public class TCPAdv extends TransportAdvertisement {
         setProtocol("tcp");
     }
 
-    private TCPAdv(XMLElement doc) {
+    private TCPAdv(XMLElement<?> doc) {
         this();
 
         String doctype = doc.getName();
@@ -189,11 +189,11 @@ public class TCPAdv extends TransportAdvertisement {
             publicAddressOnly = (options.indexOf(PublicAddressOnlyAttr) != -1);
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
@@ -634,13 +634,13 @@ public class TCPAdv extends TransportAdvertisement {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
 //
 //        To delete in a future release
@@ -752,7 +752,7 @@ public class TCPAdv extends TransportAdvertisement {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         if (!(adv instanceof Attributable)) {
             throw new IllegalStateException("Only Attributable document types allowed.");
@@ -817,7 +817,7 @@ public class TCPAdv extends TransportAdvertisement {
             }
         }
 
-        Element proto = adv.createElement("Protocol", getProtocol());
+        Element<?> proto = adv.createElement("Protocol", getProtocol());
 
         adv.appendChild(proto);
 
@@ -839,11 +839,11 @@ public class TCPAdv extends TransportAdvertisement {
         String interfaceAddr = getInterfaceAddress();
 
         if (null != interfaceAddr) {
-            Element interfaceAddrr = adv.createElement("InterfaceAddress", interfaceAddr);
+            Element<?> interfaceAddrr = adv.createElement("InterfaceAddress", interfaceAddr);
             adv.appendChild(interfaceAddrr);
         }
 
-        Element portEl = adv.createElement(PORT_ELEMENT, Integer.toString(listenPort));
+        Element<?> portEl = adv.createElement(PORT_ELEMENT, Integer.toString(listenPort));
         adv.appendChild(portEl);
         if (adv instanceof Attributable) {
             Attributable attrElem = (Attributable) portEl;
@@ -855,7 +855,7 @@ public class TCPAdv extends TransportAdvertisement {
 
         String serverAddr = getServer();
         if (null != serverAddr) {
-            Element server = adv.createElement("Server", serverAddr);
+            Element<?> server = adv.createElement("Server", serverAddr);
             adv.appendChild(server);
         }
 

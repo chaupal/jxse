@@ -130,12 +130,12 @@ public class SrdiMessageImpl extends SrdiMessage {
      *
      * @param root the underlying document
      */
-    public SrdiMessageImpl(Element root) {
+    public SrdiMessageImpl(Element<?> root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -213,16 +213,16 @@ public class SrdiMessageImpl extends SrdiMessage {
     /**
      * @param doc the element
      */
-    public void readIt(XMLElement doc) {
+    public void readIt(XMLElement<?> doc) {
 
         String key;
         String value;
         long expiration;
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (elem.getName().equals(pidTag)) {
                 try {
@@ -283,15 +283,15 @@ public class SrdiMessageImpl extends SrdiMessage {
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
 
-        StructuredTextDocument adv = (StructuredTextDocument)
+        StructuredTextDocument adv = (StructuredTextDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType());
 
         if (adv instanceof Attributable) {
             ((Attributable) adv).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element e;
-        Iterator eachEntry = getEntries().iterator();
+        Element<?> e;
+        Iterator<Entry> eachEntry = getEntries().iterator();
         PeerID peerid = getPeerID();
 
         if (peerid != null) {
@@ -329,7 +329,7 @@ public class SrdiMessageImpl extends SrdiMessage {
      */
     @Override
     public String toString() {
-        StructuredTextDocument doc = (StructuredTextDocument) getDocument(MimeMediaType.XMLUTF8);
+        StructuredTextDocument<?> doc = (StructuredTextDocument<?>) getDocument(MimeMediaType.XMLUTF8);
 
         return doc.toString();
     }

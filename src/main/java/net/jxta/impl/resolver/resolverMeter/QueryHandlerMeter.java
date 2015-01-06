@@ -84,8 +84,9 @@ public class QueryHandlerMeter {
     private QueryMetricsTable queryMetricsTable = null;
 
     private class QueryMetricsTable extends Hashtable<Integer,QueryMetric> {
+		private static final long serialVersionUID = 1L;
 
-        void deReference() {
+		void deReference() {
             queryMetricsTable = null;
         }
 
@@ -503,7 +504,7 @@ public class QueryHandlerMeter {
         destinationMeter.errorWhileProcessingQuery();
     }
 
-    public Enumeration getQueryDestinationMeters() {
+    public Enumeration<?> getQueryDestinationMeters() {
         return Collections.enumeration(queryDestinationMeters.values());
     }
 

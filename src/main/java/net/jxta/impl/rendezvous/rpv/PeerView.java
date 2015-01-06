@@ -486,11 +486,11 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         rdvService.addListener(this);
 
         // initialize strategies
-        replyStrategy = new PeerViewRandomWithReplaceStrategy(localView);
+        replyStrategy = new PeerViewRandomWithReplaceStrategy<PeerViewDestination>(localView);
 
         kickRecipientStrategy = new PeerViewRandomStrategy<PeerViewDestination>(localView);
 
-        kickAdvertisementStrategy = new PeerViewRandomWithReplaceStrategy(localView);
+        kickAdvertisementStrategy = new PeerViewRandomWithReplaceStrategy<PeerViewDestination>(localView);
 
         refreshRecipientStrategy = new PeerViewSequentialStrategy(localView);
 

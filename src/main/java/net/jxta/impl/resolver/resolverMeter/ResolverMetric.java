@@ -135,7 +135,7 @@ public class ResolverMetric implements DocumentSerializable {
         numQueriesToUnknownHandler++;
     }	
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         if (numInvalidSrdiMessages != 0) {
             DocumentSerializableUtilities.addInt(element, "numInvalidSrdiMessages", numInvalidSrdiMessages);
         }
@@ -156,9 +156,9 @@ public class ResolverMetric implements DocumentSerializable {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 
             if (tagName.equals("numInvalidSrdiMessages")) { 

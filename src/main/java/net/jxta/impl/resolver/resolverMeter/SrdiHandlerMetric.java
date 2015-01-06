@@ -83,7 +83,7 @@ public class SrdiHandlerMetric implements DocumentSerializable {
     private int numErrorsSendingMessages = 0;
     private int numErrorsPropagatingMessages = 0;
 	
-    private HashMap destinationMetrics = new HashMap();
+    private HashMap<PeerID, SrdiDestinationMetric> destinationMetrics = new HashMap<PeerID, SrdiDestinationMetric>();
 		
     public SrdiHandlerMetric(String handlerName) {
         this.handlerName = handlerName;
@@ -197,7 +197,7 @@ public class SrdiHandlerMetric implements DocumentSerializable {
         return destinationMetric;
     }
 
-    public Iterator getDestinationMetrics() {
+    public Iterator<SrdiDestinationMetric> getDestinationMetrics() {
 
         return destinationMetrics.values().iterator();
     }
@@ -206,7 +206,7 @@ public class SrdiHandlerMetric implements DocumentSerializable {
         destinationMetrics.put(srdiDestinationMetric.getPeerID(), srdiDestinationMetric);
     }
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         if (handlerName != null) {
             DocumentSerializableUtilities.addString(element, "handlerName", handlerName);
         }
@@ -236,17 +236,17 @@ public class SrdiHandlerMetric implements DocumentSerializable {
             DocumentSerializableUtilities.addInt(element, "numErrorsPropagatingMessages", numErrorsPropagatingMessages);
         }
 
-        for (Iterator i = destinationMetrics.values().iterator(); i.hasNext();) {
-            Element srdiDestinationElement = DocumentSerializableUtilities.createChildElement(element, "destination");
+        for (Iterator<SrdiDestinationMetric> i = destinationMetrics.values().iterator(); i.hasNext();) {
+            Element<?> srdiDestinationElement = DocumentSerializableUtilities.createChildElement(element, "destination");
             SrdiDestinationMetric srdiDestinationMetric = (SrdiDestinationMetric) i.next();
 
             srdiDestinationMetric.serializeTo(srdiDestinationElement);
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 
             if (tagName.equals("handlerName")) { 
@@ -286,7 +286,7 @@ public class SrdiHandlerMetric implements DocumentSerializable {
         numMessagesSentViaUnicast += otherSrdiHandlerMetric.numMessagesSentViaUnicast;
         numErrorsSendingMessages += otherSrdiHandlerMetric.numErrorsSendingMessages;
         numErrorsPropagatingMessages += otherSrdiHandlerMetric.numErrorsPropagatingMessages;
-        for (Iterator i = otherSrdiHandlerMetric.getDestinationMetrics(); i.hasNext();) {
+        for (Iterator<SrdiDestinationMetric> i = otherSrdiHandlerMetric.getDestinationMetrics(); i.hasNext();) {
             SrdiDestinationMetric otherSrdiDestinationMetric = (SrdiDestinationMetric) i.next();
             SrdiDestinationMetric ourSrdiDestinationMetric = getSrdiDestinationMetric(otherSrdiDestinationMetric.getPeerID());
 

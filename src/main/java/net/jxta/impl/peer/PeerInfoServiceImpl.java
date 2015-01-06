@@ -56,14 +56,12 @@
 
 package net.jxta.impl.peer;
 
-import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
-import net.jxta.endpoint.EndpointService;
 import net.jxta.exception.JxtaException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
@@ -75,7 +73,6 @@ import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.ResolverResponse;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.membership.MembershipService;
 import net.jxta.meter.MonitorException;
 import net.jxta.meter.MonitorFilter;
 import net.jxta.meter.MonitorListener;
@@ -94,7 +91,6 @@ import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
-import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializable;
 
 import java.io.StringReader;
@@ -119,26 +115,26 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
     private ResolverService resolver = null;
     private PeerGroup group = null;
-    private EndpointService endpoint = null;
+    //private EndpointService endpoint = null;
     private PeerID localPeerId = null;
     private ModuleImplAdvertisement implAdvertisement = null;
     private String resolverHandlerName = null;
-    private MembershipService membership = null;
-    private Credential credential = null;
-    private StructuredDocument credentialDoc = null;
+    //private MembershipService membership = null;
+    //private Credential credential = null;
+    private StructuredDocument<?> credentialDoc = null;
     private MonitorManager monitorManager;
-    private final Map peerInfoHandlers = new Hashtable();
+    private final Map<String, PeerInfoHandler> peerInfoHandlers = new Hashtable<String, PeerInfoHandler>();
     private PipQueryHandler pipQueryHandler = new PipQueryHandler();
     private RemoteMonitorPeerInfoHandler remoteMonitorPeerInfoHandler;
     private PeerInfoMessenger resolverServicePeerInfoMessenger = new ResolverServicePeerInfoMessenger();
 
-    private int nextQueryId = 1000;
+    //private int nextQueryId = 1000;
     private static final Random rand = new Random();
 
     // This static package public hashtable of registered PeerInfoServiceImpls
     // allows us to do Peergroup Monitoring via an IP Bridge to the PIP
     // See the documentation on the JXTA Monitor
-    static Hashtable peerInfoServices = new Hashtable();
+    static Hashtable<PeerGroup, PeerInfoService> peerInfoServices = new Hashtable<PeerGroup, PeerInfoService>();
 
     /**
      * {@inheritDoc}
@@ -399,11 +395,11 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 return ResolverService.OK;
             }
 
-            XMLDocument doc = null;
+            XMLDocument<?> doc = null;
 
             try {
 
-                doc = (XMLDocument)
+                doc = (XMLDocument<?>)
                         StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
 
             } catch (Exception e) {
@@ -415,7 +411,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             PeerInfoQueryMessage pipquery = new PeerInfoQueryMsg(doc);
 
-            Element requestElement = pipquery.getRequest();
+            Element<?> requestElement = pipquery.getRequest();
             String queryType = (String) requestElement.getKey();
 
             if (queryType != null) {
@@ -445,7 +441,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             PeerInfoResponseMessage resp = null;
 
             try {
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(
+                StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(
                         MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
 
                 resp = new PeerInfoResponseMsg(doc);
@@ -457,7 +453,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             }
 
-            Element responseElement = resp.getResponse();
+            Element<?> responseElement = resp.getResponse();
             String responseType = (String) responseElement.getKey();
 
             if (responseType != null) {
@@ -492,13 +488,13 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 peerInfoResponseMessage.setUptime(now - startTime);
                 peerInfoResponseMessage.setTimestamp(now);
 
-                Element responseElement = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, peerInfoHandler);
+                Element<?> responseElement = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, peerInfoHandler);
 
                 response.serializeTo(responseElement);
 
                 peerInfoResponseMessage.setResponse(responseElement);
 
-                XMLDocument doc = (XMLDocument) peerInfoResponseMessage.getDocument(MimeMediaType.XMLUTF8);
+                XMLDocument<?> doc = (XMLDocument<?>) peerInfoResponseMessage.getDocument(MimeMediaType.XMLUTF8);
                 String peerInfoResponse = doc.toString();
 
                 ResolverResponse resolverResponse = new ResolverResponse();
@@ -527,13 +523,13 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 peerInfoQueryMsg.setSourcePid(localPeerId);
                 peerInfoQueryMsg.setTargetPid(destinationPeerID);
 
-                Element requestElement = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, peerInfoHandler);
+                Element<?> requestElement = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, peerInfoHandler);
 
                 request.serializeTo(requestElement);
 
                 peerInfoQueryMsg.setRequest(requestElement);
 
-                XMLDocument doc = (XMLDocument) peerInfoQueryMsg.getDocument(MimeMediaType.XMLUTF8);
+                XMLDocument<?> doc = (XMLDocument<?>) peerInfoQueryMsg.getDocument(MimeMediaType.XMLUTF8);
                 String peerInfoRequest = doc.toString();
 
                 ResolverQuery resolverQuery = new ResolverQuery();

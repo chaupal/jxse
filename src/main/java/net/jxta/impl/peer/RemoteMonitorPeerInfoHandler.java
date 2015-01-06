@@ -262,7 +262,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         }
     }
 
-    public void processRequest(int queryId, PeerID requestSourceID, PeerInfoQueryMessage peerInfoQueryMessage, Element requestElement, PeerInfoMessenger peerInfoMessenger) {
+    public void processRequest(int queryId, PeerID requestSourceID, PeerInfoQueryMessage peerInfoQueryMessage, Element<?> requestElement, PeerInfoMessenger peerInfoMessenger) {
         try {
             RemoteMonitorQuery remoteMonitorQuery = (RemoteMonitorQuery) DocumentSerializableUtilities.getDocumentSerializable(requestElement, RemoteMonitorQuery.class);
 
@@ -287,7 +287,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         }
     }
 
-    public void processResponse(int queryId, PeerInfoResponseMessage peerInfoResponseMessage, Element responseElement, PeerInfoMessenger peerInfoMessenger) {
+    public void processResponse(int queryId, PeerInfoResponseMessage peerInfoResponseMessage, Element<?> responseElement, PeerInfoMessenger peerInfoMessenger) {
 
         RemoteMonitorResponse remoteMonitorResponse;
 
@@ -438,7 +438,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
              * peer is actually attaching the MonitorFilter to it's WorldGroup
              * peer.
              */
-            for (Iterator i = monitorFilter.getServiceMonitorFilters(); i.hasNext();) {
+            for (Iterator<ServiceMonitorFilter> i = monitorFilter.getServiceMonitorFilters(); i.hasNext();) {
                 ServiceMonitorFilter serviceMonitorFilter = (ServiceMonitorFilter) i.next();
 
                 if (serviceMonitorFilter.getModuleClassID().equals(MonitorResources.transportServiceMonitorClassID)) {

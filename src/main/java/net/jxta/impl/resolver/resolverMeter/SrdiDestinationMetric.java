@@ -127,7 +127,7 @@ public class SrdiDestinationMetric implements DocumentSerializable {
         return srdiToUnregisteredHandler;
     }
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         if (peerID != null) {
             DocumentSerializableUtilities.addString(element, "peerID", peerID.toString());
         }
@@ -145,9 +145,9 @@ public class SrdiDestinationMetric implements DocumentSerializable {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 
             if (tagName.equals("peerID")) {

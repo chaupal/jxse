@@ -351,7 +351,7 @@ public class StdPeerGroupParamAdv {
 
         // set defaults
         int appCount = 0;
-        Enumeration<XMLElement> modules = doc.getChildren();
+        Enumeration<XMLElement<?>> modules = doc.getChildren();
 
         while (modules.hasMoreElements()) {
 
@@ -390,11 +390,11 @@ public class StdPeerGroupParamAdv {
                 }
 
                 // Check for children anyway.
-                Enumeration<XMLElement> fields = module.getChildren();
+                Enumeration<XMLElement<?>> fields = module.getChildren();
 
                 while (fields.hasMoreElements()) {
 
-                    XMLElement field = fields.nextElement();
+                    XMLElement<?> field = fields.nextElement();
 
                     String fieldName = field.getName();
 
@@ -466,7 +466,7 @@ public class StdPeerGroupParamAdv {
      * @return document instance
      */
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, PARAM_TAG);
+        StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, PARAM_TAG);
 
         outputModules(doc, services, SVC_TAG);
         outputModules(doc, transports, PROTO_TAG);
@@ -495,12 +495,12 @@ public class StdPeerGroupParamAdv {
 
                 if (modulesTable != apps && !mcid.equals(mcid.getBaseClass())) {
                     // It is not an app and there is a role ID. Output it.
-                    Element i = doc.createElement(MCID_TAG, mcid.toString());
+                    Element<?> i = doc.createElement(MCID_TAG, mcid.toString());
 
                     m.appendChild(i);
                 }
 
-                StructuredDocument advdoc = (StructuredDocument) ((Advertisement) val).getDocument(doc.getMimeType());
+                StructuredDocument<?> advdoc = (StructuredDocument<?>) ((Advertisement) val).getDocument(doc.getMimeType());
 
                 StructuredDocumentUtils.copyElements(doc, m, advdoc);
             } else if (val instanceof ModuleSpecID) {

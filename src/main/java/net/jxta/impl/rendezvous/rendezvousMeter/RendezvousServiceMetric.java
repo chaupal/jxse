@@ -77,8 +77,8 @@ import java.util.LinkedList;
  */
 public class RendezvousServiceMetric implements ServiceMetric {
     private RendezvousMetric rendezvousMetric;
-    private LinkedList rendezvousConnectionMetrics = new LinkedList();
-    private LinkedList clientConnectionMetrics = new LinkedList();
+    private LinkedList<RendezvousConnectionMetric> rendezvousConnectionMetrics = new LinkedList<RendezvousConnectionMetric>();
+    private LinkedList<ClientConnectionMetric> clientConnectionMetrics = new LinkedList<ClientConnectionMetric>();
     private ModuleClassID moduleClassID = MonitorResources.rendezvousServiceMonitorClassID;
 
     /**
@@ -127,7 +127,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
     /**
      * Get all the Client Connection Metrics.
      */
-    public Iterator getClientConnectionMetrics() {
+    public Iterator<ClientConnectionMetric> getClientConnectionMetrics() {
         return clientConnectionMetrics.iterator();
     }
 
@@ -139,7 +139,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
      * Get the Client Connection Metrics for a single Peers ID.
      */
     public ClientConnectionMetric getClientConnectionMetric(PeerID peerId) {
-        for (Iterator i = clientConnectionMetrics.iterator(); i.hasNext();) {
+        for (Iterator<ClientConnectionMetric> i = clientConnectionMetrics.iterator(); i.hasNext();) {
             ClientConnectionMetric clientConnectionMetric = (ClientConnectionMetric) i.next();
 
             if (peerId.equals(clientConnectionMetric.getPeerID())) {
@@ -162,7 +162,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
     /**
      * Get all the Rendezvous Connection Metrics.
      */
-    public Iterator getRendezvousConnectionMetrics() {
+    public Iterator<RendezvousConnectionMetric> getRendezvousConnectionMetrics() {
         return rendezvousConnectionMetrics.iterator();
     }
 
@@ -174,7 +174,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
      * Get the Rendezvous Connection Metrics for each Peers ID.
      */
     public RendezvousConnectionMetric getRendezvousConnectionMetric(PeerID peerID) {
-        for (Iterator i = rendezvousConnectionMetrics.iterator(); i.hasNext();) {
+        for (Iterator<RendezvousConnectionMetric> i = rendezvousConnectionMetrics.iterator(); i.hasNext();) {
             RendezvousConnectionMetric rendezvousConnectionMetric = (RendezvousConnectionMetric) i.next();
 			
             if (peerID.equals(rendezvousConnectionMetric.getPeerID())) {
@@ -188,18 +188,18 @@ public class RendezvousServiceMetric implements ServiceMetric {
     /**
      * {@inheritDoc}
      */
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
         if (rendezvousMetric != null) {
             DocumentSerializableUtilities.addDocumentSerializable(element, "rendezvousMetric", rendezvousMetric);
         }
 
-        for (Iterator i = clientConnectionMetrics.iterator(); i.hasNext();) {
+        for (Iterator<ClientConnectionMetric> i = clientConnectionMetrics.iterator(); i.hasNext();) {
             ClientConnectionMetric clientConnectionMetric = (ClientConnectionMetric) i.next();
 
             DocumentSerializableUtilities.addDocumentSerializable(element, "clientConnectionMetric", clientConnectionMetric);		
         }
 
-        for (Iterator i = rendezvousConnectionMetrics.iterator(); i.hasNext();) {
+        for (Iterator<RendezvousConnectionMetric> i = rendezvousConnectionMetrics.iterator(); i.hasNext();) {
             RendezvousConnectionMetric rendezvousConnectionMetric = (RendezvousConnectionMetric) i.next();
 
             DocumentSerializableUtilities.addDocumentSerializable(element, "rendezvousConnectionMetric"
@@ -216,9 +216,9 @@ public class RendezvousServiceMetric implements ServiceMetric {
     /**
      * {@inheritDoc}
      */
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("clientConnectionMetric")) {
@@ -296,7 +296,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         }
 
         if (includeClientConnectionMetrics) {
-            for (Iterator i = otherRendezvousServiceMetric.getClientConnectionMetrics(); i.hasNext();) {
+            for (Iterator<?> i = otherRendezvousServiceMetric.getClientConnectionMetrics(); i.hasNext();) {
                 ClientConnectionMetric otherClientConnectionMetric = (ClientConnectionMetric) i.next();
                 ClientConnectionMetric clientConnectionMetric = getClientConnectionMetric(otherClientConnectionMetric.getPeerID());
 				
@@ -310,7 +310,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         }
 
         if (includeRendezvousConnectionMetrics) {
-            for (Iterator i = otherRendezvousServiceMetric.getRendezvousConnectionMetrics(); i.hasNext();) {
+            for (Iterator<RendezvousConnectionMetric> i = otherRendezvousServiceMetric.getRendezvousConnectionMetrics(); i.hasNext();) {
                 RendezvousConnectionMetric otherRendezvousConnectionMetric = (RendezvousConnectionMetric) i.next();
                 RendezvousConnectionMetric rendezvousConnectionMetric = getRendezvousConnectionMetric(
                         otherRendezvousConnectionMetric.getPeerID());
@@ -345,7 +345,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         rendezvousServiceMetric.rendezvousMetric = rendezvousMetric;
 		
         if (rendezvousServiceMonitorFilter.isIncludeClientConnectionMetrics()) {
-            for (Iterator i = getClientConnectionMetrics(); i.hasNext();) {
+            for (Iterator<ClientConnectionMetric> i = getClientConnectionMetrics(); i.hasNext();) {
                 ClientConnectionMetric clientConnectionMetric = (ClientConnectionMetric) i.next();
 
                 rendezvousServiceMetric.addClientConnectionMetric(clientConnectionMetric);
@@ -353,7 +353,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         }
 
         if (rendezvousServiceMonitorFilter.isIncludeRendezvousConnectionMetrics()) {
-            for (Iterator i = getRendezvousConnectionMetrics(); i.hasNext();) {
+            for (Iterator<RendezvousConnectionMetric> i = getRendezvousConnectionMetrics(); i.hasNext();) {
                 RendezvousConnectionMetric rendezvousConnectionMetric = (RendezvousConnectionMetric) i.next();
 
                 rendezvousServiceMetric.addRendezvousConnectionMetric(rendezvousConnectionMetric);

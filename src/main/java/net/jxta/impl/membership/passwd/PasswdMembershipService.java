@@ -774,7 +774,7 @@ public class PasswdMembershipService implements MembershipService {
      * {@inheritDoc}
      */
     public synchronized void resign() {
-        Iterator eachCred = Arrays.asList(principals.toArray()).iterator();
+        Iterator<?> eachCred = Arrays.asList(principals.toArray()).iterator();
 
         synchronized (this) {
             principals.clear();

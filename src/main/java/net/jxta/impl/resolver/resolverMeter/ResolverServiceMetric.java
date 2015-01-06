@@ -76,8 +76,8 @@ import java.util.LinkedList;
  **/
 public class ResolverServiceMetric implements ServiceMetric {
     private ResolverMetric resolverMetric;
-    private LinkedList queryHandlerMetrics = new LinkedList();
-    private LinkedList srdiHandlerMetrics = new LinkedList();
+    private LinkedList<QueryHandlerMetric> queryHandlerMetrics = new LinkedList<QueryHandlerMetric>();
+    private LinkedList<SrdiHandlerMetric> srdiHandlerMetrics = new LinkedList<SrdiHandlerMetric>();
     private ModuleClassID moduleClassID = MonitorResources.resolverServiceMonitorClassID;
 
     public ResolverServiceMetric() {}
@@ -115,7 +115,7 @@ public class ResolverServiceMetric implements ServiceMetric {
     /**
      * Get All Query Handler Metrics as an iterator
      **/
-    public Iterator getQueryHandlerMetrics() {
+    public Iterator<QueryHandlerMetric> getQueryHandlerMetrics() {
         return queryHandlerMetrics.iterator();
     }
 
@@ -124,7 +124,7 @@ public class ResolverServiceMetric implements ServiceMetric {
      * @return Handler or null if not found
      **/
     public QueryHandlerMetric getQueryHandlerMetric(String handlerName) {
-        for (Iterator i = queryHandlerMetrics.iterator(); i.hasNext();) {
+        for (Iterator<QueryHandlerMetric> i = queryHandlerMetrics.iterator(); i.hasNext();) {
             QueryHandlerMetric queryHandlerMetric = (QueryHandlerMetric) i.next();
 
             if (handlerName.equals(queryHandlerMetric.getHandlerName())) {
@@ -145,7 +145,7 @@ public class ResolverServiceMetric implements ServiceMetric {
     /**
      * Get All Srdi Handler Metrics as an iterator
      **/
-    public Iterator getSrdiHandlerMetrics() {
+    public Iterator<SrdiHandlerMetric> getSrdiHandlerMetrics() {
         return srdiHandlerMetrics.iterator();
     }
 
@@ -154,7 +154,7 @@ public class ResolverServiceMetric implements ServiceMetric {
      * @return Handler or null if not found
      **/
     public SrdiHandlerMetric getSrdiHandlerMetric(String handlerName) {
-        for (Iterator i = srdiHandlerMetrics.iterator(); i.hasNext();) {
+        for (Iterator<SrdiHandlerMetric> i = srdiHandlerMetrics.iterator(); i.hasNext();) {
             SrdiHandlerMetric srdiHandlerMetric = (SrdiHandlerMetric) i.next();
 
             if (handlerName.equals(srdiHandlerMetric.getHandlerName())) {
@@ -165,15 +165,15 @@ public class ResolverServiceMetric implements ServiceMetric {
         return null;
     }
 
-    public void serializeTo(Element element) throws DocumentSerializationException {
+    public void serializeTo(Element<?> element) throws DocumentSerializationException {
 
-        for (Iterator i = queryHandlerMetrics.iterator(); i.hasNext();) {
+        for (Iterator<QueryHandlerMetric> i = queryHandlerMetrics.iterator(); i.hasNext();) {
             QueryHandlerMetric queryHandlerMetric = (QueryHandlerMetric) i.next();
 
             DocumentSerializableUtilities.addDocumentSerializable(element, "queryHandlerMetric", queryHandlerMetric);		
         }
 
-        for (Iterator i = srdiHandlerMetrics.iterator(); i.hasNext();) {
+        for (Iterator<SrdiHandlerMetric> i = srdiHandlerMetrics.iterator(); i.hasNext();) {
             SrdiHandlerMetric srdiHandlerMetric = (SrdiHandlerMetric) i.next();
 
             DocumentSerializableUtilities.addDocumentSerializable(element, "srdiHandlerMetric", srdiHandlerMetric);		
@@ -188,9 +188,9 @@ public class ResolverServiceMetric implements ServiceMetric {
         }
     }
 
-    public void initializeFrom(Element element) throws DocumentSerializationException {
-        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
-            Element childElement = (TextElement) e.nextElement();
+    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
+        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
+            Element<?> childElement = (TextElement<?>) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("queryHandlerMetric")) {
@@ -260,7 +260,7 @@ public class ResolverServiceMetric implements ServiceMetric {
         }
 
         if (includeQueryHandlerMetrics) {
-            for (Iterator i = otherResolverServiceMetric.getQueryHandlerMetrics(); i.hasNext();) {
+            for (Iterator<QueryHandlerMetric> i = otherResolverServiceMetric.getQueryHandlerMetrics(); i.hasNext();) {
                 QueryHandlerMetric otherQueryHandlerMetric = (QueryHandlerMetric) i.next();
                 QueryHandlerMetric queryHandlerMetric = getQueryHandlerMetric(otherQueryHandlerMetric.getHandlerName());
 				
@@ -274,7 +274,7 @@ public class ResolverServiceMetric implements ServiceMetric {
         }
 
         if (includeSrdiHandlerMetrics) {
-            for (Iterator i = otherResolverServiceMetric.getSrdiHandlerMetrics(); i.hasNext();) {
+            for (Iterator<SrdiHandlerMetric> i = otherResolverServiceMetric.getSrdiHandlerMetrics(); i.hasNext();) {
                 SrdiHandlerMetric otherSrdiHandlerMetric = (SrdiHandlerMetric) i.next();
                 SrdiHandlerMetric srdiHandlerMetric = getSrdiHandlerMetric(otherSrdiHandlerMetric.getHandlerName());
 					
@@ -300,7 +300,7 @@ public class ResolverServiceMetric implements ServiceMetric {
         resolverServiceMetric.resolverMetric = resolverMetric;
 		
         if (resolverServiceMonitorFilter.isIncludeQueryHandlerMetrics()) {
-            for (Iterator i = getQueryHandlerMetrics(); i.hasNext();) {
+            for (Iterator<QueryHandlerMetric> i = getQueryHandlerMetrics(); i.hasNext();) {
                 QueryHandlerMetric queryHandlerMetric = (QueryHandlerMetric) i.next();
 
                 resolverServiceMetric.addQueryHandlerMetric(queryHandlerMetric);
@@ -308,7 +308,7 @@ public class ResolverServiceMetric implements ServiceMetric {
         }
 
         if (resolverServiceMonitorFilter.isIncludeSrdiHandlerMetrics()) {
-            for (Iterator i = getSrdiHandlerMetrics(); i.hasNext();) {
+            for (Iterator<SrdiHandlerMetric> i = getSrdiHandlerMetrics(); i.hasNext();) {
                 SrdiHandlerMetric srdiHandlerMetric = (SrdiHandlerMetric) i.next();
 
                 resolverServiceMetric.addSrdiHandlerMetric(srdiHandlerMetric);
