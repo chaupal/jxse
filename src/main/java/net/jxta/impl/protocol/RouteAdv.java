@@ -132,12 +132,12 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element<?> root) {
+        public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getAdvertisementType() + " only supports XLMElement");
             }
 
-            return new RouteAdv((XMLElement<?>) root);
+            return new RouteAdv((XMLElement) root);
         }
     }
 
@@ -165,11 +165,11 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
             throw new IllegalArgumentException("Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration<XMLElement<?>> elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement<?> elem = elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -205,13 +205,13 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element<?> raw) {
+    protected boolean handleElement(Element raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement<?> elem = (XMLElement<?>) raw;
+        XMLElement elem = (XMLElement) raw;
 
         if (DEST_PID_TAG.equals(elem.getName())) {
             try {
@@ -227,8 +227,8 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
         }
 
         if ("Dst".equals(elem.getName())) {
-            for (Enumeration<?> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
-                XMLElement<?> aXpt = (XMLElement<?>) eachXpt.nextElement();
+            for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                XMLElement aXpt = (XMLElement) eachXpt.nextElement();
 
                 AccessPointAdvertisement xptAdv = (AccessPointAdvertisement)
                         AdvertisementFactory.newAdvertisement(aXpt);
@@ -241,8 +241,8 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
         if ("Hops".equals(elem.getName())) {
             Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
-            for (Enumeration<?> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
-                XMLElement<?> aXpt = (XMLElement<?>) eachXpt.nextElement();
+            for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                XMLElement aXpt = (XMLElement) eachXpt.nextElement();
 
                 AccessPointAdvertisement xptAdv = (AccessPointAdvertisement)
                         AdvertisementFactory.newAdvertisement(aXpt);
@@ -261,7 +261,7 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
 
         if (hasALoop()) {
             throw new IllegalStateException("I won't write a doc for a route with a loop");
@@ -270,12 +270,12 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
         PeerID pid = getDestPeerID();
 
         if (null != pid) {
-            Element<?> e0 = adv.createElement(DEST_PID_TAG, pid.toString());
+            Element e0 = adv.createElement(DEST_PID_TAG, pid.toString());
 
             adv.appendChild(e0);
         }
 
-        Element<?> e1 = adv.createElement("Dst");
+        Element e1 = adv.createElement("Dst");
 
         adv.appendChild(e1);
 
@@ -288,14 +288,14 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
             destAPA.setPeerID(null);
         }
 
-        StructuredDocument xptDoc = (StructuredDocument<?>) destAPA.getDocument(encodeAs);
+        StructuredDocument xptDoc = (StructuredDocument) destAPA.getDocument(encodeAs);
         StructuredDocumentUtils.copyElements(adv, e1, xptDoc);
 
         Enumeration<AccessPointAdvertisement> eachHop = getHops();
 
         // only include hops if we have some
         if (eachHop.hasMoreElements()) {
-            Element<?> e2 = adv.createElement("Hops");
+            Element e2 = adv.createElement("Hops");
 
             adv.appendChild(e2);
 
@@ -307,7 +307,7 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
                     continue;
                 }
 
-                xptDoc = (StructuredDocument<?>) hop.getDocument(encodeAs);
+                xptDoc = (StructuredDocument) hop.getDocument(encodeAs);
 
                 StructuredDocumentUtils.copyElements(adv, e2, xptDoc);
             }

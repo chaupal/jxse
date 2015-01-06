@@ -103,12 +103,12 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
      * @param root       the underlying document
      * @param membership membership service used to verify credentials
      */
-    public ResolverSrdiMsgImpl(Element<?> root, MembershipService membership) {
+    public ResolverSrdiMsgImpl(Element root, MembershipService membership) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement<?> doc = (XMLElement<?>) root;
+        XMLElement doc = (XMLElement) root;
         String doctype = doc.getName();
 
         if (!getMessageType().equals(doctype)) {
@@ -140,7 +140,7 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
     @Override
     public String toString() {
 
-        StructuredTextDocument<?> doc = (StructuredTextDocument<?>) getDocument(MimeMediaType.XMLUTF8);
+        StructuredTextDocument doc = (StructuredTextDocument) getDocument(MimeMediaType.XMLUTF8);
 
         return doc.toString();
     }
@@ -153,15 +153,15 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
      */
     @Override
     public Document getDocument(MimeMediaType asMimeType) {
-        StructuredTextDocument adv = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(asMimeType
+        StructuredTextDocument adv = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(asMimeType
                 ,
                 getMessageType());
 
         if (adv instanceof XMLElement) {
-            ((XMLElement<?>) adv).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLElement) adv).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element<?> e;
+        Element e;
 
         e = adv.createElement(handlernameTag, getHandlerName());
         adv.appendChild(e);
@@ -188,11 +188,11 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
      * @param doc        the underlying document
      * @param membership used to parse credentails if any
      */
-    private void readIt(XMLElement<?> doc, MembershipService membership) {
-        Enumeration<?> elements = doc.getChildren();
+    private void readIt(XMLElement doc, MembershipService membership) {
+        Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
+            XMLElement elem = (XMLElement) elements.nextElement();
 
             if (elem.getName().equals(handlernameTag)) {
                 setHandlerName(elem.getTextValue());

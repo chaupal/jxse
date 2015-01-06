@@ -58,7 +58,6 @@ package net.jxta.impl.resolver.resolverMeter;
 
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
-import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.resolver.ResolverService;
 import net.jxta.util.documentSerializable.DocumentSerializable;
@@ -110,7 +109,7 @@ public class QueryHandlerMetric implements DocumentSerializable {
     private int numErrorsSendingResponses = 0;
     private int numErrorsPropagatingResponses = 0;
 	
-    private HashMap<ID, QueryDestinationMetric> destinationMetrics = new HashMap<ID, QueryDestinationMetric>();
+    private HashMap destinationMetrics = new HashMap();
 
     public QueryHandlerMetric(String handlerName) {
         this.handlerName = handlerName;
@@ -381,12 +380,12 @@ public class QueryHandlerMetric implements DocumentSerializable {
         return destinationMetric;
     }
 
-    public Iterator<QueryDestinationMetric> getDestinationMetrics() {
+    public Iterator getDestinationMetrics() {
 
         return destinationMetrics.values().iterator();
     }
 	
-    public void serializeTo(Element<?> element) throws DocumentSerializationException {
+    public void serializeTo(Element element) throws DocumentSerializationException {
         if (handlerName != null) {
             DocumentSerializableUtilities.addString(element, "handlerName", handlerName);
         }
@@ -469,17 +468,17 @@ public class QueryHandlerMetric implements DocumentSerializable {
             DocumentSerializableUtilities.addInt(element, "numErrorsPropagatingResponses", numErrorsPropagatingResponses);
         }
 	
-        for (Iterator<?> i = destinationMetrics.values().iterator(); i.hasNext();) {
-            Element<?> queryDestinationElement = DocumentSerializableUtilities.createChildElement(element, "destination");
+        for (Iterator i = destinationMetrics.values().iterator(); i.hasNext();) {
+            Element queryDestinationElement = DocumentSerializableUtilities.createChildElement(element, "destination");
             QueryDestinationMetric queryDestinationMetric = (QueryDestinationMetric) i.next();
 
             queryDestinationMetric.serializeTo(queryDestinationElement);
         }
     }
 
-    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
-        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
-            Element<?> childElement = (TextElement<?>) e.nextElement();
+    public void initializeFrom(Element element) throws DocumentSerializationException {
+        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
+            Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
             if (tagName.equals("handlerName")) { 
@@ -569,7 +568,7 @@ public class QueryHandlerMetric implements DocumentSerializable {
         this.numErrorsSendingResponses += otherQueryHandlerMetric.numErrorsSendingResponses;
         this.numErrorsPropagatingResponses += otherQueryHandlerMetric.numErrorsPropagatingResponses;	
 
-        for (Iterator<?> i = otherQueryHandlerMetric.getDestinationMetrics(); i.hasNext();) {
+        for (Iterator i = otherQueryHandlerMetric.getDestinationMetrics(); i.hasNext();) {
             QueryDestinationMetric otherQueryDestinationMetric = (QueryDestinationMetric) i.next();
             QueryDestinationMetric ourQueryDestinationMetric = getQueryDestinationMetric(otherQueryDestinationMetric.getPeerID());
 

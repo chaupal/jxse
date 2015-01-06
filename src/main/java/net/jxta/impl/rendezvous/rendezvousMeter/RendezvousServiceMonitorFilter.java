@@ -100,7 +100,7 @@ public class RendezvousServiceMonitorFilter implements ServiceMonitorFilter {
         this.includeRendezvousConnectionMetrics = includeClientConnectionMetrics; 
     }
 	
-    public void serializeTo(Element<?> element) throws DocumentSerializationException {
+    public void serializeTo(Element element) throws DocumentSerializationException {
         DocumentSerializableUtilities.addBoolean(element, "includeClientConnectionMetrics", includeClientConnectionMetrics);
         DocumentSerializableUtilities.addBoolean(element, "includeRendezvousConnectionMetrics", includeRendezvousConnectionMetrics);
         if (moduleClassID != null) {
@@ -108,9 +108,9 @@ public class RendezvousServiceMonitorFilter implements ServiceMonitorFilter {
         }
     }
 
-    public void initializeFrom(Element<?> element) throws DocumentSerializationException {
-        for (Enumeration<?> e = element.getChildren(); e.hasMoreElements();) {
-            Element<?> childElement = (TextElement<?>) e.nextElement();
+    public void initializeFrom(Element element) throws DocumentSerializationException {
+        for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
+            Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
             if (tagName.equals("includeClientConnectionMetrics")) { 

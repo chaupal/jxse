@@ -97,11 +97,11 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
         super();
     }
 
-    public PeerInfoQueryMsg(Element<?> root) {
+    public PeerInfoQueryMsg(Element root) {
         initialize(root);
     }
 
-    public void initialize(Element<?> root) {
+    public void initialize(Element root) {
         if (!TextElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
         }
@@ -109,12 +109,12 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
         setSourcePid(null);
         setTargetPid(null);
 
-        TextElement<?> doc = (TextElement<?>) root;
+        TextElement doc = (TextElement) root;
 
-        Enumeration<?> elements = doc.getChildren();
+        Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            TextElement<?> element = (TextElement<?>) elements.nextElement();
+            TextElement element = (TextElement) elements.nextElement();
             String elementName = element.getName();
 
             if (elementName.equals("sourcePid")) {
@@ -143,10 +143,10 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
                     throw new IllegalArgumentException("Unusable ID in advertisement");
                 }
             } else if (elementName.equals("request")) {
-                Enumeration<?> elems = element.getChildren();
+                Enumeration elems = element.getChildren();
 
                 if (elems.hasMoreElements()) {
-                    setRequest(StructuredDocumentUtils.copyAsDocument((Element<?>) elems.nextElement()));
+                    setRequest(StructuredDocumentUtils.copyAsDocument((Element) elems.nextElement()));
                 }
             }
         }
@@ -154,21 +154,21 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
 
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredTextDocument doc = (StructuredTextDocument<?>)
+        StructuredTextDocument doc = (StructuredTextDocument)
                 StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType());
 
         if (doc instanceof Attributable) {
             ((Attributable) doc).addAttribute("xmlns:jxta", "http://jxta.org");
         }
 
-        Element<?> e = doc.createElement("sourcePid", getSourcePid().toString());
+        Element e = doc.createElement("sourcePid", getSourcePid().toString());
 
         doc.appendChild(e);
 
         e = doc.createElement("targetPid", getTargetPid().toString());
         doc.appendChild(e);
 
-        Element<?> request = getRequest();
+        Element request = getRequest();
 
         if (null != request) {
             e = doc.createElement("request");

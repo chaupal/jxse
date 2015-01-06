@@ -120,13 +120,13 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element<?> root) {
+        public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(
                         getClass().getName() + " only supports XLMElement");
             }
 
-            return new PeerGroupConfigAdv((XMLElement<?>) root);
+            return new PeerGroupConfigAdv((XMLElement) root);
         }
     }
 
@@ -143,7 +143,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
     /**
      * Descriptive meta-data about this peer group.
      */
-    private Element<?> description = null;
+    private Element description = null;
 
     /**
      * Set of all the configuration flags which are currently set.
@@ -182,7 +182,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
      *
      * @param doc the element
      */
-    private PeerGroupConfigAdv(XMLElement<?> doc) {
+    private PeerGroupConfigAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -197,11 +197,11 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration<?> elements = doc.getChildren();
+        Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
+            XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -219,13 +219,13 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
      * {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element<?> raw) {
+    protected boolean handleElement(Element raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement<?> elem = (XMLElement<?>) raw;
+        XMLElement elem = (XMLElement) raw;
 
         if (PEERGROUP_ID_TAG.equals(elem.getName())) {
             try {
@@ -327,12 +327,12 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
             throw new IllegalStateException("Peer Group Config Advertisement does not contain a peer group id.");
         }
 
-        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
         if (!(adv instanceof Attributable)) {
             throw new IllegalStateException("Only Attributable documents are supported.");
         }
 
-        Element<?> e = adv.createElement(PEERGROUP_ID_TAG, getPeerGroupID().toString());
+        Element e = adv.createElement(PEERGROUP_ID_TAG, getPeerGroupID().toString());
 
         adv.appendChild(e);
 
@@ -343,7 +343,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         }
 
         // desc is optional
-        StructuredDocument<?> desc = getDesc();
+        StructuredDocument desc = getDesc();
         if (desc != null) {
             StructuredDocumentUtils.copyElements(adv, adv, desc);
         }
@@ -432,7 +432,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
     public void setDescription(String description) {
 
         if (null != description) {
-            XMLDocument<?> newdoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
+            XMLDocument newdoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                     ,
                     PEERGROUP_DESC_TAG, description);
 
@@ -447,11 +447,11 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
      *
      * @return the description
      */
-    public XMLDocument<?> getDesc() {
-        XMLDocument<?> newDoc = null;
+    public XMLDocument getDesc() {
+        XMLDocument newDoc = null;
 
         if (description != null) {
-            newDoc = (XMLDocument<?>) StructuredDocumentUtils.copyAsDocument(description);
+            newDoc = (XMLDocument) StructuredDocumentUtils.copyAsDocument(description);
         }
         return newDoc;
     }
@@ -461,7 +461,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
      *
      * @param desc the description
      */
-    public void setDesc(XMLElement<?> desc) {
+    public void setDesc(XMLElement desc) {
 
         if (desc != null) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);

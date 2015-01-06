@@ -126,12 +126,12 @@ public class PipeAdv extends PipeAdvertisement {
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance(Element<?> root) {
+        public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
             }
 
-            return new PipeAdv((XMLElement<?>) root);
+            return new PipeAdv((XMLElement) root);
         }
     }
 
@@ -145,7 +145,7 @@ public class PipeAdv extends PipeAdvertisement {
      *
      *  @param doc The XML serialization of the advertisement.
      */
-    private PipeAdv(XMLElement<?> doc) {
+    private PipeAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -160,11 +160,11 @@ public class PipeAdv extends PipeAdvertisement {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration<?> elements = doc.getChildren();
+        Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
+            XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
@@ -194,13 +194,13 @@ public class PipeAdv extends PipeAdvertisement {
      *  {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element<?> raw) {
+    protected boolean handleElement(Element raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement<?> elem = (XMLElement<?>) raw;
+        XMLElement elem = (XMLElement) raw;
 
         if (PipeAdvertisement.descTag.equals(elem.getName())) {
             setDesc(elem);
@@ -246,7 +246,7 @@ public class PipeAdv extends PipeAdvertisement {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
 
         ID itsID = getPipeID();
 
@@ -254,7 +254,7 @@ public class PipeAdv extends PipeAdvertisement {
             throw new IllegalStateException("Pipe has no assigned ID");
         }
 
-        Element<?> e = adv.createElement(PipeAdvertisement.IdTag, itsID.toString());
+        Element e = adv.createElement(PipeAdvertisement.IdTag, itsID.toString());
 
         adv.appendChild(e);
 
@@ -278,7 +278,7 @@ public class PipeAdv extends PipeAdvertisement {
         }
 
         // desc is optional
-        StructuredDocument<?> desc = getDesc();
+        StructuredDocument desc = getDesc();
 
         if (desc != null) {
             StructuredDocumentUtils.copyElements(adv, adv, desc);
