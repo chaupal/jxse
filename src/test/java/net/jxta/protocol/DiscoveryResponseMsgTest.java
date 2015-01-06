@@ -110,10 +110,10 @@ public class DiscoveryResponseMsgTest extends TestCase {
     public void testConstructMessage() {
         try {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey1", "0.0.0.0", 0, false);
-            Vector resp = new Vector();
+            Vector<PeerAdvertisement> resp = new Vector<PeerAdvertisement>();
 
             resp.add(padv);
-            Vector exp = new Vector();
+            Vector<Long> exp = new Vector<Long>();
 
             exp.add(new Long(0));
 
@@ -126,7 +126,7 @@ public class DiscoveryResponseMsgTest extends TestCase {
             res.setResponses(resp);
             res.setExpirations(exp);
 
-            StructuredDocument doc = (StructuredDocument) res.getDocument(MimeMediaType.XMLUTF8);
+            StructuredDocument<?> doc = (StructuredDocument<?>) res.getDocument(MimeMediaType.XMLUTF8);
 
             assertNotNull("Failed to construct DiscoveryQueryMsg", doc);
 

@@ -173,7 +173,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // Remove listener from previous test.
         endp.removeIncomingMessageListener("EndpointApiTest", "0");
@@ -246,7 +246,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // Listener legacy api test.
         EndpointAddress localAddr = new EndpointAddress("jxta", pg.getPeerID().getUniqueValue().toString(), "EndpointApiTest", "0");
@@ -267,7 +267,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // Remove listener from previous test.
         endp.removeIncomingMessageListener("EndpointApiTest", "0");
@@ -334,7 +334,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress badAddr = new EndpointAddress("tcp://1.1.1.1:1/EndpointApiTest/0");
         Messenger m = endp.getMessengerImmediate(badAddr, null);
@@ -369,7 +369,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress badAddr = new EndpointAddress(
                 "jxta://uuid-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA03/EndpointApiTest/0");
@@ -407,7 +407,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress badAddr = new EndpointAddress("tcp://1.1.1.1:1/EndpointApiTest/0");
 
@@ -437,7 +437,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress localAddr = new EndpointAddress("jxta", pg.getPeerID().getUniqueValue().toString(), "EndpointApiTest", "0");
 
@@ -467,7 +467,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // A few basic tests.
 

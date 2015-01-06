@@ -22,7 +22,6 @@ import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.service.Service;
 
 public class FakeEndpointService implements EndpointService {
 

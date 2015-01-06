@@ -85,7 +85,7 @@ public class AdvertisementSerializableTest {
     }
     
     private Element<?> buildDesc() {
-        StructuredTextDocument desc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+        StructuredTextDocument desc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Desc");
 
         desc.appendChild(desc.createElement("Text1", TestDescription));

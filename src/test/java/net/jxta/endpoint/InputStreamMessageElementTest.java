@@ -146,7 +146,7 @@ public class InputStreamMessageElementTest extends TestCase {
             }
 
         } catch (Throwable e) {
-            this.fail("Stream to bytes");
+            fail("Stream to bytes");
         }
 
         return bout.toByteArray();
@@ -169,7 +169,7 @@ public class InputStreamMessageElementTest extends TestCase {
         InputStream stream = new ByteArrayInputStream(data.getBytes());
         MessageElement element = new InputStreamMessageElement("TEST", null, stream, null);
 
-        this.assertTrue("getStream()", Arrays.equals(data.getBytes(), streamToBytes(element.getStream())));
+        assertTrue("getStream()", Arrays.equals(data.getBytes(), streamToBytes(element.getStream())));
     }
 		
     public void testToString() throws IOException {
@@ -177,7 +177,7 @@ public class InputStreamMessageElementTest extends TestCase {
         InputStream stream = new ByteArrayInputStream(data.getBytes());
         MessageElement element = new InputStreamMessageElement("TEST", null, stream, null);
 
-        this.assertEquals("toString()", data, element.toString());
+        assertEquals("toString()", data, element.toString());
     }
 
     public void testNewByteArrayMessageElement() {
@@ -189,7 +189,7 @@ public class InputStreamMessageElementTest extends TestCase {
             InputStream in1 = new ByteArrayInputStream(source1);
             InputStream in2 = new ByteArrayInputStream(source2);
 
-            Vector concat = new Vector(0);
+            Vector<ByteArrayInputStream> concat = new Vector<ByteArrayInputStream>(0);
 
             concat.add(new ByteArrayInputStream(source1));
             concat.add(new ByteArrayInputStream(source2));

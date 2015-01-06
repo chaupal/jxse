@@ -118,7 +118,7 @@ public class ResolverResponseMsgTest extends TestCase {
             res.setResponse(resstr);
             res.setQueryId(qid);
 
-            StructuredDocument doc = (StructuredDocument) res.getDocument(new MimeMediaType("text/xml"));
+            StructuredDocument<?> doc = (StructuredDocument<?>) res.getDocument(new MimeMediaType("text/xml"));
 
             assertNotNull("Failed to construct ResolverResponseMsg", doc);
 

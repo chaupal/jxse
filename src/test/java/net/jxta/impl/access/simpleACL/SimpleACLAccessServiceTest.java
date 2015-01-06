@@ -153,11 +153,11 @@ public class SimpleACLAccessServiceTest extends TestCase {
                     newPGAdv.setName("Test Group");
                     newPGAdv.setDescription("Created by Unit Test");
 
-                    XMLDocument accessparams = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
+                    XMLDocument accessparams = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                             ,
                             "Parm");
 
-                    XMLElement perm = accessparams.createElement("perm", "<<DEFAULT>>:nobody,permit");
+                    XMLElement<?> perm = accessparams.createElement("perm", "<<DEFAULT>>:nobody,permit");
 
                     accessparams.appendChild(perm);
 
@@ -254,7 +254,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
 
             StringWriter serialed = new StringWriter();
 
-            ((XMLDocument) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
+            ((XMLDocument<?>) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
 
             Reader deserial = new StringReader(serialed.toString());
 

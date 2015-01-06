@@ -117,7 +117,7 @@ public class DiscoveryQueryMsgTest extends TestCase {
             query.setAttr(attribute);
             query.setPeerAdvertisement(padv);
 
-            StructuredDocument doc = (StructuredDocument) query.getDocument(MimeMediaType.XMLUTF8);
+            StructuredDocument<?> doc = (StructuredDocument<?>) query.getDocument(MimeMediaType.XMLUTF8);
 
             assertNotNull("Failed to construct DiscoveryQueryMsg", doc);
 

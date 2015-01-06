@@ -124,7 +124,7 @@ public class ResolverQueryMsgTest extends TestCase {
             query.setQueryId(qid);
             query.setSrcPeer(src);
 
-            StructuredDocument doc = (StructuredDocument) query.getDocument(new MimeMediaType("text/xml"));
+            StructuredDocument<?> doc = (StructuredDocument<?>) query.getDocument(new MimeMediaType("text/xml"));
 
             assertNotNull("Failed to construct ResolverQueryMsg", doc);
 

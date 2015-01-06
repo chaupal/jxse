@@ -151,7 +151,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        Vector addresses = new Vector();
+        Vector<String> addresses = new Vector<String>();
 
         addresses.add("TCP:123.123.123.123");
         addresses.add("TCP:134.134.134.134");
@@ -159,7 +159,7 @@ public class TestRouteAdv {
 
         try {
             // let's print the advertisement as a plain text document
-            StructuredTextDocument doc = (StructuredTextDocument)
+            StructuredTextDocument<?> doc = (StructuredTextDocument<?>)
                     ap.getDocument(MimeMediaType.XMLUTF8);
 
             System.out.println("AccessPointAdvertisement original : ");
@@ -171,22 +171,22 @@ public class TestRouteAdv {
             out.close();
 
             StringReader in = new StringReader(out.toString());
-            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in);
+            XMLDocument<?> advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in);
             AccessPointAdvertisement apAdv = (AccessPointAdvertisement)
                     AdvertisementFactory.newAdvertisement(advDocument);
 
             in.close();
 
-            doc = (StructuredTextDocument)
+            doc = (StructuredTextDocument<?>)
                     apAdv.getDocument(MimeMediaType.XMLUTF8);
             System.out.println("AccessPointAdvertisement reconstructed : ");
             System.out.println(doc.toString());
 
             // verify advertisement
             assertEquals(ap.getPeerID(), apAdv.getPeerID());
-            Enumeration e1 = apAdv.getEndpointAddresses();
+            Enumeration<String> e1 = apAdv.getEndpointAddresses();
 
-            for (Enumeration e = Collections.enumeration(addresses); e.hasMoreElements();) {
+            for (Enumeration<String> e = Collections.enumeration(addresses); e.hasMoreElements();) {
                 assertEquals(e.nextElement(), e1.nextElement());
             }
         } catch (Exception ex) {
@@ -202,7 +202,7 @@ public class TestRouteAdv {
         route.setDest(ap);
         try {
             // let's print the advertisement as a plain text document
-            StructuredTextDocument doc = (StructuredTextDocument)
+            StructuredTextDocument<?> doc = (StructuredTextDocument<?>)
                     route.getDocument(MimeMediaType.XMLUTF8);
 
             System.out.println(doc.toString());
@@ -213,13 +213,13 @@ public class TestRouteAdv {
             out.close();
 
             StringReader in = new StringReader(out.toString());
-            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in);
+            XMLDocument<?> advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in);
             RouteAdvertisement routeAdv = (RouteAdvertisement)
                     AdvertisementFactory.newAdvertisement(advDocument);
 
             in.close();
 
-            doc = (StructuredTextDocument)
+            doc = (StructuredTextDocument<?>)
                     routeAdv.getDocument(MimeMediaType.XMLUTF8);
             System.out.println("RouteAdvertisement reconstructed : ");
             System.out.println(doc.toString());
@@ -229,20 +229,20 @@ public class TestRouteAdv {
             AccessPointAdvertisement ap1 = routeAdv.getDest();
 
             assertEquals(ap.getPeerID(), ap1.getPeerID());
-            Enumeration e1 = ap1.getEndpointAddresses();
+            Enumeration<String> e1 = ap1.getEndpointAddresses();
 
-            for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
+            for (Enumeration<String> e = ap.getEndpointAddresses(); e.hasMoreElements();) {
                 assertEquals(e.nextElement(), e1.nextElement());
             }
 
-            Enumeration r1 = routeAdv.getHops();
+            Enumeration<AccessPointAdvertisement> r1 = routeAdv.getHops();
 
-            for (Enumeration e = routeAdv.getHops(); e.hasMoreElements();) {
+            for (Enumeration<AccessPointAdvertisement> e = routeAdv.getHops(); e.hasMoreElements();) {
                 ap = (AccessPointAdvertisement) e.nextElement();
                 ap1 = (AccessPointAdvertisement) r1.nextElement();
                 assertEquals(ap.getPeerID(), ap1.getPeerID());
                 e1 = ap1.getEndpointAddresses();
-                for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
+                for (Enumeration<String> e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
                     assertEquals(e2.nextElement(), e1.nextElement());
                 }
             }
@@ -257,7 +257,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap1.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:222.222.222.222");
         addresses.add("TCP:244.244.244.244");
         ap1.setEndpointAddresses(addresses);
@@ -266,7 +266,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
@@ -277,14 +277,14 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
 
         route1.setDest(ap);
-        Vector hops = new Vector();
+        Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         hops.add(ap1);
         hops.add(ap2);
         route1.setHops(hops);
         try {
             // let's print the advertisement as a plain text document
-            StructuredTextDocument doc = (StructuredTextDocument)
+            StructuredTextDocument<?> doc = (StructuredTextDocument<?>)
                     route1.getDocument(MimeMediaType.XMLUTF8);
 
             StringWriter out = new StringWriter();
@@ -299,13 +299,13 @@ public class TestRouteAdv {
             out.close();
 
             FileInputStream is = new FileInputStream(routeFile);
-            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, is);
+            XMLDocument<?> advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, is);
             RouteAdvertisement routeAdv = (RouteAdvertisement)
                     AdvertisementFactory.newAdvertisement(advDocument);
 
             is.close();
 
-            doc = (StructuredTextDocument)
+            doc = (StructuredTextDocument<?>)
                     routeAdv.getDocument(MimeMediaType.XMLUTF8);
             System.out.println("RouteAdvertisement reconstructed from file");
             out = new StringWriter();
@@ -317,20 +317,20 @@ public class TestRouteAdv {
             ap = route1.getDest();
             ap1 = routeAdv.getDest();
             assertEquals(ap.getPeerID(), ap1.getPeerID());
-            Enumeration e1 = ap1.getEndpointAddresses();
+            Enumeration<String> e1 = ap1.getEndpointAddresses();
 
-            for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
+            for (Enumeration<String> e = ap.getEndpointAddresses(); e.hasMoreElements();) {
                 assertEquals(e.nextElement(), e1.nextElement());
             }
 
-            Enumeration r1 = routeAdv.getHops();
+            Enumeration<AccessPointAdvertisement> r1 = routeAdv.getHops();
 
-            for (Enumeration e = routeAdv.getHops(); e.hasMoreElements();) {
+            for (Enumeration<AccessPointAdvertisement> e = routeAdv.getHops(); e.hasMoreElements();) {
                 ap = (AccessPointAdvertisement) e.nextElement();
                 ap1 = (AccessPointAdvertisement) r1.nextElement();
                 assertEquals(ap.getPeerID(), ap1.getPeerID());
                 e1 = ap1.getEndpointAddresses();
-                for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
+                for (Enumeration<String> e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
                     assertEquals(e2.nextElement(), e1.nextElement());
                 }
             }
@@ -350,7 +350,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        Vector addresses = new Vector();
+        Vector<String> addresses = new Vector<String>();
 
         addresses.add("TCP://123.123.123.123");
         addresses.add("TCP://134.134.134.134");
@@ -372,9 +372,9 @@ public class TestRouteAdv {
         addresses.add("TCP://222.134.134.134");
 
         // verify advertisement
-        Enumeration e1 = Collections.enumeration(addresses);
+        Enumeration<String> e1 = Collections.enumeration(addresses);
 
-        for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
+        for (Enumeration<String> e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
             assertEquals(e.nextElement().toString(), e1.nextElement().toString());
         }
 
@@ -385,7 +385,7 @@ public class TestRouteAdv {
 
         // verify advertisement
         e1 = Collections.enumeration(addresses);
-        for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
+        for (Enumeration<String> e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
             assertEquals(e.nextElement().toString(), e1.nextElement().toString());
         }
     }
@@ -398,7 +398,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        Vector addresses = new Vector();
+        Vector<String> addresses = new Vector<String>();
 
         addresses.add("TCP:123.123.123.123");
         addresses.add("TCP:134.134.134.134");
@@ -414,7 +414,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
@@ -423,12 +423,12 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:888.888.888.888");
         addresses.add("TCP:999.999.999.999");
         ap4.setEndpointAddresses(addresses);
 
-        Vector hops = new Vector();
+        Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         hops.add(ap2);
         hops.add(ap4);
@@ -460,7 +460,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap4.setPeerID(ap.getPeerID());
-        Vector hops = new Vector();
+        Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         hops.add(ap2);
         hops.add(ap4);
@@ -477,7 +477,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        Vector addresses = new Vector();
+        Vector<String> addresses = new Vector<String>();
 
         addresses.add("TCP:123.123.123.123");
         addresses.add("TCP:134.134.134.134");
@@ -493,7 +493,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
@@ -502,12 +502,12 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:888.888.888.888");
         addresses.add("TCP:999.999.999.999");
         ap4.setEndpointAddresses(addresses);
 
-        Vector hops = new Vector();
+        Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         hops.add(ap2);
         hops.add(ap4);
@@ -516,7 +516,7 @@ public class TestRouteAdv {
         PeerGroup peerGroup = aliceManager.getNetPeerGroup();
 
         PeerID pid = IDFactory.newPeerID(IDFactory.newPeerGroupID());
-        Set badHops = new HashSet();
+        Set<PeerID> badHops = new HashSet<PeerID>();
         RouteQuery query = new RouteQuery();
         query.setDestPeerID(pid);
         query.setSrcRoute(route);
@@ -531,7 +531,7 @@ public class TestRouteAdv {
         Reader is = new InputStreamReader(new ByteArrayInputStream(fp.toByteArray()));
         RouteQuery query1 = null;
 
-        XMLDocument doc = (XMLDocument)
+        XMLDocument<?> doc = (XMLDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
 
         query1 = new RouteQuery(doc, peerGroup);
@@ -542,20 +542,20 @@ public class TestRouteAdv {
         AccessPointAdvertisement ap1 = query1.getSrcRoute().getDest();
 
         assertEquals(ap.getPeerID(), ap1.getPeerID());
-        Enumeration e1 = ap1.getEndpointAddresses();
+        Enumeration<String> e1 = ap1.getEndpointAddresses();
 
-        for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
+        for (Enumeration<String> e = ap.getEndpointAddresses(); e.hasMoreElements();) {
             assertEquals(e.nextElement(), e1.nextElement());
         }
 
-        Enumeration r1 = query.getSrcRoute().getHops();
+        Enumeration<AccessPointAdvertisement> r1 = query.getSrcRoute().getHops();
 
-        for (Enumeration e = query1.getSrcRoute().getHops(); e.hasMoreElements();) {
+        for (Enumeration<AccessPointAdvertisement> e = query1.getSrcRoute().getHops(); e.hasMoreElements();) {
             ap = (AccessPointAdvertisement) e.nextElement();
             ap1 = (AccessPointAdvertisement) r1.nextElement();
             assertEquals(ap.getPeerID(), ap1.getPeerID());
             e1 = ap1.getEndpointAddresses();
-            for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
+            for (Enumeration<String> e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
                 assertEquals(e2.nextElement(), e1.nextElement());
             }
         }
@@ -569,7 +569,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        Vector addresses = new Vector();
+        Vector<String> addresses = new Vector<String>();
 
         addresses.add("TCP:123.123.123.123");
         addresses.add("TCP:134.134.134.134");
@@ -585,7 +585,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
@@ -594,12 +594,12 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:888.888.888.888");
         addresses.add("TCP:999.999.999.999");
         ap4.setEndpointAddresses(addresses);
 
-        Vector hops = new Vector();
+        Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         hops.add(ap2);
         hops.add(ap4);
@@ -609,7 +609,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         apDst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:234.234.234.234");
         addresses.add("TCP:256.256.278.256");
         apDst.setEndpointAddresses(addresses);
@@ -624,7 +624,7 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap2Dst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:166.166.166.166");
         addresses.add("TCP:277.277.277.277");
         ap2Dst.setEndpointAddresses(addresses);
@@ -633,12 +633,12 @@ public class TestRouteAdv {
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
         ap4Dst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
-        addresses = new Vector();
+        addresses = new Vector<String>();
         addresses.add("TCP:188.188.818.818");
         addresses.add("TCP:929.929.929.929");
         ap4Dst.setEndpointAddresses(addresses);
 
-        Vector hopsDst = new Vector();
+        Vector<AccessPointAdvertisement> hopsDst = new Vector<AccessPointAdvertisement>();
 
         hopsDst.add(ap2Dst);
         hopsDst.add(ap4Dst);
@@ -660,7 +660,7 @@ public class TestRouteAdv {
             FileInputStream is = new FileInputStream(routeResponseFile);
             RouteResponse response1 = null;
 
-            XMLDocument asDoc = (XMLDocument)
+            XMLDocument<?> asDoc = (XMLDocument<?>)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
 
             is.close();
@@ -672,19 +672,19 @@ public class TestRouteAdv {
             AccessPointAdvertisement ap1 = response1.getSrcRoute().getDest();
 
             assertEquals(ap.getPeerID(), ap1.getPeerID());
-            Enumeration e1 = ap1.getEndpointAddresses();
+            Enumeration<String> e1 = ap1.getEndpointAddresses();
 
-            for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
+            for (Enumeration<String> e = ap.getEndpointAddresses(); e.hasMoreElements();) {
                 assertEquals(e.nextElement(), e1.nextElement());
             }
-            Enumeration r1 = response.getSrcRoute().getHops();
+            Enumeration<AccessPointAdvertisement> r1 = response.getSrcRoute().getHops();
 
-            for (Enumeration e = response.getSrcRoute().getHops(); e.hasMoreElements();) {
+            for (Enumeration<AccessPointAdvertisement> e = response.getSrcRoute().getHops(); e.hasMoreElements();) {
                 ap = (AccessPointAdvertisement) e.nextElement();
                 ap1 = (AccessPointAdvertisement) r1.nextElement();
                 assertEquals(ap.getPeerID(), ap1.getPeerID());
                 e1 = ap1.getEndpointAddresses();
-                for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
+                for (Enumeration<String> e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
                     assertEquals(e2.nextElement(), e1.nextElement());
                 }
             }
@@ -693,16 +693,16 @@ public class TestRouteAdv {
             ap1 = response1.getDestRoute().getDest();
             assertEquals(ap.getPeerID(), ap1.getPeerID());
             e1 = ap1.getEndpointAddresses();
-            for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
+            for (Enumeration<String> e = ap.getEndpointAddresses(); e.hasMoreElements();) {
                 assertEquals(e.nextElement(), e1.nextElement());
             }
             r1 = response.getDestRoute().getHops();
-            for (Enumeration e = response.getDestRoute().getHops(); e.hasMoreElements();) {
+            for (Enumeration<AccessPointAdvertisement> e = response.getDestRoute().getHops(); e.hasMoreElements();) {
                 ap = (AccessPointAdvertisement) e.nextElement();
                 ap1 = (AccessPointAdvertisement) r1.nextElement();
                 assertEquals(ap.getPeerID(), ap1.getPeerID());
                 e1 = ap1.getEndpointAddresses();
-                for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
+                for (Enumeration<String> e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
                     assertEquals(e2.nextElement(), e1.nextElement());
                 }
             }

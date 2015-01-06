@@ -136,7 +136,7 @@ public class alwaysAccessTest extends TestCase {
 
             StringWriter serialed = new StringWriter();
 
-            ((StructuredTextDocument) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
+            ((StructuredTextDocument<?>) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
 
             Reader deserial = new StringReader(serialed.toString());
 

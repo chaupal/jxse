@@ -113,7 +113,7 @@ public class ResolverSrdiMsgTest extends TestCase {
     public void testConstructMessage() {
 
         ResolverSrdiMsgImpl resS = new ResolverSrdiMsgImpl(handlername, null, payload);
-        StructuredDocument doc = (StructuredDocument) resS.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument<?> doc = (StructuredDocument<?>) resS.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct ResolverSrdiMessage", doc);
 
@@ -130,7 +130,7 @@ public class ResolverSrdiMsgTest extends TestCase {
         // resS.setCredential(cred);
         resS.setPayload(payload);
 
-        StructuredDocument doc = (StructuredDocument) resS.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument<?> doc = (StructuredDocument<?>) resS.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct ResolverSrdiMessage", doc);
 
@@ -139,7 +139,7 @@ public class ResolverSrdiMsgTest extends TestCase {
         assertEquals("Corrupted payload", payload, resS.getPayload());
     }
 
-    private StructuredDocument createMessagefromString() {
+    private StructuredDocument<?> createMessagefromString() {
 
         String strdoc = null;
 
@@ -153,7 +153,7 @@ public class ResolverSrdiMsgTest extends TestCase {
         strdoc += payload;
         strdoc += "</" + ResolverSrdiMsgImpl.payloadTag + ">";
 
-        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(new MimeMediaType("text/xml")
+        StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(new MimeMediaType("text/xml")
                 ,
                 ResolverSrdiMsg.getMessageType(), strdoc);
 

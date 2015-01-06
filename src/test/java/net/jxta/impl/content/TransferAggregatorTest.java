@@ -173,16 +173,16 @@ public class TransferAggregatorTest {
     @Test
     public void testConstructionWithNoProviders() throws TransferException {
         context.checking(new Expectations() {{
-            one(provider1).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider1).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(null));
 
-            one(provider2).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider2).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(null));
 
-            one(provider3).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider3).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(null));
 
-            one(provider4).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider4).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(null));
         }});
 
@@ -201,25 +201,25 @@ public class TransferAggregatorTest {
     @Test
     public void testConstruction() throws Exception {
         context.checking(new Expectations() {{
-            one(provider1).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider1).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(transfer1));
 
-            one(provider2).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider2).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(transfer2));
 
-            one(provider3).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider3).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(transfer3));
 
-            one(provider4).retrieveContent((ContentShareAdvertisement)null);
+            oneOf(provider4).retrieveContent((ContentShareAdvertisement)null);
             will(returnValue(transfer4));
 
-            one(transfer1).addContentTransferListener(
+            oneOf(transfer1).addContentTransferListener(
                     with(any(TransferAggregator.class)));
-            one(transfer2).addContentTransferListener(
+            oneOf(transfer2).addContentTransferListener(
                     with(any(TransferAggregator.class)));
-            one(transfer3).addContentTransferListener(
+            oneOf(transfer3).addContentTransferListener(
                     with(any(TransferAggregator.class)));
-            one(transfer4).addContentTransferListener(
+            oneOf(transfer4).addContentTransferListener(
                     with(any(TransferAggregator.class)));
         }});
 
@@ -306,33 +306,33 @@ public class TransferAggregatorTest {
         standby = second;
 
         context.checking(new Expectations() {{
-            one(first).getTransferState();
+            oneOf(first).getTransferState();
             will(returnValue(ContentTransferState.PENDING));
             inSequence(firstSeq);
 
-            one(aggListener).selectedContentTransfer(
+            oneOf(aggListener).selectedContentTransfer(
                     with(any(ContentTransferAggregatorEvent.class)));
             inSequence(firstSeq);
 
-            one(first).getSourceLocationState();
+            oneOf(first).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.NOT_LOCATING));
             inSequence(firstSeq);
 
-            one(first).startSourceLocation();
+            oneOf(first).startSourceLocation();
             inSequence(firstSeq);
 
-            one(second).getSourceLocationState();
+            oneOf(second).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.NOT_LOCATING));
             inSequence(secondSeq);
 
-            one(second).startSourceLocation();
+            oneOf(second).startSourceLocation();
             inSequence(secondSeq);
 
-            one(third).getSourceLocationState();
+            oneOf(third).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.NOT_LOCATING));
             inSequence(thirdSeq);
 
-            one(third).startSourceLocation();
+            oneOf(third).startSourceLocation();
             inSequence(thirdSeq);
 
         }});
@@ -361,9 +361,9 @@ public class TransferAggregatorTest {
                 .build();
 
         context.checking(new Expectations() {{
-            one(listener).contentLocationStateUpdated(
+            oneOf(listener).contentLocationStateUpdated(
                     with(any(ContentTransferEvent.class)));
-            one(selected).getSourceLocationState();
+            oneOf(selected).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.LOCATING_HAS_ENOUGH));
             // Location keeps going...
         }});
@@ -384,11 +384,11 @@ public class TransferAggregatorTest {
                 .build();
 
         context.checking(new Expectations() {{
-            one(listener).contentLocationStateUpdated(
+            oneOf(listener).contentLocationStateUpdated(
                     with(any(ContentTransferEvent.class)));
-            one(selected).getSourceLocationState();
+            oneOf(selected).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.LOCATING_HAS_MANY));
-            one(selected).stopSourceLocation();
+            oneOf(selected).stopSourceLocation();
         }});
 
         aggregator.contentLocationStateUpdated(ctEvent);
@@ -407,9 +407,9 @@ public class TransferAggregatorTest {
                 .build();
 
         context.checking(new Expectations() {{
-            one(standby).getSourceLocationState();
+            oneOf(standby).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.LOCATING_HAS_ENOUGH));
-            one(standby).stopSourceLocation();
+            oneOf(standby).stopSourceLocation();
         }});
 
         aggregator.contentLocationStateUpdated(ctEvent);
@@ -428,9 +428,9 @@ public class TransferAggregatorTest {
                 .build();
 
         context.checking(new Expectations() {{
-            one(standby).getSourceLocationState();
+            oneOf(standby).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.LOCATING_HAS_MANY));
-            one(standby).stopSourceLocation();
+            oneOf(standby).stopSourceLocation();
         }});
 
         aggregator.contentLocationStateUpdated(ctEvent);
@@ -460,16 +460,16 @@ public class TransferAggregatorTest {
             ignoring(listener);
 
             // contentTransferStateUpdated handling on out-of-band success
-            one(standby).getContent();
+            oneOf(standby).getContent();
             will(returnValue(content));
-            one(aggListener).selectedContentTransfer(
+            oneOf(aggListener).selectedContentTransfer(
                     with(any(ContentTransferAggregatorEvent.class)));
 
             // all transfers should be cancelled for cleanup purposes
-            one(standby).removeContentTransferListener(aggregator);
-            one(standby).cancel();
-            one(selected).removeContentTransferListener(aggregator);
-            one(selected).cancel();
+            oneOf(standby).removeContentTransferListener(aggregator);
+            oneOf(standby).cancel();
+            oneOf(selected).removeContentTransferListener(aggregator);
+            oneOf(selected).cancel();
         }});
 
         aggregator.contentTransferStateUpdated(ctEvent);
@@ -482,11 +482,11 @@ public class TransferAggregatorTest {
         testStartSourceLocation();
 
         context.checking(new Expectations() {{
-            one(selected).startTransfer(with(any(File.class)));
-            one(transfer1).cancel();
-            one(transfer2).cancel();
-            one(transfer3).cancel();
-            one(transfer4).cancel();
+            oneOf(selected).startTransfer(with(any(File.class)));
+            oneOf(transfer1).cancel();
+            oneOf(transfer2).cancel();
+            oneOf(transfer3).cancel();
+            oneOf(transfer4).cancel();
         }});
 
         File dest = new File(TEMP_DIR, "content");
@@ -525,19 +525,19 @@ public class TransferAggregatorTest {
 
             ignoring(aggListener);
 
-            one(selected).startTransfer(with(any(File.class)));
-            one(listener).contentTransferStateUpdated(
+            oneOf(selected).startTransfer(with(any(File.class)));
+            oneOf(listener).contentTransferStateUpdated(
                     with(any(ContentTransferEvent.class)));
 
             // On failure, the getContent is called to extract the exception
-            one(selected).getContent();
+            oneOf(selected).getContent();
             will(throwException(new TransferException("Ignored")));
-            one(selected).cancel();
+            oneOf(selected).cancel();
 
             // Next batter up...
-            one(standby).getTransferState();
+            oneOf(standby).getTransferState();
             will(returnValue(ContentTransferState.PENDING));
-            one(standby).startTransfer(with(any(File.class)));
+            oneOf(standby).startTransfer(with(any(File.class)));
 
             allowing(standby).getSourceLocationState();
             will(returnValue(ContentSourceLocationState.LOCATING_HAS_ENOUGH));
@@ -569,15 +569,15 @@ public class TransferAggregatorTest {
             // Ignore everything except selected and standby
             for (ContentTransfer transfer : transfers) {
                 // Each transfer is started once
-                one(transfer).startTransfer(with(any(File.class)));
+                oneOf(transfer).startTransfer(with(any(File.class)));
 
                 // Each transfer fails once
-                one(transfer).getContent();
+                oneOf(transfer).getContent();
                 will(throwException(new TransferException("Ignored")));
-                one(transfer).cancel();
+                oneOf(transfer).cancel();
 
                 if (transfer != selected) {
-                    one(transfer).getTransferState();
+                    oneOf(transfer).getTransferState();
                     will(returnValue(ContentTransferState.PENDING));
                 }
 
@@ -589,7 +589,7 @@ public class TransferAggregatorTest {
 
             ignoring(aggListener);
 
-            one(listener).contentTransferStateUpdated(
+            oneOf(listener).contentTransferStateUpdated(
                     with(any(ContentTransferEvent.class)));
         }});
 

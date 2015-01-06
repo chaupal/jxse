@@ -109,7 +109,7 @@ public class PeerAdvertisementTest extends TestCase {
     public void testDocument() {
         PeerAdvertisement peer1 = buildPeer();
         PeerAdvertisement peer2 = null;
-        XMLDocument advDocument = null;
+        XMLDocument<?> advDocument = null;
 
         try {
             Document doc = peer1.getDocument(MimeMediaType.XMLUTF8);
@@ -119,7 +119,7 @@ public class PeerAdvertisementTest extends TestCase {
             bos.close();
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, bis);
+            advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, bis);
 
             peer2 = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(advDocument);
             bis.close();
@@ -135,8 +135,8 @@ public class PeerAdvertisementTest extends TestCase {
         // FIXME: test services
     }
 
-    private Element buildDesc() {
-        StructuredTextDocument desc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+    private Element<?> buildDesc() {
+        StructuredTextDocument desc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Desc");
 
         desc.appendChild(desc.createElement("Text1", TestDescription));

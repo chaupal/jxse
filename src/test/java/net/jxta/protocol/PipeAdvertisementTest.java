@@ -111,14 +111,14 @@ public class PipeAdvertisementTest extends TestCase {
         PipeAdvertisement pipe2 = null;
 
         try {
-            XMLDocument doc = (XMLDocument) pipe1.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> doc = (XMLDocument<?>) pipe1.getDocument(MimeMediaType.XMLUTF8);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             doc.sendToStream(bos);
             bos.close();
 
             InputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            XMLDocument newDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
+            XMLDocument<?> newDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
 
             pipe2 = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(newDoc);
             bis.close();
@@ -146,8 +146,8 @@ public class PipeAdvertisementTest extends TestCase {
         // FIXME: test services
     }
 
-    private Element buildDesc() {
-        StructuredTextDocument desc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+    private Element<?> buildDesc() {
+        StructuredTextDocument desc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Desc");
 
         desc.appendChild(desc.createElement("Text1", TestDescription));

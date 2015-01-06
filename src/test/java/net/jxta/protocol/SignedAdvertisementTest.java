@@ -68,7 +68,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 
-import net.jxta.platform.WorldPeerGroupFactory;
+//import net.jxta.platform.WorldPeerGroupFactory;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.membership.pse.StringAuthenticator;
 
@@ -146,7 +146,7 @@ public class SignedAdvertisementTest extends TestCase {
             signedAdv.setAdvertisement(pg.getPeerAdvertisement());
             signedAdv.setSigner(cred);
 
-            XMLDocument asDoc = (XMLDocument) signedAdv.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> asDoc = (XMLDocument<?>) signedAdv.getDocument(MimeMediaType.XMLUTF8);
 
             SignedAdvertisement signedAdv2 = (SignedAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
 

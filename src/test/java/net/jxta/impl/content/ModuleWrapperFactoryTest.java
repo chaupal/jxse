@@ -116,7 +116,7 @@ public class ModuleWrapperFactoryTest {
     @Test
     public void testNewService() throws Exception {
         context.checking(new Expectations() {{
-            one(service).getImplAdvertisement();
+            oneOf(service).getImplAdvertisement();
 //            one(service).getInterface();
         }});
 
@@ -135,9 +135,9 @@ public class ModuleWrapperFactoryTest {
     @Test
     public void testNewWrapper() throws Exception {
         context.checking(new Expectations() {{
-            one(contentService).getImplAdvertisement();
+            oneOf(contentService).getImplAdvertisement();
 //            one(contentService).getInterface();
-            one(contentService).shareContent(with(aNull(Content.class)));
+            oneOf(contentService).shareContent(with(aNull(Content.class)));
         }});
 
         ContentService proxy = 

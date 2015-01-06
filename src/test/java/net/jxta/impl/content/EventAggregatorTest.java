@@ -145,9 +145,9 @@ public class EventAggregatorTest {
     @Test
     public void testContentShared() throws Exception {
         context.checking(new Expectations() {{
-            one(provider).addContentProviderListener(
+            oneOf(provider).addContentProviderListener(
                     with(any(EventAggregator.class)));
-            one(listener).contentShared(cpEventShared);
+            oneOf(listener).contentShared(cpEventShared);
         }});
 
         aggregator = new EventAggregator(listeners, providers);
@@ -159,9 +159,9 @@ public class EventAggregatorTest {
     @Test
     public void testContentUnshared() throws Exception {
         context.checking(new Expectations() {{
-            one(provider).addContentProviderListener(
+            oneOf(provider).addContentProviderListener(
                     with(any(EventAggregator.class)));
-            one(listener).contentUnshared(cpEventUnshared);
+            oneOf(listener).contentUnshared(cpEventUnshared);
         }});
 
         aggregator = new EventAggregator(listeners, providers);
@@ -173,9 +173,9 @@ public class EventAggregatorTest {
     @Test
     public void testDispatchFindRequest() throws Exception {
         context.checking(new Expectations() {{
-            one(provider).addContentProviderListener(
+            oneOf(provider).addContentProviderListener(
                     with(any(EventAggregator.class)));
-            one(provider).findContentShares(
+            oneOf(provider).findContentShares(
                     with(any(Integer.class)), with(any(EventAggregator.class)));
 
             exactly(3).of(listener).contentSharesFound(

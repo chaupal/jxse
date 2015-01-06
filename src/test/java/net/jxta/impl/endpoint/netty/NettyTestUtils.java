@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -30,7 +30,7 @@ public class NettyTestUtils {
     
     public static void assertEquals(ChannelBuffer expected, ChannelBuffer actual) {
         if(expected.readableBytes() != actual.readableBytes()) {
-            Assert.failNotEquals("channel buffers have differing readable sizes", expected.readableBytes(), actual.readableBytes());
+            Assert.assertEquals("channel buffers have differing readable sizes", expected.readableBytes(), actual.readableBytes());
         }
         
         int startPositionExpected = expected.readerIndex();
@@ -40,7 +40,7 @@ public class NettyTestUtils {
             byte expectedByte = expected.readByte();
             byte actualByte = actual.readByte(); 
             if(expectedByte != actualByte) {
-                Assert.failNotEquals("channel buffers differ at position " + position, expectedByte, actualByte);
+                Assert.assertEquals("channel buffers differ at position " + position, expectedByte, actualByte);
             }
             
             position++;

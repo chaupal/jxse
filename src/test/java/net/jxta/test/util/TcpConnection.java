@@ -98,7 +98,7 @@ public class TcpConnection implements Runnable {
     private transient long lastUsed = System.currentTimeMillis();
 
     private transient WelcomeMessage myWelcome = null;
-    private transient WatchedOutputStream outputStream = null;
+    private transient WatchedOutputStream<Object> outputStream = null;
     private transient int port = 0;
     static final int SendBufferSize = 64 * 1024; // 64 KBytes
     static final int RecvBufferSize = 64 * 1024; // 64 KBytes
@@ -604,7 +604,7 @@ public class TcpConnection implements Runnable {
         sharedSocket.setSoLinger(true, LingerDelay);
         // socket.setTcpNoDelay(true);
 
-        outputStream = new WatchedOutputStream(sharedSocket.getOutputStream());
+        outputStream = new WatchedOutputStream<Object>(sharedSocket.getOutputStream());
         outputStream.setWatchList(ShortCycle);
         inputStream = new WatchedInputStream<Object>(sharedSocket.getInputStream());
         outputStream.setWatchList(LongCycle);

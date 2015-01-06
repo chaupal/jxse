@@ -73,7 +73,7 @@ import static org.junit.Assert.*;
 public class ModuleLifecycleTrackerTest {
     private static final Logger LOG =
             Logger.getLogger(ModuleLifecycleTrackerTest.class.getName());
-    private ModuleLifecycleTracker tracker;
+    private ModuleLifecycleTracker<?> tracker;
     private ModuleLifecycleListener listener;
     private Module module;
     private PeerGroup peerGroup;
@@ -119,7 +119,7 @@ public class ModuleLifecycleTrackerTest {
             exactly(2).of(module).init(peerGroup, id, null);
             will(throwException(pgx));
 
-            one(listener).unhandledPeerGroupException(tracker, pgx);
+            oneOf(listener).unhandledPeerGroupException(tracker, pgx);
         }});
 
         tracker.init();
@@ -132,19 +132,19 @@ public class ModuleLifecycleTrackerTest {
     @Test
     public void testInitStartStopStart() throws Exception {
         context.checking(new Expectations() {{
-            one(module).init(peerGroup, id, null);
-            one(module).stopApp();
+            oneOf(module).init(peerGroup, id, null);
+            oneOf(module).stopApp();
 
             exactly(2).of(module).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.INITIALIZED);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.STARTED);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.STOPPED);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.STARTED);
         }});
 
@@ -164,14 +164,14 @@ public class ModuleLifecycleTrackerTest {
     @Test
     public void testJustStart() throws Exception {
         context.checking(new Expectations() {{
-            one(module).init(peerGroup, id, null);
+            oneOf(module).init(peerGroup, id, null);
 
-            one(module).startApp(with(any(String[].class)));
+            oneOf(module).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.INITIALIZED);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.STARTED);
         }});
 
@@ -185,10 +185,10 @@ public class ModuleLifecycleTrackerTest {
     @Test
     public void testInitException() throws Exception {
         context.checking(new Expectations() {{
-            one(module).init(peerGroup, id, null);
+            oneOf(module).init(peerGroup, id, null);
             will(throwException(pgx));
 
-            one(listener).unhandledPeerGroupException(tracker, pgx);
+            oneOf(listener).unhandledPeerGroupException(tracker, pgx);
         }});
 
         assertEquals(ModuleLifecycleState.UNINITIALIZED, tracker.getState());
@@ -201,10 +201,10 @@ public class ModuleLifecycleTrackerTest {
     @Test
     public void testJustStartException() throws Exception {
         context.checking(new Expectations() {{
-            one(module).init(peerGroup, id, null);
+            oneOf(module).init(peerGroup, id, null);
             will(throwException(pgx));
 
-            one(listener).unhandledPeerGroupException(tracker, pgx);
+            oneOf(listener).unhandledPeerGroupException(tracker, pgx);
         }});
 
         assertEquals(ModuleLifecycleState.UNINITIALIZED, tracker.getState());
@@ -217,20 +217,20 @@ public class ModuleLifecycleTrackerTest {
     @Test
     public void testFailedStart() throws Exception {
         context.checking(new Expectations() {{
-            one(module).init(peerGroup, id, null);
+            oneOf(module).init(peerGroup, id, null);
 
-            one(module).startApp(with(any(String[].class)));
+            oneOf(module).startApp(with(any(String[].class)));
             will(returnValue(Module.START_AGAIN_STALLED));
 
-            one(module).startApp(with(any(String[].class)));
+            oneOf(module).startApp(with(any(String[].class)));
             will(returnValue(Module.START_AGAIN_PROGRESS));
 
-            one(module).startApp(with(any(String[].class)));
+            oneOf(module).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.INITIALIZED);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.STARTED);
         }});
 
@@ -248,14 +248,14 @@ public class ModuleLifecycleTrackerTest {
     @Test
     public void testDisabledStart() throws Exception {
         context.checking(new Expectations() {{
-            one(module).init(peerGroup, id, null);
+            oneOf(module).init(peerGroup, id, null);
 
-            one(module).startApp(with(any(String[].class)));
+            oneOf(module).startApp(with(any(String[].class)));
             will(returnValue(Module.START_DISABLED));
 
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.INITIALIZED);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     tracker, ModuleLifecycleState.DISABLED);
         }});
 
