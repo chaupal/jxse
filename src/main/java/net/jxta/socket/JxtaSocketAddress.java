@@ -79,8 +79,9 @@ import java.net.SocketAddress;
  * @see java.net.ServerSocket
  */
 public class JxtaSocketAddress extends SocketAddress {
-
-    private final PeerGroupID peerGroupId;
+	private static final long serialVersionUID = 1L;
+	
+	private final PeerGroupID peerGroupId;
     private final PipeAdvertisement pipeAdv;
     private final PeerID peerId;
     private final PeerAdvertisement peerAdv;

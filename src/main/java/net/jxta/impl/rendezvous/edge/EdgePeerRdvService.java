@@ -488,7 +488,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, DisconnectRequest);
 
             if (null != elem) {
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(elem);
 
                 PeerAdvertisement adv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
 
@@ -695,7 +695,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
                 try {
 
-                    XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(peerElem);
+                    XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(peerElem);
                     padv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
 
                 } catch (Exception failed) {

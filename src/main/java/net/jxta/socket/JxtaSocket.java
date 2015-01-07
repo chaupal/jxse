@@ -56,9 +56,6 @@
 
 package net.jxta.socket;
 
-import java.security.InvalidKeyException;
-import java.security.spec.InvalidKeySpecException;
-
 import net.jxta.credential.Credential;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -864,7 +861,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         if (credential != null) {
             try {
-                XMLDocument credDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
+                XMLDocument<?> credDoc = (XMLDocument<?>) credential.getDocument(MimeMediaType.XMLUTF8);
 
                 msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                         new TextDocumentMessageElement(JxtaServerSocket.credTag, credDoc, null));
@@ -877,11 +874,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new TextDocumentMessageElement(initiator ? JxtaServerSocket.reqPipeTag : JxtaServerSocket.remPipeTag,
-                (XMLDocument) pipeAdv.getDocument(MimeMediaType.XMLUTF8), null));
+                (XMLDocument<?>) pipeAdv.getDocument(MimeMediaType.XMLUTF8), null));
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new TextDocumentMessageElement(JxtaServerSocket.remPeerTag,
-                (XMLDocument) group.getPeerAdvertisement().getDocument(MimeMediaType.XMLUTF8), null));
+                (XMLDocument<?>) group.getPeerAdvertisement().getDocument(MimeMediaType.XMLUTF8), null));
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.streamTag, Boolean.toString(isReliable), null));
@@ -1317,7 +1314,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
             if (element != null) {
                 try {
-                    XMLDocument pipeAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                    XMLDocument<?> pipeAdvDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
 
                     incomingPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(pipeAdvDoc);
                 } catch (IOException badPipeAdv) {// ignored
@@ -1329,7 +1326,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
             if (element != null) {
                 try {
-                    XMLDocument peerAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                    XMLDocument<?> peerAdvDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
                     incomingRemotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(peerAdvDoc);
                 } catch (IOException badPeerAdv) {// ignored
                 }
@@ -1342,7 +1339,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                 try {
 
-                    StructuredDocument incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
+                    StructuredDocument<?> incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
                     incomingCredential = group.getMembershipService().makeCredential(incomingCredentialDoc);
 
                 } catch (Exception failed) {
@@ -1377,8 +1374,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         }
                     }
 
-                    acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
-                    acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                    acceptMessageVerifiedAddressSet = (Set<EndpointAddress>)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+                    acceptMessageCertSet = (Set<X509Certificate>)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
                 }
             }
 

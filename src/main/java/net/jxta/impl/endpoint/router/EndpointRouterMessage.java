@@ -193,7 +193,7 @@ public class EndpointRouterMessage {
                     }
 
                     if (e.getName().equals(GatewayForwardTag)) {
-                        for (Enumeration<XMLElement> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
+                        for (Enumeration<XMLElement<?>> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
 
                             if (forwardGateways == null) {
                                 forwardGateways = new Vector<AccessPointAdvertisement>();

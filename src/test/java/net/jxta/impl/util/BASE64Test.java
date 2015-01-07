@@ -365,16 +365,20 @@ public class BASE64Test extends TestCase {
 
         InputStream input = new BASE64InputStream(base64Reader);
 
-        DataInput di = new DataInputStream(input);
+        DataInputStream di = null;
+    	byte result[] = new byte[source.length];
+        try{
+        	di = new DataInputStream(input);
+        	di.readFully(result);
 
-        byte result[] = new byte[source.length];
-
-        di.readFully(result);
-
-        if (-1 != input.read()) {
-            throw new IOException("Not at EOF");
+        	if (-1 != input.read()) {
+        		throw new IOException("Not at EOF");
+        	}
         }
-
+        finally{
+        	if (di != null )
+        		di.close();
+        }
         return Arrays.equals(source, result);
     }
 
@@ -398,14 +402,21 @@ public class BASE64Test extends TestCase {
         StringReader base64Reader = new StringReader(base64Writer.toString());
         InputStream input = new BASE64InputStream(base64Reader);
 
-        DataInput di = new DataInputStream(input);
+        DataInputStream di = new DataInputStream(input);
 
         byte result[] = new byte[source.length];
-
+        try{
+        	
+        
         di.readFully(result);
 
         if (-1 != input.read()) {
             throw new IOException("Not at EOF");
+        }
+        }
+        finally{
+        	if( di != null )
+        		di.close();
         }
 
         return Arrays.equals(source, result);

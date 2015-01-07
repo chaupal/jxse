@@ -128,7 +128,7 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
      *
      * @param doc the element
      */
-    public DiscoveryQuery(Element doc) {
+    public DiscoveryQuery(Element<?> doc) {
         initialize(doc);
     }
 
@@ -155,7 +155,7 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
      * @param elem the element to be processed.
      * @return true if the element was recognized, otherwise false.
      */
-    protected boolean handleElement(XMLElement elem) {
+    protected boolean handleElement(XMLElement<?> elem) {
 
         String value = elem.getTextValue();
 
@@ -179,7 +179,7 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
         }
         if (elem.getName().equals(peerAdvTag)) {
             try {
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(value));
+                XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(value));
                 PeerAdvertisement adv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
                 setPeerAdvertisement(adv);
                 return true;
@@ -208,13 +208,13 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
      *
      * @param root document to intialize from
      */
-    protected void initialize(Element root) {
+    protected void initialize(Element<?> root) {
 
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement doc = (XMLElement<?>) root;
 
         if (!doc.getName().equals(getAdvertisementType())) {
             throw new IllegalArgumentException(
@@ -223,11 +223,11 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
 
         setDiscoveryType(-1); // force illegal value;
 
-        Enumeration<XMLElement> elements = doc.getChildren();
+        Enumeration<XMLElement<?>> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = elements.nextElement();
+            XMLElement<?> elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element : ", elem);
@@ -260,7 +260,7 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
         StructuredDocument adv = StructuredDocumentFactory.newStructuredDocument(asMimeType, getAdvertisementType());
 
         if (adv instanceof XMLDocument) {
-            XMLDocument xmlDoc = (XMLDocument) adv;
+            XMLDocument<?>xmlDoc = (XMLDocument<?>) adv;
 
             xmlDoc.addAttribute("xmlns:jxta", "http://jxta.org");
             xmlDoc.addAttribute("xml:space", "preserve");

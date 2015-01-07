@@ -28,7 +28,7 @@ public class CbjxFilter implements MessageFilterListener
             return paramMsg;
         }
 
-        Set<EndpointAddress> tempSetEA = (Set)paramMsg.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+        Set<EndpointAddress> tempSetEA = (Set<EndpointAddress>)paramMsg.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
         if(tempSetEA.contains(paramSrcAddr))
         {
             return paramMsg;

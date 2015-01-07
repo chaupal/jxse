@@ -822,7 +822,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
 
         loadAllModules(initServices, true);
 
-        int result = startModules((Map) initServices);
+        int result = startModules((Map<ModuleClassID,Object>) initServices);
 
         if(Module.START_OK != result) {
             throw new PeerGroupException("Failed to start peer group services. Result : " + result);
