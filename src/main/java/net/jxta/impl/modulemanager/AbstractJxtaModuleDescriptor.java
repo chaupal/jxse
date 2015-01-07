@@ -60,6 +60,7 @@ public abstract class AbstractJxtaModuleDescriptor extends AbstractModuleDescrip
 
 	protected void setSpecID( String specID) {
 		this.specID = ModuleSpecID.create(URI.create(specID ));
+		this.implAdv = CompatibilityUtils.createModuleImplAdvertisement( this.specID, this.getRepresentedClassName(), this.getDescription() ); 
 	}
 	
 	protected void setSpecID(ModuleSpecID specID) {

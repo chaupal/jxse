@@ -93,11 +93,11 @@ public class LoggingTest {
 
     @Test
     public void testGetCaller() {
-
+    	//These blank lines are required
         assertNull(Logging.getCaller(null));
         assertNull(Logging.getCaller(new StackTraceElement[0]));
         assertNotNull(Logging.getCaller(new Exception().getStackTrace()));
-
+    	//These blank lines are required
     }
 
     /*
@@ -114,7 +114,7 @@ public class LoggingTest {
     
     @Test
     public void callerIsInClientCode() {
-    	final String caller = getCaller(); // The line number of this is critical
+    	final String caller = getCaller(); // The line number of this is critical. MUST be line 117
     	assertThat(caller, equalTo("Line 117 net.jxta.logging.LoggingTest.callerIsInClientCode()"));
     }
 }

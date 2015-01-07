@@ -30,6 +30,10 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 	protected abstract boolean onInitBuilder( IModuleDescriptor descriptor );
 	
 	public void initialise( IModuleDescriptor descriptor){
+		for( IModuleDescriptor desc: this.descriptors ){
+			if(( desc.equals( descriptor )) && ( !desc.isInitialised() ))
+				desc.init();
+		}
 		this.initialised = this.onInitBuilder( descriptor );
 		for( IModuleBuilderListener<T> listener: this.listeners )
 			listener.notifyModuleBuilt( new ModuleEvent<T>( this, BuildEvents.INITIALSED ));

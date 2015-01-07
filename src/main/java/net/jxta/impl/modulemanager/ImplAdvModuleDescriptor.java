@@ -7,10 +7,14 @@ import net.jxta.module.IModuleDescriptor;
 import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.util.cardinality.Cardinality;
+import net.jxta.util.cardinality.Cardinality.Denominator;
 
 public class ImplAdvModuleDescriptor extends AbstractModuleDescriptor
 		implements IJxtaModuleDescriptor {
 
+	private static final String S_DEFAULT_VERSION = "2.8.0";
+	
 	private ModuleImplAdvertisement implAdv;
 	private String version;
 
@@ -20,17 +24,16 @@ public class ImplAdvModuleDescriptor extends AbstractModuleDescriptor
 		this.prepare();
 	}
 
-	public ImplAdvModuleDescriptor( ModuleImplAdvertisement implAdv, String version ) {
-		super();
-		this.implAdv = implAdv;
-		this.version = version;
-		this.prepare();
-	}
-
 	/**
 	 * Prepare the descriptor
 	 */
-	public void prepare(){ /* do nothing */}
+	protected void prepare(){ 
+		super.setIdentifier( this.implAdv.getCode() );
+		super.setRefClass( this.implAdv.getCode() );
+		super.setDescription( this.implAdv.getDescription());
+		super.setCardinality( Cardinality.create( Denominator.ONE ));
+		super.setVersion( S_DEFAULT_VERSION );
+	}
 
 	
 	public String getVersion() {

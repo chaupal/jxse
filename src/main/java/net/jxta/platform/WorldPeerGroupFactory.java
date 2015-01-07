@@ -60,7 +60,6 @@ import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import net.jxta.module.IModuleManager;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -113,12 +112,6 @@ public final class WorldPeerGroupFactory {
 
     private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<String, PeerGroup>();
     
-    /**
-     * The module manager is a replacement for the jxta loader and allows for more controlled
-     * registration and management of modules. In order to work with the OSGI containers,
-     * the root classloader is always the one that 
-     */
-   private IModuleManager<Module> moduleManager;
 
     /**
      * Our strong reference to the World Peer Group.
@@ -230,8 +223,8 @@ public final class WorldPeerGroupFactory {
     private static Class<?> getDefaultWorldPeerGroupClass() throws PeerGroupException {
 
         try {
-            JxtaLoaderModuleManager<Module> loader = JxtaLoaderModuleManager.getRoot(WorldPeerGroupFactory.class );
-            ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
+            JxtaLoaderModuleManager<Module> manager = JxtaLoaderModuleManager.getRoot(WorldPeerGroupFactory.class );
+            ModuleImplAdvertisement worldGroupImplAdv = manager.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
 
             if(null == worldGroupImplAdv) {
                 throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");
@@ -304,9 +297,7 @@ public final class WorldPeerGroupFactory {
                         throw failure;
                     }
                 }
-            	//The root module manager uses the provided class for default loading 
-            	moduleManager = JxtaLoaderModuleManager.getRoot( worldPeerGroupClass );
-
+ 
                 result.init(null, PeerGroupID.worldPeerGroupID, null);
                 worldPeerGroups.put(storeHomeString, result);
                 return result;

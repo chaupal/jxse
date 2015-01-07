@@ -6,6 +6,12 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 public interface IJxtaModuleBuilder<T extends Module> extends IModuleBuilder<T>{
 
 	/**
+	 * Convenience method, to initialise the builder on a given impl adv
+	 * @param implAdv
+	 */
+	public void initialise( ModuleImplAdvertisement implAdv );
+	
+	/**
 	 * Get the descriptor for the given module impl advertisement, or null if it isn't supported
 	 * @param adv
 	 * @return
