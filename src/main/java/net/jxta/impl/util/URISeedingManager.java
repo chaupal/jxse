@@ -403,7 +403,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      * establish that it an appropriate peer. 
      */
     private boolean isSeedPeer(RouteAdvertisement route) {
-        List<?> addrList = route.getDestEndpointAddresses();
+        List<EndpointAddress> addrList = route.getDestEndpointAddresses();
 
         ListIterator eachAddr = addrList.listIterator();
 
@@ -411,6 +411,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         while (eachAddr.hasNext()) {
             EndpointAddress anAddr = (EndpointAddress) eachAddr.next();
 
+            //TODO CP: this is weird. A list of endpoint addresses is filled with URI's.
             eachAddr.set(anAddr.toURI());
         }
 

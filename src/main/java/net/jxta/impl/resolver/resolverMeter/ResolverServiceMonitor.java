@@ -71,8 +71,8 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
 	
     private final Map<String,QueryHandlerMeter> queryHandlerMeters = new Hashtable<String,QueryHandlerMeter>();
     private final Map<String, SrdiHandlerMeter> srdiHandlerMeters = new Hashtable<String, SrdiHandlerMeter>();
-    private final Map destinationMeters = new Hashtable();
-    private final Map sourceMeters = new Hashtable();
+    //private final Map destinationMeters = new Hashtable();
+    //private final Map sourceMeters = new Hashtable();
 	
     private ResolverMeter resolverMeter = new ResolverMeter(this);
 	

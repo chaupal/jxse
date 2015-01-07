@@ -209,7 +209,7 @@ public class LimitedRangeWalker implements RdvWalker {
      * @return the updated message
      */
     private Message updateRdvMessage(Message msg, LimitedRangeRdvMsg rdvMsg) {
-        XMLDocument asDoc = (XMLDocument) rdvMsg.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> asDoc = (XMLDocument<?>) rdvMsg.getDocument(MimeMediaType.XMLUTF8);
         MessageElement el = new TextDocumentMessageElement(LimitedRangeWalk.ELEMENTNAME, asDoc, null);
 
         msg.replaceMessageElement("jxta", el);

@@ -114,7 +114,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
     private PeerAdvertisement cachedPeerAdv = null;
     private int cachedPeerAdvModCount = -1;
-    private XMLDocument cachedPeerAdvDoc = null;
+    private XMLDocument<?> cachedPeerAdvDoc = null;
 
     protected RendezvousServiceMonitor rendezvousServiceMonitor = null;
     protected RendezvousMeter rendezvousMeter = null;
@@ -156,7 +156,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         }
     }
 
-    protected XMLDocument getPeerAdvertisementDoc() {
+    protected XMLDocument<?> getPeerAdvertisementDoc() {
         PeerAdvertisement newPadv;
 
         synchronized (this) {
@@ -171,7 +171,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             }
 
             if (null != newPadv) {
-                cachedPeerAdvDoc = (XMLDocument) cachedPeerAdv.getSignedDocument();
+                cachedPeerAdvDoc = (XMLDocument<?>) cachedPeerAdv.getSignedDocument();
             }
         }
 
@@ -213,8 +213,8 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         try {
             // Update the peeradv with our status
             if (rdvService.isRendezVous()) {
-                XMLDocument params = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-                XMLElement e = params.createElement("Rdv", Boolean.TRUE.toString());
+                XMLDocument params = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+                XMLElement<?> e = params.createElement("Rdv", Boolean.TRUE.toString());
 
                 params.appendChild(e);
                 group.getPeerAdvertisement().putServiceParam(rdvService.getAssignedID(), params);
@@ -597,7 +597,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         try {
 
-            StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(elem);
+            StructuredDocument<?> asDoc = StructuredDocumentFactory.newStructuredDocument(elem);
             return new RendezVousPropagateMessage(asDoc);
 
         } catch (IOException failed) {
@@ -722,7 +722,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         }
 
-        XMLDocument propHdrDoc = (XMLDocument) propHdr.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> propHdrDoc = (XMLDocument<?>) propHdr.getDocument(MimeMediaType.XMLUTF8);
         MessageElement elem = new TextDocumentMessageElement(PROP_HDR_ELEMENT_NAME, propHdrDoc, null);
 
         Logging.logCheckedDebug(LOG, (newHeader ? "Added" : "Updated"), " prop header for ", msg,

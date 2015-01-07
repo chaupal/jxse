@@ -1,43 +1,18 @@
 package net.jxta.impl.modulemanager;
 
-import net.jxta.document.Advertisement;
-import net.jxta.impl.protocol.PlatformConfig;
-import net.jxta.module.IJxtaModuleBuilder;
 import net.jxta.module.IJxtaModuleDescriptor;
 import net.jxta.module.IModuleDescriptor;
 import net.jxta.peergroup.core.IJxtaLoader;
 import net.jxta.peergroup.core.Module;
-import net.jxta.peergroup.core.ModuleClassID;
-import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.util.cardinality.Cardinality;
-import net.jxta.util.cardinality.Cardinality.Denominator;
 
-public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T> implements IJxtaModuleBuilder<T>{
+public class JxtaModuleBuilder<T extends Module> extends AbstractJxtaModuleBuilder<T>{
 
 	private IJxtaLoader loader;
 	
 	public JxtaModuleBuilder( IJxtaLoader loader) {
 		this.loader = loader;
 	}
-
-	public void initialise() {
-		// TODO Auto-generated method stub	
-	}
-
-	@Override
-	protected boolean onInitBuilder(IModuleDescriptor descriptor) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-
-	@Override
-	protected T onBuildModule(IModuleDescriptor descriptor) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 	/* (non-Javadoc)
 	 * @see net.jxta.module.IJxtaModuleBuilder#getRepresentedClass(net.jxta.protocol.ModuleImplAdvertisement)
@@ -55,15 +30,16 @@ public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T
 	
 	public Class<? extends Module> getRepresentedClass(
 			IModuleDescriptor descriptor) {
-		// TODO Auto-generated method stub
-		return null;
+		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+			return null;
+		IJxtaModuleDescriptor jd = (IJxtaModuleDescriptor) descriptor;
+		return this.getRepresentedClass( jd.getModuleImplAdvertisement() );
 	}
 
-	/**
-	 * Build the module. We know the class should be correct, so we override the warning
-	 */
+
 	@SuppressWarnings("unchecked")
-	public T buildModule(IModuleDescriptor descriptor) throws ModuleException {
+	@Override
+	protected T onBuildModule(IModuleDescriptor descriptor) {
 		if( !super.canBuild(descriptor))
 			return null;
 		
@@ -78,80 +54,16 @@ public class JxtaModuleBuilder<T extends Module> extends AbstractModuleBuilder<T
 		}
 		return null;
 	}
-	
-
-	private static class JxtaModuleDescriptor implements IJxtaModuleDescriptor{
-
-		private ModuleImplAdvertisement implAdv;
 		
-		JxtaModuleDescriptor( ModuleImplAdvertisement implAdv ) {
-			super();
-			this.implAdv = implAdv;
-		}
+	/**
+	 * Create a module descriptor
+	 * @author Kees
+	 *
+	 */
+	private static class JxtaModuleDescriptor extends ImplAdvModuleDescriptor{
 
-		public boolean isInitialised() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public void init() {
-			// TODO Auto-generated method stub	
-		}
-
-		public String getIdentifier() {
-			return this.implAdv.getCode();
-		}
-
-		public String getDescription() {
-			return this.implAdv.getDescription();
-		}
-
-		public String getVersion() {
-			return null;
-		}
-
-		public Cardinality getCardinality() {
-			return Cardinality.create( Denominator.ONE );
-		}
-
-		public boolean hasDependencies() {
-			return false;
-		}
-
-		public IModuleDescriptor[] dependencies() {
-			return null;
-		}
-
-		public int compareTo(IModuleDescriptor o) {
-			ModuleDescriptorComparable dc = new ModuleDescriptorComparable(this);
-			return dc.compareTo(o);
-		}
-
-		public ModuleClassID getModuleClassID() {
-			return implAdv.getModuleSpecID().getBaseClass();
-		}
-
-		public ModuleSpecID getModuleSpecID() {
-			return this.implAdv.getModuleSpecID();
-		}
-
-		public ModuleImplAdvertisement getModuleImplAdvertisement() {
-			return this.implAdv;
-		}
-
-		public String getRepresentedClassName() {
-			return this.implAdv.getCode();
-		}
-
-		public Advertisement getAdvertisement(PlatformConfig config) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-
-
-	public IJxtaModuleDescriptor getDescriptor(ModuleImplAdvertisement adv) {
-		// TODO Auto-generated method stub
-		return null;
+		public JxtaModuleDescriptor(ModuleImplAdvertisement implAdv) {
+			super(implAdv);
+		}	
 	}
 }
