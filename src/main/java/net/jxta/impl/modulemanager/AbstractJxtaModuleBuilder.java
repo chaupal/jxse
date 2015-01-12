@@ -11,17 +11,6 @@ public abstract class AbstractJxtaModuleBuilder<T extends Module> extends Abstra
 	public AbstractJxtaModuleBuilder() {
 	}
 
-	/**
-	 * Convenience method, to initialise the builder on a given impl adv
-	 * @param implAdv
-	 */
-	public void initialise( ModuleImplAdvertisement implAdv ){
-		IModuleDescriptor descriptor = this.getDescriptor(implAdv);
-		if( descriptor == null )
-			return;
-		this.initialise(descriptor);
-	}
-
 	@Override
 	protected boolean onInitBuilder(IModuleDescriptor descriptor) {
 		return true;

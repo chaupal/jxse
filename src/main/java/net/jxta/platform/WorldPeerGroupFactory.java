@@ -63,7 +63,6 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.peergroup.core.JxtaLoaderModuleManager;
 import net.jxta.peergroup.core.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -75,6 +74,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.jxta.impl.loader.JxtaLoaderModuleManager;
 import net.jxta.impl.platform.DefaultConfigurator;
 import net.jxta.impl.platform.NullConfigurator;
 

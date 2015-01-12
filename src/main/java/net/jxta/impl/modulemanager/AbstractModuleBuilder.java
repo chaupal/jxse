@@ -78,4 +78,16 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 			listener.notifyModuleBuilt( new ModuleEvent<T>( this, BuildEvents.INITIALSED ));
 		return module;
 	}
+
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		for( IModuleDescriptor descriptor: this.getSupportedDescriptors() ){
+			buffer.append( descriptor.toString() + ": initialised " + descriptor.isInitialised() + "\n");
+		}
+		buffer.append( "\n");
+		return buffer.toString();
+	}
+	
+	
 }

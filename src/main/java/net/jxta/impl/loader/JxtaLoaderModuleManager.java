@@ -1,4 +1,4 @@
-package net.jxta.peergroup.core;
+package net.jxta.impl.loader;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,11 +15,11 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.loader.RefJxtaLoader;
 import net.jxta.impl.modulemanager.ImplAdvertisementComparable;
 import net.jxta.impl.modulemanager.ImplAdvModuleDescriptor;
 import net.jxta.impl.modulemanager.JxtaModuleBuilder;
 import net.jxta.impl.modulemanager.ModuleException;
+import net.jxta.impl.modulemanager.ModuleVerifier;
 import net.jxta.impl.peergroup.CompatibilityEquater;
 import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
@@ -34,6 +34,9 @@ import net.jxta.module.IModuleDescriptor;
 import net.jxta.module.IModuleManager;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.core.IJxtaLoader;
+import net.jxta.peergroup.core.Module;
+import net.jxta.peergroup.core.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.util.cardinality.Cardinality;
@@ -160,6 +163,22 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		}
 	}
 
+	/**
+	 * Loads the given descriptor in the module manager. This basically means that:
+	 * 1: The descriptor is initialised
+	 * 2: The corresponding module impl advertisement is created 
+	 * @param builder
+	 * @param descriptor
+	 * @return
+	 */
+	protected boolean loadDescriptor( IModuleBuilder<T> builder, IModuleDescriptor descriptor){
+		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+			return false;
+		builder.initialise(descriptor);
+		ModuleVerifier<T> verifier = new ModuleVerifier<T>( this.builders );
+		return verifier.acceptDescriptor(builder, descriptor);
+	}
+	
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the 
      *  context of this ClassLoader.
@@ -172,10 +191,9 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
     	for( IModuleBuilder<T> builder: builders ){
     		IModuleDescriptor[] descriptors = builder.getSupportedDescriptors();
     		for( IModuleDescriptor descriptor: descriptors ){
-        		if(!( descriptor instanceof IJxtaModuleDescriptor ))
+        		if(!loadDescriptor(builder, descriptor))
         			continue;
-    			builder.initialise(descriptor);
-        		IJxtaModuleDescriptor jdescriptor = (IJxtaModuleDescriptor) descriptor;
+         		IJxtaModuleDescriptor jdescriptor = (IJxtaModuleDescriptor) descriptor;
         		if( jdescriptor.getModuleSpecID().equals( msid ))
         			return jdescriptor.getModuleImplAdvertisement();
     		}
@@ -190,8 +208,8 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		if(( builders != null ) && ( builders.length > 0 )){
 			IJxtaModuleBuilder<T> builder = (IJxtaModuleBuilder<T>) builders[0];
 			IJxtaModuleDescriptor descriptor = builder.getDescriptor( implAdv );
-			builder.initialise( implAdv );
-			module = builder.buildModule(descriptor);
+			if( this.loadDescriptor(builder, descriptor))
+					module = builder.buildModule(descriptor);
 		}
 		if( module != null )
 			return module;
@@ -297,6 +315,19 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		return ( manager == null )? root: manager;
 	}
 
+	/**
+	 * Print the registered Builders 
+	 * @return
+	 */
+	public String printRegisteredBuilders(){
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("The following JXSE builders are registered: \n");
+		for( IModuleBuilder<?> builder: this.builders ){
+			buffer.append( "\t" + builder.toString() + "\n" );
+		}
+		return buffer.toString();
+	}
+	
 	/**
 	 * Get the class loader of the given peergroup. This is the corresponding jxta loader
 	 * @param peergroup
@@ -445,5 +476,6 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 
 	public void stopApp() {
 		this.started = false;
+		
 	}
 }

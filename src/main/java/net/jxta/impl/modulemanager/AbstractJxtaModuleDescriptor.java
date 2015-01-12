@@ -20,7 +20,6 @@ public abstract class AbstractJxtaModuleDescriptor extends AbstractModuleDescrip
 	private ModuleSpecID specID;
 	private  ModuleImplAdvertisement implAdv;
 	private Cardinality cardinality;
-	private String version;
 
 	protected AbstractJxtaModuleDescriptor() {
 		this( null, Denominator.ONE );
@@ -32,24 +31,20 @@ public abstract class AbstractJxtaModuleDescriptor extends AbstractModuleDescrip
 
 	protected AbstractJxtaModuleDescriptor( String version, Denominator denominator) {
 		super();
-		this.version = version;
+		super.setVersion(version);
 		this.cardinality = Cardinality.create(denominator);
 		this.prepare();
 	}
-
-	public String getVersion() {
-		return version;
-	}
+	
+	/**
+	 * Prepare the descriptor
+	 */
+	protected abstract void prepare();
 
 	public Cardinality getCardinality() {
 		return cardinality;
 	}
 
-	/**
-	 * Prepare the descriptor
-	 */
-	protected abstract void prepare();
-	
 	public ModuleClassID getModuleClassID() {
 		return this.specID.getBaseClass();
 	}

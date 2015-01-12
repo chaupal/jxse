@@ -18,16 +18,18 @@ public class ImplAdvModuleDescriptor extends AbstractModuleDescriptor
 	private ModuleImplAdvertisement implAdv;
 	private String version;
 
+	protected ImplAdvModuleDescriptor() {
+	}
+
 	public ImplAdvModuleDescriptor( ModuleImplAdvertisement implAdv) {
-		super();
-		this.implAdv = implAdv;
-		this.prepare();
+		this.prepare( implAdv );
 	}
 
 	/**
 	 * Prepare the descriptor
 	 */
-	protected void prepare(){ 
+	protected void prepare(  ModuleImplAdvertisement implAdv ){ 
+		this.implAdv = implAdv;
 		super.setIdentifier( this.implAdv.getCode() );
 		super.setRefClass( this.implAdv.getCode() );
 		super.setDescription( this.implAdv.getDescription());
