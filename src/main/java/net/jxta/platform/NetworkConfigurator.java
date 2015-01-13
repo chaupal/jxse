@@ -2100,7 +2100,7 @@ public class NetworkConfigurator {
         if (authenticationType == null) {
             authenticationType = System.getProperty("impl.membership.pse.authentication.type", "StringAuthentication");
         }              
-        
+        advertisement.setAuthenticationType(authenticationType);
         if (peerid == null) {
             peerid = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID, cert[0].getPublicKey().getEncoded());
         }

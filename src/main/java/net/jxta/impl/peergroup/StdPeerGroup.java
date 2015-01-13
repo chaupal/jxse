@@ -53,9 +53,8 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-package net.jxta.impl.platform;
+package net.jxta.impl.peergroup;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,8 +85,6 @@ import net.jxta.impl.membership.pse.DialogAuthenticator;
 import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.peergroup.CompatibilityUtils;
-import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
@@ -98,8 +95,6 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.core.Module;
 import net.jxta.peergroup.core.ModuleClassID;
 import net.jxta.peergroup.core.ModuleSpecID;
-import net.jxta.platform.JxtaApplication;
-import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
@@ -245,7 +240,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
             ModuleClassID classID = anEntry.getKey();
             Object value = anEntry.getValue();
 
-            // Already loaded.
+            // Skip if the value is not a module.
             if (value instanceof Module) {
                 continue;
             }
@@ -603,6 +598,7 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
                 }
             }
         }
+        
         //The membership service is mandatory from now on (Jan. 20, 2008). It will be loaded first
         //and logged in. That will make sure the subsequent publishing will be signed.
         //The objective of this section is to establish the peer's default credential for this group.
@@ -622,21 +618,12 @@ public class StdPeerGroup extends GenericPeerGroup implements ICachedPeerGroup{
                 MembershipService tempMs = this.getMembershipService();
                 Credential tempCred = null;                                
                 
-                NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
-                assert networkManager != null;
-                
-                String membershipAuthenticationType = "";
-                String membershipPassword = "";
-                
-                try {
-                    membershipAuthenticationType = networkManager.getConfigurator().getAuthenticationType();
-                    membershipPassword = networkManager.getConfigurator().getPassword();
-                } catch (IOException ex) {                    
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append("Failed to retrieve network manager!");
-                    stringBuilder.append(ex.getLocalizedMessage());
-                    LOG.error(stringBuilder.toString());                                       
-                }                
+                String membershipAuthenticationType = this.configAdvertisement.getAuthenticationType();
+                if( membershipAuthenticationType ==null )
+                	membershipAuthenticationType = "";
+                String membershipPassword = this.configAdvertisement.getPrivateKey();
+                if( membershipPassword ==null )
+                	membershipPassword = "";
 
                 tempCred = tempMs.getDefaultCredential();
                 if (null == tempCred)

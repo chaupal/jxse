@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl.platform;
+package net.jxta.impl.peergroup;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;

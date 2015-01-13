@@ -66,6 +66,8 @@ import net.jxta.impl.endpoint.mcast.McastTransport;
 import net.jxta.impl.loader.JxtaLoaderModuleManager;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.peergroup.CompatibilityUtils;
+import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;

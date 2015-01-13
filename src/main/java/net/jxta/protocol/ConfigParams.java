@@ -85,6 +85,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     private static final String PARAM_TAG = "Parm";
 
     private static final String PRIVATE_KEY_TAG = "PrivKey";
+    private static final String AUTHENTICATION_TYPE_TAG = "AuthenticationTyper";
 
     /**
      * A table of structured documents to be interpreted by each service.
@@ -124,14 +125,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     }
 
     /**
-     * The private key aims to pass a private key to the modules in a peergroup.
+     * The private key ant the authentication type aim to pass a private key to the modules in a peergroup.
      * It is not meant to be broadcasted. 
      * XXX CP: This solution should be seen as a workaround. Currently it is used to pass
-     * the password to the PSEMembershipService, prior to creating the PseConfAdv. It hasd been
+     * the password to the PSEMembershipService, prior to creating the PseConfAdv. It has been
      * introduced to circumvent a Catch-22 situation during initialisation 
      */
     private String privKey = null;
-
+    private String authenticationType = null;
  
     /**
      *  Default Constructor. We want all ConfigParams derived advertisements to
@@ -198,14 +199,31 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     }
 
     /**
-     * Sets the description
+     * Sets the private key
      *
-     * @param privateKey the description
+     * @param privateKey the private key (i.e. password)
      */
     public void setPrivKey( String privateKey) {
         this.privKey = privateKey;
     }
 
+    /**
+     * Returns the authentication type
+     *
+     * @return the authentication type
+     */
+    public String getAuthenticationType() {
+    	return this.authenticationType;
+    }
+
+    /**
+     * Sets the authentication type
+     *
+     * @param authenticationType the authentication type
+     */
+    public void setAuthenticationType( String authenticationType) {
+        this.authenticationType = authenticationType;
+    }
 
     /**
      * {@inheritDoc}
@@ -236,6 +254,18 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 return false;
             }
             setPrivKey(value);
+            return true;
+        }
+        if (AUTHENTICATION_TYPE_TAG.equals(elem.getName())) {
+            String value = elem.getTextValue();
+            if (null == value) {
+                return false;
+            }
+            value = value.trim();
+            if (0 == value.length()) {
+                return false;
+            }
+            setAuthenticationType(value);
             return true;
         }
 
@@ -343,9 +373,13 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
             StructuredDocumentUtils.copyElements(adv, s, asDoc, PARAM_TAG);
         }
-        // private key is optional
+        // private key and authentication type are optional
         if (getPrivateKey() != null) {
             Element<?> e = adv.createElement(PRIVATE_KEY_TAG, getPrivateKey());
+            adv.appendChild(e);
+         }
+        if (getPrivateKey() != null) {
+            Element<?> e = adv.createElement(AUTHENTICATION_TYPE_TAG, getAdvertisementType());
             adv.appendChild(e);
          }
 

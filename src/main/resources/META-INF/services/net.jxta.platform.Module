@@ -28,4 +28,4 @@ urn:jxta:uuid-DDC5CA55578E4AB99A0AA81D2DC6EF3F3F7E9F18B5D84DD58D21CE9E37E19E6C06
 
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000010106 net.jxta.impl.platform.Platform Standard World PeerGroup Reference Implementation
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000010206 net.jxta.impl.platform.ShadowPeerGroup Default Network PeerGroup Reference Implementation
-urn:jxta:uuid-deadbeefdeafbabafeedbabe000000010306 net.jxta.impl.platform.StdPeerGroup General Purpose Peer Group Implementation
+urn:jxta:uuid-deadbeefdeafbabafeedbabe000000010306 net.jxta.impl.peergroup.StdPeerGroup General Purpose Peer Group Implementation

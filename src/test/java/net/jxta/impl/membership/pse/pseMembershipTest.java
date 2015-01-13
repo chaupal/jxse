@@ -78,7 +78,7 @@ import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.membership.MembershipService;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
-import net.jxta.impl.platform.StdPeerGroupParamAdv;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.impl.protocol.PSEConfigAdv;
 
 import org.junit.Ignore;

@@ -76,7 +76,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.platform.StdPeerGroupParamAdv;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
