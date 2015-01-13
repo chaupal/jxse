@@ -46,6 +46,7 @@ import net.jxta.util.cardinality.ICardinality;
 public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>{
 
 	public static final String S_ERR_INVALID_BUILDER = "The builder is not of the required interface: ";
+	
     /**
      * Default compatibility equater instance.
      */
@@ -69,6 +70,10 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 
     private final static transient Logger LOG = Logging.getLogger( JxtaLoaderModuleManager.class.getName());
 
+    private JxtaLoaderModuleManager<? extends Module> parent = null;
+    
+    //apart from the root manager, every module manager is 
+    private PeerGroup peergroup;
     private IJxtaLoader loader;
     
     private static Map<PeerGroup, IModuleManager<? extends Module>> managers;
@@ -77,37 +82,66 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
     
     private boolean started;
     private Lock lock;
-    private JxtaLoaderModuleManager<? extends Module> parent = null;
+    private ModuleVerifier<T> verifier;
     
 	protected JxtaLoaderModuleManager( ClassLoader loader) {
 		this.loader = new RefJxtaLoader(new URL[0], loader, COMP_EQ );
 		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
 		builders = new ArrayList<IModuleBuilder<T>>();
+		this.verifier = new ModuleVerifier<T>( builders );
 		this.started = false;
 		lock = new ReentrantLock();
 	}
 
+	/**
+	 * Onle allowed for the root loader
+	 * @param loader
+	 */
 	private JxtaLoaderModuleManager( IJxtaLoader loader) {
-		this( loader, null );
+		this.loader = loader;
+		builders = new ArrayList<IModuleBuilder<T>>();
+		this.verifier = new ModuleVerifier<T>( this.builders );
+		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
+		this.started = false;
+		lock = new ReentrantLock();
 	}
 
-	private JxtaLoaderModuleManager( IJxtaLoader loader, JxtaLoaderModuleManager<? extends Module> parent) {
+	@SuppressWarnings("unchecked")
+	private JxtaLoaderModuleManager( IJxtaLoader loader, JxtaLoaderModuleManager<? extends Module> parent, PeerGroup peergroup ) {
 		this.loader = loader;
 		this.parent = parent;
+		this.verifier = getVerifier( (IJxtaModuleManager<T>) parent, peergroup );
 		managers = new HashMap<PeerGroup, IModuleManager<? extends Module>>();
 		builders = new ArrayList<IModuleBuilder<T>>();
 		this.started = false;
 		lock = new ReentrantLock();
 	}
 
+	/**
+	 * initialise the module manager
+	 */
 	public void init(PeerGroup group, ID assignedID, Advertisement implAdv)
 			throws PeerGroupException {
+		this.peergroup = group;
+	}
+
+	/**
+	 * Get the peer group  that owns this module manager, or null if it is the root
+	 * @return
+	 */
+	public PeerGroup getPeergroup() {
+		return peergroup;
+	}
+	
+	public ModuleVerifier<T> getVerifier() {
+		return verifier;
 	}
 
 	public IJxtaLoader getLoader() {
 		return loader;
 	}
 
+	
 	/**
 	 * Get a list of all the cardinalities which are equal to the given reference
 	 * @return
@@ -175,7 +209,6 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		if(!( descriptor instanceof IJxtaModuleDescriptor ))
 			return false;
 		builder.initialise(descriptor);
-		ModuleVerifier<T> verifier = new ModuleVerifier<T>( this.builders );
 		return verifier.acceptDescriptor(builder, descriptor);
 	}
 	
@@ -436,12 +469,23 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
             }
 
             Logging.logCheckedDebug(LOG, "Setting up group loader -> ", upLoader);
-            manager = new JxtaLoaderModuleManager<Module>(upLoader, pm );
+            manager = new JxtaLoaderModuleManager<Module>(upLoader, pm, peergroup );
             managers.put( peergroup, manager);
         }
         return manager;
 		
 	}
+
+	/**
+	 * Get the module configuration object that belongs to the given module implementation advertisement
+	 * @param implAdv
+	 * @return
+	 */
+	private ModuleVerifier<T> getVerifier( IJxtaModuleManager<T> manager, PeerGroup peergroup ){
+		ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) peergroup.getImplAdvertisement();
+		return manager.getVerifier().createVerifier( implAdv );
+	}
+
 
 	/**
 	 * Get a root manager for the given class

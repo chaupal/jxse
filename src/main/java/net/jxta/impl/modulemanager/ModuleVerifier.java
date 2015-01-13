@@ -5,19 +5,31 @@ import java.util.logging.Logger;
 
 import net.jxta.module.IModuleBuilder;
 import net.jxta.module.IModuleDescriptor;
-import net.jxta.peergroup.core.Module;
+import net.jxta.protocol.ModuleImplAdvertisement;
 
-public class ModuleVerifier<T extends Module> {
+public class ModuleVerifier<T extends Object> {
 
 	private static String S_WRN_COULD_NOT_LOAD_MODULE = "Could not load module: ";
 	
 	private Collection<IModuleBuilder<T>> builders;
 	
-	private Logger logger = Logger.getLogger( this.getClass().getName() );
+	private ModuleConfig<T> config;
 	
+	private Logger logger = Logger.getLogger( this.getClass().getName() );
+
+	//TODO temporary!!!
 	public ModuleVerifier( Collection<IModuleBuilder<T>> builders) {
+		this( new ModuleConfig<T>( null ), builders );
+	}
+
+	protected ModuleVerifier( ModuleConfig<T> config, Collection<IModuleBuilder<T>> builders) {
 		super();
+		this.config = config;
 		this.builders = builders;
+	}
+
+	protected ModuleConfig<T> getConfig() {
+		return config;
 	}
 
 	/**
@@ -46,4 +58,32 @@ public class ModuleVerifier<T extends Module> {
 		logger.warning( S_WRN_COULD_NOT_LOAD_MODULE + descriptor );
 		return true;
 	}
+	
+	/**
+	 * Create a new verifier from the given descriptor
+	 * @param descriptor
+	 * @return
+	 */
+	public ModuleVerifier<T> createVerifier( IModuleDescriptor descriptor ){
+		ModuleConfig<T> descendant = this.config.getModuleConfig(descriptor);
+		if( descendant == null )
+			return this;
+		return new ModuleVerifier<T>( descendant, this.builders );
+	}
+
+	/**
+	 * Create a new verifier from the given descriptor
+	 * @param descriptor
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public ModuleVerifier<T> createVerifier( ModuleImplAdvertisement implAdv ){
+		
+		ModuleConfig<?> descendant = null;//ModuleConfig.getModuleConfig( this.config, implAdv);
+		//if( descendant == null )
+		//	return this;
+		descendant = new ModuleConfig<T>( null );// TODO replace  
+		return new ModuleVerifier<T>( (ModuleConfig<T>) descendant, this.builders );
+	}
+
 }

@@ -987,7 +987,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // We can now create a new module manager for this peer group and initialise it.
             moduleManager = (IJxtaModuleManager<Module>) JxtaLoaderModuleManager.createModuleManager(this, peerGroupAdvertisement);
-        	moduleManager.init( homeGroup, assignedID, impl);
+        	moduleManager.init( this, assignedID, impl);
 
             // If we still do not have a config adv, make one with the parent group, or
             // a minimal one with minimal info in it.
