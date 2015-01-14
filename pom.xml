@@ -201,7 +201,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                          deactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
 
@@ -599,5 +599,18 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>                               
+    </profiles>
+    
+    <distributionManagement>
+        <repository>
+           <id>Releases</id>
+           <name>Internal Releases</name>
+           <url>http://pangaea2:8080/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+           <id>Snapshots</id>
+           <name>Internal Snapshots</name>
+           <url>http://pangaea2:8080/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>                               
 </project>
