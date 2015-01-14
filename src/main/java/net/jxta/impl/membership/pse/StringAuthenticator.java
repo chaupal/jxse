@@ -109,7 +109,7 @@ public class StringAuthenticator implements Authenticator {
     /**
      * the password for that identity.
      **/
-    transient char[] store_password = null;
+    transient char[] storePassword = null;
 
     /**
      * the identity which is being claimed
@@ -119,7 +119,7 @@ public class StringAuthenticator implements Authenticator {
     /**
      * the password for that identity.
      **/
-    transient char[] key_password = null;
+    transient char[] keyPassword = null;
 
     /**
      * Creates an authenticator for the PSE membership service. Anything entered
@@ -157,15 +157,16 @@ public class StringAuthenticator implements Authenticator {
 
     /**
      * {@inheritDoc}
+     * @throws java.lang.Throwable
      **/
     @Override
     protected void finalize() throws Throwable {
-        if (null != store_password) {
-            Arrays.fill(store_password, '\0');
+        if (null != storePassword) {
+            Arrays.fill(storePassword, '\0');
         }
 
-        if (null != key_password) {
-            Arrays.fill(key_password, '\0');
+        if (null != keyPassword) {
+            Arrays.fill(keyPassword, '\0');
         }
 
         super.finalize();
@@ -199,46 +200,51 @@ public class StringAuthenticator implements Authenticator {
     synchronized public boolean isReadyForJoin() {
         if (null != seedCert) {
             Logging.logCheckedDebug(LOG, "seed certificate:\n", seedCert.toString());
-            return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(key_password, seedCert.getPublicKey().getAlgorithm(), seedKey);
+            return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(keyPassword, seedCert.getPublicKey().getAlgorithm(), seedKey);
         } else {
             Logging.logCheckedDebug(LOG, "null seed certificate");
-            return source.getPSEConfig().validPasswd(identity, store_password, key_password);
+            return source.getPSEConfig().validPasswd(identity, storePassword, keyPassword);
         }
     }
 
     /**
      *  Get KeyStore password
+     * @return 
      **/
-    public char[] getAuth1_KeyStorePassword() {
-        return store_password;
+    public char[] getAuth1KeyStorePassword() {
+        return storePassword;
     }
 
     /**
      *  Set KeyStore password
+     * @param storePassword
      **/
-    public void setAuth1_KeyStorePassword(String store_password) {
-        setAuth1_KeyStorePassword((null != store_password) ? store_password.toCharArray() : (char[]) null);
+    public void setAuth1KeyStorePassword(String storePassword) {
+        setAuth1KeyStorePassword((null != storePassword) ? storePassword.toCharArray() : (char[]) null);
     }
 
     /**
      *  Set KeyStore password
+     * @param storePassword
      **/
-    public void setAuth1_KeyStorePassword(char[] store_password) {
-        if (null != this.store_password) {
-            Arrays.fill(this.store_password, '\0');
+    public void setAuth1KeyStorePassword(char[] storePassword) {
+        if (null != this.storePassword) {
+            Arrays.fill(this.storePassword, '\0');
         }
 
-        if (null == store_password) {
-            this.store_password = null;
+        if (null == storePassword) {
+            this.storePassword = null;
         } else {
-            this.store_password = store_password.clone();
+            this.storePassword = storePassword.clone();
         }
     }
 
     /**
      *  Return the available identities.
+     * @param storePassword
+     * @return PeerID array of available identities 
      **/
-    public PeerID[] getIdentities(char[] store_password) {
+    public PeerID[] getIdentities(char[] storePassword) {
 
         if (seedCert != null) {
             PeerID[] seed = { source.getPeerGroup().getPeerID() };
@@ -246,7 +252,7 @@ public class StringAuthenticator implements Authenticator {
             return seed;
         } else {
             try {
-                ID[] allkeys = source.getPSEConfig().getKeysList(store_password);
+                ID[] allkeys = source.getPSEConfig().getKeysList(storePassword);
 
                 // XXX bondolo 20040329 it may be appropriate to login
                 // something other than a peer id.
@@ -274,11 +280,12 @@ public class StringAuthenticator implements Authenticator {
     /**
      *  Returns the X509 Certificate associated with the specified ID.
      *
-     *  @param store_password   The password for the keystore.
+     *  @param storePassword   The password for the keystore.
      *  @param aPeer    The peer who's certificate is desired. For uninitialized
      *  keystores this must be the peerid of the registering peer.
+     * @return 
      **/
-    public X509Certificate getCertificate(char[] store_password, ID aPeer) {
+    public X509Certificate getCertificate(char[] storePassword, ID aPeer) {
         if (seedCert != null) {
             if (aPeer.equals(source.getPeerGroup().getPeerID())) {
                 return seedCert;
@@ -287,7 +294,7 @@ public class StringAuthenticator implements Authenticator {
             }
         } else {
             try {
-                return source.getPSEConfig().getTrustedCertificate(aPeer, store_password);
+                return source.getPSEConfig().getTrustedCertificate(aPeer, storePassword);
             } catch (IOException failed) {
                 return null;
             } catch (KeyStoreException failed) {
@@ -298,6 +305,7 @@ public class StringAuthenticator implements Authenticator {
 
     /**
      *  Get Identity
+     * @return 
      **/
     public ID getAuth2Identity() {
         return identity;
@@ -305,6 +313,7 @@ public class StringAuthenticator implements Authenticator {
 
     /**
      *  Set Identity
+     * @param id
      **/
     public void setAuth2Identity(String id) {
         setAuth2Identity(ID.create(URI.create(id)));
@@ -312,6 +321,7 @@ public class StringAuthenticator implements Authenticator {
 
     /**
      *  Set Identity
+     * @param identity
      **/
     public void setAuth2Identity(ID identity) {
         this.identity = identity;
@@ -319,30 +329,33 @@ public class StringAuthenticator implements Authenticator {
 
     /**
      *  Get identity password
+     * @return 
      **/
-    public char[] getAuth3_IdentityPassword() {
-        return key_password;
+    public char[] getAuth3IdentityPassword() {
+        return keyPassword;
     }
 
     /**
      *  Set identity password
+     * @param keyPassword
      **/
-    public void setAuth3_IdentityPassword(String key_password) {
-        setAuth3_IdentityPassword((null != key_password) ? key_password.toCharArray() : (char[]) null);
+    public void setAuth3IdentityPassword(String keyPassword) {
+        setAuth3IdentityPassword((null != keyPassword) ? keyPassword.toCharArray() : (char[]) null);
     }
 
     /**
      *  Set identity password
+     * @param keyPassword
      **/
-    public void setAuth3_IdentityPassword(char[] key_password) {
-        if (null != this.key_password) {
-            Arrays.fill(this.key_password, '\0');
+    public void setAuth3IdentityPassword(char[] keyPassword) {
+        if (null != this.keyPassword) {
+            Arrays.fill(this.keyPassword, '\0');
         }
 
-        if (null == key_password) {
-            this.key_password = null;
+        if (null == keyPassword) {
+            this.keyPassword = null;
         } else {
-            this.key_password = key_password.clone();
+            this.keyPassword = keyPassword.clone();
         }
     }
 }

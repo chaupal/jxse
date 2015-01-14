@@ -215,6 +215,8 @@ public class CMKeyStoreManager implements KeyStoreManager {
 
     /**
      *  {@inheritDoc}
+     * @throws java.security.KeyStoreException
+     * @throws java.io.IOException
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
@@ -255,6 +257,8 @@ public class CMKeyStoreManager implements KeyStoreManager {
 
     /**
      *  {@inheritDoc}
+     * @throws java.io.IOException
+     * @throws java.security.KeyStoreException
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws IOException, KeyStoreException {
 
@@ -287,6 +291,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
 
     /**
      *  {@inheritDoc}
+     * @throws java.io.IOException
      **/
     public void eraseKeyStore() throws IOException {
 
@@ -296,6 +301,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
     /**
      *  {@inheritDoc}
      **/
+    @Override
     public String toString() {
        StringBuilder sb = new StringBuilder("PSE keystore details:  \n");
        sb.append("   Class:  ").append(this.getClass().getName()).append("\n");

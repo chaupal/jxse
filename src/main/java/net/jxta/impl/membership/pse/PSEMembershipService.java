@@ -527,9 +527,9 @@ public final class PSEMembershipService implements MembershipService {
             if (authenticated instanceof StringAuthenticator) {
                 StringAuthenticator auth = (StringAuthenticator) authenticated;
 
-                store_password = auth.getAuth1_KeyStorePassword();
+                store_password = auth.getAuth1KeyStorePassword();
                 identity = auth.getAuth2Identity();
-                key_password = auth.getAuth3_IdentityPassword();
+                key_password = auth.getAuth3IdentityPassword();
             } else  if (authenticated instanceof EngineAuthenticator) {
                 EngineAuthenticator auth = (EngineAuthenticator) authenticated;
 
@@ -802,9 +802,9 @@ public final class PSEMembershipService implements MembershipService {
 
             StringAuthenticator auth = (StringAuthenticator) authenticate;
 
-            auth.setAuth1_KeyStorePassword((String) null);
+            auth.setAuth1KeyStorePassword((String) null);
             auth.setAuth2Identity(assignedID);
-            auth.setAuth3_IdentityPassword(passkey);
+            auth.setAuth3IdentityPassword(passkey);
         }
 
         if (authenticate.isReadyForJoin()) {

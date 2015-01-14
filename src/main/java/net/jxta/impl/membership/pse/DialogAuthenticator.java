@@ -322,9 +322,9 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
             }
 
             if ((null != getIdentity()) && (null != getKeyStorePassword()) && (null != getIdentityPassword())) {
-                setAuth1_KeyStorePassword(getKeyStorePassword());
+                setAuth1KeyStorePassword(getKeyStorePassword());
                 setAuth2Identity(getIdentity());
-                setAuth3_IdentityPassword(getIdentityPassword());
+                setAuth3IdentityPassword(getIdentityPassword());
                 enableOK = isReadyForJoin();
             }
 
@@ -463,14 +463,14 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
         p.showDialog();
 
         if (p.wasCanceled()) {
-            setAuth1_KeyStorePassword((char[]) null);
+            setAuth1KeyStorePassword((char[]) null);
             setAuth2Identity((ID) null);
-            setAuth3_IdentityPassword((char[]) null);
+            setAuth3IdentityPassword((char[]) null);
 
         } else {
-            setAuth1_KeyStorePassword(p.getKeyStorePassword());
+            setAuth1KeyStorePassword(p.getKeyStorePassword());
             setAuth2Identity(p.getIdentity());
-            setAuth3_IdentityPassword(p.getIdentityPassword());
+            setAuth3IdentityPassword(p.getIdentityPassword());
         }
 
         return !p.wasCanceled();

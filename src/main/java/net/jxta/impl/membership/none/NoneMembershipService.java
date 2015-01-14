@@ -65,7 +65,6 @@ import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logger;
-import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -118,7 +117,7 @@ public class NoneMembershipService implements MembershipService {
      **/
     private final static class NoneCredential implements Credential, CredentialPCLSupport {
 
-        private NoneMembershipService source;
+        private final NoneMembershipService source;
 
         private String whoami;
 
@@ -132,7 +131,7 @@ public class NoneMembershipService implements MembershipService {
         /**
          *  property change support
          **/
-        private PropertyChangeSupport support = new PropertyChangeSupport(this);
+        private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
         protected NoneCredential(NoneMembershipService source, String whoami) {
 
