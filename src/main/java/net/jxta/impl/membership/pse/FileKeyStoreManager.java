@@ -83,18 +83,18 @@ public class FileKeyStoreManager implements KeyStoreManager {
     /**
      * The keystore type
      */
-    private final String keystore_type;
+    private final String keystoreType;
 
     /**
      * The keystore type
      */
-    private final String keystore_provider;
+    private final String keystoreProvider;
 
     /**
      * The file where the keystore lives. This must be a file even if the
      * keystore really is a set of files or a directory.
      */
-    private final File keystore_location;
+    private final File keystoreLocation;
 
     /**
      * Default constructor.
@@ -119,15 +119,15 @@ public class FileKeyStoreManager implements KeyStoreManager {
 
         Logging.logCheckedConfig(LOG, "pse location = ", location);
 
-        keystore_type = type;
-        keystore_provider = provider;
-        keystore_location = location;
+        keystoreType = type;
+        keystoreProvider = provider;
+        keystoreLocation = location;
 
         // check if we can get an instance.
-        if (null == keystore_provider) {
-            KeyStore.getInstance(keystore_type);
+        if (null == keystoreProvider) {
+            KeyStore.getInstance(keystoreType);
         } else {
-            KeyStore.getInstance(keystore_type, keystore_provider);
+            KeyStore.getInstance(keystoreType, keystoreProvider);
         }
 
     }
@@ -142,17 +142,17 @@ public class FileKeyStoreManager implements KeyStoreManager {
     /**
      * {@inheritDoc}
      */
-    public boolean isInitialized(char[] store_password) {
+    public boolean isInitialized(char[] keyStorePassword) {
         try {
             KeyStore store;
 
-            if (null == keystore_provider) {
-                store = KeyStore.getInstance(keystore_type);
+            if (null == keystoreProvider) {
+                store = KeyStore.getInstance(keystoreType);
             } else {
-                store = KeyStore.getInstance(keystore_type, keystore_provider);
+                store = KeyStore.getInstance(keystoreType, keystoreProvider);
             }
 
-            store.load(keystore_location.toURI().toURL().openStream(), store_password);
+            store.load(keystoreLocation.toURI().toURL().openStream(), keyStorePassword);
 
             return true;
         } catch (Exception failed) {
@@ -163,34 +163,25 @@ public class FileKeyStoreManager implements KeyStoreManager {
     /**
      * {@inheritDoc}
      */
-    public void createKeyStore(char[] store_password) throws KeyStoreException, IOException {
+    public void createKeyStore(char[] keyStorePassword) throws KeyStoreException, IOException {
         try {
             KeyStore store;
 
-            if (null == keystore_provider) {
-                store = KeyStore.getInstance(keystore_type);
+            if (null == keystoreProvider) {
+                store = KeyStore.getInstance(keystoreType);
             } else {
-                store = KeyStore.getInstance(keystore_type, keystore_provider);
+                store = KeyStore.getInstance(keystoreType, keystoreProvider);
             }
 
-            store.load(null, store_password);
+            store.load(null, keyStorePassword);
 
-            saveKeyStore(store, store_password);
+            saveKeyStore(store, keyStorePassword);
         } catch (NoSuchProviderException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchProviderException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchProviderException during keystore processing", failed);
         } catch (NoSuchAlgorithmException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchAlgorithmException during keystore processing", failed);
         } catch (CertificateException failed) {
-            KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("CertificateException during keystore processing", failed);
         }
     }
 
@@ -199,70 +190,58 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedDebug(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
+        Logging.logCheckedDebug(LOG, "Loading (", keystoreType, ",", keystoreProvider, ") store from ", keystoreLocation);
 
         try {
 
             KeyStore store;
 
-            if (null == keystore_provider) {
-                store = KeyStore.getInstance(keystore_type);
+            if (null == keystoreProvider) {
+                store = KeyStore.getInstance(keystoreType);
             } else {
-                store = KeyStore.getInstance(keystore_type, keystore_provider);
+                store = KeyStore.getInstance(keystoreType, keystoreProvider);
             }
 
-            store.load(keystore_location.toURI().toURL().openStream(), password);
+            store.load(keystoreLocation.toURI().toURL().openStream(), password);
 
             return store;
         } catch (NoSuchAlgorithmException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchAlgorithmException during keystore processing", failed);
         } catch (CertificateException failed) {
-            KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("CertificateException during keystore processing", failed);
         } catch (NoSuchProviderException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchProviderException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchProviderException during keystore processing", failed);
         }
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.security.KeyStoreException
+     * @throws java.io.IOException
      */
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedDebug(LOG, "Writing ", store, " to ", keystore_location);
+        Logging.logCheckedDebug(LOG, "Writing ", store, " to ", keystoreLocation);
 
         try {
-            OutputStream os = new FileOutputStream(keystore_location);
+            OutputStream os = new FileOutputStream(keystoreLocation);
 
             store.store(os, password);
         } catch (NoSuchAlgorithmException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchAlgorithmException during keystore processing", failed);
         } catch (CertificateException failed) {
-            KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("CertificateException during keystore processing", failed);
         }
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     public void eraseKeyStore() throws IOException {
 
-        if (keystore_location.isFile() && keystore_location.canWrite()) {
-            keystore_location.delete();
+        if (keystoreLocation.isFile() && keystoreLocation.canWrite()) {
+            keystoreLocation.delete();
         } else {
             throw new UnsupportedOperationException("Unable to delete");
         }
@@ -271,12 +250,13 @@ public class FileKeyStoreManager implements KeyStoreManager {
     /**
      *  {@inheritDoc}
      **/
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("PSE keystore details:  \n");
         sb.append("   Class:  ").append(this.getClass().getName()).append("\n");
-        sb.append("   Type:  ").append(keystore_type==null ? "<default>" : keystore_type).append("\n");
-        sb.append("   Provider:  ").append(keystore_provider==null ? "<default>" : keystore_provider).append("\n");
-        sb.append("   Location:  ").append(keystore_location==null ? "<default>" : keystore_location.toString()).append("\n");
+        sb.append("   Type:  ").append(keystoreType==null ? "<default>" : keystoreType).append("\n");
+        sb.append("   Provider:  ").append(keystoreProvider==null ? "<default>" : keystoreProvider).append("\n");
+        sb.append("   Location:  ").append(keystoreLocation==null ? "<default>" : keystoreLocation.toString()).append("\n");
         return sb.toString();
     }
 }

@@ -104,7 +104,7 @@ import net.jxta.content.ContentService;
  * remember that peers in various such subgroups of a given parent groups may
  * implicitly all share the same services if that is what the PeerGroup
  * implementing LightWeightPeerGroup is doing. Please refer to the documentation
- * of the Peer Group inmplmentations extending LightWeigthPeerGroup to 
+ * of the Peer Group implementations extending LightWeigthPeerGroup to 
  * understand which services are shared, and which are not.
  * 
  * @since JXTA JSE 2.2
@@ -201,6 +201,7 @@ public class LightWeightPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     public IJxtaLoader getLoader() {
         if (group != null) {

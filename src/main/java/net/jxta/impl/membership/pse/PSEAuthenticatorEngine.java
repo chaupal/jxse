@@ -70,16 +70,10 @@ import java.security.cert.X509Certificate;
 public interface PSEAuthenticatorEngine {
 
     public PublicKey getPublicKey() throws SecurityException;
-
     public byte[] sign(byte[] data) throws InvalidKeyException, SignatureException, IOException;
-
     public String getSignatureAlgorithm();
-
     public boolean isEnginePresent() throws SecurityException;
-
     public X509Certificate getX509Certificate() throws SecurityException;
-
     public char[] getKeyPass(PeerGroup peerGroup) throws SecurityException;
-
     public char[] getStorePass(PeerGroup peerGroup) throws SecurityException;
 }

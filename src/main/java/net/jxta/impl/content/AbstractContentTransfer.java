@@ -93,8 +93,7 @@ import net.jxta.protocol.ContentShareAdvertisement;
  * extended to implement a ContentTransfer but simply attempts to consolidate
  * much of the logic that would be repeated throughout many implementations.
  */
-public abstract class AbstractContentTransfer
-        implements ContentTransfer {
+public abstract class AbstractContentTransfer implements ContentTransfer {
     /**
      * The default source location interval, in seconds.  This constant
      * is provided for information purposes only - please do not use.

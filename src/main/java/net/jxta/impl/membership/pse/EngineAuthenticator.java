@@ -99,7 +99,7 @@ public class EngineAuthenticator implements Authenticator {
     /**
      *
      **/
-    transient X509Certificate seedCert;
+    transient X509Certificate seedCertificate;
 
     /**
      *
@@ -114,7 +114,7 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * the password for that identity.
      **/
-    transient char[] store_password = null;
+    transient char[] keyStorePassword = null;
 
     /**
      * the identity which is being claimed
@@ -124,7 +124,7 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * the password for that identity.
      **/
-    transient char[] key_password = null;
+    transient char[] keyPassword = null;
 
     /**
      * Creates an authenticator for the PSE membership service. Anything entered
@@ -141,7 +141,7 @@ public class EngineAuthenticator implements Authenticator {
 
         this.source = source;
         this.application = application;
-        this.seedCert = authenticatorEngine.getX509Certificate();
+        this.seedCertificate = authenticatorEngine.getX509Certificate();
         this.authenticatorEngine = authenticatorEngine;
     }
 
@@ -167,12 +167,12 @@ public class EngineAuthenticator implements Authenticator {
      **/
     @Override
     protected void finalize() throws Throwable {
-        if (null != store_password) {
-            Arrays.fill(store_password, '\0');
+        if (null != keyStorePassword) {
+            Arrays.fill(keyStorePassword, '\0');
         }
 
-        if (null != key_password) {
-            Arrays.fill(key_password, '\0');
+        if (null != keyPassword) {
+            Arrays.fill(keyPassword, '\0');
         }
 
         super.finalize();
@@ -182,7 +182,6 @@ public class EngineAuthenticator implements Authenticator {
      * {@inheritDoc}
      **/
     public MembershipService getSourceService() {
-//        return (MembershipService) source.getInterface();
         return (MembershipService) source;
     }
 
@@ -204,60 +203,63 @@ public class EngineAuthenticator implements Authenticator {
      * {@inheritDoc}
      **/
     synchronized public boolean isReadyForJoin() {
-        if (null != seedCert) {
+        if (null != seedCertificate) {
             Logging.logCheckedDebug(LOG, "null seed certificate");
             return authenticatorEngine.isEnginePresent();
         } else {
 
-            return source.getPSEConfig().validPasswd(identity, store_password, key_password);
+            return source.getPSEConfig().validPasswd(identity, keyStorePassword, keyPassword);
         }
     }
 
     /**
      *  Get KeyStore password
+     * @return 
      **/
-    public char[] getAuth1_KeyStorePassword() {
-        return store_password;
+    public char[] getKeyStorePassword() {
+        return keyStorePassword;
     }
 
     /**
      *  Set KeyStore password
+     * @param keyStorePassword
      **/
-    public void setAuth1_KeyStorePassword(String store_password) {
-        if (null == store_password) {
-            setAuth1_KeyStorePassword((char[]) null);
+    public void setKeyStorePassword(String keyStorePassword) {
+        if (null == keyStorePassword) {
+            setKeyStorePassword((char[]) null);
         } else {
-            setAuth1_KeyStorePassword(store_password.toCharArray());
+            setKeyStorePassword(keyStorePassword.toCharArray());
         }
     }
 
     /**
      *  Set KeyStore password
+     * @param keyStorePassword
      **/
-    public void setAuth1_KeyStorePassword(char[] store_password) {
-        if (null != this.store_password) {
-            Arrays.fill(this.store_password, '\0');
+    public void setKeyStorePassword(char[] keyStorePassword) {
+        if (null != this.keyStorePassword) {
+            Arrays.fill(this.keyStorePassword, '\0');
         }
 
-        if (null == store_password) {
-            this.store_password = null;
+        if (null == keyStorePassword) {
+            this.keyStorePassword = null;
         } else {
-            this.store_password = store_password.clone();
+            this.keyStorePassword = keyStorePassword.clone();
         }
     }
 
     /**
      *  Return the available identities.
      **/
-    public PeerID[] getIdentities(char[] store_password) {
+    public PeerID[] getIdentities(char[] keyStorePassword) {
 
-        if (seedCert != null) {
+        if (seedCertificate != null) {
             PeerID[] seed = { source.getPeerGroup().getPeerID() };
 
             return seed;
         } else {
             try {
-                ID[] allkeys = source.getPSEConfig().getKeysList(store_password);
+                ID[] allkeys = source.getPSEConfig().getKeysList(keyStorePassword);
 
                 // XXX bondolo 20040329 it may be appropriate to login
                 // something other than a peer id.
@@ -282,16 +284,16 @@ public class EngineAuthenticator implements Authenticator {
         }
     }
 
-    public X509Certificate getCertificate(char[] store_password, ID aPeer) {
-        if (seedCert != null) {
+    public X509Certificate getCertificate(char[] keyStorePassword, ID aPeer) {
+        if (seedCertificate != null) {
             if (aPeer.equals(source.getPeerGroup().getPeerID())) {
-                return seedCert;
+                return seedCertificate;
             } else {
                 return null;
             }
         } else {
             try {
-                return source.getPSEConfig().getTrustedCertificate(aPeer, store_password);
+                return source.getPSEConfig().getTrustedCertificate(aPeer, keyStorePassword);
             } catch (IOException failed) {
                 return null;
             } catch (KeyStoreException failed) {
@@ -302,20 +304,22 @@ public class EngineAuthenticator implements Authenticator {
 
     /**
      *  Get Identity
+     * @return 
      **/
-    public ID getAuth2Identity() {
+    public ID getIdentity() {
         return identity;
     }
 
     /**
      *  Set Identity
+     * @param id
      **/
-    public void setAuth2Identity(String id) {
+    public void setIdentity(String id) {
         try {
             URI idURI = new URI(id);
             ID identity = IDFactory.fromURI(idURI);
 
-            setAuth2Identity(identity);
+            setIdentity(identity);
         } catch (URISyntaxException badID) {
             throw new IllegalArgumentException("Bad ID");
         } 
@@ -323,37 +327,41 @@ public class EngineAuthenticator implements Authenticator {
 
     /**
      *  Set Identity
+     * @param identity
      **/
-    public void setAuth2Identity(ID identity) {
+    public void setIdentity(ID identity) {
         this.identity = identity;
     }
 
     /**
      *  Get identity password
+     * @return 
      **/
-    public char[] getAuth3_IdentityPassword() {
-        return key_password;
+    public char[] getIdentityPassword() {
+        return keyPassword;
     }
 
     /**
      *  Set identity password
+     * @param keyPassword
      **/
-    public void setAuth3_IdentityPassword(String key_password) {
-        setAuth3_IdentityPassword(key_password.toCharArray());
+    public void setIdentityPassword(String keyPassword) {
+        setIdentityPassword(keyPassword.toCharArray());
     }
 
     /**
      *  Set identity password
+     * @param keyPassword
      **/
-    public void setAuth3_IdentityPassword(char[] key_password) {
-        if (null != this.key_password) {
-            Arrays.fill(this.key_password, '\0');
+    public void setIdentityPassword(char[] keyPassword) {
+        if (null != this.keyPassword) {
+            Arrays.fill(this.keyPassword, '\0');
         }
 
-        if (null == key_password) {
-            this.key_password = null;
+        if (null == keyPassword) {
+            this.keyPassword = null;
         } else {
-            this.key_password = key_password.clone();
+            this.keyPassword = keyPassword.clone();
         }
     }
 }

@@ -87,22 +87,22 @@ public class CMKeyStoreManager implements KeyStoreManager {
     /**
      *  The keystore type
      **/
-    private final String keystore_type;
+    private final String keystoreType;
 
     /**
      *  The keystore type
      **/
-    private final String keystore_provider;
+    private final String keystoreProvider;
 
     /**
      *  The JXTA CM where the keystore lives.
      **/
-    private final CacheManager keystore_cm;
+    private final CacheManager keystoreCacheManager;
 
     /**
      *  The CM ID where the keystore lives.
      **/
-    private final ID keystore_location;
+    private final ID keystoreLocation;
 
     /**
      *  Default constructor.
@@ -126,22 +126,19 @@ public class CMKeyStoreManager implements KeyStoreManager {
             provider = null;
         }
 
-        keystore_type = type;
-
-        keystore_provider = provider;
-
-        keystore_cm = ((StdPeerGroup) group).getCacheManager();
-
-        keystore_location = location;
+        keystoreType = type;
+        keystoreProvider = provider;
+        keystoreCacheManager = ((StdPeerGroup)group).getCacheManager();
+        keystoreLocation = location;
 
         // check if we can get an instance.
-        if (null == keystore_provider) {
-            KeyStore.getInstance(keystore_type);
+        if (null == keystoreProvider) {
+            KeyStore.getInstance(keystoreType);
         } else {
-            KeyStore.getInstance(keystore_type, keystore_provider);
+            KeyStore.getInstance(keystoreType, keystoreProvider);
         }
 
-        Logging.logCheckedConfig(LOG, "pse location = ", keystore_location, " in ", keystore_cm);
+        Logging.logCheckedConfig(LOG, "pse location = ", keystoreLocation, " in ", keystoreCacheManager);
 
     }
 
@@ -155,23 +152,23 @@ public class CMKeyStoreManager implements KeyStoreManager {
     /**
      *  {@inheritDoc}
      **/
-    public boolean isInitialized(char[] store_password) {
+    public boolean isInitialized(char[] keyStorePassword) {
         try {
             KeyStore store;
 
-            if (null == keystore_provider) {
-                store = KeyStore.getInstance(keystore_type);
+            if (null == keystoreProvider) {
+                store = KeyStore.getInstance(keystoreType);
             } else {
-                store = KeyStore.getInstance(keystore_type, keystore_provider);
+                store = KeyStore.getInstance(keystoreType, keystoreProvider);
             }
 
-            InputStream is = keystore_cm.getInputStream("Raw", keystore_location.toString());
+            InputStream is = keystoreCacheManager.getInputStream("Raw", keystoreLocation.toString());
 
             if (null == is) {
                 return false;
             }
 
-            store.load(is, store_password);
+            store.load(is, keyStorePassword);
 
             return true;
         } catch (Exception failed) {
@@ -181,35 +178,29 @@ public class CMKeyStoreManager implements KeyStoreManager {
 
     /**
      *  {@inheritDoc}
+     * @param keyStorePassword
+     * @throws java.security.KeyStoreException
+     * @throws java.io.IOException
      **/
-    public void createKeyStore(char[] store_password) throws KeyStoreException, IOException {
+    public void createKeyStore(char[] keyStorePassword) throws KeyStoreException, IOException {
         try {
             KeyStore store;
 
-            if (null == keystore_provider) {
-                store = KeyStore.getInstance(keystore_type);
+            if (null == keystoreProvider) {
+                store = KeyStore.getInstance(keystoreType);
             } else {
-                store = KeyStore.getInstance(keystore_type, keystore_provider);
+                store = KeyStore.getInstance(keystoreType, keystoreProvider);
             }
 
-            store.load(null, store_password);
+            store.load(null, keyStorePassword);
 
-            saveKeyStore(store, store_password);
+            saveKeyStore(store, keyStorePassword);
         } catch (NoSuchProviderException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchProviderException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchProviderException during keystore processing", failed);
         } catch (NoSuchAlgorithmException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchAlgorithmException during keystore processing", failed);
         } catch (CertificateException failed) {
-            KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("CertificateException during keystore processing", failed);
         }
     }
 
@@ -220,38 +211,29 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedDebug(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
+        Logging.logCheckedDebug(LOG, "Loading (", keystoreType, ",", keystoreProvider, ") store from ", keystoreLocation);
 
         try {
 
             KeyStore store;
 
-            if (null == keystore_provider) {
-                store = KeyStore.getInstance(keystore_type);
+            if (null == keystoreProvider) {
+                store = KeyStore.getInstance(keystoreType);
             } else {
-                store = KeyStore.getInstance(keystore_type, keystore_provider);
+                store = KeyStore.getInstance(keystoreType, keystoreProvider);
             }
 
-            InputStream is = keystore_cm.getInputStream("Raw", keystore_location.toString());
+            InputStream is = keystoreCacheManager.getInputStream("Raw", keystoreLocation.toString());
 
             store.load(is, password);
 
             return store;
         } catch (NoSuchAlgorithmException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchAlgorithmException during keystore processing", failed);
         } catch (CertificateException failed) {
-            KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("CertificateException during keystore processing", failed);
         } catch (NoSuchProviderException failed) {
-            KeyStoreException failure = new KeyStoreException("NoSuchProviderException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("NoSuchProviderException during keystore processing", failed);
         }
     }
 
@@ -262,7 +244,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws IOException, KeyStoreException {
 
-        Logging.logCheckedDebug(LOG, "Writing ", store, " to ", keystore_location);
+        Logging.logCheckedDebug(LOG, "Writing ", store, " to ", keystoreLocation);
 
         try {
 
@@ -271,21 +253,12 @@ public class CMKeyStoreManager implements KeyStoreManager {
             store.store(bos, password);
             bos.close();
 
-            keystore_cm.save("Raw", keystore_location.toString(), bos.toByteArray(), Long.MAX_VALUE, 0);
+            keystoreCacheManager.save("Raw", keystoreLocation.toString(), bos.toByteArray(), Long.MAX_VALUE, 0);
 
         } catch (NoSuchAlgorithmException failed) {
-
-            KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
-
+            throw new KeyStoreException("NoSuchAlgorithmException during keystore processing", failed);
         } catch (CertificateException failed) {
-
-            KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
-
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("CertificateException during keystore processing", failed);
         }
     }
 
@@ -295,7 +268,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public void eraseKeyStore() throws IOException {
 
-        keystore_cm.remove("Raw", keystore_location.toString());
+        keystoreCacheManager.remove("Raw", keystoreLocation.toString());
     }
 
     /**
@@ -305,9 +278,9 @@ public class CMKeyStoreManager implements KeyStoreManager {
     public String toString() {
        StringBuilder sb = new StringBuilder("PSE keystore details:  \n");
        sb.append("   Class:  ").append(this.getClass().getName()).append("\n");
-       sb.append("   Type:  ").append(keystore_type==null ? "<default>" : keystore_type).append("\n");
-       sb.append("   Provider:  ").append(keystore_provider==null ? "<default>" : keystore_provider).append("\n");
-       sb.append("   Location:  ").append(keystore_location==null ? "<default>" : keystore_location.toString()).append("\n");
+       sb.append("   Type:  ").append(keystoreType==null ? "<default>" : keystoreType).append("\n");
+       sb.append("   Provider:  ").append(keystoreProvider==null ? "<default>" : keystoreProvider).append("\n");
+       sb.append("   Location:  ").append(keystoreLocation==null ? "<default>" : keystoreLocation.toString()).append("\n");
        return sb.toString();
     }
 }

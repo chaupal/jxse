@@ -85,14 +85,9 @@ public class PSECrendentialBeanInfo extends SimpleBeanInfo {
     @Override
     public EventSetDescriptor[] getEventSetDescriptors() {
         try {
-            EventSetDescriptor changed = new EventSetDescriptor(PSECredential.class, "propertyChange"
-                    ,
-                    PropertyChangeListener.class, "propertyChange");
-
+            EventSetDescriptor changed = new EventSetDescriptor(PSECredential.class, "propertyChange", PropertyChangeListener.class, "propertyChange");
             changed.setDisplayName("bound property change");
-
             EventSetDescriptor[] rv = { changed };
-
             return rv;
         } catch (IntrospectionException failed) {
             throw new UndeclaredThrowableException(failed, "Configuration error");

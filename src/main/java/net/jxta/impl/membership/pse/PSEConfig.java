@@ -129,6 +129,7 @@ public final class PSEConfig {
 
     /**
      * {@inheritDoc}
+     * @throws java.lang.Throwable
      */
     @Override
     protected void finalize() throws Throwable {
@@ -211,17 +212,11 @@ public final class PSEConfig {
         Throwable failure;
 
         try {
-
             return getKeyStore(keystorePassword);
-
         } catch (KeyStoreException failed) {
-
             failure = failed;
-
         } catch (IOException failed) {
-
             failure = failed;
-
         }
 
         Logging.logCheckedWarning(LOG, "Failure recovering keystore : \n", failure);
@@ -245,7 +240,6 @@ public final class PSEConfig {
     public KeyStore getKeyStore(char[] storePassword) throws KeyStoreException, IOException {
         synchronized (keystoreManager) {
             KeyStore store = keystoreManager.loadKeyStore(storePassword);
-
             return store;
         }
     }
@@ -288,32 +282,24 @@ public final class PSEConfig {
 
                 Key key = store.getKey(alias, key_password);
 
-                if ( key == null )
+                if (key == null) {
                     Logging.logCheckedDebug(LOG, "Can't retrieve key for alias: ", alias);
+                }
 
                 return (null != key);
             }
 
         } catch (UnrecoverableKeyException failed) {
-
             failure = failed;
-
         } catch (NoSuchAlgorithmException failed) {
-
             failure = failed;
-
         } catch (KeyStoreException failed) {
-
             failure = failed;
-
         } catch (IOException failed) {
-
             failure = failed;
-
         }
 
         Logging.logCheckedWarning(LOG, "Failure checking passphrase : \n", failure);
-
         return false;
     }
 
@@ -408,7 +394,7 @@ public final class PSEConfig {
      */
     public ID getTrustedCertificateID(X509Certificate cert) throws KeyStoreException, IOException {
 
-        String anAlias = null;
+        String anAlias;
 
         synchronized (keystoreManager) {
             KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
@@ -530,21 +516,11 @@ public final class PSEConfig {
             }
 
         } catch (NoSuchAlgorithmException failed) {
-
             Logging.logCheckedError(LOG, "Something failed\n", failed);
-
-            KeyStoreException failure = new KeyStoreException("Something Failed");
-
-            failure.initCause(failed);
-            throw failure;
-
+            throw new KeyStoreException("Something Failed", failed);
         } catch (UnrecoverableKeyException failed) {
-
             Logging.logCheckedError(LOG, "Key passphrase failure\n", failed);
-
-            KeyStoreException failure = new KeyStoreException("Key passphrase failure");
-            failure.initCause(failed);
-            throw failure;
+            throw new KeyStoreException("Key passphrase failure", failed);
 
         }
     }

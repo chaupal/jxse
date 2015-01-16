@@ -82,8 +82,7 @@ public abstract class AbstractContentShare<T extends ContentAdvertisement, U ext
     /**
      * List of share listeners.
      */
-    private final CopyOnWriteArrayList<ContentShareListener> listeners =
-            new CopyOnWriteArrayList<ContentShareListener>();
+    private final CopyOnWriteArrayList<ContentShareListener> listeners = new CopyOnWriteArrayList<ContentShareListener>();
 
     /**
      * Prover which created this share.
@@ -173,8 +172,7 @@ public abstract class AbstractContentShare<T extends ContentAdvertisement, U ext
      *  ContentShareAdvertisement
      */
     protected T createContentAdvertisement() {
-        T adv = (T) AdvertisementFactory.newAdvertisement(
-                ContentAdvertisement.getAdvertisementType());
+        T adv = (T) AdvertisementFactory.newAdvertisement(ContentAdvertisement.getAdvertisementType());
         Document doc = content.getDocument();
         adv.setContentID(content.getContentID());
         adv.setMetaID(content.getMetaID());

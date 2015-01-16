@@ -101,18 +101,13 @@ public class PSEMembershipServiceBeanInfo extends SimpleBeanInfo {
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
-            PropertyDescriptor defaultcredential = new PropertyDescriptor("defaultCredential", PSEMembershipService.class
-                    ,
-                    "getDefaultCredential", "setDefaultCredential");
-
+            PropertyDescriptor defaultcredential = new PropertyDescriptor("defaultCredential", PSEMembershipService.class, "getDefaultCredential", "setDefaultCredential");
             defaultcredential.setBound(true);
-
+            
             PropertyDescriptor addcredential = new PropertyDescriptor("addCredential", PSEMembershipService.class);
-
             addcredential.setBound(true);
 
             PropertyDescriptor rv[] = { addcredential, defaultcredential };
-
             return rv;
         } catch (IntrospectionException failed) {
             throw new UndeclaredThrowableException(failed, "Configuration error");

@@ -527,15 +527,15 @@ public final class PSEMembershipService implements MembershipService {
             if (authenticated instanceof StringAuthenticator) {
                 StringAuthenticator auth = (StringAuthenticator) authenticated;
 
-                store_password = auth.getAuth1KeyStorePassword();
-                identity = auth.getAuth2Identity();
-                key_password = auth.getAuth3IdentityPassword();
+                store_password = auth.getKeyStorePassword();
+                identity = auth.getIdentity();
+                key_password = auth.getIdentityPassword();
             } else  if (authenticated instanceof EngineAuthenticator) {
                 EngineAuthenticator auth = (EngineAuthenticator) authenticated;
 
-                store_password = auth.getAuth1_KeyStorePassword();
-                identity = auth.getAuth2Identity();
-                key_password = auth.getAuth3_IdentityPassword();
+                store_password = auth.getKeyStorePassword();
+                identity = auth.getIdentity();
+                key_password = auth.getIdentityPassword();
 
             } else {
 
@@ -775,9 +775,9 @@ public final class PSEMembershipService implements MembershipService {
 
             EngineAuthenticator auth = (EngineAuthenticator) authenticate;
 
-            auth.setAuth1_KeyStorePassword(authenticatorEngine.getStorePass(group));
-            auth.setAuth2Identity(assignedID);
-            auth.setAuth3_IdentityPassword(authenticatorEngine.getKeyPass(group));
+            auth.setKeyStorePassword(authenticatorEngine.getStorePass(group));
+            auth.setIdentity(assignedID);
+            auth.setIdentityPassword(authenticatorEngine.getKeyPass(group));
         } else {
             AuthenticationCredential authCred = new AuthenticationCredential(group, "StringAuthentication", null);
 
@@ -802,9 +802,9 @@ public final class PSEMembershipService implements MembershipService {
 
             StringAuthenticator auth = (StringAuthenticator) authenticate;
 
-            auth.setAuth1KeyStorePassword((String) null);
-            auth.setAuth2Identity(assignedID);
-            auth.setAuth3IdentityPassword(passkey);
+            auth.setKeyStorePassword((String) null);
+            auth.setIdentity(assignedID);
+            auth.setIdentityPassword(passkey);
         }
 
         if (authenticate.isReadyForJoin()) {

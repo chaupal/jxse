@@ -444,9 +444,9 @@ public class NetworkManager implements RendezvousListener {
 
             auth = (StringAuthenticator) membership.apply(authCred);
             if (auth != null) {
-                auth.setAuth1KeyStorePassword(keystorePassword);
-                auth.setAuth2Identity(group.getPeerID());
-                auth.setAuth3IdentityPassword(principalPassword);
+                auth.setKeyStorePassword(keystorePassword);
+                auth.setIdentity(group.getPeerID());
+                auth.setIdentityPassword(principalPassword);
                 if (auth.isReadyForJoin()) {
                     membership.join(auth);
                 }

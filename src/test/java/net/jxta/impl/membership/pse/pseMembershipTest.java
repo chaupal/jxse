@@ -207,9 +207,9 @@ public class pseMembershipTest extends TestCase {
             }
 
             if (null != auth) {
-                auth.setAuth1KeyStorePassword("password".toCharArray());
-                auth.setAuth2Identity(pg.getPeerID());
-                auth.setAuth3IdentityPassword("password".toCharArray());
+                auth.setKeyStorePassword("password".toCharArray());
+                auth.setIdentity(pg.getPeerID());
+                auth.setIdentityPassword("password".toCharArray());
 
                 assertTrue("should have been ready", auth.isReadyForJoin());
 

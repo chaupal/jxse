@@ -198,9 +198,9 @@ public class StringAuthenticator implements Authenticator {
      * {@inheritDoc}
      **/
     synchronized public boolean isReadyForJoin() {
-        if (null != seedCert) {
+        if (seedCert != null) {
             Logging.logCheckedDebug(LOG, "seed certificate:\n", seedCert.toString());
-            return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(keyPassword, seedCert.getPublicKey().getAlgorithm(), seedKey);
+            return PSEUtils.pkcs5_Decrypt_pbePrivateKey(keyPassword, seedCert.getPublicKey().getAlgorithm(), seedKey) != null;
         } else {
             Logging.logCheckedDebug(LOG, "null seed certificate");
             return source.getPSEConfig().validPasswd(identity, storePassword, keyPassword);
@@ -211,7 +211,7 @@ public class StringAuthenticator implements Authenticator {
      *  Get KeyStore password
      * @return 
      **/
-    public char[] getAuth1KeyStorePassword() {
+    public char[] getKeyStorePassword() {
         return storePassword;
     }
 
@@ -219,11 +219,11 @@ public class StringAuthenticator implements Authenticator {
      *  Set KeyStore password
      * @param storePassword
      **/
-    public void setAuth1KeyStorePassword(String storePassword) {
+    public void setKeyStorePassword(String storePassword) {
         if (storePassword != null) {
-            setAuth1KeyStorePassword(storePassword.toCharArray());
+            setKeyStorePassword(storePassword.toCharArray());
         } else {
-            setAuth1KeyStorePassword(storePassword);
+            StringAuthenticator.this.setKeyStorePassword(storePassword);
         }        
     }
 
@@ -231,7 +231,7 @@ public class StringAuthenticator implements Authenticator {
      *  Set KeyStore password
      * @param storePassword
      **/
-    public void setAuth1KeyStorePassword(char[] storePassword) {
+    public void setKeyStorePassword(char[] storePassword) {
         if (null != this.storePassword) {
             Arrays.fill(this.storePassword, '\0');
         }
@@ -311,7 +311,7 @@ public class StringAuthenticator implements Authenticator {
      *  Get Identity
      * @return 
      **/
-    public ID getAuth2Identity() {
+    public ID getIdentity() {
         return identity;
     }
 
@@ -319,15 +319,15 @@ public class StringAuthenticator implements Authenticator {
      *  Set Identity
      * @param id
      **/
-    public void setAuth2Identity(String id) {
-        setAuth2Identity(ID.create(URI.create(id)));
+    public void setIdentity(String id) {
+        setIdentity(ID.create(URI.create(id)));
     }
 
     /**
      *  Set Identity
      * @param identity
      **/
-    public void setAuth2Identity(ID identity) {
+    public void setIdentity(ID identity) {
         this.identity = identity;
     }
 
@@ -335,7 +335,7 @@ public class StringAuthenticator implements Authenticator {
      *  Get identity password
      * @return 
      **/
-    public char[] getAuth3IdentityPassword() {
+    public char[] getIdentityPassword() {
         return keyPassword;
     }
 
@@ -343,15 +343,15 @@ public class StringAuthenticator implements Authenticator {
      *  Set identity password
      * @param keyPassword
      **/
-    public void setAuth3IdentityPassword(String keyPassword) {
-        setAuth3IdentityPassword((null != keyPassword) ? keyPassword.toCharArray() : (char[]) null);
+    public void setIdentityPassword(String keyPassword) {
+        setIdentityPassword((null != keyPassword) ? keyPassword.toCharArray() : (char[]) null);
     }
 
     /**
      *  Set identity password
      * @param keyPassword
      **/
-    public void setAuth3IdentityPassword(char[] keyPassword) {
+    public void setIdentityPassword(char[] keyPassword) {
         if (null != this.keyPassword) {
             Arrays.fill(this.keyPassword, '\0');
         }

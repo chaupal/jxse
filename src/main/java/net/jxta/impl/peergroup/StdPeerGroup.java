@@ -690,9 +690,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         else
                         {
-                            tempAuth.setAuth1KeyStorePassword(membershipPassword);
-                            tempAuth.setAuth2Identity(this.getPeerID());
-                            tempAuth.setAuth3IdentityPassword(membershipPassword);
+                            tempAuth.setKeyStorePassword(membershipPassword);
+                            tempAuth.setIdentity(this.getPeerID());
+                            tempAuth.setIdentityPassword(membershipPassword);
 
                             if (tempAuth.isReadyForJoin())
                             {
@@ -781,9 +781,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());                                
                                 tempPass = net.jxta.impl.util.Password.singleton().getPassword();
                                 
-                                tempAuth.setAuth1KeyStorePassword(tempPass);
-                                tempAuth.setAuth2Identity(this.getPeerID());
-                                tempAuth.setAuth3IdentityPassword(tempPass);
+                                tempAuth.setKeyStorePassword(tempPass);
+                                tempAuth.setIdentity(this.getPeerID());
+                                tempAuth.setIdentityPassword(tempPass);
                                 
                                 if(tempAuth.isReadyForJoin())
                                 {
