@@ -493,7 +493,7 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	 * @return
 	 */
 	public static JxtaLoaderModuleManager<Module> getRoot(){
-		return getRoot(RefJxtaLoader.class);
+		return getRoot(RefJxtaLoader.class, false);
 	}
 
 	/**
@@ -502,7 +502,16 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	 * @return
 	 */
 	public static JxtaLoaderModuleManager<Module> getRoot( Class<?> clzz ){
-		if( root == null ){
+		return getRoot( clzz, false );
+	}
+
+	/**
+	 * Get a root manager for the given class
+	 * @param clzz
+	 * @return
+	 */
+	public static JxtaLoaderModuleManager<Module> getRoot( Class<?> clzz, boolean forceNew ){
+		if(( root == null ) || ( forceNew )){
 			IJxtaLoader staticLoader = new RefJxtaLoader( new URL[0], clzz.getClassLoader(), COMP_EQ);
 			root = new JxtaLoaderModuleManager<Module>( staticLoader );
 		}
