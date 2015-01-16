@@ -209,6 +209,7 @@ public interface ContentTransfer {
      * Blocks until the Content transfer has completed (or failed) and then
      * returns the completed Content.
      *
+     * @return 
      * @throws InterruptedException when the thread is interrupted.
      * @throws TransferException if there is an unrecoverable problem during
      *  the transfer

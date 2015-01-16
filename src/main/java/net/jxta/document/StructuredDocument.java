@@ -66,6 +66,7 @@ package net.jxta.document;
  * manipulated by the JXTA core. StructuredDocuments are used to represent most
  * core objects such as peer, peergroup or pipe advertisements.
  *
+ * @param <E>
  * @see         net.jxta.document.Document
  * @see         net.jxta.document.StructuredTextDocument
  * @see         net.jxta.document.StructuredDocumentFactory

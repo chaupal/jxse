@@ -218,6 +218,7 @@ public abstract class MessageElement implements Document {
      * Elements are considered equal if they have the same name, same basic
      * MIME type and signatures. Element data is not considered by this 
      * implementation as it is mostly intended for subclass use.
+     * @param target
      */
     @Override
     public boolean equals(Object target) {

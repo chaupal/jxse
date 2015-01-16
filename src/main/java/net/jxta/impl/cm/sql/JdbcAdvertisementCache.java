@@ -584,7 +584,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			}
 			
                         StructuredDocument<?> doc = (StructuredDocument<?>)adv.getSignedDocument();
-			Map<String, String> indexFields = CacheUtils.getIndexfields(adv.getIndexFields(), doc);
+			Map<String, String> indexFields = CacheUtils.getIndexFields(adv.getIndexFields(), doc);
 			for(String indexField : indexFields.keySet()) {
 				if(!putIndexable(conn, dn, fn, indexField, indexFields.get(indexField))) {
 					return;

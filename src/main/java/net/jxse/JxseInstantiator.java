@@ -63,7 +63,7 @@ import java.util.logging.Logger;
 /**
  * <p>The purpose of this class is to provide a mechanism to load {@code Class}
  * object instances from their fully qualified name, for later instantiation using
- * reflexion. 
+ * reflection. 
  * 
  * <p>It can be used to instantiate classes within API code without referring to
  * implementation code.</p>
@@ -84,35 +84,31 @@ public class JxseInstantiator {
      */
     public static Class<?> forName(String fullyQualifiedClassName) {
 
-        Class<?> Result;
+        Class<?> result;
 
         try {
 
-            Result = Class.forName(fullyQualifiedClassName);
+            result = Class.forName(fullyQualifiedClassName);            
 
-            if (null == Result) {
-                throw new ClassNotFoundException("forName() result is null");
-            }
-
-        } catch (ClassNotFoundException notThere) {
+        } catch (ClassNotFoundException exception) {
 
             String Tmp = "Could not find class named : " + fullyQualifiedClassName
-                    + "\n" + notThere.toString();
+                    + "\n" + exception.toString();
 
             LOG.severe(Tmp);
             return null;
 
-        } catch (NoClassDefFoundError notThere) {
+        } catch (NoClassDefFoundError exception) {
 
-            String Tmp = "Could not find class named : " + fullyQualifiedClassName
-                    + "\n" + notThere.toString();
+            String Tmp = "Class definition is not found : " + fullyQualifiedClassName
+                    + "\n" + exception.toString();
 
             LOG.severe(Tmp);
             return null;
 
         }
 
-        return Result;
+        return result;
 
     }
 
@@ -141,67 +137,43 @@ public class JxseInstantiator {
         }
 
         // Preparing result
-        Object Result = null;
-        Constructor<?> Constr = null;
+        Object result = null;
+        Constructor<?> constructor = null;
 
         try {
-
             // Retrieving the constructor
-            Constr = inClass.getConstructor(inParamTypes);
-
+            constructor = inClass.getConstructor(inParamTypes);
         } catch (NoSuchMethodException ex) {
 
-            LOG.severe("Cannot find constructor for: " + inClass.getName()
-                    + "\n" + ex.toString());
-
+            LOG.severe("Cannot find constructor for: " + inClass.getName() + "\n" + ex.toString());
             return null;
-
         } catch (SecurityException ex) {
 
-            LOG.severe("Security exception encountered while retrieving constructor for: " + inClass.getName()
-                    + "\n" + ex.toString());
-
+            LOG.severe("Security exception encountered while retrieving constructor for: " + inClass.getName() + "\n" + ex.toString());
             return null;
-
         }
 
         try {
-
             // Creating the instance
-            Result = Constr.newInstance(inParamValues);
-
+            result = constructor.newInstance(inParamValues);
         } catch (InstantiationException ex) {
-
-            LOG.severe("Instantion exception encountered while instantiating: " + inClass.getName()
-                    + "\n" + ex.toString());
-
+            LOG.severe("Instantion exception encountered while instantiating: " + inClass.getName() + "\n" + ex.toString());
             return null;
 
         } catch (IllegalAccessException ex) {
-
-            LOG.severe("Illegal access exception encountered while instantiating: " + inClass.getName()
-                    + "\n" + ex.toString());
-
+            LOG.severe("Illegal access exception encountered while instantiating: " + inClass.getName() + "\n" + ex.toString());
             return null;
 
         } catch (IllegalArgumentException ex) {
-
-            LOG.severe("Illegal argument exception encountered while instantiating: " + inClass.getName()
-                    + "\n" + ex.toString());
-
+            LOG.severe("Illegal argument exception encountered while instantiating: " + inClass.getName() + "\n" + ex.toString());
             return null;
 
         } catch (InvocationTargetException ex) {
-
-            LOG.severe("Invalid target exception encountered while instantiating: " + inClass.getName()
-                    + "\n" + ex.toString());
-
+            LOG.severe("Invalid target exception encountered while instantiating: " + inClass.getName() + "\n" + ex.toString());
             return null;
-
         }
 
-        return Result;
-
+        return result;
     }
 
     /**
@@ -221,10 +193,8 @@ public class JxseInstantiator {
         Object[] TheValues = new Object[inParametersValues.length];
 
         for (int i=0;i<inParametersValues.length;i++) {
-
             TheTypes[i] = inParametersValues[i].getClass();
             TheValues[i] = inParametersValues[i];
-
         }
 
         return instantiate(inClass, TheTypes, TheValues);
@@ -242,9 +212,6 @@ public class JxseInstantiator {
      * @return an {@code Object} class or {@code null}
      */
     public static Object instantiateWithNoParameterConstructor(Class inClass) {
-
-        return instantiate(inClass, new Class[0], new Object[0]);
-        
+        return instantiate(inClass, new Class[0], new Object[0]);        
     }
-
 }

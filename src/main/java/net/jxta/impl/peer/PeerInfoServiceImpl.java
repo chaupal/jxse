@@ -94,7 +94,6 @@ import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
-import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializable;
 
 import java.io.StringReader;
@@ -119,20 +118,20 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
     private ResolverService resolver = null;
     private PeerGroup group = null;
-    private EndpointService endpoint = null;
+    private final EndpointService endpoint = null;
     private PeerID localPeerId = null;
     private ModuleImplAdvertisement implAdvertisement = null;
     private String resolverHandlerName = null;
-    private MembershipService membership = null;
-    private Credential credential = null;
-    private StructuredDocument credentialDoc = null;
+    private final MembershipService membership = null;
+    private final Credential credential = null;
+    private final StructuredDocument credentialDoc = null;
     private MonitorManager monitorManager;
     private final Map peerInfoHandlers = new Hashtable();
-    private PipQueryHandler pipQueryHandler = new PipQueryHandler();
+    private final PipQueryHandler pipQueryHandler = new PipQueryHandler();
     private RemoteMonitorPeerInfoHandler remoteMonitorPeerInfoHandler;
-    private PeerInfoMessenger resolverServicePeerInfoMessenger = new ResolverServicePeerInfoMessenger();
+    private final PeerInfoMessenger resolverServicePeerInfoMessenger = new ResolverServicePeerInfoMessenger();
 
-    private int nextQueryId = 1000;
+    private final int nextQueryId = 1000;
     private static final Random rand = new Random();
 
     // This static package public hashtable of registered PeerInfoServiceImpls
@@ -183,6 +182,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
     /**
      * {@inheritDoc}
+     * @param arg
      */
     public int startApp(String[] arg) {
 
@@ -371,9 +371,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
      * {@inheritDoc}
      */
     public void removeRemoteMonitorListener(PeerID peerID, MonitorListener monitorListener, long timeout) throws MonitorException {
-        remoteMonitorPeerInfoHandler.removeRemoteMonitorListener(peerID, monitorListener, timeout
-                ,
-                resolverServicePeerInfoMessenger);
+        remoteMonitorPeerInfoHandler.removeRemoteMonitorListener(peerID, monitorListener, timeout, resolverServicePeerInfoMessenger);
     }
 
     /**

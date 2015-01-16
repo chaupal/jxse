@@ -60,6 +60,7 @@ package net.jxta.document;
  * Extends {@link StructuredDocument} to provide accessors appropriate for text
  * based documents.
  *
+ * @param <T>
  * @see         net.jxta.document.Document
  * @see         net.jxta.document.StructuredDocument
  * @see         net.jxta.document.TextDocument

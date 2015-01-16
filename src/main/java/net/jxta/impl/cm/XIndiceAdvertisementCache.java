@@ -587,7 +587,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                         InputStream is = record.getValue().getInputStream();
                         XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
                         Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
-                        Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), asDoc);
+                        Map<String, String> indexables = CacheUtils.getIndexFields(adv.getIndexFields(), asDoc);
 
                         indexer.removeFromIndex(addKey(dn, indexables), removePos);
 
@@ -741,7 +741,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             }
 
             long pos = cacheDB.writeRecord(key, value, absoluteLifetime, expiration);
-            Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), doc);
+            Map<String, String> indexables = CacheUtils.getIndexFields(adv.getIndexFields(), doc);
             Map<String, String> keyedIdx = addKey(dn, indexables);
 
             Logging.logCheckedDebug(LOG, "Indexing ", keyedIdx, " at ", pos);
@@ -1322,7 +1322,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                     InputStream is = record.getValue().getInputStream();
                     XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
                     Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
-                    Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), asDoc);
+                    Map<String, String> indexables = CacheUtils.getIndexFields(adv.getIndexFields(), asDoc);
 
                     String dn = getDirName(adv);
                     Map<String, String> keyedIdx = addKey(dn, indexables);

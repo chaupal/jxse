@@ -68,17 +68,17 @@ public class SrdiManagerPeriodicPushTask implements Runnable {
 
     private static final Logger LOG = Logging.getLogger(SrdiManagerPeriodicPushTask.class.getName());
     
-    private SrdiPushEntriesInterface pushNotifier;
+    private final SrdiPushEntriesInterface pushNotifier;
     
     private boolean stopped = true;
     private boolean publishAll = true;
     
-    private long pushIntervalInMs;
+    private final long pushIntervalInMs;
     
-    private ScheduledExecutorService executorService;
+    private final ScheduledExecutorService executorService;
     private ScheduledFuture<?> selfHandle;
 
-    private String handlerName;
+    private final String handlerName;
 
     public SrdiManagerPeriodicPushTask(String handlerName, SrdiPushEntriesInterface pushNotifier, ScheduledExecutorService executorService, long pushIntervalInMs) {
         this.handlerName = handlerName;

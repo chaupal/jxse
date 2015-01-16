@@ -73,6 +73,7 @@ public class JxtaConfigurationException extends Exception {
 
     /**
      * {@inheritdoc}
+     * @param message
      */
     public JxtaConfigurationException(String message) {
 
@@ -83,6 +84,8 @@ public class JxtaConfigurationException extends Exception {
 
     /**
      * {@inheritdoc}
+     * @param message
+     * @param cause
      */
     public JxtaConfigurationException(String message, Throwable cause) {
 
@@ -93,6 +96,7 @@ public class JxtaConfigurationException extends Exception {
 
     /**
      * {@inheritdoc}
+     * @param cause
      */
     public JxtaConfigurationException(Throwable cause) {
 

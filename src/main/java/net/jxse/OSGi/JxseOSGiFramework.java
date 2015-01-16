@@ -71,7 +71,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * API access to the OSGi Framework.
  *
  * <p>This object handles the call to the {@code JxseOSGiFramework}
- * implementation object using reflexion, as specified in the [@code OSGi.properties}
+ * implementation object using reflection, as specified in the [@code OSGi.properties}
  * file.
  * <p>The {@code INSTANCE} public static attribute is initialized with the OSGi framework
  * object.
@@ -109,20 +109,20 @@ public class JxseOSGiFramework {
     /**
      *  OSGi configuration and properties
      */
-    private static final JxtaConfiguration Configuration = new JxtaConfiguration();
+    private static final JxtaConfiguration configuration = new JxtaConfiguration();
 
     // Loading OSGi configuration
     static {
-        InputStream Tmp = null;
+        InputStream propertiesInputStream = null;
         try {
-            Tmp = JxseOSGiFramework.class.getResourceAsStream("JxseOSGi.properties");
-            Configuration.load(Tmp);
+            propertiesInputStream = JxseOSGiFramework.class.getResourceAsStream("JxseOSGi.properties");
+            configuration.load(propertiesInputStream);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "Cannot load JxseOSGi.properties :\n{0}", ex.toString());
         } finally {
-            if ( Tmp != null ) {
+            if ( propertiesInputStream != null ) {
                 try {
-                    Tmp.close();
+                    propertiesInputStream.close();
                 } catch (IOException ex) {
                     LOG.log(Level.WARNING, "Can't close JxseOSGi.properties input stream :\n{0}", ex.toString());
                 }
@@ -138,26 +138,21 @@ public class JxseOSGiFramework {
     // Creating the framework instance
     static {
 
-        String FrameworkClassName = Configuration.getProperty("FRAMEWORK_LAUNCHER");
+        String frameworkClassName = configuration.getProperty("FRAMEWORK_LAUNCHER");
 
-        if (FrameworkClassName==null) {
-
+        if (frameworkClassName==null) {
             LOG.severe("Null 'FRAMEWORK_LAUNCHER' property, cannot create OSGi framework");
             INSTANCE = null;
-
         } else {
-
             // Retrieving OSGi framework launcher class
-            Class FrameworkLauncherClass = JxseInstantiator.forName(Configuration.getProperty("FRAMEWORK_LAUNCHER"));
+            Class frameworkLauncherClass = JxseInstantiator.forName(configuration.getProperty("FRAMEWORK_LAUNCHER"));
 
             // Creating framework instance launcher
-            JxseOSGiFrameworkLauncher TheLauncher = (JxseOSGiFrameworkLauncher) JxseInstantiator.instantiateWithNoParameterConstructor(FrameworkLauncherClass);
+            JxseOSGiFrameworkLauncher frameworkLauncher = (JxseOSGiFrameworkLauncher) JxseInstantiator.instantiateWithNoParameterConstructor(frameworkLauncherClass);
 
             // Initializing OSGi framework object
-            INSTANCE = TheLauncher.getOsgiFrameworkInstance();
-
+            INSTANCE = frameworkLauncher.getOsgiFrameworkInstance();
         }
-
     }
 
     /**
@@ -196,9 +191,6 @@ public class JxseOSGiFramework {
      * @return An OSGi service tracker
      */
     public static ServiceTracker getServiceTracker(Class serviceAPIClass) {
-
         return new ServiceTracker(INSTANCE.getBundleContext(), serviceAPIClass.getName(), null);
-
     }
-
 }

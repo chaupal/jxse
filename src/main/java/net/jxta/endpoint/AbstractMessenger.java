@@ -181,6 +181,9 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
 
     /**
      * {@inheritDoc}
+     * @param rService
+     * @param rServiceParam
+     * @throws java.io.IOException
      */
     public final boolean sendMessage(Message msg, String rService, String rServiceParam) throws IOException {
 
@@ -218,13 +221,12 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
             throw (Error) throwable;
         }
 
-        IOException failure = new IOException("Failure sending message");
-        failure.initCause(throwable);
-        throw failure;
+        throw new IOException("Failure sending message", throwable);
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.lang.InterruptedException
      */
     public final int waitState(int wantedStates, long timeout) throws InterruptedException {
     	// register the barrier first, in case the state changes concurrently while we do

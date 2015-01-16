@@ -59,7 +59,6 @@ package net.jxta.impl.cm;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;
@@ -78,7 +77,7 @@ public class CacheUtils {
 	 * @param doc the document of the advertisement.
 	 * @return a map of all indexable fields to their values in the provided advertisement document.
 	 */
-	public static Map<String, String> getIndexfields(String[] fields, StructuredDocument<?> doc) {
+	public static Map<String, String> getIndexFields(String[] fields, StructuredDocument<?> doc) {
 
             Map<String, String> map = new HashMap<String, String>();
 	

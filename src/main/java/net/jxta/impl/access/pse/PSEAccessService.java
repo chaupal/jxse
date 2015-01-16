@@ -387,6 +387,7 @@ public class PSEAccessService implements AccessService {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     public Service getInterface() {
         return this;
@@ -394,6 +395,8 @@ public class PSEAccessService implements AccessService {
 
     /**
      * {@inheritDoc}
+     * @param op
+     * @param cred
      */
     public AccessResult doAccessCheck(PrivilegedOperation op, Credential cred) {
         if ((null == op) && (null == cred)) {
@@ -478,6 +481,8 @@ public class PSEAccessService implements AccessService {
 
     /**
      * {@inheritDoc}
+     * @param op
+     * @return 
      */
     public AccessResult doAccessCheck(PrivilegedOperation op) {
 
@@ -510,6 +515,9 @@ public class PSEAccessService implements AccessService {
 
     /**
      * {@inheritDoc}
+     * @param op
+     * @param aliases
+     * @return 
      */
     public AccessResult doAccessCheck(PrivilegedOperation op, String[] aliases) {
 

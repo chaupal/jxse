@@ -85,253 +85,255 @@ public class JxseConfigurationTool {
      * Returns an instance of the {@code NetworkManager} configured with the provided peer
      * configuration. 
      *
+     * @param jxsePeerConfiguration
      * @return instance of a NetworkManager.
-     * @throws Exception if an issue is encountered while retrieving the {@code NetworkManager}.
+     * @throws net.jxta.configuration.JxtaConfigurationException
+     * @throws java.io.IOException
+     * @throws net.jxta.exception.JxtaException
      */
-    public static NetworkManager getConfiguredNetworkManager(JxsePeerConfiguration inConfig) throws JxtaConfigurationException, IOException, JxtaException {
+    public static NetworkManager getConfiguredNetworkManager(JxsePeerConfiguration jxsePeerConfiguration) throws JxtaConfigurationException, IOException, JxtaException {
 
         // Preparing result
-        NetworkManager Result = null;
+        NetworkManager result = null;
 
         // Extracting constructor data
-        JxsePeerConfiguration.ConnectionMode ExtractedMode = inConfig.getConnectionMode();
+        JxsePeerConfiguration.ConnectionMode extractedMode = jxsePeerConfiguration.getConnectionMode();
 
-        if (ExtractedMode==null) {
-            LOG.severe("No connection mode available for NetworkManager !!!");
+        if (extractedMode == null) {
+            LOG.severe("No connection mode available for NetworkManager!!!");
             throw new JxtaConfigurationException("No connection mode available for NetworkManager !!!");
         }
 
-        LOG.log(Level.FINER, "Connection mode: {0}", ExtractedMode.toString());
+        LOG.log(Level.FINER, "Connection mode: {0}", extractedMode.toString());
 
         // Peer Instance Name
-        String InstanceName = inConfig.getPeerInstanceName();
+        String instanceName = jxsePeerConfiguration.getPeerInstanceName();
 
-        if (InstanceName==null) {
-            InstanceName="";
+        if (instanceName == null) {
+            instanceName = "";
         }
 
-        LOG.log(Level.FINER, "Peer instance name: {0}", InstanceName);
+        LOG.log(Level.FINER, "Peer instance name: {0}", instanceName);
 
         // Persistence location
-        URI InstanceHome = inConfig.getPersistenceLocation();
+        URI instanceHome = jxsePeerConfiguration.getPersistenceLocation();
 
         LOG.log(Level.FINE, "Creating a NetworkManager instance");
         
-        /*if (InstanceHome!=null) {
-            Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName, InstanceHome);            
+        /*if (instanceHome!=null) {
+            result = new NetworkManager(convertToNetworkManagerConfigMode(extractedMode), instanceName, instanceHome);            
         } else {            
-            Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName);
+            result = new NetworkManager(convertToNetworkManagerConfigMode(extractedMode), instanceName);
         }*/
         
-        Result = JxtaApplication.getNetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName, InstanceHome);
+        result = JxtaApplication.getNetworkManager(convertToNetworkManagerConfigMode(extractedMode), instanceName, instanceHome);
 
         // Retrieving the NetworkConfigurator
-        NetworkConfigurator TheNC = Result.getConfigurator();
+        NetworkConfigurator networkConfigurator = result.getConfigurator();
 
         // Seed relays
-        Map<Integer, URI> TheSeedRelays = inConfig.getAllSeedRelays();
+        Map<Integer, URI> seedRelays = jxsePeerConfiguration.getAllSeedRelays();
 
-        for (URI Item : TheSeedRelays.values()) {
-            LOG.log(Level.FINER, "Adding seed relay: {0}", Item.toString());
-            TheNC.addSeedRelay(Item);
+        for (URI uri : seedRelays.values()) {
+            LOG.log(Level.FINER, "Adding seed relay: {0}", uri.toString());
+            networkConfigurator.addSeedRelay(uri);
         }
 
         // Seed rendezvous
-        Map<Integer, URI> TheSeedRDVs = inConfig.getAllSeedRendezvous();
+        Map<Integer, URI> seedRendezvouss = jxsePeerConfiguration.getAllSeedRendezvous();
 
-        for (URI Item : TheSeedRDVs.values()) {
-            LOG.log(Level.FINER, "Adding seed rendezvous: {0}", Item.toString());
-            TheNC.addSeedRendezvous(Item);
+        for (URI uri : seedRendezvouss.values()) {
+            LOG.log(Level.FINER, "Adding seed rendezvous: {0}", uri.toString());
+            networkConfigurator.addSeedRendezvous(uri);
         }
 
         // Seeding relays
-        Map<Integer, URI> TheSeedingRelays = inConfig.getAllSeedingRelays();
+        Map<Integer, URI> seedingRelays = jxsePeerConfiguration.getAllSeedingRelays();
 
-        for (URI Item : TheSeedingRelays.values()) {
-            LOG.log(Level.FINER, "Adding seeding relay: {0}", Item.toString());
-            TheNC.addRelaySeedingURI(Item);
+        for (URI uri : seedingRelays.values()) {
+            LOG.log(Level.FINER, "Adding seeding relay: {0}", uri.toString());
+            networkConfigurator.addRelaySeedingURI(uri);
         }
 
         // Seeding rendezvous
-        Map<Integer, URI> TheSeedingRDVs = inConfig.getAllSeedingRendezvous();
+        Map<Integer, URI> seedingRendezvouss = jxsePeerConfiguration.getAllSeedingRendezvous();
 
-        for (URI Item : TheSeedingRDVs.values()) {
-            LOG.log(Level.FINER, "Adding seeding rendezvous: {0}", Item.toString());
-            TheNC.addRdvSeedingURI(Item);
+        for (URI uri : seedingRendezvouss.values()) {
+            LOG.log(Level.FINER, "Adding seeding rendezvous: {0}", uri.toString());
+            networkConfigurator.addRdvSeedingURI(uri);
         }
 
         // Infrastructure ID
-        PeerGroupID PGID = inConfig.getInfrastructureID();
+        PeerGroupID peerGroupId = jxsePeerConfiguration.getInfrastructureID();
 
-        if (PGID!=null) {
-            TheNC.setInfrastructureID(PGID);
-            LOG.log(Level.FINER, "Peer Group ID: {0}", PGID.toString());
+        if (peerGroupId != null) {
+            networkConfigurator.setInfrastructureID(peerGroupId);
+            LOG.log(Level.FINER, "Peer Group ID: {0}", peerGroupId.toString());
         }
 
         // Persistence location
-        URI KSLoc = inConfig.getKeyStoreLocation();
+        URI keyStoreLocation = jxsePeerConfiguration.getKeyStoreLocation();
 
-        if (KSLoc!=null) {
-            TheNC.setKeyStoreLocation(KSLoc);
-            LOG.log(Level.FINER, "Keystore location: {0}", KSLoc.toString());
+        if (keyStoreLocation != null) {
+            networkConfigurator.setKeyStoreLocation(keyStoreLocation);
+            LOG.log(Level.FINER, "Keystore location: {0}", keyStoreLocation.toString());
         }
 
         // Multicast enabled
-        TheNC.setUseMulticast(inConfig.getMulticastEnabled());
-        LOG.log(Level.FINER, "Multicast enabled: {0}", Boolean.toString(inConfig.getMulticastEnabled()));
+        networkConfigurator.setUseMulticast(jxsePeerConfiguration.getMulticastEnabled());
+        LOG.log(Level.FINER, "Multicast enabled: {0}", Boolean.toString(jxsePeerConfiguration.getMulticastEnabled()));
 
         // Tcp enabled
-        TheNC.setTcpEnabled(inConfig.getTcpEnabled());
-        LOG.log(Level.FINER, "Multicast enabled: {0}", Boolean.toString(inConfig.getTcpEnabled()));
+        networkConfigurator.setTcpEnabled(jxsePeerConfiguration.getTcpEnabled());
+        LOG.log(Level.FINER, "Multicast enabled: {0}", Boolean.toString(jxsePeerConfiguration.getTcpEnabled()));
 
         // Peer ID
-        PeerID PID = inConfig.getPeerID();
+        PeerID peerId = jxsePeerConfiguration.getPeerID();
 
-        if (PID!=null) {
-            TheNC.setPeerID(PID);
-            LOG.log(Level.FINER, "Peer ID: {0}", PID.toString());
+        if (peerId != null) {
+            networkConfigurator.setPeerID(peerId);
+            LOG.log(Level.FINER, "Peer ID: {0}", peerId.toString());
         }
 
         // Max relay and rdv clients
-        if (inConfig.getRelayMaxClients()>=0) {
-            TheNC.setRelayMaxClients(inConfig.getRelayMaxClients());
-            LOG.log(Level.FINER, "Relay Max Client: {0}", inConfig.getRelayMaxClients());
+        if (jxsePeerConfiguration.getRelayMaxClients()>=0) {
+            networkConfigurator.setRelayMaxClients(jxsePeerConfiguration.getRelayMaxClients());
+            LOG.log(Level.FINER, "Relay Max Client: {0}", jxsePeerConfiguration.getRelayMaxClients());
         }
 
-        if (inConfig.getRendezvousMaxClients()>=0) {
-            TheNC.setRendezvousMaxClients(inConfig.getRendezvousMaxClients());
-            LOG.log(Level.FINER, "Relay Max Client: {0}", inConfig.getRelayMaxClients());
+        if (jxsePeerConfiguration.getRendezvousMaxClients()>=0) {
+            networkConfigurator.setRendezvousMaxClients(jxsePeerConfiguration.getRendezvousMaxClients());
+            LOG.log(Level.FINER, "Relay Max Client: {0}", jxsePeerConfiguration.getRelayMaxClients());
         }
 
         // Use only rdv relay seeds
-        TheNC.setUseOnlyRelaySeeds(inConfig.getUseOnlyRelaySeeds());
-        LOG.log(Level.FINER, "SetUseOnlyRelaySeeds: {0}", inConfig.getUseOnlyRelaySeeds());
+        networkConfigurator.setUseOnlyRelaySeeds(jxsePeerConfiguration.getUseOnlyRelaySeeds());
+        LOG.log(Level.FINER, "SetUseOnlyRelaySeeds: {0}", jxsePeerConfiguration.getUseOnlyRelaySeeds());
 
-        TheNC.setUseOnlyRendezvousSeeds(inConfig.getUseOnlyRdvSeeds());
-        LOG.log(Level.FINER, "SetUseOnlyRdvSeeds: {0}", inConfig.getUseOnlyRdvSeeds());
+        networkConfigurator.setUseOnlyRendezvousSeeds(jxsePeerConfiguration.getUseOnlyRdvSeeds());
+        LOG.log(Level.FINER, "SetUseOnlyRdvSeeds: {0}", jxsePeerConfiguration.getUseOnlyRdvSeeds());
 
         // HTTP configuration
-        JxseHttpTransportConfiguration HttpConfig = inConfig.getHttpTransportConfiguration();
+        JxseHttpTransportConfiguration httpConfiguration = jxsePeerConfiguration.getHttpTransportConfiguration();
 
-        TheNC.setHttpIncoming(HttpConfig.getHttpIncoming());
-        LOG.log(Level.FINER, "Http incoming: {0}", HttpConfig.getHttpIncoming());
+        networkConfigurator.setHttpIncoming(httpConfiguration.getHttpIncoming());
+        LOG.log(Level.FINER, "Http incoming: {0}", httpConfiguration.getHttpIncoming());
 
-        TheNC.setHttpOutgoing(HttpConfig.getHttpOutgoing());
-        LOG.log(Level.FINER, "Http outgoing: {0}", HttpConfig.getHttpOutgoing());
+        networkConfigurator.setHttpOutgoing(httpConfiguration.getHttpOutgoing());
+        LOG.log(Level.FINER, "Http outgoing: {0}", httpConfiguration.getHttpOutgoing());
 
-        TheNC.setHttpInterfaceAddress(HttpConfig.getHttpInterfaceAddress());
-        LOG.log(Level.FINER, "Http interface address: {0}", HttpConfig.getHttpInterfaceAddress());
+        networkConfigurator.setHttpInterfaceAddress(httpConfiguration.getHttpInterfaceAddress());
+        LOG.log(Level.FINER, "Http interface address: {0}", httpConfiguration.getHttpInterfaceAddress());
 
-        TheNC.setHttpPublicAddress(HttpConfig.getHttpPublicAddress(),HttpConfig.isHttpPublicAddressExclusive());
-        LOG.log(Level.FINER, "Http public address: {0}", HttpConfig.getHttpPublicAddress());
+        networkConfigurator.setHttpPublicAddress(httpConfiguration.getHttpPublicAddress(),httpConfiguration.isHttpPublicAddressExclusive());
+        LOG.log(Level.FINER, "Http public address: {0}", httpConfiguration.getHttpPublicAddress());
 
-        if ( (HttpConfig.getHttpPort()>=0) && (HttpConfig.getHttpPort()<=65535) ) {
-            TheNC.setHttpPort(HttpConfig.getHttpPort());
-            LOG.log(Level.FINER, "Http port: {0}", HttpConfig.getHttpPort());
+        if ( (httpConfiguration.getHttpPort()>=0) && (httpConfiguration.getHttpPort()<=65535) ) {
+            networkConfigurator.setHttpPort(httpConfiguration.getHttpPort());
+            LOG.log(Level.FINER, "Http port: {0}", httpConfiguration.getHttpPort());
         }
 
         // HTTP2 configuration
-        JxseHttp2TransportConfiguration Http2Config = inConfig.getHttp2TransportConfiguration();
+        JxseHttp2TransportConfiguration http2Configuration = jxsePeerConfiguration.getHttp2TransportConfiguration();
 
-        TheNC.setHttp2Incoming(Http2Config.getHttp2Incoming());
-        LOG.log(Level.FINER, "Http2 incoming: {0}", Http2Config.getHttp2Incoming());
+        networkConfigurator.setHttp2Incoming(http2Configuration.getHttp2Incoming());
+        LOG.log(Level.FINER, "Http2 incoming: {0}", http2Configuration.getHttp2Incoming());
 
-        TheNC.setHttp2Outgoing(Http2Config.getHttp2Outgoing());
-        LOG.log(Level.FINER, "Http2 outgoing: {0}", Http2Config.getHttp2Outgoing());
+        networkConfigurator.setHttp2Outgoing(http2Configuration.getHttp2Outgoing());
+        LOG.log(Level.FINER, "Http2 outgoing: {0}", http2Configuration.getHttp2Outgoing());
 
-        TheNC.setHttp2InterfaceAddress(Http2Config.getHttp2InterfaceAddress());
-        LOG.log(Level.FINER, "Http2 interface address: {0}", Http2Config.getHttp2InterfaceAddress());
+        networkConfigurator.setHttp2InterfaceAddress(http2Configuration.getHttp2InterfaceAddress());
+        LOG.log(Level.FINER, "Http2 interface address: {0}", http2Configuration.getHttp2InterfaceAddress());
 
-        TheNC.setHttp2PublicAddress(Http2Config.getHttp2PublicAddress(), Http2Config.isHttp2PublicAddressExclusive());
-        LOG.log(Level.FINER, "Http2 public address: {0}", Http2Config.getHttp2PublicAddress());
-        LOG.log(Level.FINER, "Http2 exclusive public address: {0}", Http2Config.isHttp2PublicAddressExclusive());
+        networkConfigurator.setHttp2PublicAddress(http2Configuration.getHttp2PublicAddress(), http2Configuration.isHttp2PublicAddressExclusive());
+        LOG.log(Level.FINER, "Http2 public address: {0}", http2Configuration.getHttp2PublicAddress());
+        LOG.log(Level.FINER, "Http2 exclusive public address: {0}", http2Configuration.isHttp2PublicAddressExclusive());
 
-        if ( (Http2Config.getHttp2Port()>=0) && (Http2Config.getHttp2Port()<=65535) ) {
-            TheNC.setHttp2Port(Http2Config.getHttp2Port());
-            LOG.log(Level.FINER, "Http2 port: {0}", Http2Config.getHttp2Port());
+        if ( (http2Configuration.getHttp2Port()>=0) && (http2Configuration.getHttp2Port()<=65535) ) {
+            networkConfigurator.setHttp2Port(http2Configuration.getHttp2Port());
+            LOG.log(Level.FINER, "Http2 port: {0}", http2Configuration.getHttp2Port());
         }
 
-        if ( (Http2Config.getHttp2StartPort()>=0) && (Http2Config.getHttp2StartPort()<=65535) ) {
-            TheNC.setHttp2StartPort(Http2Config.getHttp2StartPort());
-            LOG.log(Level.FINER, "Http2 start port: {0}", Http2Config.getHttp2StartPort());
+        if ( (http2Configuration.getHttp2StartPort()>=0) && (http2Configuration.getHttp2StartPort()<=65535) ) {
+            networkConfigurator.setHttp2StartPort(http2Configuration.getHttp2StartPort());
+            LOG.log(Level.FINER, "Http2 start port: {0}", http2Configuration.getHttp2StartPort());
         }
 
-        if ( (Http2Config.getHttp2EndPort()>=0) && (Http2Config.getHttp2EndPort()<=65535) ) {
-            TheNC.setHttp2EndPort(Http2Config.getHttp2EndPort());
-            LOG.log(Level.FINER, "Http2 end port: {0}", Http2Config.getHttp2EndPort());
+        if ( (http2Configuration.getHttp2EndPort()>=0) && (http2Configuration.getHttp2EndPort()<=65535) ) {
+            networkConfigurator.setHttp2EndPort(http2Configuration.getHttp2EndPort());
+            LOG.log(Level.FINER, "Http2 end port: {0}", http2Configuration.getHttp2EndPort());
         }
 
         // Multicast configuration
-        JxseMulticastTransportConfiguration MultiConfig = inConfig.getMulticastTransportConfiguration();
+        JxseMulticastTransportConfiguration multicastConfiguration = jxsePeerConfiguration.getMulticastTransportConfiguration();
 
-        String McAdr = MultiConfig.getMulticastAddress();
+        String multicastAddress = multicastConfiguration.getMulticastAddress();
 
-        if (McAdr!=null) {
-            TheNC.setMulticastAddress(McAdr);
-            LOG.log(Level.FINER, "Multicast address: {0}", McAdr);
+        if (multicastAddress != null) {
+            networkConfigurator.setMulticastAddress(multicastAddress);
+            LOG.log(Level.FINER, "Multicast address: {0}", multicastAddress);
         }
 
-        String McInt = MultiConfig.getMulticastInterface();
+        String multicastInterface = multicastConfiguration.getMulticastInterface();
 
-        if (McInt!=null) {
-            TheNC.setMulticastInterface(McInt);
-            LOG.log(Level.FINER, "Multicast address: {0}", McInt);
+        if (multicastInterface != null) {
+            networkConfigurator.setMulticastInterface(multicastInterface);
+            LOG.log(Level.FINER, "Multicast address: {0}", multicastInterface);
         }
 
-        if (MultiConfig.getMulticastPacketSize()>0) {
-            TheNC.setMulticastSize(MultiConfig.getMulticastPacketSize());
-            LOG.log(Level.FINER, "Multicast packet size: {0}", MultiConfig.getMulticastPacketSize());
+        if (multicastConfiguration.getMulticastPacketSize()>0) {
+            networkConfigurator.setMulticastSize(multicastConfiguration.getMulticastPacketSize());
+            LOG.log(Level.FINER, "Multicast packet size: {0}", multicastConfiguration.getMulticastPacketSize());
         }
 
-        if ( (MultiConfig.getMulticastPort()>=0) && (MultiConfig.getMulticastPort()<=65535) ) {
-            TheNC.setMulticastPort(MultiConfig.getMulticastPort());
-            LOG.log(Level.FINER, "Multicast port: {0}", MultiConfig.getMulticastPort());
+        if ((multicastConfiguration.getMulticastPort()>=0) && (multicastConfiguration.getMulticastPort()<=65535)) {
+            networkConfigurator.setMulticastPort(multicastConfiguration.getMulticastPort());
+            LOG.log(Level.FINER, "Multicast port: {0}", multicastConfiguration.getMulticastPort());
         }
 
         // Tcp Configuration
-        JxseTcpTransportConfiguration TcpConfig = inConfig.getTcpTransportConfiguration();
+        JxseTcpTransportConfiguration tcpConfiguration = jxsePeerConfiguration.getTcpTransportConfiguration();
 
-        if ( (TcpConfig.getTcpStartPort()>=0) && (TcpConfig.getTcpStartPort()<=65535) ) {
-            TheNC.setTcpStartPort(TcpConfig.getTcpStartPort());
-            LOG.log(Level.FINER, "Tcp start port: {0}", TcpConfig.getTcpStartPort());
+        if ( (tcpConfiguration.getTcpStartPort()>=0) && (tcpConfiguration.getTcpStartPort()<=65535) ) {
+            networkConfigurator.setTcpStartPort(tcpConfiguration.getTcpStartPort());
+            LOG.log(Level.FINER, "Tcp start port: {0}", tcpConfiguration.getTcpStartPort());
         }
 
-        if ( (TcpConfig.getTcpEndPort()>=0) && (TcpConfig.getTcpEndPort()<=65535) ) {
-            TheNC.setTcpEndPort(TcpConfig.getTcpEndPort());
-            LOG.log(Level.FINER, "Tcp end port: {0}", TcpConfig.getTcpEndPort());
+        if ((tcpConfiguration.getTcpEndPort()>=0) && (tcpConfiguration.getTcpEndPort()<=65535)) {
+            networkConfigurator.setTcpEndPort(tcpConfiguration.getTcpEndPort());
+            LOG.log(Level.FINER, "Tcp end port: {0}", tcpConfiguration.getTcpEndPort());
         }
 
-        if ( (TcpConfig.getTcpPort()>=0) && (TcpConfig.getTcpPort()<=65535) ) {
-            TheNC.setTcpPort(TcpConfig.getTcpPort());
-            LOG.log(Level.FINER, "Tcp port: {0}", TcpConfig.getTcpPort());
+        if ((tcpConfiguration.getTcpPort()>=0) && (tcpConfiguration.getTcpPort()<=65535)) {
+            networkConfigurator.setTcpPort(tcpConfiguration.getTcpPort());
+            LOG.log(Level.FINER, "Tcp port: {0}", tcpConfiguration.getTcpPort());
         }
 
-        TheNC.setTcpIncoming(TcpConfig.getTcpIncoming());
-        LOG.log(Level.FINER, "Tcp incoming: {0}", TcpConfig.getTcpIncoming());
+        networkConfigurator.setTcpIncoming(tcpConfiguration.getTcpIncoming());
+        LOG.log(Level.FINER, "Tcp incoming: {0}", tcpConfiguration.getTcpIncoming());
 
-        TheNC.setTcpOutgoing(TcpConfig.getTcpOutgoing());
-        LOG.log(Level.FINER, "Tcp outgoing: {0}", TcpConfig.getTcpOutgoing());
+        networkConfigurator.setTcpOutgoing(tcpConfiguration.getTcpOutgoing());
+        LOG.log(Level.FINER, "Tcp outgoing: {0}", tcpConfiguration.getTcpOutgoing());
 
-        String TcpPubAddr = TcpConfig.getTcpPublicAddress();
+        String tcpPublicAddress = tcpConfiguration.getTcpPublicAddress();
 
-        if ( TcpPubAddr!=null ) {
-            TheNC.setTcpPublicAddress(TcpPubAddr, TcpConfig.isTcpPublicAddressExclusive());
-            LOG.log(Level.FINER, "Tcp public address: {0}", TcpPubAddr);
+        if (tcpPublicAddress != null) {
+            networkConfigurator.setTcpPublicAddress(tcpPublicAddress, tcpConfiguration.isTcpPublicAddressExclusive());
+            LOG.log(Level.FINER, "Tcp public address: {0}", tcpPublicAddress);
         }
 
-        LOG.log(Level.FINER, "Tcp public address exclusivity: {0}", TcpConfig.isTcpPublicAddressExclusive());
+        LOG.log(Level.FINER, "Tcp public address exclusivity: {0}", tcpConfiguration.isTcpPublicAddressExclusive());
 
-        String TcpIntAddr = TcpConfig.getTcpInterfaceAddress();
+        String tcpInterfaceAddress = tcpConfiguration.getTcpInterfaceAddress();
 
-        if ( TcpIntAddr!=null ) {
-            TheNC.setTcpInterfaceAddress(TcpIntAddr);
+        if (tcpInterfaceAddress != null) {
+            networkConfigurator.setTcpInterfaceAddress(tcpInterfaceAddress);
         }
 
-        LOG.log(Level.FINER, "Tcp interface address: {0}", TcpIntAddr);
+        LOG.log(Level.FINER, "Tcp interface address: {0}", tcpInterfaceAddress);
 
         // Returning result
-        return Result;
-
+        return result;
     }
 
     /**
@@ -355,7 +357,6 @@ public class JxseConfigurationTool {
         }
 
         return null;
-
     }
 
     /**
@@ -380,7 +381,6 @@ public class JxseConfigurationTool {
         }
 
         return null;
-
     }
 
     /**
@@ -391,124 +391,122 @@ public class JxseConfigurationTool {
     public static JxsePeerConfiguration getJxsePeerConfigurationFromNetworkManager(NetworkManager inNM) throws Exception {
 
         // Preparing result
-        JxsePeerConfiguration Result = new JxsePeerConfiguration();
+        JxsePeerConfiguration result = new JxsePeerConfiguration();
 
         // Retrieving the NetworkConfigurator
-        NetworkConfigurator TheNC = inNM.getConfigurator();
+        NetworkConfigurator networkConfigurator = inNM.getConfigurator();
 
         // Extracting mode
-        Result.setConnectionMode(JxseConfigurationTool.convertToJxsePeerConfigurationConfigMode(inNM.getMode()));
+        result.setConnectionMode(JxseConfigurationTool.convertToJxsePeerConfigurationConfigMode(inNM.getMode()));
 
         // Peer Instance Name
-        Result.setPeerInstanceName(TheNC.getName());
+        result.setPeerInstanceName(networkConfigurator.getName());
 
         // Persistence location
-        Result.setPersistenceLocation(TheNC.getStoreHome());
+        result.setPersistenceLocation(networkConfigurator.getStoreHome());
 
         // Seed relays
-        URI[] TheURIs = TheNC.getRelaySeedURIs();
+        URI[] TheURIs = networkConfigurator.getRelaySeedURIs();
 
         for (int i=0;i<TheURIs.length;i++) {
-            Result.addSeedRelay(TheURIs[i], i);
+            result.addSeedRelay(TheURIs[i], i);
         }
 
        // Seed rendezvous
-        URI[] TheURI2s = TheNC.getRdvSeedURIs();
+        URI[] TheURI2s = networkConfigurator.getRdvSeedURIs();
 
         for (int i=0;i<TheURI2s.length;i++) {
-            Result.addSeedRendezvous(TheURI2s[i], i);
+            result.addSeedRendezvous(TheURI2s[i], i);
         }
 
         // Seeding relays
-        URI[] TheURI3s = TheNC.getRelaySeedingURIs();
+        URI[] TheURI3s = networkConfigurator.getRelaySeedingURIs();
 
         for (int i=0;i<TheURI3s.length;i++) {
-            Result.addSeedingRelay(TheURI3s[i], i);
+            result.addSeedingRelay(TheURI3s[i], i);
         }
 
         // Seeding rendezvous
-        URI[] TheURI4s = TheNC.getRdvSeedingURIs();
+        URI[] TheURI4s = networkConfigurator.getRdvSeedingURIs();
 
         for (int i=0;i<TheURI4s.length;i++) {
-            Result.addSeedingRendezvous(TheURI4s[i], i);
+            result.addSeedingRendezvous(TheURI4s[i], i);
         }
 
         // Infrastructure ID
-        Result.setInfrastructureID(inNM.getInfrastructureID());
+        result.setInfrastructureID(inNM.getInfrastructureID());
 
         // Persistence location
-        Result.setKeyStoreLocation(TheNC.getKeyStoreLocation());
+        result.setKeyStoreLocation(networkConfigurator.getKeyStoreLocation());
 
         // Multicast enabled
-        Result.setMulticastEnabled(TheNC.getMulticastStatus());
+        result.setMulticastEnabled(networkConfigurator.getMulticastStatus());
 
         // Tcp enabled
-        Result.setTcpEnabled(TheNC.isTcpEnabled());
+        result.setTcpEnabled(networkConfigurator.isTcpEnabled());
 
         // Peer ID
-        Result.setPeerID(inNM.getPeerID());
+        result.setPeerID(inNM.getPeerID());
 
         // Max relay and rdv clients
-        Result.setRelayMaxClients(TheNC.getRelayMaxClients());
-        Result.setRendezvousMaxClients(TheNC.getRendezvousMaxClients());
+        result.setRelayMaxClients(networkConfigurator.getRelayMaxClients());
+        result.setRendezvousMaxClients(networkConfigurator.getRendezvousMaxClients());
 
         // Use only rdv relay seeds
-        Result.setUseOnlyRdvSeeds(TheNC.getUseOnlyRendezvousSeedsStatus());
-        Result.setUseOnlyRelaySeeds(TheNC.getUseOnlyRelaySeedsStatus());
+        result.setUseOnlyRdvSeeds(networkConfigurator.getUseOnlyRendezvousSeedsStatus());
+        result.setUseOnlyRelaySeeds(networkConfigurator.getUseOnlyRelaySeedsStatus());
 
         // HTTP configuration
-        JxseHttpTransportConfiguration HttpConfig = Result.getHttpTransportConfiguration();
+        JxseHttpTransportConfiguration httpConfiguration = result.getHttpTransportConfiguration();
 
-        HttpConfig.setHttpIncoming(TheNC.getHttpIncomingStatus());
-        HttpConfig.setHttpOutgoing(TheNC.getHttpOutgoingStatus());
-        HttpConfig.setHttpInterfaceAddress(TheNC.getHttpInterfaceAddress());
-        HttpConfig.setHttpPublicAddress(TheNC.getHttpPublicAddress(), TheNC.isHttpPublicAddressExclusive());
-        HttpConfig.setHttpPort(TheNC.getHttpPort());
+        httpConfiguration.setHttpIncoming(networkConfigurator.getHttpIncomingStatus());
+        httpConfiguration.setHttpOutgoing(networkConfigurator.getHttpOutgoingStatus());
+        httpConfiguration.setHttpInterfaceAddress(networkConfigurator.getHttpInterfaceAddress());
+        httpConfiguration.setHttpPublicAddress(networkConfigurator.getHttpPublicAddress(), networkConfigurator.isHttpPublicAddressExclusive());
+        httpConfiguration.setHttpPort(networkConfigurator.getHttpPort());
 
-        Result.setHttpTransportConfiguration(HttpConfig);
+        result.setHttpTransportConfiguration(httpConfiguration);
 
         // HTTP configuration
-        JxseHttp2TransportConfiguration Http2Config = Result.getHttp2TransportConfiguration();
+        JxseHttp2TransportConfiguration http2Configuration = result.getHttp2TransportConfiguration();
 
-        Http2Config.setHttp2Incoming(TheNC.getHttp2IncomingStatus());
-        Http2Config.setHttp2Outgoing(TheNC.getHttp2OutgoingStatus());
-        Http2Config.setHttp2InterfaceAddress(TheNC.getHttp2InterfaceAddress());
-        Http2Config.setHttp2PublicAddress(TheNC.getHttp2PublicAddress(), TheNC.isHttp2PublicAddressExclusive());
-        Http2Config.setHttp2Port(TheNC.getHttp2Port());
+        http2Configuration.setHttp2Incoming(networkConfigurator.getHttp2IncomingStatus());
+        http2Configuration.setHttp2Outgoing(networkConfigurator.getHttp2OutgoingStatus());
+        http2Configuration.setHttp2InterfaceAddress(networkConfigurator.getHttp2InterfaceAddress());
+        http2Configuration.setHttp2PublicAddress(networkConfigurator.getHttp2PublicAddress(), networkConfigurator.isHttp2PublicAddressExclusive());
+        http2Configuration.setHttp2Port(networkConfigurator.getHttp2Port());
 
-        Http2Config.setHttp2StartPort(TheNC.getHttp2StartPort());
-        Http2Config.setHttp2EndPort(TheNC.getHttp2EndPort());
+        http2Configuration.setHttp2StartPort(networkConfigurator.getHttp2StartPort());
+        http2Configuration.setHttp2EndPort(networkConfigurator.getHttp2EndPort());
 
-        Result.setHttp2TransportConfiguration(Http2Config);
+        result.setHttp2TransportConfiguration(http2Configuration);
         
         // Multicast configuration
-        JxseMulticastTransportConfiguration MultiConfig = Result.getMulticastTransportConfiguration();
+        JxseMulticastTransportConfiguration multicastConfiguration = result.getMulticastTransportConfiguration();
 
-        MultiConfig.setMulticastAddress(TheNC.getMulticastAddress());
-        MultiConfig.setMulticastInterface(TheNC.getMulticastInterface());
-        MultiConfig.setMulticastPacketSize(TheNC.getMulticastSize());
-        MultiConfig.setMulticastPort(TheNC.getMulticastPort());
+        multicastConfiguration.setMulticastAddress(networkConfigurator.getMulticastAddress());
+        multicastConfiguration.setMulticastInterface(networkConfigurator.getMulticastInterface());
+        multicastConfiguration.setMulticastPacketSize(networkConfigurator.getMulticastSize());
+        multicastConfiguration.setMulticastPort(networkConfigurator.getMulticastPort());
 
-        Result.setMulticastTransportConfiguration(MultiConfig);
+        result.setMulticastTransportConfiguration(multicastConfiguration);
 
         // Tcp Configuration
-        JxseTcpTransportConfiguration TcpConfig = Result.getTcpTransportConfiguration();
+        JxseTcpTransportConfiguration tcpConfiguration = result.getTcpTransportConfiguration();
 
-        TcpConfig.setTcpStartPort(TheNC.getTcpStartPort());
-        TcpConfig.setTcpEndPort(TheNC.getTcpEndport());
-        TcpConfig.setTcpPort(TheNC.getTcpPort());
+        tcpConfiguration.setTcpStartPort(networkConfigurator.getTcpStartPort());
+        tcpConfiguration.setTcpEndPort(networkConfigurator.getTcpEndport());
+        tcpConfiguration.setTcpPort(networkConfigurator.getTcpPort());
 
-        TcpConfig.setTcpIncoming(TheNC.getTcpIncomingStatus());
-        TcpConfig.setTcpOutgoing(TheNC.getTcpOutgoingStatus());
+        tcpConfiguration.setTcpIncoming(networkConfigurator.getTcpIncomingStatus());
+        tcpConfiguration.setTcpOutgoing(networkConfigurator.getTcpOutgoingStatus());
 
-        TcpConfig.setTcpPublicAddress(TheNC.getTcpPublicAddress(), TheNC.isTcpPublicAddressExclusive());
-        TcpConfig.setTcpInterfaceAddress(TheNC.getTcpInterfaceAddress());
+        tcpConfiguration.setTcpPublicAddress(networkConfigurator.getTcpPublicAddress(), networkConfigurator.isTcpPublicAddressExclusive());
+        tcpConfiguration.setTcpInterfaceAddress(networkConfigurator.getTcpInterfaceAddress());
 
-        Result.setTcpTransportConfiguration(TcpConfig);
+        result.setTcpTransportConfiguration(tcpConfiguration);
 
         // Returning result
-        return Result;
-
+        return result;
     }
-
 }

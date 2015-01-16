@@ -11,6 +11,7 @@ public interface IJxtaModuleService<T extends Module> extends IModuleService<T>{
 
 	/**
 	 * Get a module spec ID
+     * @return 
 	 */
 	public ModuleClassID getModuleClassID();
 

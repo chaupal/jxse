@@ -104,6 +104,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
     /**
      * Return an HTTP transport configuration containing defaults
+     * @return 
      */
     public static final JxsePeerConfiguration getDefaultJxsePeerConfiguration() {
 

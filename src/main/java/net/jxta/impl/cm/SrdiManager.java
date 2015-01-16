@@ -82,7 +82,6 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.protocol.SrdiMessage;
@@ -126,11 +125,11 @@ public class SrdiManager implements RendezvousListener {
     private PeerGroup group = null;
     private String handlername = null;
     private SrdiPushEntriesInterface srdiService = null;
-    private SrdiAPI srdi;
+    private final SrdiAPI srdi;
 
-    private ResolverService resolver;
+    private final ResolverService resolver;
     private final JxtaHash jxtaHash = new JxtaHash();
-    private Credential credential = null;
+    private final Credential credential = null;
 
     private SrdiManagerPeriodicPushTask srdiPushTask;
 

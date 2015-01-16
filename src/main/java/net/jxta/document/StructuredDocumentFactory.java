@@ -323,6 +323,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
 
     /**
      *  {@inheritDoc}
+     * @return 
      */
     @Override
     protected Map<MimeMediaType, Instantiator> getAssocTable() {
@@ -331,6 +332,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
 
     /**
      *  {@inheritDoc}
+     * @return 
      */
     @Override
     protected Class<MimeMediaType> getClassForKey() {
@@ -339,6 +341,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
 
     /**
      *  {@inheritDoc}
+     * @return 
      */
     @Override
     protected Class<Instantiator> getClassOfInstantiators() {

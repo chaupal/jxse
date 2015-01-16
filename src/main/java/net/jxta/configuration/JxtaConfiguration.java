@@ -88,13 +88,11 @@ public class JxtaConfiguration extends Properties {
         
     }
 
-    private void copyProperties(Properties from, Properties to) {
-    	
+    private void copyProperties(Properties from, Properties to) {    	
         for (Enumeration<?> e = from.keys() ; e.hasMoreElements() ;) {
-        	String key = (String)e.nextElement();
+            String key = (String)e.nextElement();
             to.setProperty(key, from.getProperty(key));
-        }
-    	
+        }    	
     }
     
     /**
@@ -264,6 +262,8 @@ public class JxtaConfiguration extends Properties {
      * {@inheritDoc}
      *
      * <p>This method stores defaults too.
+     * @param in
+     * @throws java.io.IOException
      */
     @Override
     public synchronized void load(InputStream in) throws IOException {

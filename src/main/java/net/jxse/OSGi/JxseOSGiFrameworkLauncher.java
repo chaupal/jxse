@@ -76,5 +76,4 @@ public interface JxseOSGiFrameworkLauncher {
      * @return an OSGi framework object instance
      */
     public Framework getOsgiFrameworkInstance();
-
 }

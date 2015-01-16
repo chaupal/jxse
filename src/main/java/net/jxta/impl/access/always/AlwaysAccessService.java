@@ -319,7 +319,7 @@ public class AlwaysAccessService implements AccessService {
      * {@inheritDoc}
      */
     public int startApp(String[] args) {
-        return 0;
+        return START_OK;
     }
 
     /**

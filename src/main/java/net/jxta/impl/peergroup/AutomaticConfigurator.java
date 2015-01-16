@@ -108,6 +108,8 @@ public class AutomaticConfigurator extends NullConfigurator {
 
     /**
      * {@inheritDoc}
+     * @return 
+     * @throws net.jxta.exception.ConfiguratorException
      */
     @Override
     public PlatformConfig getPlatformConfig() throws ConfiguratorException {

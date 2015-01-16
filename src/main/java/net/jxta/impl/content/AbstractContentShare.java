@@ -75,11 +75,10 @@ import net.jxta.protocol.ContentShareAdvertisement;
  * (optionally) delegating the creation of the embedded ContentAdvertisement
  * to the implementor, and by requiring the implementor to create a
  * ContentShareAdvertisement instance to house the ContentAdvertisement.
+ * @param <T>
+ * @param <U>
  */
-public abstract class AbstractContentShare
-        <T extends ContentAdvertisement,
-        U extends ContentShareAdvertisement>
-        implements ContentShare {
+public abstract class AbstractContentShare<T extends ContentAdvertisement, U extends ContentShareAdvertisement> implements ContentShare {
     /**
      * List of share listeners.
      */

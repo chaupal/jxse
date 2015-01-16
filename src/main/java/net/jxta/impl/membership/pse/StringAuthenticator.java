@@ -220,7 +220,11 @@ public class StringAuthenticator implements Authenticator {
      * @param storePassword
      **/
     public void setAuth1KeyStorePassword(String storePassword) {
-        setAuth1KeyStorePassword((null != storePassword) ? storePassword.toCharArray() : (char[]) null);
+        if (storePassword != null) {
+            setAuth1KeyStorePassword(storePassword.toCharArray());
+        } else {
+            setAuth1KeyStorePassword(storePassword);
+        }        
     }
 
     /**
