@@ -97,6 +97,7 @@ public class PSEMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {

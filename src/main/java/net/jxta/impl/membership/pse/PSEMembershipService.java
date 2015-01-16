@@ -506,64 +506,56 @@ public final class PSEMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @param authenticator
+     * @throws net.jxta.exception.PeerGroupException
      **/
-    public Credential join(Authenticator authenticated) throws PeerGroupException {
+    public Credential join(Authenticator authenticator) throws PeerGroupException {
 
-        if (this != authenticated.getSourceService()) {
+        if (!authenticator.getSourceService().equals(this)) {
             throw new ClassCastException("This is not my authenticator!");
         }
 
-        if (!authenticated.isReadyForJoin()) {
-            throw new PeerGroupException("Authenticator not ready to join!");
+        if (!authenticator.isReadyForJoin()) {
+            throw new PeerGroupException("Authenticator is not ready to join!");
         }
 
-        PSECredential newCred;
+        PSECredential newCredentials;
 
-        char[] store_password = null;
+        char[] keyStorePassword = null;
         ID identity;
-        char[] key_password = null;
+        char[] keyPassword = null;
 
         try {
-            if (authenticated instanceof StringAuthenticator) {
-                StringAuthenticator auth = (StringAuthenticator) authenticated;
-
-                store_password = auth.getKeyStorePassword();
-                identity = auth.getIdentity();
-                key_password = auth.getIdentityPassword();
-            } else  if (authenticated instanceof EngineAuthenticator) {
-                EngineAuthenticator auth = (EngineAuthenticator) authenticated;
-
-                store_password = auth.getKeyStorePassword();
-                identity = auth.getIdentity();
-                key_password = auth.getIdentityPassword();
-
+            if (authenticator instanceof StringAuthenticator) {
+                StringAuthenticator stringAuthenticator = (StringAuthenticator) authenticator;
+                keyStorePassword = stringAuthenticator.getKeyStorePassword();
+                identity = stringAuthenticator.getIdentity();
+                keyPassword = stringAuthenticator.getIdentityPassword();
+            } else if (authenticator instanceof EngineAuthenticator) {
+                EngineAuthenticator engineAuthenticator = (EngineAuthenticator) authenticator;
+                keyStorePassword = engineAuthenticator.getKeyStorePassword();
+                identity = engineAuthenticator.getIdentity();
+                keyPassword = engineAuthenticator.getIdentityPassword();
             } else {
-
-                Logging.logCheckedWarning(LOG, "I dont know how to deal with this authenticator ", authenticated);
+                Logging.logCheckedWarning(LOG, "I dont know how to deal with this authenticator ", authenticator);
                 throw new PeerGroupException("I dont know how to deal with this authenticator");
-
             }
 
-            if (null != store_password) pseStore.setKeyStorePassword(store_password);
+            if (keyStorePassword != null) {
+                pseStore.setKeyStorePassword(keyStorePassword);
+            }
 
             if (!pseStore.isInitialized()) {
 
                 Logging.logCheckedInfo(LOG, "Initializing the PSE key store.");
 
                 try {
-
                     pseStore.initialize();
-
                 } catch (KeyStoreException bad) {
-
                     throw new PeerGroupException("Could not initialize new PSE keystore.", bad);
-
                 } catch (IOException bad) {
-
                     throw new PeerGroupException("Could not initialize new PSE keystore.", bad);
-
                 }
-
             }
 
             try {
@@ -571,32 +563,28 @@ public final class PSEMembershipService implements MembershipService {
 
                 if (!Arrays.asList(allkeys).contains(identity)) {
                     // Add this key to the keystore.
-                    X509Certificate[] seed_cert = config.getCertificateChain();
+                    X509Certificate[] seedCertificate = config.getCertificateChain();
 
-                    if (null == seed_cert) {
+                    if (null == seedCertificate) {
                         throw new IOException("Could not read root certificate chain");
                     }
 
-                    PrivateKey seedPrivKey = config.getPrivateKey(key_password);
+                    PrivateKey seedPrivateKey = config.getPrivateKey(keyPassword);
 
-                    if (null == seedPrivKey) {
+                    if (null == seedPrivateKey) {
                         throw new IOException("Could not read private key");
                     }
 
-                    pseStore.setKey(identity, seed_cert, seedPrivKey, key_password);
+                    pseStore.setKey(identity, seedCertificate, seedPrivateKey, keyPassword);
 
                 }
 
             } catch (IOException failed) {
-
                 Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
-
             } catch (KeyStoreException failed) {
-
                 Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
-
             }
 
             try {
@@ -608,24 +596,21 @@ public final class PSEMembershipService implements MembershipService {
 
                     certList[0] = pseStore.getTrustedCertificate(identity);
 
-                    if (certList[0] == null && authenticatorEngine != null) 
+                    if (certList[0] == null && authenticatorEngine != null) {
                         certList[0] = authenticatorEngine.getX509Certificate();
-
+                    }
                 }
 
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                CertPath certificatePath = certificateFactory.generateCertPath(Arrays.asList(certList));
 
-                CertPath certs = cf.generateCertPath(Arrays.asList(certList));
+                PrivateKey privateKey = pseStore.getKey(identity, keyPassword);
 
-                PrivateKey privateKey = pseStore.getKey(identity, key_password);
-
-                newCred = new PSECredential(this, identity, certs, privateKey);
+                newCredentials = new PSECredential(this, identity, certificatePath, privateKey);
 
                 synchronized (this) {
-
-                    principals.add(newCred);
-                    authCredentials.add(authenticated.getAuthenticationCredential());
-
+                    principals.add(newCredentials);
+                    authCredentials.add(authenticator.getAuthenticationCredential());
                 }
             } catch (IOException failed) {
 
@@ -645,23 +630,23 @@ public final class PSEMembershipService implements MembershipService {
             }
 
         } finally {
-            if (null != store_password) {
-                Arrays.fill(store_password, '\0');
+            if (null != keyStorePassword) {
+                Arrays.fill(keyStorePassword, '\0');
             }
 
-            if (null != key_password) {
-                Arrays.fill(key_password, '\0');
+            if (null != keyPassword) {
+                Arrays.fill(keyPassword, '\0');
             }
         }
 
         // XXX bondolo potential but unlikely race condition here.
         if (null == getDefaultCredential()) {
-            setDefaultCredential(newCred);
+            setDefaultCredential(newCredentials);
         }
 
-        support.firePropertyChange("addCredential", null, newCred);
+        support.firePropertyChange("addCredential", null, newCredentials);
 
-        return newCred;
+        return newCredentials;
     }
 
     /**
@@ -714,7 +699,7 @@ public final class PSEMembershipService implements MembershipService {
      */
 
     /**
-     *  Generate a new service certificate for the assigned ID given an authenticated local credential.
+     *  Generate a new service certificate for the assigned ID given an authenticator local credential.
      *
      *  @param assignedID   The assigned ID of the service credential.
      *  @param credential   The issuer credential for the service credential.
@@ -747,7 +732,7 @@ public final class PSEMembershipService implements MembershipService {
     }
 
     /**
-     *  Recover the service credential for the assigned ID given an authenticated local credential.
+     *  Recover the service credential for the assigned ID given an authenticator local credential.
      *
      *  @param assignedID   The assigned ID of the service credential.
      *  @param credential   The issuer credential for the service credential.
@@ -1377,7 +1362,7 @@ public final class PSEMembershipService implements MembershipService {
             String cname = PSEUtils.getCertSubjectCName(info.cert);
 
             if (null != cname) {
-                // remove the -CA which is common to ca root certs.
+                // remove the -CA which is common to ca root certificatePath.
                 if (cname.endsWith("-CA"))
                     cname = cname.substring(0, cname.length() - 3);
             }
