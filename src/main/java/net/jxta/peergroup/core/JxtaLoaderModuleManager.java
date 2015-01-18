@@ -412,6 +412,10 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		
 	}
 
+	public String printRegisteredBuilders(){
+		return toString();
+	}
+	
 	/**
 	 * Get a root manager for the given class
 	 * @param clzz
