@@ -613,8 +613,7 @@ public class ContentServiceImpl implements ContentService {
 
         Enumeration resources;
         try {
-            resources = loader.getResources(
-                    "META-INF/services/" + ContentProviderSPI.class.getName());
+            resources = loader.getResources("META-INF/services/" + ContentProviderSPI.class.getName());
 
         } catch (IOException iox) {
 
@@ -622,7 +621,6 @@ public class ContentServiceImpl implements ContentService {
 
             // Early-out.
             return result;
-
         }
 
         // Create a Set of all unique class names
@@ -663,29 +661,20 @@ public class ContentServiceImpl implements ContentService {
 
         // Now attempt to instantiate all the providers we've found
         for (String str : provClassNames) {
-
             try {
-
                 Class cl = loader.loadClass(str);
                 provider = (ContentProviderSPI) cl.newInstance();
                 result.add(provider);
                 Logging.logCheckedDebug(LOG, "Added provider: ", str);
-
             } catch (ClassNotFoundException cnfx) {
-
                 Logging.logCheckedError(LOG, "Could not load service provider\n", cnfx);
                 // Continue to next provider class name
-
             } catch (InstantiationException instx) {
-
                 Logging.logCheckedError(LOG, "Could not load service provider\n", instx);
                 // Continue to next provider class name
-
             } catch (IllegalAccessException iaccx) {
-
                 Logging.logCheckedError(LOG, "Could not load service provider\n", iaccx);
                 // Continue to next provider class name
-
             }
         }
 

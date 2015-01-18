@@ -93,6 +93,7 @@ public abstract class AbstractPipeContentShareAdvertisement
 
     /**
      *  Construct a new AbstractPipeContentShareAdvertisement.
+     * @param root
      */
     public AbstractPipeContentShareAdvertisement(Element root) {
         super(root);
@@ -134,11 +135,14 @@ public abstract class AbstractPipeContentShareAdvertisement
 
     /**
      *  {@inheritDoc}
+     * @param raw
+     * @return 
      */
     @Override
     protected boolean handleElement( Element raw ) {
-        if ( super.handleElement( raw ) )
+        if (super.handleElement(raw)) {
             return true;
+        }
 
         XMLElement elem = (XMLElement) raw;
         String nm = elem.getName();
@@ -149,8 +153,7 @@ public abstract class AbstractPipeContentShareAdvertisement
                 AdvertisementFactory.newAdvertisement(elem);
                 setPipeAdvertisement(aPipeAdv);
             } catch (ClassCastException wrongAdv) {
-                throw new IllegalArgumentException(
-                        "Bad pipe advertisement in advertisement");
+                throw new IllegalArgumentException("Bad pipe advertisement in advertisement");
             }
             return true;
         }
@@ -160,11 +163,12 @@ public abstract class AbstractPipeContentShareAdvertisement
 
     /**
      *  {@inheritDoc}
+     * @param encodeAs
+     * @return 
      */
     @Override
     public Document getDocument( MimeMediaType encodeAs ) {
-        StructuredDocument adv =
-                (StructuredDocument) super.getDocument( encodeAs );
+        StructuredDocument adv = (StructuredDocument) super.getDocument( encodeAs );
 
         PipeAdvertisement pAdv = getPipeAdvertisement();
         if (pAdv != null) {
@@ -172,8 +176,6 @@ public abstract class AbstractPipeContentShareAdvertisement
             pAdv.getDocument(encodeAs);
             StructuredDocumentUtils.copyElements(adv, adv, advDoc);
         }
-
         return adv;
     }
-
 }

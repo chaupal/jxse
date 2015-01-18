@@ -552,6 +552,7 @@ public abstract class AbstractContentTransfer implements ContentTransfer {
 
     /**
      * {@inheritDoc}
+     * @throws java.lang.InterruptedException
      */
     public Content getContent() throws InterruptedException, TransferException {
         synchronized(lockObject) {

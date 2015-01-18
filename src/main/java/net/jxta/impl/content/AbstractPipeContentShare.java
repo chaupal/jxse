@@ -67,6 +67,8 @@ import net.jxta.protocol.PipeAdvertisement;
  * This class implements the bare minimum requirements for a Content share
  * implementation and will need to be extended by the provider
  * implementation to be useful.
+ * @param <T>
+ * @param <U>
  */
 public abstract class AbstractPipeContentShare<
         T extends ContentAdvertisement,
@@ -96,8 +98,7 @@ public abstract class AbstractPipeContentShare<
      * @param content content object to share
      * @param pAdv the pipe advertisement used to contact the server
      */
-    public AbstractPipeContentShare(
-            ContentProvider origin, Content content, PipeAdvertisement pAdv) {
+    public AbstractPipeContentShare(ContentProvider origin, Content content, PipeAdvertisement pAdv) {
         super(origin, content);
         setPipeAdvertisement(pAdv);
     }
@@ -118,6 +119,7 @@ public abstract class AbstractPipeContentShare<
      * This method extends the functionality provided by the super-class
      * by intercepting the resulting AbstractPipeContentShareAdvertisement
      * and associating the Pipe with it.
+     * @return 
      */
     @Override
     public U getContentShareAdvertisement() {
