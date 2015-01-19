@@ -99,7 +99,7 @@ import java.util.Enumeration;
  *  <tr><td valign="top"><b>Resign</b></td>
  * <td>Whenever the application or service no longer wishes to no longer use the
  * identities it has claimed, it may resign from the peergroup. This will cause
- * any identity credentials held by the membership service to  discarded.
+ * any identity credentials held by the membership service to be discarded.
  * </td></tr>
  *  </table>
  *

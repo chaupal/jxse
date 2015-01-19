@@ -71,6 +71,7 @@ public class NoneMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public BeanDescriptor getBeanDescriptor() {
@@ -79,6 +80,7 @@ public class NoneMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public EventSetDescriptor[] getEventSetDescriptors() {
@@ -99,6 +101,7 @@ public class NoneMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {

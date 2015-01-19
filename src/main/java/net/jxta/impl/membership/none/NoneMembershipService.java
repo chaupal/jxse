@@ -442,14 +442,14 @@ public class NoneMembershipService implements MembershipService {
             return application;
         }
 
-        public void setAuth1Identity(String who) {
-            if (null == who) {
+        public void setIdentity(String identity) {
+            if (null == identity) {
                 throw new IllegalArgumentException("You must supply an identity");
             }
-            whoami = who;
+            whoami = identity;
         }
 
-        public String getAuth1Identity() {
+        public String getIdentity() {
             return whoami;
         }
     }
@@ -634,7 +634,7 @@ public class NoneMembershipService implements MembershipService {
         Credential newCred;
 
         synchronized (this) {
-            newCred = new NoneCredential(this, myAuthenticated.getAuth1Identity());
+            newCred = new NoneCredential(this, myAuthenticated.getIdentity());
 
             principals.add(newCred);
             principalsAuth.add(myAuthenticated.application);

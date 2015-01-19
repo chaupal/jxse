@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl.membership.passwd;
+package net.jxta.impl.membership.password;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
@@ -74,7 +74,7 @@ public class PasswdMembershipServiceBeanInfo extends SimpleBeanInfo {
      **/
     @Override
     public BeanDescriptor getBeanDescriptor() {
-        return new BeanDescriptor(PasswdMembershipService.class);
+        return new BeanDescriptor(PasswordMembershipService.class);
     }
 
     /**
@@ -83,7 +83,7 @@ public class PasswdMembershipServiceBeanInfo extends SimpleBeanInfo {
     @Override
     public EventSetDescriptor[] getEventSetDescriptors() {
         try {
-            EventSetDescriptor changed = new EventSetDescriptor(PasswdMembershipService.class, "propertyChange"
+            EventSetDescriptor changed = new EventSetDescriptor(PasswordMembershipService.class, "propertyChange"
                     ,
                     PropertyChangeListener.class, "propertyChange");
 
@@ -103,7 +103,7 @@ public class PasswdMembershipServiceBeanInfo extends SimpleBeanInfo {
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
-            PropertyDescriptor defaultcredential = new PropertyDescriptor("defaultCredential", PasswdMembershipService.class);
+            PropertyDescriptor defaultcredential = new PropertyDescriptor("defaultCredential", PasswordMembershipService.class);
 
             defaultcredential.setBound(true);
 

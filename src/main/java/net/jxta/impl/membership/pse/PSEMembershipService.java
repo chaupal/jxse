@@ -136,8 +136,8 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * Well known service specification identifier: pse membership
      */
-    public final static ModuleSpecID pseMembershipSpecID = (ModuleSpecID) ID.create(
-            URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-DeadBeefDeafBabaFeedBabe000000050306"));
+    
+    public final static ModuleSpecID pseMembershipSpecID = IModuleDefinitions.refMembershipSpecID;
 
     /**
      * the peergroup to which this service is associated.
@@ -323,6 +323,7 @@ public final class PSEMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @return 
      **/
     public Service getInterface() {
         return this;
@@ -340,6 +341,7 @@ public final class PSEMembershipService implements MembershipService {
      *
      * <p/>Currently this service starts by itself and does not expect
      * arguments.
+     * @param arg
      */
     public int startApp(String[] arg) {
         Logging.logCheckedInfo(LOG, "PSE Membmership Service started.");
@@ -512,7 +514,7 @@ public final class PSEMembershipService implements MembershipService {
     public Credential join(Authenticator authenticator) throws PeerGroupException {
 
         if (!authenticator.getSourceService().equals(this)) {
-            throw new ClassCastException("This is not my authenticator!");
+            throw new ClassCastException("Authenticator does not belong to this membership service!");
         }
 
         if (!authenticator.isReadyForJoin()) {

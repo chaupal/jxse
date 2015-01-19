@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl.membership.passwd;
+package net.jxta.impl.membership.password;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
@@ -93,9 +93,9 @@ import java.util.*;
  * @see net.jxta.membership.MembershipService
  *
  */
-public class PasswdMembershipService implements MembershipService {
+public class PasswordMembershipService implements MembershipService {
 
-    private static final Logger LOG = Logging.getLogger(PasswdMembershipService.class.getName());
+    private static final Logger LOG = Logging.getLogger(PasswordMembershipService.class.getName());
 
     /**
      * Well known service specification identifier: password membership
@@ -107,12 +107,12 @@ public class PasswdMembershipService implements MembershipService {
      * This class provides the sub-class of Credential which is associated
      * with the password membership service.
      */
-    public final static class PasswdCredential implements Credential, CredentialPCLSupport {
+    public final static class PasswordCredential implements Credential, CredentialPCLSupport {
 
         /**
          * The MembershipService service which generated this credential.
          */
-        PasswdMembershipService source;
+        PasswordMembershipService source;
 
         /**
          * The identity associated with this credential
@@ -139,7 +139,7 @@ public class PasswdMembershipService implements MembershipService {
          */
         boolean valid = true;
 
-        protected PasswdCredential(PasswdMembershipService source, String whoami, String signedPeerID) {
+        protected PasswordCredential(PasswordMembershipService source, String whoami, String signedPeerID) {
 
             this.source = source;
             this.whoami = whoami;
@@ -147,7 +147,7 @@ public class PasswdMembershipService implements MembershipService {
             this.signedPeerID = signedPeerID;
         }
 
-        protected PasswdCredential(PasswdMembershipService source, Element root) throws PeerGroupException {
+        protected PasswordCredential(PasswordMembershipService source, Element root) throws PeerGroupException {
 
             this.source = source;
 
@@ -416,12 +416,12 @@ public class PasswdMembershipService implements MembershipService {
      *  @param application Anything entered into the identity info section of
      *  the Authentication credential is ignored.
      */
-    public final static class PasswdAuthenticator implements Authenticator {
+    public final static class PasswordAuthenticator implements Authenticator {
 
         /**
          * The Membership Service which generated this authenticator.
          */
-        PasswdMembershipService source;
+        PasswordMembershipService source;
 
         /**
          * The Authentication which was provided to the Apply operation of the
@@ -449,7 +449,7 @@ public class PasswdMembershipService implements MembershipService {
          * @param application The Anything entered into the identity info section of the Authentication
          * credential is ignored.
          */
-        PasswdAuthenticator(PasswdMembershipService source, AuthenticationCredential application) {
+        PasswordAuthenticator(PasswordMembershipService source, AuthenticationCredential application) {
             this.source = source;
             this.application = application;
 
@@ -489,19 +489,19 @@ public class PasswdMembershipService implements MembershipService {
             return application;
         }
 
-        public void setAuth1Identity(String who) {
+        public void setIdentity(String who) {
             whoami = who;
         }
 
-        public String getAuth1Identity() {
+        public String getIdentity() {
             return whoami;
         }
 
-        public void setAuth2_Password(String secret) {
+        public void setPassword(String secret) {
             password = secret;
         }
 
-        protected String getAuth2_Password() {
+        protected String getPassword() {
             return password;
         }
     }
@@ -545,7 +545,7 @@ public class PasswdMembershipService implements MembershipService {
     /**
      *  Default constructor. Normally only called by the peer group.
      */
-    public PasswdMembershipService() throws PeerGroupException {
+    public PasswordMembershipService() throws PeerGroupException {
         principals = new ArrayList();
         authCredentials = new ArrayList();
 
@@ -697,7 +697,7 @@ public class PasswdMembershipService implements MembershipService {
             throw new ProtocolNotSupportedException("Authentication method not recognized");
         }
 
-        return new PasswdAuthenticator(this, application);
+        return new PasswordAuthenticator(this, application);
     }
 
     /**
@@ -727,10 +727,11 @@ public class PasswdMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     public Credential join(Authenticator authenticated) throws PeerGroupException {
 
-        if (!(authenticated instanceof PasswdAuthenticator)) {
+        if (!(authenticated instanceof PasswordAuthenticator)) {
             throw new ClassCastException("This is not my authenticator!");
         }
 
@@ -742,8 +743,8 @@ public class PasswdMembershipService implements MembershipService {
             throw new PeerGroupException("Not Ready to join!");
         }
 
-        String identity = ((PasswdAuthenticator) authenticated).getAuth1Identity();
-        String password = ((PasswdAuthenticator) authenticated).getAuth2_Password();
+        String identity = ((PasswordAuthenticator) authenticated).getIdentity();
+        String password = ((PasswordAuthenticator) authenticated).getPassword();
 
         if (!checkPasswd(identity, password)) {
             throw new PeerGroupException("Incorrect Password!");
@@ -754,7 +755,7 @@ public class PasswdMembershipService implements MembershipService {
         Credential newCred;
 
         synchronized (this) {
-            newCred = new PasswdCredential(this, identity, "blah");
+            newCred = new PasswordCredential(this, identity, "blah");
 
             principals.add(newCred);
 
@@ -784,7 +785,7 @@ public class PasswdMembershipService implements MembershipService {
         setDefaultCredential(null);
 
         while (eachCred.hasNext()) {
-            PasswdCredential aCred = (PasswdCredential) eachCred.next();
+            PasswordCredential aCred = (PasswordCredential) eachCred.next();
 
             aCred.setValid(false);
         }
@@ -795,7 +796,7 @@ public class PasswdMembershipService implements MembershipService {
      */
     public Credential makeCredential(Element element) throws PeerGroupException, Exception {
 
-        return new PasswdCredential(this, element);
+        return new PasswordCredential(this, element);
     }
 
     /**
