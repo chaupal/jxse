@@ -63,6 +63,21 @@ public abstract class AbstractModuleBuilder<T extends Object> implements IModule
 		return descriptors.toArray( new IModuleDescriptor[ this.descriptors.size()]);
 	}
 
+	/**
+	 * Returns true if the builder supports the given descriptor.
+	 * This does not mean that it can necessarily build the corresponding module
+	 * 
+	 * @param descriptor
+	 * @return
+	 */
+	public boolean supports( IModuleDescriptor descriptor ){
+		for( IModuleDescriptor supported: this.descriptors){
+			if( supported.compareTo( descriptor ) == 0 )
+				return true;
+		}
+		return false;
+	}
+
 	public boolean canBuild(IModuleDescriptor descriptor) {
 		for( IModuleDescriptor desc: descriptors )
 			if( desc.equals( descriptor ))

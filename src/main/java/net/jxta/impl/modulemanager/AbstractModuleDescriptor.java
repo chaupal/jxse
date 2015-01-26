@@ -84,7 +84,7 @@ public abstract class AbstractModuleDescriptor implements IModuleDescriptor {
 		return !this.dependencies.isEmpty();
 	}
 
-	public IModuleDescriptor[] dependencies() {
+	public IModuleDescriptor[] getDependencies() {
 		return dependencies.toArray( new IModuleDescriptor[ this.dependencies.size()]);
 	}
 

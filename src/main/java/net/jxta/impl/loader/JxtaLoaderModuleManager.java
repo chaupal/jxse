@@ -30,6 +30,7 @@ import net.jxta.module.IJxtaModuleBuilder;
 import net.jxta.module.IJxtaModuleDescriptor;
 import net.jxta.module.IJxtaModuleManager;
 import net.jxta.module.IModuleBuilder;
+import net.jxta.module.IModuleClient;
 import net.jxta.module.IModuleDescriptor;
 import net.jxta.module.IModuleManager;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -43,7 +44,7 @@ import net.jxta.util.cardinality.Cardinality;
 import net.jxta.util.cardinality.CardinalityException;
 import net.jxta.util.cardinality.ICardinality;
 
-public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>{
+public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>, IModuleClient{
 
 	public static final String S_ERR_INVALID_BUILDER = "The builder is not of the required interface: ";
 	
@@ -486,6 +487,13 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 		return manager.getVerifier().createVerifier( implAdv );
 	}
 
+	/**
+	 * (non-Javadoc)
+	 * @see net.jxta.module.IModuleClient#canBuild(net.jxta.module.IModuleDescriptor)
+	 */
+	public boolean canBuild(IModuleDescriptor descriptor) {
+		return this.verifier.canBuild(descriptor);
+	}
 
 	/**
 	 * Get a root manager for the given class

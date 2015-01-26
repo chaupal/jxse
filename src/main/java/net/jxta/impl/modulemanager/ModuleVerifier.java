@@ -4,10 +4,11 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import net.jxta.module.IModuleBuilder;
+import net.jxta.module.IModuleClient;
 import net.jxta.module.IModuleDescriptor;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-public class ModuleVerifier<T extends Object> {
+public class ModuleVerifier<T extends Object> implements IModuleClient{
 
 	private static String S_WRN_COULD_NOT_LOAD_MODULE = "Could not load module: ";
 	
@@ -33,29 +34,50 @@ public class ModuleVerifier<T extends Object> {
 	}
 
 	/**
+	 * See if the given descriptor can be built by the builders
+	 */
+	public boolean canBuild(IModuleDescriptor descriptor) {
+		for( IModuleBuilder<T> builder: builders ){
+			if( this.acceptDescriptor(builder, descriptor))
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Verify the given descriptor by checking if the dependencies are resolved, and 
 	 * @param builder
 	 * @param descriptor
 	 * @return
 	 */
 	public boolean acceptDescriptor( IModuleBuilder<T> builder, IModuleDescriptor descriptor ){
+		
 		if( builder.canBuild(descriptor))
 			return true;
 		
+		if(! builder.supports( descriptor ))
+			return false;
+		
 		//First check to see if the builder can resolve the dependencies
-		for( IModuleDescriptor dependency: descriptor.dependencies() ){
-			if( !acceptDescriptor( builder, dependency ))
-				return false;
-		}
-				
-		//All the dependencies are resolved. Now try to see which builder can build the descriptor
-		for( IModuleBuilder<T> blder: builders ){
-			if( blder.equals( builder ))
-				continue;
-			if(  this.acceptDescriptor(blder, descriptor))
+	    boolean result = false;
+		for( IModuleDescriptor dependency: descriptor.getDependencies() ){
+			if( acceptDescriptor( builder, dependency ))
 				return true;
+				
+			//All the dependencies are resolved. Now try to see which builder can build the descriptor
+			for( IModuleBuilder<T> blder: builders ){
+				if( blder.equals( builder ))
+					continue;
+				if( this.acceptDescriptor( blder, dependency )){
+					result = true;
+					break;
+				}
+			}
+			if( !result ){
+				logger.warning( S_WRN_COULD_NOT_LOAD_MODULE + descriptor );
+				return false;
+			}
 		}
-		logger.warning( S_WRN_COULD_NOT_LOAD_MODULE + descriptor );
 		return true;
 	}
 	
@@ -85,5 +107,4 @@ public class ModuleVerifier<T extends Object> {
 		descendant = new ModuleConfig<T>( null );// TODO replace  
 		return new ModuleVerifier<T>( (ModuleConfig<T>) descendant, this.builders );
 	}
-
 }

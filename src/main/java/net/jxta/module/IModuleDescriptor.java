@@ -45,5 +45,5 @@ public interface IModuleDescriptor extends ICardinality, Comparable<IModuleDescr
 	 * An optional list of dependencies with other modules
 	 * @return
 	 */
-	public IModuleDescriptor[] dependencies();
+	public IModuleDescriptor[] getDependencies();
 }

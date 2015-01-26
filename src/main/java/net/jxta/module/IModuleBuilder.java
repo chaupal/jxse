@@ -32,7 +32,16 @@ public interface IModuleBuilder<T extends Object> {
 	 * @return
 	 */
 	public IModuleDescriptor[] getSupportedDescriptors();
-		
+	
+	/**
+	 * Returns true if the builder supports the given descriptor.
+	 * This does not mean that it can necessarily build the corresponding module
+	 * 
+	 * @param descriptor
+	 * @return
+	 */
+	public boolean supports( IModuleDescriptor descriptor );
+	
 	/**
 	 * Returns true if the module supports the given descriptor
 	 * @param descriptor
