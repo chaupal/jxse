@@ -215,7 +215,7 @@ public class PasswordMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          *
-         * <p/>PasswdCredential never expire.
+         * <p/>PasswordCredential never expire.
          */
         public boolean isExpired() {
             return false;
@@ -224,7 +224,7 @@ public class PasswordMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          *
-         * <p/>PasswdCredential are almost always valid.
+         * <p/>PasswordCredential are almost always valid.
          */
         public boolean isValid() {
             return valid;
@@ -233,7 +233,7 @@ public class PasswordMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          *
-         * <p/>PasswdCredential are always valid except after resign.
+         * <p/>PasswordCredential are always valid except after resign.
          */
         private void setValid(boolean valid) {
             boolean oldValid = isValid();
