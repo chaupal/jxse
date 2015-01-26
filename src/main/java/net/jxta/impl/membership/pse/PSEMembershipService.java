@@ -204,6 +204,7 @@ public final class PSEMembershipService implements MembershipService {
     
     /**
      *  Default constructor. Normally only called by the peer group.
+     * @throws net.jxta.exception.PeerGroupException
      **/
     public PSEMembershipService() throws PeerGroupException {
         support = new PropertyChangeSupport(getInterface());
@@ -261,7 +262,7 @@ public final class PSEMembershipService implements MembershipService {
             }
 
             if (!(paramsAdv instanceof PSEConfigAdv)) {
-                throw new PeerGroupException("Provided Advertisement was not a " + PSEConfigAdv.getAdvertisementType());
+                throw new PeerGroupException("Provided advertisement was not a " + PSEConfigAdv.getAdvertisementType());
             }
 
             config = (PSEConfigAdv) paramsAdv;
@@ -345,7 +346,7 @@ public final class PSEMembershipService implements MembershipService {
      */
     public int startApp(String[] arg) {
         Logging.logCheckedInfo(LOG, "PSE Membmership Service started.");
-        return 0;
+        return START_OK;
 
     }
 

@@ -82,9 +82,9 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- *  The passwd membership service provides a Membership Service implementation
+ *  The password membership service provides a Membership Service implementation
  *  which is based on a password scheme similar to the unix
- *  <code>/etc/passwd</code> system.</code>
+ *  <code>/etc/password</code> system.</code>
  *
  * <p/><strong>This implementation is intended as an example of a
  *  simple Membership Service and <em>NOT</em> as a practical secure
@@ -100,8 +100,7 @@ public class PasswordMembershipService implements MembershipService {
     /**
      * Well known service specification identifier: password membership
      */
-    public static final ModuleSpecID passwordMembershipSpecID = (ModuleSpecID)
-            ID.create(URI.create("urn:jxta:uuid-DeadBeefDeafBabaFeedBabe000000050206"));
+    public static final ModuleSpecID passwordMembershipSpecID = (ModuleSpecID)ID.create(URI.create("urn:jxta:uuid-DeadBeefDeafBabaFeedBabe000000050206"));
 
     /**
      * This class provides the sub-class of Credential which is associated
@@ -117,12 +116,12 @@ public class PasswordMembershipService implements MembershipService {
         /**
          * The identity associated with this credential
          */
-        String whoami;
+        String identity;
 
         /**
          * The peerid associated with this credential.
          */
-        ID peerid;
+        ID peerId;
 
         /**
          * The peerid which has been "signed" so that the identity may be verified.
@@ -139,18 +138,16 @@ public class PasswordMembershipService implements MembershipService {
          */
         boolean valid = true;
 
-        protected PasswordCredential(PasswordMembershipService source, String whoami, String signedPeerID) {
+        protected PasswordCredential(PasswordMembershipService source, String identity, String signedPeerID) {
 
             this.source = source;
-            this.whoami = whoami;
-            this.peerid = source.peergroup.getPeerID();
+            this.identity = identity;
+            this.peerId = source.peergroup.getPeerID();
             this.signedPeerID = signedPeerID;
         }
 
         protected PasswordCredential(PasswordMembershipService source, Element root) throws PeerGroupException {
-
             this.source = source;
-
             initialize(root);
         }
 
@@ -203,7 +200,7 @@ public class PasswordMembershipService implements MembershipService {
          * {@inheritDoc}
          */
         public ID getPeerID() {
-            return peerid;
+            return peerId;
         }
 
         /**
@@ -212,7 +209,7 @@ public class PasswordMembershipService implements MembershipService {
          *  @param  peerid   the peerid for this credential
          */
         private void setPeerID(PeerID peerid) {
-            this.peerid = peerid;
+            this.peerId = peerid;
         }
 
         /**
@@ -252,7 +249,7 @@ public class PasswordMembershipService implements MembershipService {
          * {@inheritDoc}
          */
         public Object getSubject() {
-            return whoami;
+            return identity;
         }
 
         /**
@@ -261,7 +258,7 @@ public class PasswordMembershipService implements MembershipService {
          *  @param  subject The subject for this credential.
          */
         private void setSubject(String subject) {
-            whoami = subject;
+            identity = subject;
         }
 
         /**
@@ -293,7 +290,7 @@ public class PasswordMembershipService implements MembershipService {
             e = doc.createElement("PeerID", getPeerID().toString());
             doc.appendChild(e);
 
-            e = doc.createElement("Identity", whoami);
+            e = doc.createElement("Identity", identity);
             doc.appendChild(e);
 
             // FIXME 20010327   Do some kind of signing here based on password.
@@ -407,14 +404,9 @@ public class PasswordMembershipService implements MembershipService {
     }
 
     /**
-     * Creates an authenticator for the passwd membership service. Anything
+     * Creates an authenticator for the password membership service. Anything
      *  entered into the identity info section of the Authentication credential
      *  is ignored.
-     *
-     *  @param source The instance of the passwd membership service which
-     *  created this authenticator.
-     *  @param application Anything entered into the identity info section of
-     *  the Authentication credential is ignored.
      */
     public final static class PasswordAuthenticator implements Authenticator {
 
@@ -432,7 +424,7 @@ public class PasswordMembershipService implements MembershipService {
         /**
          * the identity which is being claimed
          */
-        String whoami = null;
+        String identity = null;
 
         /**
          * the password for that identity.
@@ -441,7 +433,7 @@ public class PasswordMembershipService implements MembershipService {
 
         /**
          * Creates an authenticator for the password MembershipService service. The only method
-         * supported is "PasswdAuthentication". Anything entered into the identity info
+         * supported is "PasswordAuthentication". Anything entered into the identity info
          * section of the Authentication credential is ignored.
          *
          * @param source The instance of the password membership service which created this
@@ -471,15 +463,15 @@ public class PasswordMembershipService implements MembershipService {
             if ( null == password )
                 Logging.logCheckedDebug(LOG, "null password");
             if ( null == password )
-                Logging.logCheckedDebug(LOG, "null whoami");
-            return ((null != password) && (null != whoami));
+                Logging.logCheckedDebug(LOG, "null identity");
+            return ((null != password) && (null != identity));
         }
 
         /**
          * {@inheritDoc}
          */
         public String getMethodName() {
-            return "PasswdAuthentication";
+            return "PasswordAuthentication";
         }
 
         /**
@@ -490,11 +482,11 @@ public class PasswordMembershipService implements MembershipService {
         }
 
         public void setIdentity(String who) {
-            whoami = who;
+            identity = who;
         }
 
         public String getIdentity() {
-            return whoami;
+            return identity;
         }
 
         public void setPassword(String secret) {
@@ -593,6 +585,8 @@ public class PasswordMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @param impl
+     * @throws net.jxta.exception.PeerGroupException
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
@@ -638,10 +632,10 @@ public class PasswordMembershipService implements MembershipService {
                 }
                 String login = etcPasswd.substring(0, nextDelim).trim();
                 int lastDelim = etcPasswd.indexOf(':', nextDelim + 1);
-                String passwd = etcPasswd.substring(nextDelim + 1, lastDelim);
+                String password = etcPasswd.substring(nextDelim + 1, lastDelim);
 
-                Logging.logCheckedDebug(LOG, "Adding login : \'", login, "\' with encoded password : \'", passwd, "\'");
-                logins.put(login, passwd);
+                Logging.logCheckedDebug(LOG, "Adding login : \'", login, "\' with encoded password : \'", password, "\'");
+                logins.put(login, password);
 
             }
         }
@@ -672,9 +666,10 @@ public class PasswordMembershipService implements MembershipService {
      *
      * <p/>Currently this service starts by itself and does not expect
      * arguments.
+     * @param arg
      */
     public int startApp(String[] arg) {
-        return 0;
+        return START_OK;
     }
 
     /**
@@ -688,13 +683,15 @@ public class PasswordMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
+     * @throws net.jxta.exception.ProtocolNotSupportedException
      */
     public Authenticator apply(AuthenticationCredential application) throws PeerGroupException, ProtocolNotSupportedException {
 
         String method = application.getMethod();
 
-        if ((null != method) && !"StringAuthentication".equals(method) && !"PasswdAuthentication".equals(method)) {
-            throw new ProtocolNotSupportedException("Authentication method not recognized");
+        if ((null != method) && !"StringAuthentication".equals(method) && !"PasswordAuthentication".equals(method)) {
+            throw new ProtocolNotSupportedException("Authentication method not supported!");
         }
 
         return new PasswordAuthenticator(this, application);
@@ -746,7 +743,7 @@ public class PasswordMembershipService implements MembershipService {
         String identity = ((PasswordAuthenticator) authenticated).getIdentity();
         String password = ((PasswordAuthenticator) authenticated).getPassword();
 
-        if (!checkPasswd(identity, password)) {
+        if (!checkPassword(identity, password)) {
             throw new PeerGroupException("Incorrect Password!");
         }
 
@@ -793,9 +790,9 @@ public class PasswordMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     public Credential makeCredential(Element element) throws PeerGroupException, Exception {
-
         return new PasswordCredential(this, element);
     }
 
@@ -804,19 +801,19 @@ public class PasswordMembershipService implements MembershipService {
      * correct.
      *
      * @param identity the identity which the user is trying to claim
-     * @param passwd the password guess being tested.
+     * @param password the password guess being tested.
      * @return true if the password was correct for the specified identity
      * otherwise false.
      */
-    private boolean checkPasswd(String identity, String passwd) {
+    private boolean checkPassword(String identity, String password) {
         boolean result;
 
         if (!logins.containsKey(identity)) {
             return false;
         }
 
-        String encodedPW = makePsswd(passwd);
-        Logging.logCheckedDebug(LOG, "Password \'", passwd, "\' encodes as: \'", encodedPW, "\'");
+        String encodedPW = makePssword(password);
+        Logging.logCheckedDebug(LOG, "Password \'", password, "\' encodes as: \'", encodedPW, "\'");
 
         String mustMatch = (String) logins.get(identity);
 
@@ -843,7 +840,7 @@ public class PasswordMembershipService implements MembershipService {
      *   @return String the encoded version of the password.
      *
      */
-    public static String makePsswd(String source) {
+    public static String makePssword(String source) {
 
         /**
          *

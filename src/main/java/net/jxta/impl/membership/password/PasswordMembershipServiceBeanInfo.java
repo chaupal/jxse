@@ -67,10 +67,11 @@ import java.lang.reflect.UndeclaredThrowableException;
 /**
  *  Our beaninfo
  **/
-public class PasswdMembershipServiceBeanInfo extends SimpleBeanInfo {
+public class PasswordMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public BeanDescriptor getBeanDescriptor() {
@@ -79,6 +80,7 @@ public class PasswdMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public EventSetDescriptor[] getEventSetDescriptors() {
