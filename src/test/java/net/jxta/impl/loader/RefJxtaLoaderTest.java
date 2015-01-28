@@ -103,11 +103,11 @@ public class RefJxtaLoaderTest {
      * Default compatibility equater instance.
      */
     private static final CompatibilityEquater COMP_EQ =
-            new CompatibilityEquater() {
-                public boolean compatible(Element<?> test) {
-                    return CompatibilityUtils.isCompatible(test);
-                }
-            };
+    	new CompatibilityEquater() {
+            public boolean compatible(Element<?> test) {
+                return CompatibilityUtils.isCompatible(test);
+        }
+    };
 
     static TempDir home;
     static NetworkManager netMan;
