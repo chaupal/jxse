@@ -7,11 +7,6 @@ public class ModuleException extends Exception {
 		super();
 	}
 
-	public ModuleException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
-
 	public ModuleException(String message, Throwable cause) {
 		super(message, cause);
 	}

@@ -137,7 +137,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
         private final JPasswordField storePassField;
 
         private final JLabel identityLabel;
-        private final JComboBox<JComboEntry> identityList;
+        private final JComboBox identityList;
 
         private final JLabel identityPassLabel;
         private final JPasswordField identityPassField;
