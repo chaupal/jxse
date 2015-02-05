@@ -313,8 +313,7 @@ public class PasswordMembershipService implements MembershipService {
                     ID pgid = IDFactory.fromURI(gID);
 
                     if (!pgid.equals(getPeerGroupID())) {
-                        throw new IllegalArgumentException(
-                                "Operation is from a different group. " + pgid + " != " + getPeerGroupID());
+                        throw new IllegalArgumentException("Operation is from a different group. " + pgid + " != " + getPeerGroupID());
                     }
                 } catch (URISyntaxException badID) {
                     throw new IllegalArgumentException("Bad PeerGroupID in advertisement: " + elem.getTextValue());
@@ -536,6 +535,7 @@ public class PasswordMembershipService implements MembershipService {
 
     /**
      *  Default constructor. Normally only called by the peer group.
+     * @throws net.jxta.exception.PeerGroupException
      */
     public PasswordMembershipService() throws PeerGroupException {
         principals = new ArrayList();
@@ -621,18 +621,18 @@ public class PasswordMembershipService implements MembershipService {
         }
 
         for (Enumeration allLogins = myParam.getChildren(); allLogins.hasMoreElements();) {
-            XMLElement aLogin = (XMLElement) allLogins.nextElement();
+            XMLElement loginElement = (XMLElement) allLogins.nextElement();
 
-            if (aLogin.getName().equals("login")) {
-                String etcPasswd = aLogin.getTextValue();
-                int nextDelim = etcPasswd.indexOf(':');
+            if (loginElement.getName().equals("login")) {
+                String etcPassword = loginElement.getTextValue();
+                int nextDelim = etcPassword.indexOf(':');
 
                 if (-1 == nextDelim) {
                     continue;
                 }
-                String login = etcPasswd.substring(0, nextDelim).trim();
-                int lastDelim = etcPasswd.indexOf(':', nextDelim + 1);
-                String password = etcPasswd.substring(nextDelim + 1, lastDelim);
+                String login = etcPassword.substring(0, nextDelim).trim();
+                int lastDelim = etcPassword.indexOf(':', nextDelim + 1);
+                String password = etcPassword.substring(nextDelim + 1, lastDelim);
 
                 Logging.logCheckedDebug(LOG, "Adding login : \'", login, "\' with encoded password : \'", password, "\'");
                 logins.put(login, password);

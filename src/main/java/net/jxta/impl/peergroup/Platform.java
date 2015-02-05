@@ -171,6 +171,8 @@ public class Platform extends StdPeerGroup {
 
     /**
      * {@inheritDoc}
+     * @param nullParent
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     protected synchronized void initFirst(PeerGroup nullParent, ID assignedID, Advertisement impl) throws PeerGroupException {
@@ -214,6 +216,7 @@ public class Platform extends StdPeerGroup {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     protected synchronized void initLast() throws PeerGroupException {
@@ -227,8 +230,8 @@ public class Platform extends StdPeerGroup {
         }
     }
 
-    public GlobalRegistry getGlobalRegistry()
-    {
+    @Override
+    public GlobalRegistry getGlobalRegistry() {
         return globalRegistry;
     }
 
@@ -247,16 +250,16 @@ public class Platform extends StdPeerGroup {
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
         IJxtaLoader loader = getLoader();
 
-        // For now, use the well know NPG naming, it is not identical to the 
-        // allPurpose PG because we use the class ShadowPeerGroup which 
+        // For now, use the well know NetPeerGroup naming, it is not identical to the 
+        // allPurpose peer group because we use the class ShadowPeerGroup which 
         // initializes the peer config from its parent.
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refNetPeerGroupSpecID);
-
         return implAdv;
     }
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.ServiceNotFoundException
      */
     @Override
     protected void checkServices() throws ServiceNotFoundException {
