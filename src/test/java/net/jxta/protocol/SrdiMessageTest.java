@@ -70,7 +70,6 @@ import java.util.Vector;
  */
 public class SrdiMessageTest extends TestCase {
 
-    //private final static String TestName = "Srdi Message Test";
     private static final String srcpeer = "urn:jxta:uuid-59616261646162614A787461503250330000000000000000000000000000000103";
     private static final String key = "key";
     private static final String val = "value";

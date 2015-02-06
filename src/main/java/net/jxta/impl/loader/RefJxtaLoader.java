@@ -110,15 +110,9 @@ public class RefJxtaLoader extends JxtaLoader {
     private final PeerGroup group;
 
     /**
-     * <ul>
-     *     net.jxta.platform.core.k net.jxta.platform.core.ModuleSpecID}.</li>
-     *     <li>Values are {@link java.util.Map}.
-     *         <ul>
-     *             <li>Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8</li>
-     *             <li>Values are {@link java.lang.Class}<? extends Module>.</li>
-     *         </ul>
-     *     </li>
-     * </ul>
+     * Values are {@link java.util.Map}.
+     *   Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8
+     *   Values are {@link java.lang.Class}<? extends Module>.
      */
     private final Map<ModuleSpecID, Map<String, Class<? extends Module>>> classes =
             new HashMap<ModuleSpecID, Map<String, Class<? extends Module>>>();

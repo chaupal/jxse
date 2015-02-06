@@ -71,8 +71,6 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
 	
     private final Map<String,QueryHandlerMeter> queryHandlerMeters = new Hashtable<String,QueryHandlerMeter>();
     private final Map<String, SrdiHandlerMeter> srdiHandlerMeters = new Hashtable<String, SrdiHandlerMeter>();
-    //private final Map destinationMeters = new Hashtable();
-    //private final Map sourceMeters = new Hashtable();
 	
     private ResolverMeter resolverMeter = new ResolverMeter(this);
 	
@@ -227,22 +225,4 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
 
         return origMetric.deepCopy(resolverServiceMonitorFilter);
     }
-
-    /*
-     private ResolverServiceMetric copy(ResolverServiceMetric origMetric) {
-     ResolverServiceMetric resolverServiceMetric = new ResolverServiceMetric();
-
-     for (Iterator i = origMetric.getQueryHandlerMetrics(); i.hasNext(); ) {
-     QueryHandlerMetric queryHandlerMetric = (QueryHandlerMetric)i.next();
-     resolverServiceMetric.addQueryHandlerMetric(queryHandlerMetric);
-     }
-
-     for (Iterator i = origMetric.getSrdiHandlerMetrics(); i.hasNext(); ) {
-     SrdiHandlerMetric srdiHandlerMetric = (SrdiHandlerMetric)i.next();
-     resolverServiceMetric.addSrdiHandlerMetric(srdiHandlerMetric);
-     }
-
-     return resolverServiceMetric;	
-     }
-     */			
 }

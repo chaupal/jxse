@@ -203,7 +203,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      *
      * @param privateKey the private key (i.e. password)
      */
-    public void setPrivKey( String privateKey) {
+    public void setPrivateKey( String privateKey) {
         this.privKey = privateKey;
     }
 
@@ -253,7 +253,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             if (0 == value.length()) {
                 return false;
             }
-            setPrivKey(value);
+            setPrivateKey(value);
             return true;
         }
         if (AUTHENTICATION_TYPE_TAG.equals(elem.getName())) {

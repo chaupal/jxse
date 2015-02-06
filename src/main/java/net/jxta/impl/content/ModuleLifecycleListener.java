@@ -57,7 +57,6 @@
 package net.jxta.impl.content;
 
 import net.jxta.exception.PeerGroupException;
-//import static net.jxta.impl.content.ModuleLifecycleState.*;
 
 /**
  * This interface defines the API which must be implemented to be notified of

@@ -41,7 +41,6 @@ public class JxtaLoaderModulemanagerTest {
     @After
     public void tearDown() throws Exception {
         LOG.info("============ Begin tearDown");
-//        testGroup.unref();
         manager = null;
         Thread.sleep(300);
         LOG.info("============ End tearDown");

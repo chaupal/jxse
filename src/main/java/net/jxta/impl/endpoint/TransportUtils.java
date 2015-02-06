@@ -208,7 +208,6 @@ public class TransportUtils {
     public static boolean isAnSRDIMessage(Message msg)
     {
         final MessageElement firstElement = msg.getMessageElements().next();
-        //boolean sent = false;
         boolean aBoolean = firstElement.getElementName().equals("jxta-NetGroupSrdi");
         return aBoolean;
     }

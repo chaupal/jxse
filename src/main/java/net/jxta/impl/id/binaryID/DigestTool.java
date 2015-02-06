@@ -368,9 +368,13 @@ public class DigestTool {
         	try {
         		if( bos != null )
         			bos.close();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        	try {
         		if( decoder != null )
         			decoder.close();
-        	} catch (IOException e) {				// TODO Auto-generated catch block
+        	} catch (IOException e) {
         		e.printStackTrace();
         	}
         }

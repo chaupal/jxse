@@ -519,6 +519,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         private String signatureAlgorithm = null;
         private PSECredential credential = null;
         private InputStream signStream = null;
+        
         private PSECredentialSignatureBridge(String signatureAlgorithm, PSECredential credential, InputStream signStream) {
             this.signatureAlgorithm = signatureAlgorithm;
             this.credential = credential;
@@ -811,7 +812,8 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
             }
             finally{
             	try{
-            		signStream.close();
+            		if( signStream != null )
+            			signStream.close();
             	}
             	catch( IOException ex ){
             		ex.printStackTrace();

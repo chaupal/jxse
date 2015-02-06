@@ -2,4 +2,6 @@
 .cache
 .jxta
 .settings
+.project
+.classpath
 target
