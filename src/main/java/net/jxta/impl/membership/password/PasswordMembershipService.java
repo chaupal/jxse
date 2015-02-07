@@ -351,6 +351,7 @@ public class PasswordMembershipService implements MembershipService {
 
         /**
          *  Intialize from a portion of a structured document.
+         * @param root
          */
         protected void initialize(Element root) {
 
@@ -398,7 +399,6 @@ public class PasswordMembershipService implements MembershipService {
                 throw new IllegalArgumentException("signed peer id was never initialized.");
 
             // FIXME bondolo@jxta.org 20030409 should check for duplicate elements and for peergroup element
-
         }
     }
 
@@ -458,11 +458,11 @@ public class PasswordMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          */
-        synchronized public boolean isReadyForJoin() {
-            if ( null == password )
-                Logging.logCheckedDebug(LOG, "null password");
-            if ( null == password )
+        synchronized public boolean isReadyForJoin() {            
+            if ( null == password ) {
                 Logging.logCheckedDebug(LOG, "null identity");
+            }
+            
             return ((null != password) && (null != identity));
         }
 
@@ -610,41 +610,39 @@ public class PasswordMembershipService implements MembershipService {
             LOG.config(configInfo.toString());
         }
 
-        PeerGroupAdvertisement configAdv = group.getPeerGroupAdvertisement();
+        PeerGroupAdvertisement peerGroupAdvertisement = group.getPeerGroupAdvertisement();
 
-        XMLElement myParam = (XMLElement) configAdv.getServiceParam(assignedID);
+        XMLElement passwordMembershipServiceParameter = (XMLElement) peerGroupAdvertisement.getServiceParam(assignedID);        
 
+        if (passwordMembershipServiceParameter == null) {
+            throw new PeerGroupException("Missing password membership service parameter");
+        }
+        
         logins = new HashMap();
 
-        if (null == myParam) {
-            throw new PeerGroupException("parameters for group passwords missing");
-        }
-
-        for (Enumeration allLogins = myParam.getChildren(); allLogins.hasMoreElements();) {
+        for (Enumeration allLogins = passwordMembershipServiceParameter.getChildren(); allLogins.hasMoreElements();) {
             XMLElement loginElement = (XMLElement) allLogins.nextElement();
 
             if (loginElement.getName().equals("login")) {
                 String etcPassword = loginElement.getTextValue();
                 int nextDelim = etcPassword.indexOf(':');
 
-                if (-1 == nextDelim) {
+                if (nextDelim == -1) {
                     continue;
                 }
+                
                 String login = etcPassword.substring(0, nextDelim).trim();
                 int lastDelim = etcPassword.indexOf(':', nextDelim + 1);
                 String password = etcPassword.substring(nextDelim + 1, lastDelim);
 
                 Logging.logCheckedDebug(LOG, "Adding login : \'", login, "\' with encoded password : \'", password, "\'");
                 logins.put(login, password);
-
             }
         }
 
         // FIXME    20010327    bondolo@jxta.org Make up the signed bit.
-
         // We initialise our set of principals to the resigned state.
         resign();
-
     }
 
 //    /**

@@ -250,12 +250,12 @@ public final class PSEConfig {
      * @param id             The identity to be validated.
      * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
-     * @param key_password   The passphrase associated with the private key or
+     * @param identityPassword   The passphrase associated with the private key or
      *                       {@code null} if the key has no passphrase.
      * @return {@code true} if the passwords were valid for the given id
      *         otherwise {@code false}.
      */
-    boolean validPasswd(ID id, char[] storePassword, char[] key_password) {
+    boolean validPasswd(ID id, char[] storePassword, char[] identityPassword) {
 
         if (null == id) {
             Logging.logCheckedDebug(LOG, "null id");
@@ -280,7 +280,7 @@ public final class PSEConfig {
 
                 String alias = id.toString();
 
-                Key key = store.getKey(alias, key_password);
+                Key key = store.getKey(alias, identityPassword);
 
                 if (key == null) {
                     Logging.logCheckedDebug(LOG, "Can't retrieve key for alias: ", alias);

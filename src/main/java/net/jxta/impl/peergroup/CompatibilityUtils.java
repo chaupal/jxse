@@ -78,14 +78,12 @@ import net.jxta.protocol.ModuleImplAdvertisement;
  */
 public final class CompatibilityUtils {
 
-    private static final Logger LOG =
-            Logging.getLogger(CompatibilityUtils.class.getName());
+    private static final Logger LOG = Logging.getLogger(CompatibilityUtils.class.getName());
 
     /**
      * Package URI to use in the default ModuleImplAdvertisement.
      */
-    private static final String MODULE_IMPL_STD_URI =
-            "http://download.java.net/jxta/jxta-jxse/latest/jnlp/lib/jxta.jar";
+    private static final String MODULE_IMPL_STD_URI = "http://download.java.net/jxta/jxta-jxse/latest/jnlp/lib/jxta.jar";
 
     /**
      * Default provider name to use in the default ModuleImplAdvertisement.
@@ -103,8 +101,7 @@ public final class CompatibilityUtils {
     /**
      * Prevent construction.
      */
-    private CompatibilityUtils() {
-        // Empty
+    private CompatibilityUtils() {        
     }
 
 //    /**
@@ -142,11 +139,8 @@ public final class CompatibilityUtils {
      * @param description description of the Module
      * @return ModuleImplAdvertisement
      */
-    public static ModuleImplAdvertisement createModuleImplAdvertisement(
-            ModuleSpecID msid, String className, String description) {
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
-        AdvertisementFactory.newAdvertisement(
-                ModuleImplAdvertisement.getAdvertisementType());
+    public static ModuleImplAdvertisement createModuleImplAdvertisement(ModuleSpecID msid, String className, String description) {
+        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
 
         implAdv.setModuleSpecID(msid);
         implAdv.setCompat(createDefaultCompatStatement());
@@ -169,9 +163,7 @@ public final class CompatibilityUtils {
      */
     @SuppressWarnings("unchecked")
     public static XMLDocument createDefaultCompatStatement() {
-        XMLDocument doc = (XMLDocument)
-                StructuredDocumentFactory.newStructuredDocument(
-                MimeMediaType.XMLUTF8, "Comp");
+        XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
         XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
         doc.appendChild(e);
 
@@ -246,8 +238,6 @@ public final class CompatibilityUtils {
             return false;
 
         }
-
         return formatOk && bindingOk;
     }
-
 }

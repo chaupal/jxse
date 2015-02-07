@@ -101,6 +101,7 @@ public class PasswordMembershipServiceBeanInfo extends SimpleBeanInfo {
 
     /**
      *  {@inheritDoc}
+     * @return 
      **/
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {

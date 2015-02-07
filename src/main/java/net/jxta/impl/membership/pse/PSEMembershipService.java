@@ -579,9 +579,7 @@ public final class PSEMembershipService implements MembershipService {
                     }
 
                     pseStore.setKey(identity, seedCertificate, seedPrivateKey, keyPassword);
-
                 }
-
             } catch (IOException failed) {
                 Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
@@ -648,7 +646,6 @@ public final class PSEMembershipService implements MembershipService {
         }
 
         support.firePropertyChange("addCredential", null, newCredentials);
-
         return newCredentials;
     }
 
@@ -727,7 +724,7 @@ public final class PSEMembershipService implements MembershipService {
             keyPass = authenticatorEngine.getKeyPass(group);
         }
 
-        getPSEConfig().setKey(assignedID, serviceChain, serviceinfo.subjectPkey, keyPass);
+        pseStore.setKey(assignedID, serviceChain, serviceinfo.subjectPkey, keyPass);
 
         Logging.logCheckedDebug(LOG, "Generated new service cert");
 
@@ -737,8 +734,13 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  Recover the service credential for the assigned ID given an authenticator local credential.
      *
-     *  @param assignedID   The assigned ID of the service credential.
-     *  @param credential   The issuer credential for the service credential.
+     * @param assignedID   The assigned ID of the service credential.
+     * @param credential   The issuer credential for the service credential.     
+     * @throws java.io.IOException
+     * @throws net.jxta.exception.PeerGroupException
+     * @throws java.security.InvalidKeyException
+     * @throws java.security.SignatureException
+     * @return 
      **/
     public PSECredential getServiceCredential(ID assignedID, PSECredential credential) throws IOException, PeerGroupException, InvalidKeyException, SignatureException {
 
@@ -753,8 +755,7 @@ public final class PSEMembershipService implements MembershipService {
 
             try {
                 authenticate = apply(authCred);
-            } catch (Exception failed) {
-                ;
+            } catch (Exception failed) {                
             }
 
             if (null == authenticate) {
@@ -771,8 +772,7 @@ public final class PSEMembershipService implements MembershipService {
 
             try {
                 authenticate = apply(authCred);
-            } catch (Exception failed) {
-                ;
+            } catch (Exception failed) {                
             }
 
             if (null == authenticate) {
@@ -807,6 +807,7 @@ public final class PSEMembershipService implements MembershipService {
 
         return pseCredential;
     }
+    
     final static class PSECredentialBridge {
         private java.security.PrivateKey privateKey = null;
         private PSECredentialBridge() {
@@ -875,6 +876,7 @@ public final class PSEMembershipService implements MembershipService {
     public class PSEAdvertismentSignatureToken {
         private XMLSignatureInfo xmlSignatureInfo;
         private XMLSignature xmlSignature;
+        
         private PSEAdvertismentSignatureToken(XMLSignatureInfo xmlSignatureInfo, XMLSignature xmlSignature) {
             this.xmlSignatureInfo = xmlSignatureInfo;
             this.xmlSignature = xmlSignature;

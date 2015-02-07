@@ -505,7 +505,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
         }
 
-        // Uh-oh. Services co-dependency prevented them from starting.
+        // Services co-dependency prevented them from starting.
         if (!services.isEmpty()) {
 
             if (Logging.SHOW_ERROR && LOG.isErrorEnabled()) {

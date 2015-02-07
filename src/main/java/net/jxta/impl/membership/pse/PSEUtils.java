@@ -877,9 +877,8 @@ public final class PSEUtils {
      * Traverses a XmlElement and applies it to a MessageDigest
      *
      * @param xmlElement   The xmlElement to be traversed.
-     * @param ignoreXmlElementName   Ignore the top level child with this name.
+     * @param ignoreXmlElementNames
      * @param messageDigest   The messageDigest to which .
-     * @return An encrypted private key info or null if the key could not be
      */
     public static void xmlElementDigest(XMLElement xmlElement, List ignoreXmlElementNames, MessageDigest messageDigest) {
         PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
@@ -903,7 +902,6 @@ public final class PSEUtils {
      *
      * @param xmlElement   The xmlElement to be traversed.
      * @param messageDigest   The messageDigest to which .
-     * @return An encrypted private key info or null if the key could not be
      */
     public static void xmlElementDigest(XMLElement xmlElement, MessageDigest messageDigest) {
         PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
