@@ -951,9 +951,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 }
             } else {
                 if (parentGroup != null) {
-                    DiscoveryService disco = parentGroup.getDiscoveryService();
-                    if (null != disco) {
-                        Enumeration found = disco.getLocalAdvertisements(DiscoveryService.GROUP, "GID", assignedID.toString());
+                    DiscoveryService discoveryService = parentGroup.getDiscoveryService();
+                    if (null != discoveryService) {
+                        Enumeration found = discoveryService.getLocalAdvertisements(DiscoveryService.GROUP, "GID", assignedID.toString());
                         if (found.hasMoreElements()) {
                             peerGroupAdvertisement = (PeerGroupAdvertisement) found.nextElement();
                         }

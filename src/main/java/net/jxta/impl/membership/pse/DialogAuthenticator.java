@@ -273,7 +273,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
 
             if (initKeyStore) {
                 enableOK = (null
-                        != PSEUtils.pkcs5_Decrypt_pbePrivateKey(identityPassField.getPassword()
+                        != PSEUtils.pkcs5DecryptPbePrivateKey(identityPassField.getPassword()
                         ,
                         seedCert.getPublicKey().getAlgorithm(), seedKey));
 

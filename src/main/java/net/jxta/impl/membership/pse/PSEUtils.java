@@ -519,7 +519,7 @@ public final class PSEUtils {
      * @return An encrypted private key info or null if the key could not be
      *         encrypted.
      */
-    public static EncryptedPrivateKeyInfo pkcs5_Encrypt_pbePrivateKey(char[] password, PrivateKey privkey, int iterations) {
+    public static EncryptedPrivateKeyInfo pkcs5EncryptPbePrivateKey(char[] password, PrivateKey privkey, int iterations) {
 
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
         byte[] salt = new byte[8];
@@ -534,7 +534,9 @@ public final class PSEUtils {
             SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
 
             // Create PBE Cipher
-            Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
+            //Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
+            
+            Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES/CBC/PKCS5Padding");
 
             // Initialize PBE Cipher with key and parameters
             pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
@@ -562,10 +564,10 @@ public final class PSEUtils {
      * using the PBESE1 algorithm.
      *
      * @param password         The password which will be used.
-     * @param encryptedPrivKey The private key to be encrypted.
+     * @param encryptedPrivKey The private key to be decrypted.
      * @return The decrypted private key or null if the key could not be decrpyted.
      */
-    public static PrivateKey pkcs5_Decrypt_pbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivKey) {
+    public static PrivateKey pkcs5DecryptPbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivKey) {
 
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
 
@@ -589,8 +591,9 @@ public final class PSEUtils {
                 SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
 
                 // Create PBE Cipher
-                Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
-
+                //Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
+                Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES/CBC/PKCS5Padding");
+                
                 // Initialize PBE Cipher with key and parameters
                 pbeCipher.init(Cipher.DECRYPT_MODE, pbeKey, pbeParamSpec);
 

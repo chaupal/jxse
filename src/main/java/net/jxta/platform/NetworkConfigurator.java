@@ -2081,7 +2081,7 @@ public class NetworkConfigurator {
 
         if (pseConf != null) { 
             //Get private key form certificate
-            PrivateKey certificatePrivateKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey(password.toCharArray(), pseConf.getEncryptedPrivateKeyAlgo(), pseConf.getEncryptedPrivateKey());
+            PrivateKey certificatePrivateKey = PSEUtils.pkcs5DecryptPbePrivateKey(password.toCharArray(), pseConf.getEncryptedPrivateKeyAlgo(), pseConf.getEncryptedPrivateKey());
             setPrivateKey(certificatePrivateKey);            
                     
             if (keyStoreLocation != null) {

@@ -593,12 +593,12 @@ public final class PSEConfig {
      * @param id           The ID under which the certificate chain and private key will be stored.
      * @param certchain    The certificate chain matching the private key.
      * @param key          The private key to be stored in the kestore.
-     * @param key_password The passphrase associated with the private key or
+     * @param keyPassword The passphrase associated with the private key or
      *                     {@code null} if the key has no passphrase.
      * @throws KeyStoreException When the wrong keystore key has been provided.
      * @throws IOException       For errors related to processing the keystore.
      */
-    public void setKey(ID id, Certificate[] certchain, PrivateKey key, char[] key_password) throws KeyStoreException, IOException {
+    public void setKey(ID id, Certificate[] certchain, PrivateKey key, char[] keyPassword) throws KeyStoreException, IOException {
 
         String alias = id.toString();
 
@@ -609,7 +609,7 @@ public final class PSEConfig {
             if (store.isKeyEntry(alias))
                 store.deleteEntry(alias);
 
-            store.setKeyEntry(alias, key, key_password, certchain);
+            store.setKeyEntry(alias, key, keyPassword, certchain);
 
             keystoreManager.saveKeyStore(store, keystorePassword);
         }

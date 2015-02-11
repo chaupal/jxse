@@ -654,8 +654,17 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * @param privateKey the private key associated with this credential.
      */
     private void setPrivateKey(PrivateKey privateKey) {
-
         this.privateKey = privateKey;
+    }
+    
+    /**
+     * Gets the private key associated with this credential.
+     *     
+     * @return Credentials private key
+     */
+    @Deprecated
+    public PrivateKey getPrivateKey() {
+        return privateKey;
     }
 
     /**

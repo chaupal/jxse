@@ -421,7 +421,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public PrivateKey getPrivateKey(char[] password) {
 
-        return PSEUtils.pkcs5_Decrypt_pbePrivateKey(password, privAlgorithm, encryptedPrivateKey);
+        return PSEUtils.pkcs5DecryptPbePrivateKey(password, privAlgorithm, encryptedPrivateKey);
     }
 
     /**
@@ -610,7 +610,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         Logging.logCheckedDebug(LOG, "setPrivateKey : ", newPriv);
 
-        EncryptedPrivateKeyInfo encypted = PSEUtils.pkcs5_Encrypt_pbePrivateKey(password, newPriv, 500);
+        EncryptedPrivateKeyInfo encypted = PSEUtils.pkcs5EncryptPbePrivateKey(password, newPriv, 500);
         setEncryptedPrivateKey(encypted, newPriv.getAlgorithm());
 
     }

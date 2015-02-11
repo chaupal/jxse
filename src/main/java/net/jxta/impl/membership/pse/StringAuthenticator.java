@@ -200,7 +200,7 @@ public class StringAuthenticator implements Authenticator {
     synchronized public boolean isReadyForJoin() {
         if (seedCert != null) {
             Logging.logCheckedDebug(LOG, "seed certificate:\n", seedCert.toString());
-            return PSEUtils.pkcs5_Decrypt_pbePrivateKey(keyPassword, seedCert.getPublicKey().getAlgorithm(), seedKey) != null;
+            return PSEUtils.pkcs5DecryptPbePrivateKey(keyPassword, seedCert.getPublicKey().getAlgorithm(), seedKey) != null;
         } else {
             Logging.logCheckedDebug(LOG, "null seed certificate");
             return source.getPSEConfig().validPasswd(identity, storePassword, keyPassword);
@@ -222,8 +222,6 @@ public class StringAuthenticator implements Authenticator {
     public void setKeyStorePassword(String storePassword) {
         if (storePassword != null) {
             setKeyStorePassword(storePassword.toCharArray());
-        } else {
-            StringAuthenticator.this.setKeyStorePassword(storePassword);
         }        
     }
 

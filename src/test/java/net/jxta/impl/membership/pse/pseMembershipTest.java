@@ -249,13 +249,13 @@ public class pseMembershipTest extends TestCase {
         try {
             IssuerInfo test = PSEUtils.genCert("test", null);
 
-            EncryptedPrivateKeyInfo encPrivKey = PSEUtils.pkcs5_Encrypt_pbePrivateKey("password".toCharArray(), test.subjectPkey
+            EncryptedPrivateKeyInfo encPrivKey = PSEUtils.pkcs5EncryptPbePrivateKey("password".toCharArray(), test.subjectPkey
                     ,
                     500);
 
             assertNotNull("Could not encrypt Private Key", encPrivKey);
 
-            PrivateKey decPrivKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey("password".toCharArray(), test.subjectPkey.getAlgorithm()
+            PrivateKey decPrivKey = PSEUtils.pkcs5DecryptPbePrivateKey("password".toCharArray(), test.subjectPkey.getAlgorithm()
                     ,
                     encPrivKey);
 
@@ -267,7 +267,7 @@ public class pseMembershipTest extends TestCase {
 
             EncryptedPrivateKeyInfo deserialedencPrivKey = new EncryptedPrivateKeyInfo(encPrivKeyDer);
 
-            decPrivKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey("password".toCharArray(), test.subjectPkey.getAlgorithm()
+            decPrivKey = PSEUtils.pkcs5DecryptPbePrivateKey("password".toCharArray(), test.subjectPkey.getAlgorithm()
                     ,
                     deserialedencPrivKey);
 
