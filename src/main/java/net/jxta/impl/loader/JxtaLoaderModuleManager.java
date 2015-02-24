@@ -30,7 +30,6 @@ import net.jxta.module.IJxtaModuleBuilder;
 import net.jxta.module.IJxtaModuleDescriptor;
 import net.jxta.module.IJxtaModuleManager;
 import net.jxta.module.IModuleBuilder;
-import net.jxta.module.IModuleClient;
 import net.jxta.module.IModuleDescriptor;
 import net.jxta.module.IModuleManager;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -44,7 +43,7 @@ import net.jxta.util.cardinality.Cardinality;
 import net.jxta.util.cardinality.CardinalityException;
 import net.jxta.util.cardinality.ICardinality;
 
-public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>, IModuleClient{
+public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleManager<T>{
 
 	public static final String S_ERR_INVALID_BUILDER = "The builder is not of the required interface: ";
 	
@@ -232,7 +231,14 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
         			return jdescriptor.getModuleImplAdvertisement();
     		}
     	}
-    	return loader.findModuleImplAdvertisement(msid);
+    	ModuleImplAdvertisement implAdv = null;
+    	try{
+    		implAdv = loader.findModuleImplAdvertisement(msid);
+    	}
+    	catch( Exception ex ){
+    		ex.printStackTrace();
+    	}
+    	return implAdv;
     }
 
 	@SuppressWarnings("unchecked")
@@ -355,9 +361,9 @@ public class JxtaLoaderModuleManager<T extends Module> implements IJxtaModuleMan
 	 */
 	public String printRegisteredBuilders(){
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("The following JXSE builders are registered: \n");
+		buffer.append("The following JXSE modules are registered: \n");
 		for( IModuleBuilder<?> builder: this.builders ){
-			buffer.append( "\t" + builder.toString() + "\n" );
+			buffer.append( builder.toString() + "\n" );
 		}
 		return buffer.toString();
 	}
