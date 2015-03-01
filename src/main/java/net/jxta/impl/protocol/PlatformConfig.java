@@ -180,7 +180,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      *         copy of this one.
      */
     @Override
-    public PlatformConfig clone() {
+    public PlatformConfig clone() throws CloneNotSupportedException {
         PlatformConfig result = (PlatformConfig) super.clone();
 
         result.setPeerID(getPeerID());

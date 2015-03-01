@@ -96,7 +96,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * For safe operation we clone the advertisements when they are added to the
      * map and only ever return clones of the advertisements.
      */
-    private final Map<ID, Advertisement> ads = new HashMap<ID, Advertisement>();
+    private final Map<ID, Advertisement> configurationAdvertisements = new HashMap<ID, Advertisement>();
 
     /**
      *  The ids of the advertisements and/or params which have been explicitly
@@ -133,25 +133,19 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * {@inheritDoc}
      */
     @Override
-    public ConfigParams clone() {
+    public ConfigParams clone() throws CloneNotSupportedException {        
+        ConfigParams result = (ConfigParams) super.clone();
 
-        try {
-            ConfigParams result = (ConfigParams) super.clone();
-
-            for (Map.Entry<ID, StructuredDocument> anEntry : params.entrySet()) {
-                result.params.put(anEntry.getKey(), StructuredDocumentUtils.copyAsDocument(anEntry.getValue()));
-            }
-
-            for (Map.Entry<ID, Advertisement> anEntry : ads.entrySet()) {
-                result.ads.put(anEntry.getKey(), anEntry.getValue().clone());
-            }
-
-            result.disabled.addAll(disabled);
-
-            return result;
-        } catch (CloneNotSupportedException impossible) {
-            throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
+        for (Map.Entry<ID, StructuredDocument> anEntry : params.entrySet()) {
+            result.params.put(anEntry.getKey(), StructuredDocumentUtils.copyAsDocument(anEntry.getValue()));
         }
+
+        for (Map.Entry<ID, Advertisement> anEntry : configurationAdvertisements.entrySet()) {
+            result.configurationAdvertisements.put(anEntry.getKey(), anEntry.getValue().clone());
+        }
+
+        result.disabled.addAll(disabled);
+        return result;        
     }
 
     /**
@@ -167,7 +161,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             ConfigParams likeMe = (ConfigParams) other;
 
             boolean ep = params.equals(likeMe.params);
-            boolean ea = ads.equals(likeMe.ads);
+            boolean ea = configurationAdvertisements.equals(likeMe.configurationAdvertisements);
             boolean ed = disabled.equals(likeMe.disabled);
 
             return ep && ea && ed;
@@ -213,7 +207,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                         URI mcid = new URI(e.getTextValue());
 
                         key = IDFactory.fromURI(mcid);
-                    } catch (URISyntaxException badID) {
+                    } catch (URISyntaxException uriSyntaxException) {
                         throw new IllegalArgumentException("Bad ID in advertisement: " + e.getTextValue());
                     }
 
@@ -222,9 +216,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                     param = e;
 
                 } else {
-
                     Logging.logCheckedWarning(LOG, "Unrecognized <Svc> tag : ", e.getName());
-
                 }
             }
 
@@ -240,14 +232,10 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 if(isDisabled) {
                     disabled.add(key);
                 }
-
             } else {
-
                 Logging.logCheckedWarning(LOG, "Incomplete Service Param : id=", key, " param=", param);
                 return false;
-
             }
-
             return true;
         }
         return false;
@@ -280,7 +268,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             StructuredDocumentUtils.copyElements(adv, s, aDoc, PARAM_TAG);
         }
 
-        for (Map.Entry<ID, Advertisement> anEntry : ads.entrySet()) {
+        for (Map.Entry<ID, Advertisement> anEntry : configurationAdvertisements.entrySet()) {
             ID anID = anEntry.getKey();
             Advertisement anAdv = anEntry.getValue();
 
@@ -336,7 +324,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         incModCount();
 
         params.remove(key);
-        ads.remove(key);
+        configurationAdvertisements.remove(key);
 
         if (param == null) {
             return;
@@ -402,7 +390,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         incModCount();
 
         params.remove(key);
-        ads.remove(key);
+        configurationAdvertisements.remove(key);
 
         if(enabled) {
             disabled.remove(key);
@@ -416,7 +404,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
         try {
 
-            ads.put(key, adv.clone());
+            configurationAdvertisements.put(key, adv.clone());
 
         } catch (CloneNotSupportedException failed) {
 
@@ -448,7 +436,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * @return The advertisement for the specified key otherwise {@code null}.
      */
     public Advertisement getSvcConfigAdvertisement(ID key) {
-        Advertisement adv = ads.get(key);
+        Advertisement adv = configurationAdvertisements.get(key);
 
         if (null == adv) {
             if (params.containsKey(key)) {
@@ -484,7 +472,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         StructuredDocument param = params.get(key);
 
         if (param == null) {
-            Advertisement ad = ads.get(key);
+            Advertisement ad = configurationAdvertisements.get(key);
 
             if (null == ad) {
                 return null;
@@ -520,7 +508,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         StructuredDocument param = params.remove(key);
 
         if (param == null) {
-            Advertisement ad = ads.remove(key);
+            Advertisement ad = configurationAdvertisements.remove(key);
 
             if (null == ad) {
                 return null;
@@ -528,7 +516,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
             return (XMLDocument) ad.getDocument(MimeMediaType.XMLUTF8);
         } else {
-            ads.remove(key);
+            configurationAdvertisements.remove(key);
         }
 
         incModCount();
@@ -557,6 +545,6 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         incModCount();
 
         params.remove(key);
-        ads.remove(key);
+        configurationAdvertisements.remove(key);
     }
 }

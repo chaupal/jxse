@@ -432,6 +432,11 @@ public class NetworkConfigurator {
      * @param storeHome the URI to persistent store
      * @return NetworkConfigurator instance with default AD-HOC configuration
      */
+    
+    private static final int DEFAULT_HTTP2_PORT_NUMBER = 8090;
+    private static final int DEFAULT_HTTP2_PORT_RANGE_LOWER_BOUND = 8091;
+    private static final int DEFAULT_HTTP2_PORT_RANGE_UPPER_BOUND = 8099;
+    
     public static NetworkConfigurator newAdHocConfiguration(URI storeHome) {
         return new NetworkConfigurator(ADHOC_NODE, storeHome);
     }
@@ -1634,9 +1639,7 @@ public class NetworkConfigurator {
             // Read-in the adv as it is now.
             httpConfig = (HTTPAdv) AdvertisementFactory.newAdvertisement(param);
         } catch (Exception failure) {
-            IOException ioe = new IOException("error processing the HTTP config advertisement");
-            ioe.initCause(failure);
-            throw ioe;
+            throw new IOException("Error processing the HTTP config advertisement", failure);
         }
 
         // HTTP2
@@ -1669,9 +1672,7 @@ public class NetworkConfigurator {
                 mode = mode | RDV_SERVER;
             }
         } catch (Exception failure) {
-            IOException ioe = new IOException("error processing the rendezvous config advertisement");
-            ioe.initCause(failure);
-            throw ioe;
+            throw new IOException("Error processing the rendezvous config advertisement", failure);
         }
 
         // Relay
@@ -1684,9 +1685,7 @@ public class NetworkConfigurator {
                 param.addAttribute("type", RelayConfigAdv.getAdvertisementType());
                 relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
         } catch (Exception failure) {
-            IOException ioe = new IOException("error processing the relay config advertisement");
-            ioe.initCause(failure);
-            throw ioe;
+            throw new IOException("Error processing the relay config advertisement", failure);
         }
 
         // PSE
@@ -1708,8 +1707,7 @@ public class NetworkConfigurator {
                 pseConf = (PSEConfigAdv) adv;
                 cert = pseConf.getCertificateChain();
             } else {
-                throw new CertificateException("Error processing the Membership config advertisement. Unexpected membership advertisement "
-                        + adv.getAdvertisementType());
+                throw new CertificateException("Error processing the Membership config advertisement. Unexpected membership advertisement " + adv.getAdvertisementType());
             }
         }
 
@@ -1988,9 +1986,9 @@ public class NetworkConfigurator {
     	http2Config = (TCPAdv) AdvertisementFactory.newAdvertisement(TCPAdv.getAdvertisementType());
     	http2Config.setProtocol("http2");
     	http2Config.setInterfaceAddress(null);
-    	http2Config.setPort(8080);
-        http2Config.setStartPort(8080);
-        http2Config.setEndPort(8089);
+    	http2Config.setPort(DEFAULT_HTTP2_PORT_NUMBER);
+        http2Config.setStartPort(DEFAULT_HTTP2_PORT_RANGE_LOWER_BOUND);
+        http2Config.setEndPort(DEFAULT_HTTP2_PORT_RANGE_UPPER_BOUND);
         http2Config.setServer(null);
         http2Config.setClientEnabled((mode & HTTP2_CLIENT) == TCP_CLIENT);
         http2Config.setServerEnabled((mode & HTTP2_SERVER) == TCP_SERVER);
@@ -2394,6 +2392,18 @@ public class NetworkConfigurator {
      */
     public URI[] getRelaySeedingURIs() {
         return relayConfig.getSeedingURIs();
+    }
+    
+    public static final int getDefaultHttp2PortNumber() {
+        return DEFAULT_HTTP2_PORT_NUMBER;
+    }
+    
+    public static final int getDefaultHttp2PortRangeLowerBound() {
+        return DEFAULT_HTTP2_PORT_RANGE_LOWER_BOUND;
+    }
+    
+    public static final int getDefaultHttp2PortRangeUpperBound() {
+        return DEFAULT_HTTP2_PORT_RANGE_UPPER_BOUND;
     }
 
     /**

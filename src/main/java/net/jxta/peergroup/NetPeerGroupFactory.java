@@ -62,7 +62,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.peergroup.GenericPeerGroup;
+//import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
@@ -75,6 +75,7 @@ import java.net.URI;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.peergroup.ShadowPeerGroup;
 
 /**

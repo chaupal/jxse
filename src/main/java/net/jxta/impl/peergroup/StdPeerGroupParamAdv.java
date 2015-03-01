@@ -81,7 +81,7 @@ import java.util.Map;
 /**
  * Not actually an advertisement, but often acts as part of one.
  *
- * @deprecated This internal class will eventually be removed. It has several
+ * This internal class will eventually be removed. It has several
  * problems which make it difficult to support. (The most obvious that it 
  * provides poor abstraction and provides references to its' own internal data
  * structures). This class is expected to be replaced by a public API class
@@ -89,7 +89,6 @@ import java.util.Map;
  * You are encouraged to copy this code into your own application or service if
  * if you depend upon it.
  */
-@Deprecated
 public class StdPeerGroupParamAdv {
 
     private static final Logger LOG = Logging.getLogger(StdPeerGroupParamAdv.class.getName());
@@ -137,7 +136,7 @@ public class StdPeerGroupParamAdv {
      *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
      * </ul>
      */ 
-    private final Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
+    private final Map<ModuleClassID, Object> applications = new HashMap<ModuleClassID, Object>();
 
     /**
      * Private constructor for new instances.
@@ -246,7 +245,7 @@ public class StdPeerGroupParamAdv {
             throw new IllegalArgumentException("Illegal module");
         }
 
-        apps.put(mcid, module);
+        applications.put(mcid, module);
     }
 
     /**
@@ -259,7 +258,7 @@ public class StdPeerGroupParamAdv {
      * @return the application entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getApps() {
-        return apps;
+        return applications;
     }
 
     /**
@@ -331,15 +330,15 @@ public class StdPeerGroupParamAdv {
             throw new IllegalArgumentException("null value in appsTable");
         }
 
-        if (appsTable == this.apps) {
+        if (appsTable == this.applications) {
             return;
         }
 
-        this.apps.clear();
+        this.applications.clear();
 
         // We are assuming it is not null earlier (FindBugs)
 //        if (null != appsTable) {
-            this.apps.putAll(appsTable);
+            this.applications.putAll(appsTable);
 //        }
 
     }
@@ -366,7 +365,7 @@ public class StdPeerGroupParamAdv {
 
             } else if (APP_TAG.equals(tagName)) {
 
-                theTable = apps;
+                theTable = applications;
 
             } else if (PROTO_TAG.equals(tagName)) {
 
@@ -447,7 +446,7 @@ public class StdPeerGroupParamAdv {
             // unique role ID on the fly.
             // When outputing the adv we get rid of it to save space.
 
-            if (theTable == apps) {
+            if (theTable == applications) {
                 // Only the first (or only) one may use the base class.
                 if (classID == IModuleDefinitions.applicationClassID) {
                     if (appCount++ != 0) {
@@ -470,7 +469,7 @@ public class StdPeerGroupParamAdv {
 
         outputModules(doc, services, SVC_TAG);
         outputModules(doc, transports, PROTO_TAG);
-        outputModules(doc, apps, APP_TAG);
+        outputModules(doc, applications, APP_TAG);
 
         return doc;
     }
@@ -493,7 +492,7 @@ public class StdPeerGroupParamAdv {
                 m = doc.createElement(mainTag);
                 doc.appendChild(m);
 
-                if (modulesTable != apps && !mcid.equals(mcid.getBaseClass())) {
+                if (modulesTable != applications && !mcid.equals(mcid.getBaseClass())) {
                     // It is not an app and there is a role ID. Output it.
                     Element i = doc.createElement(MCID_TAG, mcid.toString());
 
@@ -504,7 +503,7 @@ public class StdPeerGroupParamAdv {
 
                 StructuredDocumentUtils.copyElements(doc, m, advdoc);
             } else if (val instanceof ModuleSpecID) {
-                if (modulesTable == apps || mcid.equals(mcid.getBaseClass())) {
+                if (modulesTable == applications || mcid.equals(mcid.getBaseClass())) {
                     // Either it is an app or there is no role ID.
                     // So the specId is good enough.
                     m = doc.createElement(mainTag, val.toString());
@@ -531,4 +530,35 @@ public class StdPeerGroupParamAdv {
             }
         }
     }
+    
+    /**
+     * Gets service by module class ID
+     * 
+     * @param moduleClassId Module class ID
+     * @return {@link net.jxta.platform.ModuleSpecID} or {@link net.jxta.protocol.ModuleImplAdvertisement}
+     */
+    public Object getService(ModuleClassID moduleClassId) {
+        return services.get(moduleClassId);
+    }
+    
+    /**
+     * Removes service by module class ID
+     * 
+     * @param moduleClassId Module class ID
+     * @return {@link net.jxta.platform.ModuleSpecID} or {@link net.jxta.protocol.ModuleImplAdvertisement}
+     */
+    public Object removeService(ModuleClassID moduleClassId) {
+        return services.remove(moduleClassId);
+    }
+    
+    /**
+     * Puts service 
+     * 
+     * @param moduleClassId Module class ID
+     * @param object Module spec ID
+     * @return {@link net.jxta.platform.ModuleSpecID} or {@link net.jxta.protocol.ModuleImplAdvertisement}
+     */
+    public Object putService(ModuleClassID moduleClassId, Object object) {
+        return services.put(moduleClassId, object);
+    }       
 }

@@ -59,7 +59,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -117,8 +119,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 //     * @deprecated will be removed in 2.8
 //     */
 //    @Deprecated
-//    public static final XMLDocument STD_COMPAT =
-//            CompatibilityUtils.createDefaultCompatStatement();
+//    public static final XMLDocument STD_COMPAT = CompatibilityUtils.createDefaultCompatStatement();
 
 //    /**
 //     * This field is for backwards compatibility with broken code and will
@@ -148,7 +149,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * Static initializer.
      */
     static {
-        // XXX Force redefinition of StdPeerGroup implAdvertisement.
+        // XXX Force redefinition of StdPeerGroup moduleImplementationAdvertisement.
         getJxtaLoader().defineClass(getDefaultModuleImplAdvertisement());
     }
 
@@ -188,7 +189,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * Cache for this group.
      */
-    private CacheManager cm = null;
+    private CacheManager cacheManager = null;
 
     /**
      *  Create and populate the default module impl Advertisement for this class.
@@ -196,41 +197,30 @@ public class StdPeerGroup extends GenericPeerGroup {
      *  @return The default module impl advertisement for this class.
      */
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
-                IModuleDefinitions.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(),
-                "General Purpose Peer Group Implementation");
+        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(), "General Purpose Peer Group Implementation");
 
         // Create the service list for the group.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
 
-        // set the services
-
-        // core services
+        // Set core services        
         IJxtaLoader loader = getJxtaLoader();
 
         paramAdv.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
-
         paramAdv.addService(IModuleDefinitions.resolverClassID, IModuleDefinitions.refResolverSpecID);
-
         paramAdv.addService(IModuleDefinitions.membershipClassID, PSEMembershipService.pseMembershipSpecID);
-
         paramAdv.addService(IModuleDefinitions.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
 
-        // standard services
+        // Set standard services
         paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
-
         paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
-
         paramAdv.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
-
         paramAdv.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
-
         paramAdv.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
 //        // Applications
 //        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
 //        if (null != moduleAdv) {
-//            paramAdv.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
+//            peerGroupParametersAdvertisement.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
 //        }
 
         // Insert the newParamAdv in implAdv
@@ -281,43 +271,40 @@ public class StdPeerGroup extends GenericPeerGroup {
 
             // Try and load it.
             try {
-                Module theModule = null;
+                Module module = null;
 
                 if (value instanceof ModuleImplAdvertisement) {
                     // Load module will republish locally but not in the
                     // parent since that adv does not come from there.
-                    theModule = loadModule(classID, (ModuleImplAdvertisement) value, privileged);
+                    module = loadModule(classID, (ModuleImplAdvertisement) value, privileged);
 
                 } else if (value instanceof ModuleSpecID) {
 
                     // loadModule will republish both locally and in the parent
                     // Where the module was fetched.
-                    theModule = loadModule(classID, (ModuleSpecID) value, FromParent, privileged);
+                    module = loadModule(classID, (ModuleSpecID) value, FromParent, privileged);
 
                 } else {
 
                     Logging.logCheckedError(LOG, "Skipping: ", classID, " Unsupported module descriptor : ", value.getClass().getName());
                     eachModule.remove();
                     continue;
-
                 }
 
-                if (theModule == null) throw new PeerGroupException("Could not find a loadable implementation for : " + classID);
-
-                anEntry.setValue(theModule);
+                if (module == null) {
+                    throw new PeerGroupException("Could not find a loadable implementation for : " + classID);
+                }
+                
+                anEntry.setValue(module);
 
             } catch (Exception e) {
 
                 Logging.logCheckedWarning(LOG, "Could not load module for class ID : ", classID, "\n", e);
 
                 if (value instanceof ModuleImplAdvertisement) {
-
                     Logging.logCheckedWarning(LOG, "Will be missing from peer group : " + ((ModuleImplAdvertisement) value).getDescription());
-
                 } else {
-
                     Logging.logCheckedWarning(LOG, "Will be missing from peer group: ", value);
-
                 }
 
                 eachModule.remove();
@@ -332,6 +319,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * group's main app. NB: both the apps init and startApp methods are
      * invoked.
      *
+     * @param arg
      * @return int Status.
      */
     @Override
@@ -401,9 +389,9 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         super.stopApp();
 
-        if (cm != null) {
-            cm.stop();
-            cm = null;
+        if (cacheManager != null) {
+            cacheManager.stop();
+            cacheManager = null;
         }
     }
 
@@ -580,50 +568,61 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected synchronized void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         if (initComplete) {
-
             Logging.logCheckedWarning(LOG, "You cannot initialize a PeerGroup more than once !");
             return;
-
         }
 
         // Set-up the minimal GenericPeerGroup
-        super.initFirst(parent, assignedID, impl);
+        super.initFirst(parent, assignedID, impl);                
 
         // assignedID might have been null. It is now the peer group ID.
         assignedID = getPeerGroupID();
 
-        // initialize cm before starting services.
+        // Initialize cacheManager before starting services.
         try {
-
-            cm = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), getTaskManager(), 0L, false);
-
-        } catch (Exception e) {
-
+            cacheManager = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), getTaskManager(), 0L, false);
+        } catch (IOException e) {            
             Logging.logCheckedError(LOG, "Failure instantiating local store\n", e);
             throw new PeerGroupException("Failure instantiating local store", e);
-
         }
 
-        // flush srdi for this group
+        // Flush srdi for this group
         Srdi.clearSrdi(this);
 
-        // Load the list of peer group services from the impl advertisement params.
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdvertisement.getParam());
+        // Load the list of peer group services from the module implementation advertisement parameters.
+        StdPeerGroupParamAdv peerGroupParametersAdvertisement = new StdPeerGroupParamAdv(moduleImplementationAdvertisement.getParam());
 
-        Map<ModuleClassID, Object> initServices = new HashMap<ModuleClassID, Object>(paramAdv.getServices());
+        //02272015 mindarchitect
+        //If peer group advertisement contains service parameters than override peer group advertisement service parameters from module implementation advertisement.
+        //Mostly this is default (general purpose) module implementation advertisement
+        /*Hashtable peerGroupParameters = getPeerGroupAdvertisement().getServiceParams();
+        Enumeration keys = peerGroupParameters.keys();
 
-        initServices.putAll(paramAdv.getProtos());
+        while (keys.hasMoreElements()) {
+            ModuleClassID moduleClassId = (ModuleClassID) keys.nextElement();
+            Element element = (Element) peerGroupParameters.get(moduleClassId);
+            
+            Object parametersAdvertisement = peerGroupParametersAdvertisement.getService(moduleClassId);
+            //If service list contains requested service than substitute it with new service and service parameters            
+            if (parametersAdvertisement != null) {
+                peerGroupParametersAdvertisement.removeService(moduleClassId);
+                peerGroupParametersAdvertisement.putService(moduleClassId, element);
+            } 
+        }*/
+        
+        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>(peerGroupParametersAdvertisement.getServices());
+        services.putAll(peerGroupParametersAdvertisement.getProtos());
 
         // Remove the modules disabled in the configuration file.
-        ConfigParams conf = getConfigAdvertisement();
+        ConfigParams configurationAdvertisement = getConfigAdvertisement();
 
-        if(null != conf) {
-            Iterator<ModuleClassID> eachModule = initServices.keySet().iterator();
+        if(configurationAdvertisement != null) {
+            Iterator<ModuleClassID> eachModule = services.keySet().iterator();
 
             while(eachModule.hasNext()) {
                 ModuleClassID aModule = eachModule.next();
 
-                if(!conf.isSvcEnabled(aModule)) {
+                if(!configurationAdvertisement.isSvcEnabled(aModule)) {
 
                     // remove disabled module
                     Logging.logCheckedDebug(LOG, "Module disabled in configuration : ", aModule);
@@ -632,23 +631,25 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
         }
+        
         //The membership service is mandatory from now on (Jan. 20, 2008). It will be loaded first
         //and logged in. That will make sure the subsequent publishing will be signed.
         //The objective of this section is to establish the peer's default credential for this group.
-        Object tempMsSpec = initServices.remove(IModuleDefinitions.membershipClassID);
-        if(tempMsSpec==null)
+        Object membershipServiceSpecification = services.remove(IModuleDefinitions.membershipClassID);
+        if(membershipServiceSpecification == null)
         {
             throw new PeerGroupException("Membership service is mandatory. It is not found for this group : " + this.getPeerGroupName());
         }
         else
         {
-            Map<ModuleClassID, Object> tempMsMap = new HashMap<ModuleClassID, Object>();
-            tempMsMap.put(IModuleDefinitions.membershipClassID, tempMsSpec);
-            loadAllModules(tempMsMap,true);
-            int tempRes = startModules((Map)tempMsMap);
-            if(Module.START_OK ==tempRes)
+            Map<ModuleClassID, Object> membershipServiceModuleParameters = new HashMap<ModuleClassID, Object>();
+            membershipServiceModuleParameters.put(IModuleDefinitions.membershipClassID, membershipServiceSpecification);
+            loadAllModules(membershipServiceModuleParameters,true);
+            int startModulesResult = startModules((Map)membershipServiceModuleParameters);
+            
+            if(startModulesResult == Module.START_OK)
             {
-                MembershipService tempMs = this.getMembershipService();
+                MembershipService membershipService = this.getMembershipService();
                 Credential tempCred = null;                                
                 
                 NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
@@ -667,7 +668,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                     LOG.error(stringBuilder.toString());                                       
                 }                
 
-                tempCred = tempMs.getDefaultCredential();
+                tempCred = membershipService.getDefaultCredential();
                 if (null == tempCred)
                 {
                     if ("StringAuthentication".equals(membershipAuthenticationType)) {
@@ -677,16 +678,17 @@ public class StdPeerGroup extends GenericPeerGroup {
                         StringAuthenticator tempAuth = null;
                         try
                         {
-                            tempAuth = (StringAuthenticator) tempMs.apply(tempAuthCred);
+                            tempAuth = (StringAuthenticator) membershipService.apply(tempAuthCred);
                         }
                         catch(ProtocolNotSupportedException ex)
                         {
                             //Nothing can be done.
                             ex.printStackTrace();
                         }
+                        
                         if (null == tempAuth)
                         {
-                            throw new PeerGroupException("Failed to get a StringAuthenticator for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                            throw new PeerGroupException("Failed to get a StringAuthenticator for this group: "+this.getPeerGroupName()+". Error="+startModulesResult);
                         }
                         else
                         {
@@ -696,16 +698,14 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                             if (tempAuth.isReadyForJoin())
                             {
-                                tempMs.join(tempAuth);
-                                if (tempMs.getDefaultCredential() == null)
+                                membershipService.join(tempAuth);
+                                if (membershipService.getDefaultCredential() == null)
                                 {
-                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
-                                }
-                                else
-                                {
-                                    //The credential has been established. This is our objective.
-                                    //From now on, all the advertisements will be signed by this credential.
-                                }
+                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+startModulesResult);
+                                }        
+                                
+                                //The credential has been established. This is our objective.
+                                //From now on, all the advertisements will be signed by this credential.                                
                             }
                             else
                             {     
@@ -721,7 +721,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         EngineAuthenticator tempAuth = null;
                         try
                         {
-                            tempAuth = (EngineAuthenticator) tempMs.apply(tempAuthCred);
+                            tempAuth = (EngineAuthenticator) membershipService.apply(tempAuthCred);
                         }
                         catch(ProtocolNotSupportedException ex)
                         {
@@ -730,23 +730,21 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         if (null == tempAuth)
                         {
-                            throw new PeerGroupException("Failed to get a EngineAuthentication for this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
+                            throw new PeerGroupException("Failed to get a EngineAuthentication for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
                         }
                         else
                         {
 
                             if (tempAuth.isReadyForJoin())
                             {
-                                tempMs.join(tempAuth);
-                                if (tempMs.getDefaultCredential() == null)
+                                membershipService.join(tempAuth);
+                                if (membershipService.getDefaultCredential() == null)
                                 {
-                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
-                                }
-                                else
-                                {
-                                    //The credential has been established. This is our objective.
-                                    //From now on, all the advertisements will be signed by this credential.
-                                }
+                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
+                                }                           
+                                
+                                //The credential has been established. This is our objective.
+                                //From now on, all the advertisements will be signed by this credential.                                
                             }
                             else
                             {
@@ -762,7 +760,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         DialogAuthenticator tempAuth = null;
                         try
                         {
-                            tempAuth = (DialogAuthenticator) tempMs.apply(tempAuthCred);
+                            tempAuth = (DialogAuthenticator) membershipService.apply(tempAuthCred);
                         }
                         catch(ProtocolNotSupportedException ex)
                         {
@@ -771,7 +769,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         if (null == tempAuth)
                         {
-                            throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
+                            throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
                         }
                         else
                         {
@@ -797,16 +795,14 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                             if (tempAuth.isReadyForJoin())
                             {
-                                tempMs.join(tempAuth);
-                                if (tempMs.getDefaultCredential() == null)
+                                membershipService.join(tempAuth);
+                                if (membershipService.getDefaultCredential() == null)
                                 {
-                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
+                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
                                 }
-                                else
-                                {
-                                    //The credential has been established. This is our objective.
-                                    //From now on, all the advertisements will be signed by this credential.
-                                }
+                               
+                                //The credential has been established. This is our objective.
+                                //From now on, all the advertisements will be signed by this credential.                                
                             }
                             else
                             {
@@ -817,28 +813,26 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                     }
                 }
-                else
-                {
-                    //The credential has already been established, perhaps done during the module startup.
-                }
+                
+                //The credential has already been established, perhaps done during the module startup.                
             }
             else
             {
-                throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + tempRes);
+                throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
             }
         }
         
         // We Applications are shelved until startApp()
-        applications.putAll(paramAdv.getApps());
+        applications.putAll(peerGroupParametersAdvertisement.getApps());
 
-        if(null != conf) {
+        if(null != configurationAdvertisement) {
             Iterator<ModuleClassID> eachModule = applications.keySet().iterator();
 
             while(eachModule.hasNext()) {
 
                 ModuleClassID aModule = eachModule.next();
 
-                if(!conf.isSvcEnabled(aModule)) {
+                if(!configurationAdvertisement.isSvcEnabled(aModule)) {
 
                     // remove disabled module
                     Logging.logCheckedDebug(LOG, "Application disabled in configuration : ", aModule);
@@ -849,11 +843,11 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
         }
 
-        loadAllModules(initServices, true);
+        loadAllModules(services, true);
 
-        int result = startModules((Map) initServices);
+        int result = startModules((Map) services);
 
-        if(Module.START_OK != result) {
+        if(result != Module.START_OK) {
             throw new PeerGroupException("Failed to start peer group services. Result : " + result);
         }
 
@@ -881,12 +875,10 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 // Try to publish our impl adv within this group. (it was published
                 // in the parent automatically when loaded.
-                discoveryService.publish(implAdvertisement, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
+                discoveryService.publish(moduleImplementationAdvertisement, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
 
             } catch (Exception nevermind) {
-
                 Logging.logCheckedWarning(LOG, "Failed to publish Impl adv within group.", nevermind);
-
             }
         }
     }
@@ -980,7 +972,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * @return the cache manager associated with this group.
      */
     public CacheManager getCacheManager() {
-        return cm;
+        return cacheManager;
     }
 
     /**

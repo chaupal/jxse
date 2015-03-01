@@ -3,6 +3,7 @@ package net.jxta.impl.endpoint.netty.http;
 import java.util.concurrent.Executors;
 
 import net.jxta.impl.endpoint.netty.NettyTransport;
+import net.jxta.platform.NetworkConfigurator;
 
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
@@ -40,17 +41,17 @@ public class NettyHttpTunnelTransport extends NettyTransport {
 
     @Override
     protected int getDefaultPort() {
-        return 8080;
+        return NetworkConfigurator.getDefaultHttp2PortNumber();
     }
 
     @Override
     protected int getDefaultPortRangeLowerBound() {
-    	return 8081;
+    	return NetworkConfigurator.getDefaultHttp2PortRangeLowerBound();
     }
 
     @Override
     protected int getDefaultPortRangeUpperBound() {
-    	return 8099;
+    	return NetworkConfigurator.getDefaultHttp2PortRangeUpperBound();
     }
 
     @Override

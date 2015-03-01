@@ -126,13 +126,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      *  Holder for configuration parameters for groups in the process of being created.
      */
-    private final static Map<ID, ConfigParams> group_configs = Collections.synchronizedMap(new HashMap<ID, ConfigParams>());
+    private final static Map<ID, ConfigParams> configurationParameters = Collections.synchronizedMap(new HashMap<ID, ConfigParams>());
 
     /**
      * Default compatibility equater instance.
      */
-    private static final CompatibilityEquater COMP_EQ =
-    	new CompatibilityEquater() {
+    private static final CompatibilityEquater COMP_EQ = new CompatibilityEquater() {
         public boolean compatible(Element test) {
             return CompatibilityUtils.isCompatible(test);
         }
@@ -185,14 +184,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
     private PeerGroupAdvertisement peerGroupAdvertisement = null;
 
     /**
-     * This group's implAdvertisement.
+     * This group's moduleImplementationAdvertisement.
      */
-    protected ModuleImplAdvertisement implAdvertisement = null;
+    protected ModuleImplAdvertisement moduleImplementationAdvertisement = null;
 
     /**
      * This peer's config advertisement.
      */
-    protected ConfigParams configAdvertisement = null;
+    protected ConfigParams configurationAdvertisement = null;
 
     /**
      * This service implements a group but, being a Service, it runs inside of
@@ -201,7 +200,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Exception: The platform peer group does not have a parent group. It
      * has to be entirely self sufficient.
      */
-    protected PeerGroup parentGroup = null;
+    protected PeerGroup parentPeerGroup = null;
 
     /**
      * The location of our store
@@ -232,14 +231,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * nomatter what the GC thinks. There are threads that need to be stopped
      * before the group instance object ever becomes un-reachable.
      */
-    private AtomicInteger masterRefCount = new AtomicInteger(0);
+    private final AtomicInteger masterRefCount = new AtomicInteger(0);
 
     /**
      * Is {@code true} when at least one interface object has been generated
      * AFTER initComplete has become true. If true, the group stops when its ref
      * count reaches zero.
      */
-    private boolean stopWhenUnreferenced = false;
+    private final boolean stopWhenUnreferenced = false;
 
     /**
      * Is set to {@code true} when {@code init()} is completed enough that it
@@ -260,11 +259,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * can safely make one and give it away.
      */
     public PeerGroup getParentGroup() {
-        if (parentGroup == null) {
+        if (parentPeerGroup == null) {
             return null;
         }
-        return parentGroup;
-//        return parentGroup.getWeakInterface();
+        
+        return parentPeerGroup;
+//      return parentPeerGroup.getWeakInterface();
     }
 
     /**
@@ -316,15 +316,15 @@ public abstract class GenericPeerGroup implements PeerGroup {
         PeerGroup targetAsPeerGroup = (PeerGroup) target;
 
         // both null or both non-null.
-        if ((null == parentGroup) && (null != targetAsPeerGroup.getParentGroup())) {
+        if ((null == parentPeerGroup) && (null != targetAsPeerGroup.getParentGroup())) {
             return false;
         }
 
-        if ((null != parentGroup) && (null == targetAsPeerGroup.getParentGroup())) {
+        if ((null != parentPeerGroup) && (null == targetAsPeerGroup.getParentGroup())) {
             return false;
         }
 
-        if ((null != parentGroup) && !parentGroup.equals(targetAsPeerGroup.getParentGroup())) {
+        if ((null != parentPeerGroup) && !parentPeerGroup.equals(targetAsPeerGroup.getParentGroup())) {
             return false;
         }
 
@@ -339,10 +339,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
     public int hashCode() {
         // before init we must fail.
         if ((null == peerAdvertisement) || (null == getPeerGroupID())) {
-            throw new IllegalStateException("PeerGroup not sufficiently initialized");
+            throw new IllegalStateException("PeerGroup is not initialized");
         }
 
-        // XXX 20050907 bondolo including parentGroup would improve the hash.
+        // XXX 20050907 bondolo including parentPeerGroup would improve the hash.
         return getPeerGroupID().hashCode();
     }
 
@@ -375,13 +375,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
         result.append(loader.hashCode());
         result.append(']');
 
-        if (parentGroup == null) {
+        if (parentPeerGroup == null) {
             result.append(" / [");
             result.append(staticLoader.hashCode());
             result.append("]");
         } else {
             result.append(" / ");
-            result.append(parentGroup.toString());
+            result.append(parentPeerGroup.toString());
         }
 
         return result.toString();
@@ -571,20 +571,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *
      * @throws ServiceNotFoundException If a required service was not found.
      */
-    protected void checkServices() throws ServiceNotFoundException {
-        Service ignored;
-
-        ignored = lookupService(IModuleDefinitions.endpointClassID);
-        ignored = lookupService(IModuleDefinitions.resolverClassID);
-        ignored = lookupService(IModuleDefinitions.membershipClassID);
-        ignored = lookupService(IModuleDefinitions.accessClassID);
-
-    /**
-         * ignored = lookupService(discoveryClassID);
-         * ignored = lookupService(pipeClassID);
-         * ignored = lookupService(rendezvousClassID);
-         * ignored = lookupService(peerinfoClassID);
-         */
+    protected void checkServices() throws ServiceNotFoundException {        
+        lookupService(IModuleDefinitions.endpointClassID);
+        lookupService(IModuleDefinitions.resolverClassID);
+        lookupService(IModuleDefinitions.membershipClassID);
+        lookupService(IModuleDefinitions.accessClassID);    
     }
 
     /**
@@ -769,8 +760,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
     			allModuleImplAdvs.addAll(here);
     		}
 
-    		if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
-    			Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV,
+    		if (fromParent && (null != getParentGroup()) && (null != parentPeerGroup.getDiscoveryService())) {
+    			Collection<Advertisement> parent = discoverSome(parentPeerGroup.getDiscoveryService(), DiscoveryService.ADV,
     					"MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
 
     			allModuleImplAdvs.addAll(parent);
@@ -839,7 +830,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public ConfigParams getConfigAdvertisement() {
-        return configAdvertisement;
+        return configurationAdvertisement;
     }
 
     /**
@@ -850,7 +841,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * be used.
      */
     protected void setConfigAdvertisement(ConfigParams config) {
-        configAdvertisement = config;
+        configurationAdvertisement = config;
     }
 
     /**
@@ -864,9 +855,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     public static void setGroupConfigAdvertisement(ID groupid, ConfigParams params) {
         if (null != params) {
-            group_configs.put(groupid, params);
+            configurationParameters.put(groupid, params);
         } else {
-            group_configs.remove(groupid);
+            configurationParameters.remove(groupid);
         }
     }
 
@@ -928,16 +919,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected void initFirst(PeerGroup homeGroup, ID assignedID, Advertisement impl) throws PeerGroupException {
 
-        this.implAdvertisement = (ModuleImplAdvertisement) impl;
-        this.parentGroup = homeGroup;
+        this.moduleImplementationAdvertisement = (ModuleImplAdvertisement) impl;
+        this.parentPeerGroup = homeGroup;
 
-        if (null != parentGroup) {
-            jxtaHome = parentGroup.getStoreHome();
+        if (null != parentPeerGroup) {
+            jxtaHome = parentPeerGroup.getStoreHome();
         }
 
         // Set the peer configuration before we start.
         if ((null != assignedID) && (null == getConfigAdvertisement())) {
-            setConfigAdvertisement(group_configs.remove(assignedID));
+            setConfigAdvertisement(configurationParameters.remove(assignedID));
         }
 
         try {
@@ -950,8 +941,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     assignedID = IDFactory.newPeerGroupID();
                 }
             } else {
-                if (parentGroup != null) {
-                    DiscoveryService discoveryService = parentGroup.getDiscoveryService();
+                if (parentPeerGroup != null) {
+                    DiscoveryService discoveryService = parentPeerGroup.getDiscoveryService();
                     if (null != discoveryService) {
                         Enumeration found = discoveryService.getLocalAdvertisements(DiscoveryService.GROUP, "GID", assignedID.toString());
                         if (found.hasMoreElements()) {
@@ -969,16 +960,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // // make sure the parent group is the required group
             // if (null != peerAdvertisement.getPeerGroupID().getParentPeerGroupID()) {
-            // if (null == parentGroup) {
+            // if (null == parentPeerGroup) {
             // throw new PeerGroupException("Group requires parent group : " + peerAdvertisement.getPeerGroupID().getParentPeerGroupID());
-            // } else if (!parentGroup.getPeerGroupID().equals(peerAdvertisement.getPeerGroupID().getParentPeerGroupID())) {
-            // throw new PeerGroupException("Group requires parent group : " + peerAdvertisement.getPeerGroupID().getParentPeerGroupID() + ". Provided parent was : " + parentGroup.getPeerGroupID());
+            // } else if (!parentPeerGroup.getPeerGroupID().equals(peerAdvertisement.getPeerGroupID().getParentPeerGroupID())) {
+            // throw new PeerGroupException("Group requires parent group : " + peerAdvertisement.getPeerGroupID().getParentPeerGroupID() + ". Provided parent was : " + parentPeerGroup.getPeerGroupID());
             // }
             // }
 
             // Do our part of the PeerAdv construction.
-            if ((configAdvertisement != null) && (configAdvertisement instanceof PlatformConfig)) {
-                PlatformConfig platformConfig = (PlatformConfig) configAdvertisement;
+            if ((configurationAdvertisement != null) && (configurationAdvertisement instanceof PlatformConfig)) {
+                PlatformConfig platformConfig = (PlatformConfig) configurationAdvertisement;
 
                 // Normally there will be a peer ID and a peer name in the config.
                 PeerID configPID = platformConfig.getPeerID();
@@ -990,22 +981,19 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
                         if (null == param) {
                             throw new IllegalArgumentException(PSEConfigAdv.getAdvertisementType() + " could not be located");
-                        }
-
-                        Advertisement paramsAdv = null;
-                        try {
-                            paramsAdv = AdvertisementFactory.newAdvertisement(param);
-                        } catch (NoSuchElementException noadv) {// ignored
-                        }
-                        if (!(paramsAdv instanceof PSEConfigAdv)) {
+                        }                        
+                        
+                        Advertisement parametersAdvertisement = AdvertisementFactory.newAdvertisement(param);
+                       
+                        if (!(parametersAdvertisement instanceof PSEConfigAdv)) {
                             throw new IllegalArgumentException("Provided Advertisement was not a " + PSEConfigAdv.getAdvertisementType());
                         }
 
-                        PSEConfigAdv config = (PSEConfigAdv) paramsAdv;
+                        PSEConfigAdv config = (PSEConfigAdv) parametersAdvertisement;
                         Certificate clientRoot = config.getCertificate();
-                        byte[] pub_der = clientRoot.getPublicKey().getEncoded();
+                        byte[] encodedPiblicKey = clientRoot.getPublicKey().getEncoded();
 
-                        platformConfig.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID, pub_der));
+                        platformConfig.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID, encodedPiblicKey));
                     } else {
                         platformConfig.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID));
                     }
@@ -1015,14 +1003,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 peerAdvertisement.setName(platformConfig.getName());
                 peerAdvertisement.setDesc(platformConfig.getDesc());
             } else {
-                if (null == parentGroup) {
+                if (null == parentPeerGroup) {
                     // If we did not get a valid peer id, we'll initialize it here.
                     peerAdvertisement.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID));
                 } else {
                     // We're not the world peer group, which is the authoritative source of these values.
-                    peerAdvertisement.setPeerID(parentGroup.getPeerAdvertisement().getPeerID());
-                    peerAdvertisement.setName(parentGroup.getPeerAdvertisement().getName());
-                    peerAdvertisement.setDesc(parentGroup.getPeerAdvertisement().getDesc());
+                    peerAdvertisement.setPeerID(parentPeerGroup.getPeerAdvertisement().getPeerID());
+                    peerAdvertisement.setName(parentPeerGroup.getPeerAdvertisement().getName());
+                    peerAdvertisement.setDesc(parentPeerGroup.getPeerAdvertisement().getDesc());
                 }
             }
 
@@ -1033,20 +1021,19 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 peerGroupAdvertisement = (PeerGroupAdvertisement) AdvertisementFactory.newAdvertisement(PeerGroupAdvertisement.getAdvertisementType());
 
                 peerGroupAdvertisement.setPeerGroupID((PeerGroupID) assignedID);
-                peerGroupAdvertisement.setModuleSpecID(implAdvertisement.getModuleSpecID());
+                peerGroupAdvertisement.setModuleSpecID(moduleImplementationAdvertisement.getModuleSpecID());
             } else {
                 published = true;
             }
 
             // Now that we have our PeerGroupAdvertisement, we can pull out
             // the config to see if we have any PeerGroupConfigAdv params
-            if (null == parentGroup) {
-
+            if (null == parentPeerGroup) {
                 Logging.logCheckedDebug(LOG, "Setting up group loader -> static loader");
                 loader = new RefJxtaLoader(new URL[0], staticLoader.getClassLoader(), COMP_EQ, this);
 
             } else {
-                IJxtaLoader upLoader = ((GenericPeerGroup) parentGroup).getLoader();
+                IJxtaLoader upLoader = ((GenericPeerGroup) parentPeerGroup).getLoader();
                 StructuredDocument cfgDoc =
                         peerGroupAdvertisement.getServiceParam(
                         		IModuleDefinitions.peerGroupClassID);
@@ -1070,7 +1057,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // If we still do not have a config adv, make one with the parent group, or
             // a minimal one with minimal info in it.
-            if (configAdvertisement == null) {
+            if (configurationAdvertisement == null) {
 
                 ConfigParams superConfig = null;
 
@@ -1085,19 +1072,18 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     conf.setPeerID(peerAdvertisement.getPeerID());
                     conf.setName(peerAdvertisement.getName());
                     conf.setDesc(peerAdvertisement.getDesc());
-                    configAdvertisement = conf;
+                    configurationAdvertisement = conf;
 
                 } else {
 
                     // Copying the parent group
-                    configAdvertisement = superConfig.clone();
-
+                    configurationAdvertisement = superConfig.clone();
                 }
-
             }
 
             // Merge service params with those specified by the group (if any). The only
-            // policy, right now, is to give peer params the precedence over group params.
+            // policy, right now, is to give peer params the precedence over group params.            
+            
             Hashtable grpParams = peerGroupAdvertisement.getServiceParams();
             Enumeration keys = grpParams.keys();
 
@@ -1105,10 +1091,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 ID key = (ID) keys.nextElement();
                 Element e = (Element) grpParams.get(key);
 
-                if (configAdvertisement.getServiceParam(key) == null) {
-                    configAdvertisement.putServiceParam(key, e);
+                if (configurationAdvertisement.getServiceParam(key) == null) {
+                    configurationAdvertisement.putServiceParam(key, e);
                 }
-            }
+            }                   
 
             /*
              * Now seems like the right time to attempt to register the group.
@@ -1162,13 +1148,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
 
-            if (implAdvertisement != null) {
+            if (moduleImplementationAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
-                configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
-                configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
-                configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
-                configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
-                configInfo.append("\n\t\tModule Spec ID : ").append(implAdvertisement.getModuleSpecID());
+                configInfo.append("\n\t\tModule Spec ID: ").append(moduleImplementationAdvertisement.getModuleSpecID());
+                configInfo.append("\n\t\tImpl Description : ").append(moduleImplementationAdvertisement.getDescription());
+                configInfo.append("\n\t\tImpl URI : ").append(moduleImplementationAdvertisement.getUri());
+                configInfo.append("\n\t\tImpl Code : ").append(moduleImplementationAdvertisement.getCode());
+                configInfo.append("\n\t\tModule Spec ID : ").append(moduleImplementationAdvertisement.getModuleSpecID());
             }
 
             configInfo.append("\n\tGroup Params :");
@@ -1177,10 +1163,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
             configInfo.append("\n\t\tPeer ID in Group : ").append(getPeerID());
             configInfo.append("\n\tConfiguration :");
 
-            if (null == parentGroup) {
+            if (null == parentPeerGroup) {
                 configInfo.append("\n\t\tHome Group : (none)");
             } else {
-                configInfo.append("\n\t\tHome Group : \"").append(parentGroup.getPeerGroupName()).append("\" / ").append(parentGroup.getPeerGroupID());
+                configInfo.append("\n\t\tHome Group : \"").append(parentPeerGroup.getPeerGroupName()).append("\" / ").append(parentPeerGroup.getPeerGroupID());
             }
 
             configInfo.append("\n\t\tServices :");
@@ -1235,9 +1221,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
         // Explicitly unreference our parent group in order to allow it
         // to terminate if this group object was itself the last reference
         // to it.
-        if (parentGroup != null) {
-//            parentGroup.unref();
-            parentGroup = null;
+        if (parentPeerGroup != null) {
+//            parentPeerGroup.unref();
+            parentPeerGroup = null;
         }
         // executors from TaskManager are now shutdown by the NetworkManager
         // No longer initialized.
@@ -1342,7 +1328,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public ModuleImplAdvertisement getImplAdvertisement() {
-        return implAdvertisement.clone();
+        return moduleImplementationAdvertisement.clone();
     }
 
     /**
@@ -1357,11 +1343,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
         peerGroupAdvertisement.setName(name);
         peerGroupAdvertisement.setDescription(description);
 
-        if (parentGroup == null) {
+        if (parentPeerGroup == null) {
             return;
         }
 
-        DiscoveryService parentDiscovery = parentGroup.getDiscoveryService();
+        DiscoveryService parentDiscovery = parentPeerGroup.getDiscoveryService();
 
         if (null == parentDiscovery) {
             return;
@@ -1382,7 +1368,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new IllegalArgumentException("Advertisement did not contain a peer group ID");
         }
 
-        PeerGroup theNewGroup = parentGroup.getGlobalRegistry().lookupInstance(gid);
+        PeerGroup theNewGroup = parentPeerGroup.getGlobalRegistry().lookupInstance(gid);
 
         if (theNewGroup != null) {
             return theNewGroup;
@@ -1434,7 +1420,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         PeerGroup theNewGroup = null;
 
         if (null != gid) {
-            theNewGroup = parentGroup.getGlobalRegistry().lookupInstance(gid);
+            theNewGroup = parentPeerGroup.getGlobalRegistry().lookupInstance(gid);
         }
 
         if (theNewGroup != null) return theNewGroup;
@@ -1478,7 +1464,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new IllegalArgumentException("Invalid peer group ID");
         }
 
-        PeerGroup result = parentGroup.getGlobalRegistry().lookupInstance(gid);
+        PeerGroup result = parentPeerGroup.getGlobalRegistry().lookupInstance(gid);
 
         if (result != null) {
             return result;
@@ -1601,7 +1587,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     public GlobalRegistry getGlobalRegistry()
     {
-        return parentGroup.getGlobalRegistry();
+        return parentPeerGroup.getGlobalRegistry();
     }
 
     /**
@@ -1675,7 +1661,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     }
 
     public TaskManager getTaskManager() {
-        return parentGroup.getTaskManager();
+        return parentPeerGroup.getTaskManager();
         }
 
 //    @Deprecated

@@ -156,7 +156,7 @@ public class GroupConfig extends ConfigParams implements Cloneable {
      *         copy of this one.
      */
     @Override
-    public GroupConfig clone() {
+    public GroupConfig clone() throws CloneNotSupportedException {
         GroupConfig result = (GroupConfig) super.clone();
 
         return result;

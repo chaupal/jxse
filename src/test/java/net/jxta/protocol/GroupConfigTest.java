@@ -57,6 +57,8 @@
 package net.jxta.protocol;
 
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -132,10 +134,14 @@ public class GroupConfigTest {
 
     @Test
     public void testClone() {
-        GroupConfig cp = createTestInstance();
-        GroupConfig cp2 = cp.clone();
-
-        assertEquals("Original instance and clone instance were not identical.", cp, cp2);
+        try {
+            GroupConfig cp = createTestInstance();
+            GroupConfig cp2 = cp.clone();
+            
+            assertEquals("Original instance and clone instance were not identical.", cp, cp2);
+        } catch (CloneNotSupportedException exception) {
+            fail(exception.getMessage());
+        }
     }
 
     private static XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
