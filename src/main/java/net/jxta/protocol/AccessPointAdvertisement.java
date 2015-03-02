@@ -114,8 +114,8 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
             	a.addEndpointAddress(endpointAddress);
 
             return a;
-        } catch (CloneNotSupportedException impossible) {
-            throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
+        } catch (CloneNotSupportedException exception) {
+            throw new Error("Object.clone() threw CloneNotSupportedException", exception);
         }
     }
 

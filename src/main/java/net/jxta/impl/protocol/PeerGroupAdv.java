@@ -89,6 +89,7 @@ public class PeerGroupAdv extends PeerGroupAdvertisement {
          * {@inheritDoc}
          */
 
+        @Override
         public String getAdvertisementType() {
             return PeerGroupAdv.getAdvertisementType();
         }
@@ -96,6 +97,7 @@ public class PeerGroupAdv extends PeerGroupAdvertisement {
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance() {
             return new PeerGroupAdv();
         }
@@ -103,6 +105,7 @@ public class PeerGroupAdv extends PeerGroupAdvertisement {
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance(net.jxta.document.Element root) {
             return new PeerGroupAdv(root);
         }

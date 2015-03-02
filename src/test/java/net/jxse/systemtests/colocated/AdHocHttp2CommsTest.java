@@ -45,7 +45,7 @@ public class AdHocHttp2CommsTest {
 	
 	@Test
 	public void testComms() throws Exception {
-		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+            SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
 	}
 	
     @After

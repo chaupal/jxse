@@ -218,6 +218,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         /**
          * {@inheritDoc}
          */
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
 
             if (MembershipService.DEFAULT_CREDENTIAL_PROPERTY.equals(evt.getPropertyName())) {
@@ -273,6 +274,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
+    @Override
     public Advertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -280,6 +282,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getRemoteAdvertisements(String peer, int type, String attribute, String value, int threshold) {
 
         return getRemoteAdvertisements(peer, type, attribute, value, threshold, null);

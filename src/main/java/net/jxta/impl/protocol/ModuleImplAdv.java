@@ -119,6 +119,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
         /**
          * {@inheritDoc}
          */
+        @Override
         public String getAdvertisementType() {
             return ModuleImplAdv.getAdvertisementType();
         }
@@ -126,6 +127,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance() {
             return new ModuleImplAdv();
         }
@@ -133,6 +135,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
@@ -145,7 +148,8 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
     /**
      * Construct a new instance.
      */
-    private ModuleImplAdv() {}
+    private ModuleImplAdv() {
+    }
 
     /**
      * Construct an instance from a document.
@@ -174,11 +178,8 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-
                 Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
-
             }
-
         }
 
         // Sanity Check!!!

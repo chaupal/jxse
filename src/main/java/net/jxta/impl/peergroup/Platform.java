@@ -151,8 +151,7 @@ public class Platform extends StdPeerGroup {
      *
      * @throws PeerGroupException if an initialization error occurs
      */
-    public Platform() throws PeerGroupException {
-        throw new JxtaError("Zero params constructor is no longer supported for World PeerGroup class.");
+    private Platform() {        
     }
 
     /**
@@ -175,7 +174,7 @@ public class Platform extends StdPeerGroup {
      * @throws net.jxta.exception.PeerGroupException
      */
     @Override
-    protected synchronized void initFirst(PeerGroup nullParent, ID assignedID, Advertisement impl) throws PeerGroupException {
+    protected synchronized void initFirst(PeerGroup nullParent, ID assignedID, Advertisement moduleImplemetationAdvertisement) throws PeerGroupException {
         if (initComplete) {
             LOG.error("You cannot initialize more than one World PeerGroup!");
             throw new PeerGroupException("You cannot initialize more than one World PeerGroup!");
@@ -191,7 +190,7 @@ public class Platform extends StdPeerGroup {
         //     loader.
         IJxtaLoader loader = getJxtaLoader();
 
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
+        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) moduleImplemetationAdvertisement;
         if(null == implAdv) {
             implAdv = loader.findModuleImplAdvertisement(getClass());
         }
@@ -263,11 +262,11 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     protected void checkServices() throws ServiceNotFoundException {
-        super.checkServices();
-        Service ignored;
-        ignored = lookupService(IModuleDefinitions.discoveryClassID);
-        ignored = lookupService(IModuleDefinitions.rendezvousClassID);
-        ignored = lookupService(IModuleDefinitions.peerinfoClassID);
+        super.checkServices(); 
+        
+        lookupService(IModuleDefinitions.discoveryClassID);
+        lookupService(IModuleDefinitions.rendezvousClassID);
+        lookupService(IModuleDefinitions.peerinfoClassID);
     }
 
     @Override

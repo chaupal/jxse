@@ -234,6 +234,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  @inheritDoc
      **/
+    @Override
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         support.removePropertyChangeListener(propertyName, listener);
     }
@@ -243,6 +244,7 @@ public final class PSEMembershipService implements MembershipService {
      * @param impl
      * @throws net.jxta.exception.PeerGroupException
      **/
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
         this.assignedID = assignedID;

@@ -107,7 +107,7 @@ public final class WorldPeerGroupFactory {
 
     private final static transient Logger LOG = Logging.getLogger(WorldPeerGroupFactory.class.getName());
 
-    private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<String, PeerGroup>();
+    private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<>();
 
     /**
      * Our strong reference to the World Peer Group.
@@ -157,9 +157,9 @@ public final class WorldPeerGroupFactory {
             configurator.setConfigParams(config);
             configurator.save();
         } catch (ConfiguratorException configFailure) {
-            LOG.error("Failure while managing World Peer Group configuration");
-
-            throw new PeerGroupException("Failure while managing World Peer Group configuration", configFailure);
+            String exceptionMessage = "Failure while managing World Peer Group configuration";
+            LOG.error(exceptionMessage);
+            throw new PeerGroupException(exceptionMessage, configFailure);
         }
     }
 
@@ -176,7 +176,6 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      */
     public WorldPeerGroupFactory(ConfigParams config, URI storeHome) throws PeerGroupException {
-
         world = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), config, storeHome);
     }
 

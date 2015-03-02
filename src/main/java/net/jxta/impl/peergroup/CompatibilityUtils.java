@@ -83,20 +83,20 @@ public final class CompatibilityUtils {
     /**
      * Package URI to use in the default ModuleImplAdvertisement.
      */
-    private static final String MODULE_IMPL_STD_URI = "http://download.java.net/jxta/jxta-jxse/latest/jnlp/lib/jxta.jar";
+    private static final String MODULE_IMPL_STD_URI = "";
 
     /**
      * Default provider name to use in the default ModuleImplAdvertisement.
      */
-    private static final String MODULE_IMPL_STD_PROVIDER = "sun.com";
+    private static final String MODULE_IMPL_STD_PROVIDER = "";
 
     /**
      * The Specification title and Specification version we require.
      */
     private static final String STD_COMPAT_FORMAT = "Efmt";
-    private static final String STD_COMPAT_FORMAT_VALUE = "JRE1.5";
+    private static final String STD_COMPAT_FORMAT_VALUE = "JRE1.7";
     private static final String STD_COMPAT_BINDING = "Bind";
-    private static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
+    private static final String STD_COMPAT_BINDING_VALUE = "V3.0 Ref Impl";
 
     /**
      * Prevent construction.

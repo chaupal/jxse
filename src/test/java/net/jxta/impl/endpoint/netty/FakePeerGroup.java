@@ -46,30 +46,37 @@ public class FakePeerGroup implements PeerGroup {
 
     public ConfigParams configAdv;
     
+    @Override
     public PeerGroup getParentGroup() {
         return parentGroup;
     }
     
+    @Override
     public PeerGroupID getPeerGroupID() {
         return peerGroupId;
     }
     
+    @Override
     public String getPeerGroupName() {
         return peerGroupName;
     }
 
+    @Override
     public PeerID getPeerID() {
         return peerId;
     }
     
+    @Override
     public String getPeerName() {
         return peerName;
     }
     
+    @Override
     public EndpointService getEndpointService() {
         return endpointService;
     }
     
+    @Override
     public ConfigParams getConfigAdvertisement() {
         return configAdv;
     }
@@ -77,22 +84,27 @@ public class FakePeerGroup implements PeerGroup {
     /* UNIMPLEMENTED, IRRELEVANT METHODS BEYOND THIS POINT */
     
     @SuppressWarnings("unchecked")
+    @Override
     public boolean compatible(Element compat) {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public AccessService getAccessService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public DiscoveryService getDiscoveryService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public GlobalRegistry getGlobalRegistry()
     {
         throw new UnsupportedOperationException("getGlobalRegistry not implemented");
@@ -106,39 +118,48 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public MembershipService getMembershipService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PeerAdvertisement getPeerAdvertisement() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PeerGroupAdvertisement getPeerGroupAdvertisement() {
         throw new RuntimeException("not implemented");
     }    
     
+    @Override
     public PeerInfoService getPeerInfoService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PipeService getPipeService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public RendezVousService getRendezVousService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public ResolverService getResolverService() {
         throw new RuntimeException("not implemented");
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Iterator getRoleMap(ID name) {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public URI getStoreHome() {
         throw new RuntimeException("not implemented");
     }
@@ -147,42 +168,52 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public boolean isRendezvous() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public Module loadModule(ID assignedID, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public Module loadModule(ID assignedID, ModuleSpecID specID, int where) {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public Service lookupService(ID name) throws ServiceNotFoundException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public Service lookupService(ID name, int roleIndex) throws ServiceNotFoundException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PeerGroup newGroup(Advertisement pgAdv) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description, boolean publish) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public void publishGroup(String name, String description) throws IOException {
         throw new RuntimeException("not implemented");
     }
@@ -191,6 +222,7 @@ public class FakePeerGroup implements PeerGroup {
 //        throw new RuntimeException("not implemented");
 //    }
 
+    @Override
     public Advertisement getImplAdvertisement() {
         throw new RuntimeException("not implemented");
     }
@@ -199,24 +231,28 @@ public class FakePeerGroup implements PeerGroup {
 //        throw new RuntimeException("not implemented");
 //    }
 
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public int startApp(String[] args) {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public void stopApp() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public ContentService getContentService() {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
     public TaskManager getTaskManager() {
         throw new RuntimeException("not implemented");
     }
-
 }

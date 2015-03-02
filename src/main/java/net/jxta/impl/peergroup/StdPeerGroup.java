@@ -70,6 +70,7 @@ import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLElement;
@@ -98,7 +99,6 @@ import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.platform.NetworkManager;
-import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 
@@ -161,7 +161,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * The order in which we started the services.
      */
-    private final List<ModuleClassID> moduleStartOrder = new ArrayList<ModuleClassID>();
+    private final List<ModuleClassID> moduleStartOrder = new ArrayList<>();
 
     /**
      * A map of the Message Transports for this group.
@@ -172,7 +172,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@link net.jxta.endpoint.MessageTransport}</li>
      * </ul>
      */
-    private final Map<ModuleClassID, Object> messageTransports = new HashMap<ModuleClassID, Object>();
+    private final Map<ModuleClassID, Object> messageTransports = new HashMap<>();
 
     /**
      * A map of the applications for this group.
@@ -184,7 +184,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@link net.jxta.platform.ModuleSpecID}</li>
      * </ul>
      */
-    private final Map<ModuleClassID, Object> applications = new HashMap<ModuleClassID, Object>();
+    private final Map<ModuleClassID, Object> applications = new HashMap<>();
 
     /**
      * Cache for this group.
@@ -242,6 +242,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@inheritDoc}
      */
     // @Override
+    @Override
     public boolean compatible(Element compat) {
         return CompatibilityUtils.isCompatible(compat);
     }
@@ -595,7 +596,8 @@ public class StdPeerGroup extends GenericPeerGroup {
         //02272015 mindarchitect
         //If peer group advertisement contains service parameters than override peer group advertisement service parameters from module implementation advertisement.
         //Mostly this is default (general purpose) module implementation advertisement
-        /*Hashtable peerGroupParameters = getPeerGroupAdvertisement().getServiceParams();
+        
+        Hashtable peerGroupParameters = getPeerGroupAdvertisement().getServiceParams();
         Enumeration keys = peerGroupParameters.keys();
 
         while (keys.hasMoreElements()) {
@@ -605,17 +607,21 @@ public class StdPeerGroup extends GenericPeerGroup {
             Object parametersAdvertisement = peerGroupParametersAdvertisement.getService(moduleClassId);
             //If service list contains requested service than substitute it with new service and service parameters            
             if (parametersAdvertisement != null) {
+                //Remove default service
                 peerGroupParametersAdvertisement.removeService(moduleClassId);
-                peerGroupParametersAdvertisement.putService(moduleClassId, element);
+                
+                //Create module implementation advertisement for PSEMembershipService                
+                if (element != null) {                    
+                    Advertisement createdGroupPSEMembershipServiceParameterAdvertisement = AdvertisementFactory.newAdvertisement((XMLElement)element);
+                    peerGroupParametersAdvertisement.putService(moduleClassId, createdGroupPSEMembershipServiceParameterAdvertisement);
+                }                                    
             } 
-        }*/
+        }
         
-        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>(peerGroupParametersAdvertisement.getServices());
+        Map<ModuleClassID, Object> services = new HashMap<> (peerGroupParametersAdvertisement.getServices());
         services.putAll(peerGroupParametersAdvertisement.getProtos());
 
-        // Remove the modules disabled in the configuration file.
-        ConfigParams configurationAdvertisement = getConfigAdvertisement();
-
+        // Remove the modules disabled in the configuration file.        
         if(configurationAdvertisement != null) {
             Iterator<ModuleClassID> eachModule = services.keySet().iterator();
 
@@ -624,7 +630,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 if(!configurationAdvertisement.isSvcEnabled(aModule)) {
 
-                    // remove disabled module
+                    // Remove disabled module
                     Logging.logCheckedDebug(LOG, "Module disabled in configuration : ", aModule);
                     eachModule.remove();
 
@@ -642,9 +648,9 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
         else
         {
-            Map<ModuleClassID, Object> membershipServiceModuleParameters = new HashMap<ModuleClassID, Object>();
+            Map<ModuleClassID, Object> membershipServiceModuleParameters = new HashMap<>();
             membershipServiceModuleParameters.put(IModuleDefinitions.membershipClassID, membershipServiceSpecification);
-            loadAllModules(membershipServiceModuleParameters,true);
+            loadAllModules(membershipServiceModuleParameters, true);
             int startModulesResult = startModules((Map)membershipServiceModuleParameters);
             
             if(startModulesResult == Module.START_OK)

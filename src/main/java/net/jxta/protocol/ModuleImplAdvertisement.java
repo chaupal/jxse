@@ -120,7 +120,6 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      */
     @Override
     public ModuleImplAdvertisement clone() {
-
         try {
             ModuleImplAdvertisement clone = (ModuleImplAdvertisement) super.clone();
 

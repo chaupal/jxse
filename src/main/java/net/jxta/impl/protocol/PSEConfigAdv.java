@@ -103,35 +103,8 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
     /**
      *  Our DOCTYPE
      */
-    private final static String advType = "jxta:PSEConfig";
-
-    /**
-     *  Instantiator for PSEConfigAdv
-     */
-    public static class Instantiator implements AdvertisementFactory.Instantiator {
-
-        /**
-         * {@inheritDoc}
-         */
-        public String getAdvertisementType() {
-            return advType;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Advertisement newInstance() {
-            return new PSEConfigAdv();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Advertisement newInstance(Element root) {
-            return new PSEConfigAdv(root);
-        }
-    }
-
+    private final static String advertisementType = "jxta:PSEConfig";
+    
     private final static String ROOT_CERT_TAG = "RootCert";
     private final static String CERT_TAG = "Certificate";
     private final static String ENCRYPTED_PRIVATE_KEY_TAG = "EncryptedPrivateKey";
@@ -141,7 +114,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
     private final static String[] INDEX_FIELDS = {};
 
-    private final List<X509Certificate> certs = new ArrayList<X509Certificate>();
+    private final List<X509Certificate> certs = new ArrayList<>();
 
     private EncryptedPrivateKeyInfo encryptedPrivateKey = null;
 
@@ -154,14 +127,44 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
     private URI keyStoreLocation = null;
 
     /**
+     *  Instantiator for PSEConfigAdv
+     */
+    public static class Instantiator implements AdvertisementFactory.Instantiator {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getAdvertisementType() {
+            return advertisementType;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Advertisement newInstance() {
+            return new PSEConfigAdv();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Advertisement newInstance(Element root) {
+            return new PSEConfigAdv(root);
+        }
+    }    
+
+    /**
      *  Returns the identifying type of this Advertisement.
      *
      *  <p/><b>Note:</b> This is a static method. It cannot be used to determine
      *  the runtime type of an advertisement. ie.
      *  </p><code><pre>
-     *      Advertisement adv = module.getSomeAdv();
-     *      String advType = adv.getAdvertisementType();
-     *  </pre></code>
+      Advertisement adv = module.getSomeAdv();
+      String advertisementType = adv.getAdvertisementType();
+  </pre></code>
      *
      *  <p/><b>This is wrong and does not work the way you might expect.</b>
      *  This call is not polymorphic and calls
@@ -171,13 +174,14 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      * @return String the type of advertisement
      */
     public static String getAdvertisementType() {
-        return advType;
+        return advertisementType;
     }
 
     /**
      *  Use the Instantiator through the factory
      */
-    private PSEConfigAdv() {}
+    private PSEConfigAdv() {
+    }
 
     /**
      *  Use the Instantiator through the factory
@@ -349,25 +353,18 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
     /**
      *  Sets the seed certificate for this peer from a BASE64 String.
      *
-     *  @param newCert The seed certificate for this peer as a BASE64 String.
+     *  @param certificate The seed certificate for this peer as a BASE64 String.
      */
-    public void setCert(String newCert) {
+    public void setCertificate(String certificate) {
         try {
-            byte[] cert_der = PSEUtils.base64Decode(new StringReader(newCert));
+            byte[] decodedCertificate = PSEUtils.base64Decode(new StringReader(certificate));
 
-            CertificateFactory cf = CertificateFactory.getInstance("X509");
-
-            setCertificate((X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert_der)));
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+            setCertificate((X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(decodedCertificate)));
 
         } catch (Exception failed) {
-
             Logging.logCheckedError(LOG, "Failed to process seed cert\n", failed);
-
-            IllegalArgumentException failure = new IllegalArgumentException("Failed to process seed cert");
-            failure.initCause(failed);
-
-            throw failure;
-
+            throw new IllegalArgumentException("Failed to process seed cert", failed);
         }
     }
 
@@ -375,19 +372,19 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  Sets the seed certificate for this peer. If {@code null} then the 
      *  Private Key is also cleared.
      *
-     *  @param newCert The seed certificate for this PSE instance or {@code null}
+     *  @param certificate The seed certificate for this PSE instance or {@code null}
      *  to clear the seed certificates and private key.
      */
-    public void setCertificate(X509Certificate newCert) {
+    public void setCertificate(X509Certificate certificate) {
 
-        Logging.logCheckedDebug(LOG, "setCert : ", newCert);
+        Logging.logCheckedDebug(LOG, "setCertificate : ", certificate);
 
         certs.clear();
 
-        if (null == newCert) {
+        if (null == certificate) {
             encryptedPrivateKey = null;
         } else {
-            certs.add(newCert);
+            certs.add(certificate);
         }
     }
 
@@ -459,14 +456,8 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
             return PSEUtils.base64Encode(encryptedPrivateKey.getEncoded());
 
         } catch (Exception failed) {
-
             Logging.logCheckedError(LOG, "Failed to process private key\n", failed);
-
-            IllegalStateException failure = new IllegalStateException("Failed to process private key");
-            failure.initCause(failed);
-
-            throw failure;
-
+            throw new IllegalStateException("Failed to process private key", failed);
         }
     }
 
@@ -573,14 +564,8 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
             setEncryptedPrivateKey(newEncryptedPriv, algorithm);
 
         } catch (Exception failed) {
-
             Logging.logCheckedError(LOG, "Failed to process private key\n", failed);
-
-            IllegalArgumentException failure = new IllegalArgumentException("Failed to process private key");
-            failure.initCause(failed);
-
-            throw failure;
-
+            throw new IllegalArgumentException("Failed to process private key", failed);
         }
     }
 

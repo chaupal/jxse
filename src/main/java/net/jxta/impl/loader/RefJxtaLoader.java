@@ -358,7 +358,7 @@ public class RefJxtaLoader extends JxtaLoader {
             } else {                             
                 Logging.logCheckedDebug(LOG, hashHex(), ": No parent loader to try.");
             }
-        } catch (ClassNotFoundException cnfx) {        	
+        } catch (ClassNotFoundException exception) {        	
             Logging.logCheckedDebug(LOG, hashHex(), ": Parent could not load MSID: ", spec);            
         }
  
