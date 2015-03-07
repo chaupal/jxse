@@ -444,8 +444,7 @@ public interface IModuleDefinitions{
      * http2 endpoint protocol (netty http tunnel based)
      */
     public final static ModuleSpecID refHttp2ProtoSpecID =
-    		//ModuleSpecID.create(URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-E549DB3BCBCF4789A392B6100B78CC55F127AD1AADF0443ABF6FBDFD7909876906"));
-                ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000C0106"));
+    		ModuleSpecID.create(URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-E549DB3BCBCF4789A392B6100B78CC55F127AD1AADF0443ABF6FBDFD7909876906"));                
 
     /**
      * Well known endpoint protocol specification identifier: the standard
