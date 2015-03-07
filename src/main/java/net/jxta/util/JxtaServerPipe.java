@@ -351,6 +351,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void pipeMsgEvent(PipeMsgEvent event) {
         Message message = event.getMessage();
         if (message == null) {

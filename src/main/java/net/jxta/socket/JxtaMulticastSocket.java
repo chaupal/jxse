@@ -159,12 +159,11 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
     protected OutputPipe outputPipe;
     protected boolean closed = false;
     protected boolean bound = false;
-    protected BlockingQueue<Message> queue = new LinkedBlockingQueue<Message>(100);
+    protected BlockingQueue<Message> queue = new LinkedBlockingQueue<>(100);
     protected Credential credential = null;
     protected StructuredDocument credentialDoc = null;
     private int timeout = 60000;
-    private byte[] fauxip = new byte[4];
-    private boolean jxtamode = false;
+    private final byte[] fauxip = new byte[4];    
     private MessageElement srcElement = null;
 
     /**

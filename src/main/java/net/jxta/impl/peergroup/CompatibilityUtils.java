@@ -95,8 +95,10 @@ public final class CompatibilityUtils {
      */
     private static final String STD_COMPAT_FORMAT = "Efmt";
     private static final String STD_COMPAT_FORMAT_VALUE = "JRE1.7";
+    //private static final String STD_COMPAT_FORMAT_VALUE = "JRE1.5";
     private static final String STD_COMPAT_BINDING = "Bind";
-    private static final String STD_COMPAT_BINDING_VALUE = "V3.0 Ref Impl";
+   private static final String STD_COMPAT_BINDING_VALUE = "V3.0 Ref Impl";
+    //private static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
 
     /**
      * Prevent construction.

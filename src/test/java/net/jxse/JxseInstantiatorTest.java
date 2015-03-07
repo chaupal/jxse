@@ -142,13 +142,8 @@ public class JxseInstantiatorTest {
      */
     @Test
     public void testInstantiateWithNoParameterConstructor() {
-
         Class FN = JxseInstantiator.forName("net.jxse.JxseInstantiatorDummyTestClass");
-
         JxseInstantiatorDummyTestClass Result = (JxseInstantiatorDummyTestClass) JxseInstantiator.instantiateWithNoParameterConstructor(FN);
-
         assertTrue(Result!=null);
-
     }
-
 }

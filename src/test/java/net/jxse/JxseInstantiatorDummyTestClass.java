@@ -72,7 +72,5 @@ public class JxseInstantiatorDummyTestClass {
      * Two parameters constructor
      */
     public JxseInstantiatorDummyTestClass(int x, boolean b) {
-
     }
-
 }

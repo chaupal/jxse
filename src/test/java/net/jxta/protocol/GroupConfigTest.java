@@ -133,13 +133,11 @@ public class GroupConfigTest {
     }
 
     @Test
-    public void testClone() throws CloneNotSupportedException {
-        
+    public void testClone() throws CloneNotSupportedException {        
         GroupConfig cp = createTestInstance();
         GroupConfig cp2 = cp.clone();
 
-        assertEquals("Original instance and clone instance were not identical.", cp, cp2);
-        
+        assertEquals("Original instance and clone instance were not identical.", cp, cp2);        
     }
 
     private static XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
