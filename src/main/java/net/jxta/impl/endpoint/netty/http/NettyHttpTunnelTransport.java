@@ -40,17 +40,17 @@ public class NettyHttpTunnelTransport extends NettyTransport {
     }
 
     @Override
-    protected int getDefaultPort() {
+    protected int getDefaultPort() {        
         return NetworkConfigurator.getDefaultHttp2PortNumber();
     }
 
     @Override
-    protected int getDefaultPortRangeLowerBound() {
+    protected int getDefaultPortRangeLowerBound() {        
     	return NetworkConfigurator.getDefaultHttp2PortRangeLowerBound();
     }
 
     @Override
-    protected int getDefaultPortRangeUpperBound() {
+    protected int getDefaultPortRangeUpperBound() {        
     	return NetworkConfigurator.getDefaultHttp2PortRangeUpperBound();
     }
 
@@ -58,5 +58,4 @@ public class NettyHttpTunnelTransport extends NettyTransport {
     protected String getTransportDescriptiveName() {
         return "HTTP Tunnel";
     }
-
 }

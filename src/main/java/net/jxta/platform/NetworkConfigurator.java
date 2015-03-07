@@ -433,8 +433,8 @@ public class NetworkConfigurator {
      * @return NetworkConfigurator instance with default AD-HOC configuration
      */
     
-    private static final int DEFAULT_HTTP2_PORT_NUMBER = 8090;
-    private static final int DEFAULT_HTTP2_PORT_RANGE_LOWER_BOUND = 8091;
+    private static final int DEFAULT_HTTP2_PORT_NUMBER = 8080;
+    private static final int DEFAULT_HTTP2_PORT_RANGE_LOWER_BOUND = 8081;
     private static final int DEFAULT_HTTP2_PORT_RANGE_UPPER_BOUND = 8099;
     
     public static NetworkConfigurator newAdHocConfiguration(URI storeHome) {
@@ -1717,20 +1717,20 @@ public class NetworkConfigurator {
             infraPeerGroupConfig = createInfraConfigAdv();
             try {
                 URI configPropsURI = storeHome.resolve("config.properties");
-                InputStream configPropsIS = configPropsURI.toURL().openStream();
-                ResourceBundle rsrcs = new PropertyResourceBundle(configPropsIS);
-                configPropsIS.close();
+                ResourceBundle rsrcs;
+                
+                try (InputStream configPropsIS = configPropsURI.toURL().openStream()) {
+                    rsrcs = new PropertyResourceBundle(configPropsIS);
+                }
 
                 NetGroupTunables tunables = new NetGroupTunables(rsrcs, new NetGroupTunables());
 
                 infraPeerGroupConfig.setPeerGroupID(tunables.id);
                 infraPeerGroupConfig.setName(tunables.name);
                 infraPeerGroupConfig.setDesc(tunables.desc);
-            } catch (IOException ignored) {
+            } catch (MissingResourceException | IOException ignored) {
                 //ignored
-            } catch (MissingResourceException ignored) {
-                //ignored
-            }
+            } 
         }
         return platformConfig;
     }
@@ -1769,6 +1769,7 @@ public class NetworkConfigurator {
      * Home may be overridden by a call to setHome()
      *
      * @throws IOException If there is a failure saving the PlatformConfig.
+     * @throws net.jxta.exception.ConfiguratorException
      * @see #load
      */
     public void save() throws IOException, ConfiguratorException {

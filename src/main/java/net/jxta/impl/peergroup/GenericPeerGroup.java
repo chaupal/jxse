@@ -991,9 +991,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
                         PSEConfigAdv config = (PSEConfigAdv) parametersAdvertisement;
                         Certificate clientRoot = config.getCertificate();
-                        byte[] encodedPiblicKey = clientRoot.getPublicKey().getEncoded();
+                        byte[] encodedPublicKey = clientRoot.getPublicKey().getEncoded();
 
-                        platformConfig.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID, encodedPiblicKey));
+                        platformConfig.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID, encodedPublicKey));
                     } else {
                         platformConfig.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID));
                     }

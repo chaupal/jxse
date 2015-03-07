@@ -67,6 +67,7 @@ public class NettyTransport implements Module {
     
     private boolean started = false;
     
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         this.group = group;
         this.protocolName = getDefaultProtocolName();

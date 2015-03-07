@@ -63,18 +63,18 @@ public class AdHocCommsTest {
 	
 	@After
 	public void killAlice() {
-		if(aliceManager != null) {
-			aliceManager.stopNetwork();
-			aliceManager = null;
-		}
+            if(aliceManager != null) {
+                aliceManager.stopNetwork();
+                aliceManager = null;
+            }
 	}
 	
 	@After
 	public void killBob() {
-		if(bobManager != null) {
-			bobManager.stopNetwork();
-			bobManager = null;
-		}
+            if(bobManager != null) {
+                bobManager.stopNetwork();
+                bobManager = null;
+            }
 	}
 	
 }

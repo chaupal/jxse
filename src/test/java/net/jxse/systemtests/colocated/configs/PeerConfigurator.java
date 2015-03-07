@@ -57,7 +57,7 @@ public class PeerConfigurator {
 	 * @param tcpPort what port the peer should listen on for TCP connections. Set to -1 to disable incoming connections.
 	 */
 	public static void configureTcpOnly(NetworkManager man, int tcpPort) throws IOException {
-		configureTransports(man, true, tcpPort, false, -1, false, -1);
+            configureTransports(man, true, tcpPort, false, -1, false, -1);
 	}
 	
 	/**

@@ -69,7 +69,7 @@ public class BlockingPipeAcceptTest {
     	final CountDownLatch connectionAcceptLatch = new CountDownLatch(1);
     	final CountDownLatch aliceReceivedRequest = new CountDownLatch(1);
     	final CountDownLatch bobReceivedResponse = new CountDownLatch(1);
-    	AtomicReference<JxtaBiDiPipe> acceptedPipe = new AtomicReference<JxtaBiDiPipe>(null);
+    	AtomicReference<JxtaBiDiPipe> acceptedPipe = new AtomicReference<>(null);
     	
     	// create the server pipe, and have alice wait for an incoming connection (in another thread)
     	JxtaServerPipe aliceServerPipe = SystemTestUtils.createServerPipe(aliceManager);
@@ -78,20 +78,22 @@ public class BlockingPipeAcceptTest {
     	
     	// have bob attempt to connect to alice's server pipe
     	JxtaBiDiPipe bobClientPipe = new JxtaBiDiPipe(bobManager.getNetPeerGroup(), aliceServerPipe.getPipeAdv(), 2000, new PipeMsgListener() {
-			public void pipeMsgEvent(PipeMsgEvent event) {
-				bobReceivedResponse.countDown();
-			}
-		});
+            @Override
+            public void pipeMsgEvent(PipeMsgEvent event) {
+                    bobReceivedResponse.countDown();
+            }
+        });
     	
     	assertTrue("Timeout while waiting for pipe accept", connectionAcceptLatch.await(15, TimeUnit.SECONDS));
     	
     	// configure alice's end of the newly created BidiPipe
     	final JxtaBiDiPipe alicePipeEnd = acceptedPipe.get();
     	alicePipeEnd.setMessageListener(new PipeMsgListener() {
-			public void pipeMsgEvent(PipeMsgEvent event) {
-				aliceReceivedRequest.countDown();
-			}
-		});
+            @Override
+            public void pipeMsgEvent(PipeMsgEvent event) {
+                    aliceReceivedRequest.countDown();
+            }
+        });
     	
     	// send the messages in each direction to test the pipe is functioning
     	bobClientPipe.sendMessage(SystemTestUtils.createMessage("hello alice"));
@@ -104,15 +106,15 @@ public class BlockingPipeAcceptTest {
 	private void aliceWait(final JxtaServerPipe serverPipe, final CountDownLatch connectionAcceptLatch, final AtomicReference<JxtaBiDiPipe> accepted) {
 		new Thread(new Runnable() {
 
-			public void run() {
-				try {
-					accepted.set(serverPipe.accept());
-					connectionAcceptLatch.countDown();
-				} catch (IOException e) {
-					System.err.println("Failed to accept");
-					e.printStackTrace();
-				}
-			}
-		}).start();
+                public void run() {
+                    try {
+                            accepted.set(serverPipe.accept());
+                            connectionAcceptLatch.countDown();
+                    } catch (IOException e) {
+                            System.err.println("Failed to accept");
+                            e.printStackTrace();
+                    }
+                }
+            }).start();
 	}
 }

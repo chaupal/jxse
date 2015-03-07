@@ -297,12 +297,12 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
      */
     public boolean isHttpPublicAddressExclusive() {
 
-        String Temp = this.getProperty(JXSE_HTTP_PUBLIC_ADDRESS_EXCLUSIVE);
+        String jxseHttpPlublicAddressExclusive = this.getProperty(JXSE_HTTP_PUBLIC_ADDRESS_EXCLUSIVE);
 
-        if (Temp==null) {
+        if (jxseHttpPlublicAddressExclusive == null) {
             return false;
         } else {
-            return Boolean.parseBoolean(Temp);
+            return Boolean.parseBoolean(jxseHttpPlublicAddressExclusive);
         }
 
     }

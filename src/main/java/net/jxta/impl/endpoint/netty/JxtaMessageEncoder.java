@@ -41,5 +41,4 @@ public class JxtaMessageEncoder extends OneToOneEncoder {
         SerializedMessage serialized = new SerializedMessage(header, messageBytes);
         return serialized;
     }
-
 }

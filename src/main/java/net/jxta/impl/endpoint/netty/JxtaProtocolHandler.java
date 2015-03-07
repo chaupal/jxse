@@ -50,19 +50,19 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
      */
     public static final int MAX_WELCOME_MESSAGE_SIZE = 4096;
     
-    private Timer timeoutTimer;
-    private PeerID localPeerId;
+    private final Timer timeoutTimer;
+    private final PeerID localPeerId;
     private JxtaProtocolState state;
     
-    private ChannelBuffer receivedBytes;
+    private final ChannelBuffer receivedBytes;
     private MessagePackageHeader currentHeader;
 
-    private AddressTranslator addrTranslator;
-    private EndpointAddress connectToAddress;
-    private EndpointAddress returnAddress;
+    private final AddressTranslator addrTranslator;
+    private final EndpointAddress connectToAddress;
+    private final EndpointAddress returnAddress;
 
-    private ReentrantLock shutdownLock;
-    private Set<ChannelFuture> pendingWrites;
+    private final ReentrantLock shutdownLock;
+    private final Set<ChannelFuture> pendingWrites;
     private boolean closing;
     
     public JxtaProtocolHandler(AddressTranslator addrTranslator, PeerID localPeerId, Timer timeoutTimer, EndpointAddress connectToAddress, EndpointAddress returnAddress) {
@@ -73,7 +73,7 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
         this.timeoutTimer = timeoutTimer;
         this.connectToAddress = connectToAddress;
         this.returnAddress = returnAddress;
-        this.pendingWrites = new HashSet<ChannelFuture>();
+        this.pendingWrites = new HashSet<>();
         this.closing = false;
         this.shutdownLock = new ReentrantLock();
     }
@@ -184,6 +184,7 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
         }
     }
     
+    @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         shutdownLock.lock();
         try {

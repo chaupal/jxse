@@ -18,12 +18,13 @@ import net.jxta.impl.endpoint.IPUtils;
  */
 public class InetSocketAddressTranslator implements AddressTranslator {
 
-    private String protocol;
+    private final String protocol;
 
     public InetSocketAddressTranslator(String protocol) {
         this.protocol = protocol;
     }
     
+    @Override
     public EndpointAddress toEndpointAddress(SocketAddress addr) {
         InetSocketAddress socketAddr = (InetSocketAddress)addr;
         String hostAddr;
@@ -35,6 +36,7 @@ public class InetSocketAddressTranslator implements AddressTranslator {
         return new EndpointAddress(protocol, hostAddr + ":" + socketAddr.getPort(), null, null);
     }
     
+    @Override
     public EndpointAddress toEndpointAddress(SocketAddress clientAddr, SocketAddress serverAddr) {
         InetSocketAddress serverInetAddr = (InetSocketAddress)serverAddr;
         InetSocketAddress clientInetAddr = (InetSocketAddress)clientAddr;
@@ -42,6 +44,7 @@ public class InetSocketAddressTranslator implements AddressTranslator {
         return toEndpointAddress(new InetSocketAddress(clientInetAddr.getAddress(), serverInetAddr.getPort()));
     }
 
+    @Override
     public SocketAddress toSocketAddress(EndpointAddress addr) {
         String protoAddr = addr.getProtocolAddress();
         if(protoAddr.indexOf('[') != -1 || protoAddr.indexOf(']') != -1) {
@@ -103,13 +106,14 @@ public class InetSocketAddressTranslator implements AddressTranslator {
         return port;
     }
 
+    @Override
     public List<EndpointAddress> translateToExternalAddresses(SocketAddress bindpoint) {
         if(bindpoint == null) {
             return Collections.emptyList();
         }
         InetSocketAddress bpInet = (InetSocketAddress) bindpoint;
         
-        List<EndpointAddress> externalAddresses = new LinkedList<EndpointAddress>();
+        List<EndpointAddress> externalAddresses = new LinkedList<>();
         
         if(IPUtils.ANYADDRESS.equals(bpInet.getAddress())) {
             for(InetAddress localAddress : IPUtils.getAllLocalAddresses()) {
@@ -137,16 +141,19 @@ public class InetSocketAddressTranslator implements AddressTranslator {
 
     private void sortAddresses(List<EndpointAddress> externalAddresses) {
         Collections.sort(externalAddresses, new Comparator<EndpointAddress>() {
+            @Override
             public int compare(EndpointAddress one, EndpointAddress two) {
                 return one.toString().compareTo(two.toString());
             }
 
+            @Override
             public boolean equals(Object that) {
                 return (this == that);
-            }
+            }            
         });
     }
     
+    @Override
     public String getProtocolName() {
         return protocol;
     }

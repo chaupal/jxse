@@ -597,7 +597,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         //If peer group advertisement contains service parameters than override peer group advertisement service parameters from module implementation advertisement.
         //Mostly this is default (general purpose) module implementation advertisement
         
-        Hashtable peerGroupParameters = getPeerGroupAdvertisement().getServiceParams();
+        /*Hashtable peerGroupParameters = getPeerGroupAdvertisement().getServiceParams();
         Enumeration keys = peerGroupParameters.keys();
 
         while (keys.hasMoreElements()) {
@@ -616,7 +616,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                     peerGroupParametersAdvertisement.putService(moduleClassId, createdGroupPSEMembershipServiceParameterAdvertisement);
                 }                                    
             } 
-        }
+        }*/
         
         Map<ModuleClassID, Object> services = new HashMap<> (peerGroupParametersAdvertisement.getServices());
         services.putAll(peerGroupParametersAdvertisement.getProtos());
@@ -682,39 +682,31 @@ public class StdPeerGroup extends GenericPeerGroup {
                         AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "StringAuthentication", null);
 
                         StringAuthenticator tempAuth = null;
-                        try
-                        {
+                        
+                        try {
                             tempAuth = (StringAuthenticator) membershipService.apply(tempAuthCred);
-                        }
-                        catch(ProtocolNotSupportedException ex)
-                        {
+                        } catch(ProtocolNotSupportedException ex) {
                             //Nothing can be done.
                             ex.printStackTrace();
                         }
                         
-                        if (null == tempAuth)
-                        {
+                        if (null == tempAuth) {
                             throw new PeerGroupException("Failed to get a StringAuthenticator for this group: "+this.getPeerGroupName()+". Error="+startModulesResult);
-                        }
-                        else
-                        {
+                        } else {
                             tempAuth.setKeyStorePassword(membershipPassword);
                             tempAuth.setIdentity(this.getPeerID());
                             tempAuth.setIdentityPassword(membershipPassword);
 
-                            if (tempAuth.isReadyForJoin())
-                            {
+                            if (tempAuth.isReadyForJoin()) {
+                                
                                 membershipService.join(tempAuth);
-                                if (membershipService.getDefaultCredential() == null)
-                                {
+                                if (membershipService.getDefaultCredential() == null) {
                                     throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+startModulesResult);
                                 }        
                                 
                                 //The credential has been established. This is our objective.
                                 //From now on, all the advertisements will be signed by this credential.                                
-                            }
-                            else
-                            {     
+                            } else {     
                                 String peerGroupName = this.getPeerGroupName();
                                 LOG.error("Failed to join the group: " + peerGroupName);
                                 throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
@@ -725,35 +717,25 @@ public class StdPeerGroup extends GenericPeerGroup {
                         AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "EngineAuthentication", null);
 
                         EngineAuthenticator tempAuth = null;
-                        try
-                        {
+                        try {
                             tempAuth = (EngineAuthenticator) membershipService.apply(tempAuthCred);
-                        }
-                        catch(ProtocolNotSupportedException ex)
-                        {
+                        } catch(ProtocolNotSupportedException ex) {
                             //Nothing can be done.
                             ex.printStackTrace();
                         }
-                        if (null == tempAuth)
-                        {
+                        
+                        if (null == tempAuth) {
                             throw new PeerGroupException("Failed to get a EngineAuthentication for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-                        }
-                        else
-                        {
-
-                            if (tempAuth.isReadyForJoin())
-                            {
+                        } else {
+                            if (tempAuth.isReadyForJoin()) {
                                 membershipService.join(tempAuth);
-                                if (membershipService.getDefaultCredential() == null)
-                                {
+                                if (membershipService.getDefaultCredential() == null) {
                                     throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
                                 }                           
                                 
                                 //The credential has been established. This is our objective.
                                 //From now on, all the advertisements will be signed by this credential.                                
-                            }
-                            else
-                            {
+                            } else {
                                 String peerGroupName = this.getPeerGroupName();
                                 LOG.error("Failed to join the group: " + peerGroupName);
                                 throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
@@ -764,24 +746,19 @@ public class StdPeerGroup extends GenericPeerGroup {
                         AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "DialogAuthentication", null);
 
                         DialogAuthenticator tempAuth = null;
-                        try
-                        {
+                        try {
                             tempAuth = (DialogAuthenticator) membershipService.apply(tempAuthCred);
-                        }
-                        catch(ProtocolNotSupportedException ex)
-                        {
+                        } catch(ProtocolNotSupportedException ex) {
                             //Nothing can be done.
                             ex.printStackTrace();
                         }
-                        if (null == tempAuth)
-                        {
+                        
+                        if (null == tempAuth) {
                             throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-                        }
-                        else
-                        {
-                            char[] tempPass=null;
-                            for(int attempt=0;attempt<3;attempt++)
-                            {
+                        } else {
+                            char[] tempPass = null;
+                            
+                            for(int attempt=0;attempt<3;attempt++) {
                                 net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());                                
                                 tempPass = net.jxta.impl.util.Password.singleton().getPassword();
                                 
@@ -789,18 +766,14 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 tempAuth.setIdentity(this.getPeerID());
                                 tempAuth.setIdentityPassword(tempPass);
                                 
-                                if(tempAuth.isReadyForJoin())
-                                {
+                                if(tempAuth.isReadyForJoin()) {
                                     break;
-                                }
-                                else
-                                {
+                                } else {
                                     net.jxta.impl.util.Password.singleton().resetPassword();
                                 }
                             }
 
-                            if (tempAuth.isReadyForJoin())
-                            {
+                            if (tempAuth.isReadyForJoin()) {
                                 membershipService.join(tempAuth);
                                 if (membershipService.getDefaultCredential() == null)
                                 {
@@ -809,9 +782,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                                
                                 //The credential has been established. This is our objective.
                                 //From now on, all the advertisements will be signed by this credential.                                
-                            }
-                            else
-                            {
+                            } else {
                                 String peerGroupName = this.getPeerGroupName();
                                 LOG.error("Failed to join the group: " + peerGroupName);
                                 throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
@@ -821,9 +792,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
                 
                 //The credential has already been established, perhaps done during the module startup.                
-            }
-            else
-            {
+            } else {
                 throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
             }
         }

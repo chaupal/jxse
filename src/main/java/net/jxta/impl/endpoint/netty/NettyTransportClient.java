@@ -36,6 +36,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         public EndpointAddress logicalEndpointAddress;
         public CountDownLatch latch = new CountDownLatch(1);
 
+        @Override
         public void newConnection(Channel channel, EndpointAddress directedAt, EndpointAddress logicalEndpointAddress) {
             this.directedAt = directedAt;
             this.logicalEndpointAddress = logicalEndpointAddress;
@@ -45,24 +46,23 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
     private static final Logger LOG = Logging.getLogger(NettyTransportClient.class.getName());
     
-    private EndpointAddress localAddress;
+    private final EndpointAddress localAddress;
     
-    private PeerGroup group;
-    private PeerGroupID homeGroupID;
-    private PeerID localPeerID;
+    private final PeerGroup group;
+    private final PeerGroupID homeGroupID;
+    private final PeerID localPeerID;
     private EndpointService endpointService;
     private MessengerEventListener messageEventListener;
-    private AddressTranslator addrTranslator;
+    private final AddressTranslator addrTranslator;
     
-    private ChannelGroup channels;
-    private HashedWheelTimer timeoutTimer;
+    private final ChannelGroup channels;
+    private final HashedWheelTimer timeoutTimer;
     private ChannelGroupFuture closeChannelsFuture;
-    private AtomicBoolean started;
-    private AtomicBoolean stopping;
+    private final AtomicBoolean started;
+    private final AtomicBoolean stopping;
     
-    private ChannelFactory clientFactory;
-
-    private EndpointAddress returnAddress;
+    private final ChannelFactory clientFactory;
+    private final EndpointAddress returnAddress;
     
     public NettyTransportClient(ChannelFactory clientFactory, AddressTranslator addrTranslator, PeerGroup group, EndpointAddress returnAddress) {
         this.started = new AtomicBoolean(false);
@@ -81,6 +81,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         timeoutTimer = new HashedWheelTimer();
     }
 
+    @Override
     public boolean start(EndpointService endpointService) {
         this.endpointService = endpointService;
         messageEventListener = endpointService.addMessageTransport(this);
@@ -93,6 +94,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         return true;
     }
     
+    @Override
     public void beginStop() {
         
         if(!started.get()) {
@@ -107,6 +109,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
     }
     
+    @Override
     public void stop() {
 
         if(!stopping.get()) {
@@ -127,10 +130,10 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
     /**
      * {@inheritDoc }
-     * @param dest
-     * @param hint
+     * @param dest     
      * @return
      */
+    @Override
     public Messenger getMessenger(EndpointAddress dest) {
 //    public Messenger getMessenger(EndpointAddress dest, Object hint) {
         
@@ -208,14 +211,17 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         return new AsynchronousNettyMessenger(connectFuture.getChannel(), homeGroupID, localPeerID, clientRegistry.directedAt, clientRegistry.logicalEndpointAddress, endpointService);
     }
     
+    @Override
     public boolean allowsRouting() {
         return true;
     }
 
+    @Override
     public EndpointAddress getPublicAddress() {
         return localAddress;
     }
 
+    @Override
     public boolean isConnectionOriented() {
         return true;
     }
@@ -225,12 +231,13 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         throw new RuntimeException("ping is deprecated, do not use!");
     }
 
+    @Override
     public EndpointService getEndpointService() {
         return endpointService;
     }
 
+    @Override
     public String getProtocolName() {
         return addrTranslator.getProtocolName();
     }
-
 }

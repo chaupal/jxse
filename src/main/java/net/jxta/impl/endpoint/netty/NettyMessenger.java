@@ -30,12 +30,11 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 
     private static final Logger LOG = Logging.getLogger(NettyMessenger.class.getName());
 
-    private Channel channel;
-    private EndpointAddress logicalDestinationAddr;
-    private EndpointService endpointService;
-	private PeerID localPeerId;
-
-	private EndpointAddress localAddress;
+    private final Channel channel;
+    private final EndpointAddress logicalDestinationAddr;
+    private final EndpointService endpointService;
+    private final PeerID localPeerId;
+    private final EndpointAddress localAddress;
     
     public NettyMessenger(Channel channel, PeerGroupID homeGroupID, PeerID localPeerID, EndpointAddress localAddress, EndpointAddress logicalDestinationAddress, EndpointService endpointService) {
         super(homeGroupID, localAddress, endpointService.getGroup().getTaskManager(), true);

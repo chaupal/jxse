@@ -37,6 +37,7 @@ public class SystemTestUtils {
     public static JxtaServerPipe createServerPipe(NetworkManager manager, ServerPipeAcceptListener listener) throws IOException {
         PipeID pipeId = IDFactory.newPipeID(manager.getNetPeerGroup().getPeerGroupID());
         PipeAdvertisement pipeAd = createUnicastPipeAd(pipeId);
+        
         if(listener == null) {
             return new JxtaServerPipe(manager.getNetPeerGroup(), pipeAd);
         } else {
@@ -68,10 +69,10 @@ public class SystemTestUtils {
     
     private static byte[] createRandomBytes(int numExtraBytes) {
     	Random r = new Random();
-		byte[] extraBytes = new byte[numExtraBytes];
-		r.nextBytes(extraBytes);
-		
-		return extraBytes;
+            byte[] extraBytes = new byte[numExtraBytes];
+            r.nextBytes(extraBytes);
+
+            return extraBytes;
 	}
 
 	public static Message createMessage(String payload) {

@@ -58,6 +58,7 @@
 package net.jxse.configuration;
 
 import net.jxta.configuration.JxtaTransportConfiguration;
+import net.jxta.platform.NetworkConfigurator;
 
 /**
  * Defines the http transport configuration when connecting to the JXTA network.
@@ -72,21 +73,22 @@ public class JxseHttp2TransportConfiguration extends JxtaTransportConfiguration 
     /**
      * Default HTTP 2 port value.
      */
-    public static final int DEFAULT_HTTP2_PORT = 8080;
+    public static final int DEFAULT_HTTP2_PORT = NetworkConfigurator.getDefaultHttp2PortNumber();    
 
     /**
      * Return an HTTP 2 transport configuration containing defaults
+     * @return 
      */
     public static final JxseHttp2TransportConfiguration getDefaultHttp2TransportConfiguration() {
 
         // Preparing return value
-        JxseHttp2TransportConfiguration Result = new JxseHttp2TransportConfiguration();
+        JxseHttp2TransportConfiguration result = new JxseHttp2TransportConfiguration();
 
-        Result.setDefaultPropertyValue(JXSE_HTTP2_OUTGOING, Boolean.toString(true));
-        Result.setDefaultPropertyValue(JXSE_HTTP2_INCOMING, Boolean.toString(true));
-        Result.setDefaultPropertyValue(JXSE_HTTP2_PORT, Integer.toString(DEFAULT_HTTP2_PORT));
+        result.setDefaultPropertyValue(JXSE_HTTP2_OUTGOING, Boolean.toString(true));
+        result.setDefaultPropertyValue(JXSE_HTTP2_INCOMING, Boolean.toString(true));
+        result.setDefaultPropertyValue(JXSE_HTTP2_PORT, Integer.toString(DEFAULT_HTTP2_PORT));
 
-        return Result;
+        return result;
 
     }
 
@@ -389,7 +391,5 @@ public class JxseHttp2TransportConfiguration extends JxtaTransportConfiguration 
         }
 
         return -1;
-
     }
-
 }

@@ -39,11 +39,13 @@ public interface AddressTranslator {
      * Typically, this is to deal with the case where we have bound to the wildcard address
      * (i.e. [::]:8080 or 0.0.0.0:8080) and wish to convert this into the physical IP addresses
      * for the adapters on our machine (i.e. 192.168.1.45:8080, 172.16.0.52:8080, 10.1.1.12:8080, etc.)
+     * @return 
      */
     public List<EndpointAddress> translateToExternalAddresses(SocketAddress bindpoint);
 
     /**
      * Provides the protocol name which is included in all translated EndpointAddresses.
+     * @return 
      */
     public String getProtocolName();
     

@@ -565,6 +565,7 @@ public class NetworkManager implements RendezvousListener {
      *
      * @param event rendezvousEvent
      */
+    @Override
     public void rendezvousEvent(RendezvousEvent event) {
         if (event.getType() == RendezvousEvent.RDVCONNECT || event.getType() == RendezvousEvent.RDVRECONNECT
                 || event.getType() == RendezvousEvent.BECAMERDV) {
@@ -656,14 +657,14 @@ public class NetworkManager implements RendezvousListener {
             }
         }
 
-        File[] SubFiles = TheFile.listFiles();
+        File[] subFiles = TheFile.listFiles();
 
-        if (SubFiles!=null) {
-            for(int i=0;i<SubFiles.length;i++) {
-                if (SubFiles[i].isDirectory()) {
-                    RecursiveDelete(SubFiles[i]);
+        if (subFiles != null) {
+            for (File subFile : subFiles) {
+                if (subFile.isDirectory()) {
+                    RecursiveDelete(subFile);
                 }
-                SubFiles[i].delete();
+                subFile.delete();
             }
         TheFile.delete();
         }

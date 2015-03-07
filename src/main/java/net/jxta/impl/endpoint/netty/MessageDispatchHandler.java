@@ -45,15 +45,16 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     public MessageDispatchHandler(NettyChannelRegistry registry) {
         this.registry = registry;
         listenerLock = new ReentrantLock();
-        events = new LinkedList<Runnable>();
+        events = new LinkedList<>();
     }
     
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
     	dispatchImportantListenerEvent(new Runnable() {
-			public void run() {
-				listener.connectionDied();
-			}
+            @Override
+            public void run() {
+                listener.connectionDied();
+            }
     	});
     }
     
@@ -78,6 +79,7 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
         final Message message = (Message) e.getMessage();
         
         dispatchImportantListenerEvent(new Runnable() {
+                @Override
         	public void run() {
         		listener.messageArrived(message);
         	}

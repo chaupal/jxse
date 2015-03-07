@@ -44,23 +44,23 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
 
     private static final Logger LOG = Logging.getLogger(NettyTransportServer.class.getName());
     
-    private ServerBootstrap serverBootstrap;
+    private final ServerBootstrap serverBootstrap;
     private Channel serverChannel;
     private EndpointService endpointService;
     
-    private AtomicBoolean started = new AtomicBoolean(false);
-    private PeerGroup group;
-    private PeerGroupID homeGroupID;
-    private PeerID localPeerID;
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final PeerGroup group;
+    private final PeerGroupID homeGroupID;
+    private final PeerID localPeerID;
     
     private MessengerEventListener listener;
     private List<EndpointAddress> publicAddresses;
 
-    private AddressTranslator addrTranslator;
+    private final AddressTranslator addrTranslator;
     
-    private ChannelGroup channels;
+    private final ChannelGroup channels;
 
-    private HashedWheelTimer timeoutTimer;
+    private final HashedWheelTimer timeoutTimer;
 
     private ChannelGroupFuture closeChannelsFuture;
 
