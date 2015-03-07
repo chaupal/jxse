@@ -94,18 +94,18 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
             if(publicAddress == null) {
 
                 Logging.logCheckedWarning(LOG, "Instructed to use public address only, but no public address specified! Using all bound addresses instead");
-                publicAddresses = new ArrayList<EndpointAddress>(boundAddresses);
+                publicAddresses = new ArrayList<>(boundAddresses);
 
             } else {
 
-                publicAddresses = new ArrayList<EndpointAddress>(1);
+                publicAddresses = new ArrayList<>(1);
                 publicAddresses.add(publicAddress);
 
             }
 
         } else {
             int size = boundAddresses.size() + ((publicAddress != null) ? 1 : 0);
-            publicAddresses = new ArrayList<EndpointAddress>(size);
+            publicAddresses = new ArrayList<>(size);
             if(publicAddress != null) {
                 publicAddresses.add(publicAddress);
             }
@@ -131,6 +131,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         return null;
     }
     
+    @Override
     public boolean start(EndpointService endpointService) throws IllegalStateException {
         if(started.get()) {
             throw new IllegalStateException("already started");
@@ -150,6 +151,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         return true;
     }
     
+    @Override
     public void beginStop() {
 
         if(!started.compareAndSet(true, false)) {
@@ -162,6 +164,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         closeChannelsFuture = channels.close();
     }
     
+    @Override
     public void stop() throws IllegalStateException {
         if(closeChannelsFuture != null) {
             closeChannelsFuture.awaitUninterruptibly();
@@ -172,6 +175,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         timeoutTimer.stop();
     }
 
+    @Override
     public void newConnection(Channel channel, EndpointAddress directedAt, EndpointAddress logicalEndpointAddress) {
         // EndpointAddress localAddr = addrTranslator.toEndpointAddress(channel.getLocalAddress(), serverChannel.getLocalAddress());
         // NettyMessenger messenger = new NettyMessenger(channel, homeGroupID, localPeerID, directedAt, logicalEndpointAddress, endpointService);
@@ -179,14 +183,17 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
 	    listener.messengerReady(new MessengerEvent(this, messenger, messenger.getDestinationAddress()));
 	}
 	
+    @Override
     public Iterator<EndpointAddress> getPublicAddresses() {
         return publicAddresses.iterator();
     }
 
+    @Override
     public EndpointService getEndpointService() {
         return endpointService;
     }
 
+    @Override
     public String getProtocolName() {
         return addrTranslator.getProtocolName();
     }
@@ -227,6 +234,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
      * @return the physically bound addresses for this transport, as opposed to those which are
      * broadcasted to external peers.
      */
+    @Override
     public List<EndpointAddress> getBoundAddresses() {
         return boundAddresses;
     }

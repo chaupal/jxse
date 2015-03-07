@@ -14,10 +14,12 @@ import net.jxta.endpoint.EndpointAddress;
  */
 public class NullTransportServerComponent extends NullTransportComponent implements TransportServerComponent {
 
+    @Override
     public List<EndpointAddress> getBoundAddresses() {
-        return new ArrayList<EndpointAddress>(0);
+        return new ArrayList<>(0);
     }
 
+    @Override
     public Iterator<EndpointAddress> getPublicAddresses() {
         return new ArrayList<EndpointAddress>(0).iterator();
     }

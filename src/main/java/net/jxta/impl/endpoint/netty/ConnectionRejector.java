@@ -24,33 +24,28 @@ public class ConnectionRejector extends SimpleChannelUpstreamHandler {
 
     private static final Logger LOG = Logger.getLogger(ConnectionRejector.class.getName());
     
-	public static final String NAME = "rejector";
-    private AtomicBoolean acceptConnections;
+    public static final String NAME = "rejector";
+    private final AtomicBoolean acceptConnections;
 	
-	public ConnectionRejector(AtomicBoolean acceptConnections) {
-		this.acceptConnections = acceptConnections;
-	}
-	
-	public void setAcceptConnections(boolean acceptConnections) {
-		this.acceptConnections.set(acceptConnections);
-	}
-	
-	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-	    
-            if(!acceptConnections.get()) {
+    public ConnectionRejector(AtomicBoolean acceptConnections) {
+        this.acceptConnections = acceptConnections;
+    }
 
-	        if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-	            SocketAddress localAddr = ctx.getChannel().getParent().getLocalAddress();
-	            SocketAddress remoteAddr = ctx.getChannel().getRemoteAddress();
-	            LOG.log(Level.WARNING, "Transport is not ready yet - rejecting connection from " + remoteAddr + " to local bound address " + localAddr);
-	        }
-	        ctx.getChannel().close();
-	        return;
+    public void setAcceptConnections(boolean acceptConnections) {
+        this.acceptConnections.set(acceptConnections);
+    }
 
-	    }
-	    
-	    super.channelConnected(ctx, e);
-     }
-	
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        if(!acceptConnections.get()) {
+            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                SocketAddress localAddr = ctx.getChannel().getParent().getLocalAddress();
+                SocketAddress remoteAddr = ctx.getChannel().getRemoteAddress();
+                LOG.log(Level.WARNING, "Transport is not ready yet - rejecting connection from " + remoteAddr + " to local bound address " + localAddr);
+            }
+            ctx.getChannel().close();
+            return;
+        }
+        super.channelConnected(ctx, e);
+    }	
 }

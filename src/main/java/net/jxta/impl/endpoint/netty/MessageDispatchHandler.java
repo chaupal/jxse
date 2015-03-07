@@ -99,11 +99,12 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
             LOG.log(Level.WARNING, "Unhandled exception in netty channel pipeline - closing connection", cause);
         }
         
-		dispatchImportantListenerEvent(new Runnable() {
-			public void run() {
-				listener.connectionDied();
-			}
-		});
+        dispatchImportantListenerEvent(new Runnable() {
+            @Override
+            public void run() {
+                listener.connectionDied();
+            }
+        });
         
         Channels.close(ctx, ctx.getChannel().getCloseFuture());
     }
@@ -111,9 +112,10 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void channelInterestChanged(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
     	dispatchListenerEvent(new Runnable() {
-    		public void run() {
-    			listener.channelSaturated(ctx.getChannel().getInterestOps() == Channel.OP_READ_WRITE);
-    		}
+            @Override
+            public void run() {
+                listener.channelSaturated(ctx.getChannel().getInterestOps() == Channel.OP_READ_WRITE);
+            }
     	});
     }
 

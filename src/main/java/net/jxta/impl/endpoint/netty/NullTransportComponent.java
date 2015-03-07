@@ -11,17 +11,19 @@ import net.jxta.endpoint.EndpointService;
  */
 public class NullTransportComponent implements TransportComponent {
 
+    @Override
     public void beginStop() {
         // nothing to do
     }
 
+    @Override
     public boolean start(EndpointService endpointService) {
         // we always succeed
         return true;
     }
 
+    @Override
     public void stop() {
         // nothing to do
     }
-
 }

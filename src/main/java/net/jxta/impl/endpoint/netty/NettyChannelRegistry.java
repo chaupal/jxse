@@ -12,7 +12,5 @@ import org.jboss.netty.channel.Channel;
  * @author iain.mcginniss@onedrum.com
  */
 public interface NettyChannelRegistry {
-
-    public void newConnection(Channel channel, EndpointAddress directedAt, EndpointAddress logicalEndpointAddress);
-    
+    public void newConnection(Channel channel, EndpointAddress directedAt, EndpointAddress logicalEndpointAddress);    
 }

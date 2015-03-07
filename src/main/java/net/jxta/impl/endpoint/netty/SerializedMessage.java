@@ -14,8 +14,8 @@ import org.jboss.netty.buffer.ChannelBuffer;
  */
 public class SerializedMessage {
 
-    private ChannelBuffer messageContents;
-    private MessagePackageHeader header;
+    private final ChannelBuffer messageContents;
+    private final MessagePackageHeader header;
     
     public SerializedMessage(MessagePackageHeader header, ChannelBuffer messageContents) {
         this.header = header;

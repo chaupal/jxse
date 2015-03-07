@@ -11,6 +11,7 @@ public interface TransportComponent {
     /**
      * Start the component, which may register itself with the provided endpoint service
      * to provide functionality to the wider JXTA stack.
+     * @param endpointService
      * @return whether the startup sequence succeeded or not.
      */
     public boolean start(EndpointService endpointService);

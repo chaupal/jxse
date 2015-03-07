@@ -133,21 +133,18 @@ public class GroupConfigTest {
     }
 
     @Test
-    public void testClone() {
-        try {
-            GroupConfig cp = createTestInstance();
-            GroupConfig cp2 = cp.clone();
-            
-            assertEquals("Original instance and clone instance were not identical.", cp, cp2);
-        } catch (CloneNotSupportedException exception) {
-            fail(exception.getMessage());
-        }
+    public void testClone() throws CloneNotSupportedException {
+        
+        GroupConfig cp = createTestInstance();
+        GroupConfig cp2 = cp.clone();
+
+        assertEquals("Original instance and clone instance were not identical.", cp, cp2);
+        
     }
 
     private static XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
         try {
             XMLDocument advDoc = (XMLDocument) srcAdv.getDocument(MimeMediaType.XMLUTF8);
-
             XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
             StructuredDocumentUtils.copyElements(doc, doc, advDoc);

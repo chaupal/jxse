@@ -10,6 +10,7 @@ import net.jxta.endpoint.EndpointAddress;
  */
 public class NullTransportClientComponent extends NullTransportComponent implements TransportClientComponent {
 
+    @Override
     public EndpointAddress getPublicAddress() {
         return null;
     }

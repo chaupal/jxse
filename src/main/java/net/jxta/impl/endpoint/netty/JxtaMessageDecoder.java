@@ -21,7 +21,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 public class JxtaMessageDecoder extends OneToOneDecoder {
 
     public static final String NAME = "jxtaMessageDecoder";
-    private PeerGroup peerGroup;
+    private final PeerGroup peerGroup;
 
     JxtaMessageDecoder(PeerGroup peerGroup) {
         this.peerGroup = peerGroup;
