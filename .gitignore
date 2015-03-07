@@ -4,3 +4,5 @@
 .settings
 target
 /nbproject/
+nbactions.xml
+nb-configurations.xml
