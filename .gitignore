@@ -1,5 +1,6 @@
 .cache
 .jxta
-target
+/target
+/felix-cache
 nbactions.xml
-nb-configurations.xml
+nb-configuration.xml
