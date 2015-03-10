@@ -112,10 +112,10 @@ public class ShadowPeerGroup extends StdPeerGroup {
          * StdPeerGroup does defines the below protos transports. There is no reason why
          * the NPG should define tls and CbJxDefs in 2.6.
          */
-//        // High-level Message Transports.
+        //High-level Message Transports.
         paramAdv.addProto(IModuleDefinitions.routerProtoClassID, IModuleDefinitions.refRouterProtoSpecID);
         paramAdv.addProto(IModuleDefinitions.tlsProtoClassID, IModuleDefinitions.refTlsProtoSpecID);
-//        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
+//      paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
         paramAdv.addProto(IModuleDefinitions.relayProtoClassID, IModuleDefinitions.refRelayProtoSpecID);
 
         // Pour our newParamAdv in implAdv

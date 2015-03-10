@@ -59,9 +59,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +68,6 @@ import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLElement;
@@ -98,6 +95,7 @@ import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
+import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
@@ -286,7 +284,6 @@ public class StdPeerGroup extends GenericPeerGroup {
                     module = loadModule(classID, (ModuleSpecID) value, FromParent, privileged);
 
                 } else {
-
                     Logging.logCheckedError(LOG, "Skipping: ", classID, " Unsupported module descriptor : ", value.getClass().getName());
                     eachModule.remove();
                     continue;
@@ -298,7 +295,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 
                 anEntry.setValue(module);
 
-            } catch (Exception e) {
+            } catch (ProtocolNotSupportedException | PeerGroupException e) {
 
                 Logging.logCheckedWarning(LOG, "Could not load module for class ID : ", classID, "\n", e);
 
@@ -566,7 +563,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * </ul>
      */
     @Override
-    protected synchronized void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {
+    protected synchronized void initFirst(PeerGroup parent, ID moduleClassId, Advertisement impl) throws PeerGroupException {
 
         if (initComplete) {
             Logging.logCheckedWarning(LOG, "You cannot initialize a PeerGroup more than once !");
@@ -574,14 +571,14 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
 
         // Set-up the minimal GenericPeerGroup
-        super.initFirst(parent, assignedID, impl);                
+        super.initFirst(parent, moduleClassId, impl);                
 
-        // assignedID might have been null. It is now the peer group ID.
-        assignedID = getPeerGroupID();
+        // moduleClassId might have been null. It is now the peer group ID.
+        moduleClassId = getPeerGroupID();
 
         // Initialize cacheManager before starting services.
         try {
-            cacheManager = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), getTaskManager(), 0L, false);
+            cacheManager = new CacheManager(getStoreHome(), moduleClassId.getUniqueValue().toString(), getTaskManager(), 0L, false);
         } catch (IOException e) {            
             Logging.logCheckedError(LOG, "Failure instantiating local store\n", e);
             throw new PeerGroupException("Failure instantiating local store", e);
@@ -591,44 +588,19 @@ public class StdPeerGroup extends GenericPeerGroup {
         Srdi.clearSrdi(this);
 
         // Load the list of peer group services from the module implementation advertisement parameters.
-        StdPeerGroupParamAdv peerGroupParametersAdvertisement = new StdPeerGroupParamAdv(moduleImplementationAdvertisement.getParam());
-
-        //02272015 mindarchitect
-        //If peer group advertisement contains service parameters than override peer group advertisement service parameters from module implementation advertisement.
-        //Mostly this is default (general purpose) module implementation advertisement
-        
-        /*Hashtable peerGroupParameters = getPeerGroupAdvertisement().getServiceParams();
-        Enumeration keys = peerGroupParameters.keys();
-
-        while (keys.hasMoreElements()) {
-            ModuleClassID moduleClassId = (ModuleClassID) keys.nextElement();
-            Element element = (Element) peerGroupParameters.get(moduleClassId);
-            
-            Object parametersAdvertisement = peerGroupParametersAdvertisement.getService(moduleClassId);
-            //If service list contains requested service than substitute it with new service and service parameters            
-            if (parametersAdvertisement != null) {
-                //Remove default service
-                peerGroupParametersAdvertisement.removeService(moduleClassId);
-                
-                //Create module implementation advertisement for PSEMembershipService                
-                if (element != null) {                    
-                    Advertisement createdGroupPSEMembershipServiceParameterAdvertisement = AdvertisementFactory.newAdvertisement((XMLElement)element);
-                    peerGroupParametersAdvertisement.putService(moduleClassId, createdGroupPSEMembershipServiceParameterAdvertisement);
-                }                                    
-            } 
-        }*/
+        StdPeerGroupParamAdv peerGroupParametersAdvertisement = new StdPeerGroupParamAdv(moduleImplementationAdvertisement.getParam());        
         
         Map<ModuleClassID, Object> services = new HashMap<> (peerGroupParametersAdvertisement.getServices());
         services.putAll(peerGroupParametersAdvertisement.getProtos());
 
         // Remove the modules disabled in the configuration file.        
-        if(configurationAdvertisement != null) {
+        if(configurationParametersAdvertisement != null) {
             Iterator<ModuleClassID> eachModule = services.keySet().iterator();
 
             while(eachModule.hasNext()) {
                 ModuleClassID aModule = eachModule.next();
 
-                if(!configurationAdvertisement.isSvcEnabled(aModule)) {
+                if(!configurationParametersAdvertisement.isSvcEnabled(aModule)) {
 
                     // Remove disabled module
                     Logging.logCheckedDebug(LOG, "Module disabled in configuration : ", aModule);
@@ -642,179 +614,83 @@ public class StdPeerGroup extends GenericPeerGroup {
         //and logged in. That will make sure the subsequent publishing will be signed.
         //The objective of this section is to establish the peer's default credential for this group.
         Object membershipServiceSpecification = services.remove(IModuleDefinitions.membershipClassID);
-        if(membershipServiceSpecification == null)
-        {
+        
+        if(membershipServiceSpecification == null) {
             throw new PeerGroupException("Membership service is mandatory. It is not found for this group : " + this.getPeerGroupName());
-        }
-        else
-        {
+        } else {
             Map<ModuleClassID, Object> membershipServiceModuleParameters = new HashMap<>();
             membershipServiceModuleParameters.put(IModuleDefinitions.membershipClassID, membershipServiceSpecification);
+            //Load peer group membership service
             loadAllModules(membershipServiceModuleParameters, true);
-            int startModulesResult = startModules((Map)membershipServiceModuleParameters);
+            int startModulesResult = startModules((Map)membershipServiceModuleParameters);                        
             
-            if(startModulesResult == Module.START_OK)
-            {
-                MembershipService membershipService = this.getMembershipService();
-                Credential tempCred = null;                                
-                
-                NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
-                assert networkManager != null;
-                
-                String membershipAuthenticationType = "";
-                String membershipPassword = "";
-                
-                try {
-                    membershipAuthenticationType = networkManager.getConfigurator().getAuthenticationType();
-                    membershipPassword = networkManager.getConfigurator().getPassword();
-                } catch (IOException ex) {                    
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append("Failed to retrieve network manager!");
-                    stringBuilder.append(ex.getLocalizedMessage());
-                    LOG.error(stringBuilder.toString());                                       
-                }                
+            if(startModulesResult == Module.START_OK) {                
+                //Automatic authentication only for World Peer Group and Net Peer Group
+                ID peerGroupModuleSpecId =  getPeerGroupAdvertisement().getModuleSpecID();
+            
+                if (peerGroupModuleSpecId.equals(IModuleDefinitions.refPlatformSpecID) || peerGroupModuleSpecId.equals(IModuleDefinitions.refNetPeerGroupSpecID)) {
+                    MembershipService membershipService = this.getMembershipService();
+                    Credential defaultCredentials = null;                                
 
-                tempCred = membershipService.getDefaultCredential();
-                if (null == tempCred)
-                {
-                    if ("StringAuthentication".equals(membershipAuthenticationType)) {
+                    NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
+                    assert networkManager != null;
 
-                        AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "StringAuthentication", null);
+                    String membershipAuthenticationType = "";
+                    String membershipPassword = "";
 
-                        StringAuthenticator tempAuth = null;
+                    try {
+                        NetworkConfigurator networkConfigurator = networkManager.getConfigurator();
+                        membershipAuthenticationType = networkConfigurator.getAuthenticationType();
+                        membershipPassword = networkConfigurator.getPassword();
                         
-                        try {
-                            tempAuth = (StringAuthenticator) membershipService.apply(tempAuthCred);
-                        } catch(ProtocolNotSupportedException ex) {
-                            //Nothing can be done.
-                            ex.printStackTrace();
-                        }
+                        defaultCredentials = membershipService.getDefaultCredential();
                         
-                        if (null == tempAuth) {
-                            throw new PeerGroupException("Failed to get a StringAuthenticator for this group: "+this.getPeerGroupName()+". Error="+startModulesResult);
-                        } else {
-                            tempAuth.setKeyStorePassword(membershipPassword);
-                            tempAuth.setIdentity(this.getPeerID());
-                            tempAuth.setIdentityPassword(membershipPassword);
-
-                            if (tempAuth.isReadyForJoin()) {
-                                
-                                membershipService.join(tempAuth);
-                                if (membershipService.getDefaultCredential() == null) {
-                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+startModulesResult);
-                                }        
-                                
-                                //The credential has been established. This is our objective.
-                                //From now on, all the advertisements will be signed by this credential.                                
-                            } else {     
-                                String peerGroupName = this.getPeerGroupName();
-                                LOG.error("Failed to join the group: " + peerGroupName);
-                                throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
-                            }
-                        }
-                    } else if ("EngineAuthentication".equals(membershipAuthenticationType)) {
-
-                        AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "EngineAuthentication", null);
-
-                        EngineAuthenticator tempAuth = null;
-                        try {
-                            tempAuth = (EngineAuthenticator) membershipService.apply(tempAuthCred);
-                        } catch(ProtocolNotSupportedException ex) {
-                            //Nothing can be done.
-                            ex.printStackTrace();
-                        }
-                        
-                        if (null == tempAuth) {
-                            throw new PeerGroupException("Failed to get a EngineAuthentication for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-                        } else {
-                            if (tempAuth.isReadyForJoin()) {
-                                membershipService.join(tempAuth);
-                                if (membershipService.getDefaultCredential() == null) {
-                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-                                }                           
-                                
-                                //The credential has been established. This is our objective.
-                                //From now on, all the advertisements will be signed by this credential.                                
-                            } else {
-                                String peerGroupName = this.getPeerGroupName();
-                                LOG.error("Failed to join the group: " + peerGroupName);
-                                throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
-                            }
-                        }
-                    } else if ("DialogAuthentication".equals(membershipAuthenticationType) || "InteractiveAuthentication".equals(membershipAuthenticationType)) {
-
-                        AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "DialogAuthentication", null);
-
-                        DialogAuthenticator tempAuth = null;
-                        try {
-                            tempAuth = (DialogAuthenticator) membershipService.apply(tempAuthCred);
-                        } catch(ProtocolNotSupportedException ex) {
-                            //Nothing can be done.
-                            ex.printStackTrace();
-                        }
-                        
-                        if (null == tempAuth) {
-                            throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-                        } else {
-                            char[] tempPass = null;
+                        if (defaultCredentials == null && membershipAuthenticationType != null) {                        
+                            AuthenticationStrategy authenticationStrategy;
                             
-                            for(int attempt=0;attempt<3;attempt++) {
-                                net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());                                
-                                tempPass = net.jxta.impl.util.Password.singleton().getPassword();
-                                
-                                tempAuth.setKeyStorePassword(tempPass);
-                                tempAuth.setIdentity(this.getPeerID());
-                                tempAuth.setIdentityPassword(tempPass);
-                                
-                                if(tempAuth.isReadyForJoin()) {
+                            switch (membershipAuthenticationType) {
+                                case "StringAuthentication" :
+                                    authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);                                                                    
                                     break;
-                                } else {
-                                    net.jxta.impl.util.Password.singleton().resetPassword();
-                                }
-                            }
-
-                            if (tempAuth.isReadyForJoin()) {
-                                membershipService.join(tempAuth);
-                                if (membershipService.getDefaultCredential() == null)
-                                {
-                                    throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-                                }
-                               
-                                //The credential has been established. This is our objective.
-                                //From now on, all the advertisements will be signed by this credential.                                
-                            } else {
-                                String peerGroupName = this.getPeerGroupName();
-                                LOG.error("Failed to join the group: " + peerGroupName);
-                                throw new PeerGroupAuthenticationException("Failed to join the group: " + peerGroupName);
-                            }
-                        }
-                    }
-                }
-                
+                                case "EngineAuthentication":
+                                    authenticationStrategy = new EngineAuthenticationStrategy(this);                                                                    
+                                    break;                                                                
+                                default:
+                                    authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);
+                                    break;
+                            }                            
+                            authenticationStrategy.authenticate();
+                            
+                            //The default credentials for nep peer group should be established.
+                            //From now on, all the advertisements will be signed by this credential.
+                        }                        
+                    } catch (IOException ex) {                    
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("Failed to retrieve network manager");
+                        stringBuilder.append(ex.getLocalizedMessage());
+                        LOG.error(stringBuilder.toString());                                       
+                    }  
+                }                
                 //The credential has already been established, perhaps done during the module startup.                
             } else {
                 throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
             }
         }
         
-        // We Applications are shelved until startApp()
+        // Applications are shelved until startApp()
         applications.putAll(peerGroupParametersAdvertisement.getApps());
 
-        if(null != configurationAdvertisement) {
+        if(null != configurationParametersAdvertisement) {
             Iterator<ModuleClassID> eachModule = applications.keySet().iterator();
 
             while(eachModule.hasNext()) {
-
                 ModuleClassID aModule = eachModule.next();
 
-                if(!configurationAdvertisement.isSvcEnabled(aModule)) {
-
-                    // remove disabled module
+                if(!configurationParametersAdvertisement.isSvcEnabled(aModule)) {
+                    // Remove disabled modules
                     Logging.logCheckedDebug(LOG, "Application disabled in configuration : ", aModule);
                     eachModule.remove();
-
                 }
-
             }
         }
 
@@ -932,12 +808,12 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@inheritDoc}
      */
     // @Override
+    @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
         IJxtaLoader loader = getLoader();
 
-        // grab an impl adv
+        // Find all purpose implementation advertisement by its specification ID
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID);
-
         return implAdv;
     }
 

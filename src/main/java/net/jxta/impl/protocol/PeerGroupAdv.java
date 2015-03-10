@@ -69,6 +69,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import net.jxta.id.ID;
 
 public class PeerGroupAdv extends PeerGroupAdvertisement {
 
@@ -292,22 +296,27 @@ public class PeerGroupAdv extends PeerGroupAdvertisement {
 
         // FIXME: this is inefficient - we force our base class to make
         // a deep clone of the table.
-        Hashtable serviceParams = getServiceParams();
-        Enumeration classIds = serviceParams.keys();
+        
+        Map<ID, ? extends Element> serviceParams = getServiceParams();        
+        Set<ID> keys = serviceParams.keySet();
 
-        while (classIds.hasMoreElements()) {
-            ModuleClassID classId = (ModuleClassID) classIds.nextElement();
+        if (!keys.isEmpty()) {
+            Iterator<ID> iterator = keys.iterator();
+                
+            while (iterator.hasNext()) {
+                ModuleClassID classId = (ModuleClassID) iterator.next();
 
-            Element s = adv.createElement(svcTag);
+                Element s = adv.createElement(svcTag);
 
-            adv.appendChild(s);
+                adv.appendChild(s);
 
-            e = adv.createElement(mcidTag, classId.toString());
-            s.appendChild(e);
+                e = adv.createElement(mcidTag, classId.toString());
+                s.appendChild(e);
 
-            e = (Element) serviceParams.get(classId);
-            StructuredDocumentUtils.copyElements(adv, s, e, paramTag);
+                e = (Element) serviceParams.get(classId);
+                StructuredDocumentUtils.copyElements(adv, s, e, paramTag);
 
+            }
         }
         return adv;
     }

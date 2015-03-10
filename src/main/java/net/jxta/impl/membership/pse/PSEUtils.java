@@ -66,6 +66,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -82,16 +83,20 @@ import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import javax.crypto.BadPaddingException;
 
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
@@ -252,13 +257,8 @@ public final class PSEUtils {
             return genCert(samesubject, keypair, issuerinfo);
 
         } catch (NoSuchAlgorithmException e) {
-
             Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
-
-            SecurityException failure = new SecurityException("Could not generate certificate");
-            failure.initCause(e);
-            throw failure;
-
+            throw new SecurityException("Could not generate certificate", e);
         }
     }
 
@@ -267,24 +267,25 @@ public final class PSEUtils {
      *
      * @param subject    subjectDN for the certificate
      * @param keypair    the keypair to use.
-     * @param issuerinfo the cert issuer or null if self-signed root cert.
+     * @param issuerInfo the cert issuer or null if self-signed root cert.
      * @return the details of the generated cert.
      * @throws SecurityException if the cert could not be generated.
      */
-    public static IssuerInfo genCert(X500Principal subject, KeyPair keypair, IssuerInfo issuerinfo) throws SecurityException {
+    public static IssuerInfo genCert(X500Principal subject, KeyPair keypair, IssuerInfo issuerInfo) throws SecurityException {
         try {
             // set up issuer
             PrivateKey signer;
             X509Principal issuer;
 
-            if (null == issuerinfo) { // self-signed root cert
+            if (null == issuerInfo) { 
+                // Self-signed root cert
                 signer = keypair.getPrivate();
                 issuer = new X509Principal(subject.getEncoded());
-            } else { // issuer signed service sert
-                signer = issuerinfo.subjectPkey;
-                X500Principal issuer_subject = issuerinfo.cert.getSubjectX500Principal();
-
-                issuer = new X509Principal(issuer_subject.getEncoded());
+            } else { 
+                // Issuer signed service sert
+                signer = issuerInfo.subjectPkey;
+                X500Principal issuerSubject = issuerInfo.cert.getSubjectX500Principal();
+                issuer = new X509Principal(issuerSubject.getEncoded());
             }
 
             // set validity 10 years from today
@@ -318,44 +319,23 @@ public final class PSEUtils {
             info.subjectPkey = keypair.getPrivate();
 
             // for signing service cert
-            info.issuer = (null == issuerinfo) ? info.cert : issuerinfo.cert;
+            info.issuer = (null == issuerInfo) ? info.cert : issuerInfo.cert;
 
             // for signing service cert
             info.issuerPkey = signer;
 
             // dump the certificate?
-            if (null == issuer) {
-                Logging.logCheckedDebug(LOG, "Root Cert : \n", info.cert);
+            if (issuer == null) {
+                Logging.logCheckedDebug(LOG, "Root Certificate : \n", info.cert);
             } else {
-                Logging.logCheckedDebug(LOG, "Client Cert : \n", info.cert);
+                Logging.logCheckedDebug(LOG, "Client Certificate : \n", info.cert);
             }
 
             return info;
 
-        } catch (SignatureException e) {
-
+        } catch (SignatureException | InvalidKeyException | IOException e) {
             Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
-
-            SecurityException failure = new SecurityException("Could not generate certificate");
-            failure.initCause(e);
-            throw failure;
-
-        } catch (InvalidKeyException e) {
-
-            Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
-
-            SecurityException failure = new SecurityException("Could not generate certificate");
-            failure.initCause(e);
-            throw failure;
-
-        } catch (IOException e) {
-
-            Logging.logCheckedError(LOG, "Could not generate certificate\n\n", e);
-
-            SecurityException failure = new SecurityException("Could not generate certificate");
-            failure.initCause(e);
-            throw failure;
-
+            throw new SecurityException("Could not generate certificate", e);
         }
     }
 
@@ -456,6 +436,7 @@ public final class PSEUtils {
     /**
      * Verify a signature of a stream.
      *
+     * @param algorithm
      * @param cert      The certificate containing the public key which will be used
      *                  to verify the signature.
      * @param signature The signature to verify.
@@ -491,6 +472,7 @@ public final class PSEUtils {
     /**
      * returns a hash SHA-1 of the given byte array
      *
+     * @param algorithm
      * @param data the data to be hashed
      * @return byte[] the hash of the data
      */
@@ -521,38 +503,34 @@ public final class PSEUtils {
      */
     public static EncryptedPrivateKeyInfo pkcs5EncryptPbePrivateKey(char[] password, PrivateKey privkey, int iterations) {
 
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
+        PBEKeySpec secretKeySpec = new PBEKeySpec(password);
         byte[] salt = new byte[8];
 
         UTILS.srng.nextBytes(salt);
 
         try {
-            PBEParameterSpec pbeParamSpec = new PBEParameterSpec(salt, iterations);
+            PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(salt, iterations);
 
-            // convert password into a SecretKey object, using a PBE key factory.
-            SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
-            SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
+            // Convert password into a SecretKey object, using a PBE key factory.
+            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
+            SecretKey secretKey = secretKeyFactory.generateSecret(secretKeySpec);
 
-            // Create PBE Cipher
-            //Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
-            
+            // Create PBE Cipher                        
             Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES/CBC/PKCS5Padding");
 
             // Initialize PBE Cipher with key and parameters
-            pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
+            pbeCipher.init(Cipher.ENCRYPT_MODE, secretKey, pbeParameterSpec);
 
-            byte[] encryptedPrivKey = pbeCipher.doFinal(privkey.getEncoded());
+            byte[] encryptedPrivateKey = pbeCipher.doFinal(privkey.getEncoded());
 
-            AlgorithmParameters algo = AlgorithmParameters.getInstance(PKCS5_PBSE1_ALGO);
+            AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(PKCS5_PBSE1_ALGO);
+            algorithmParameters.init(pbeParameterSpec);
 
-            algo.init(pbeParamSpec);
-
-            EncryptedPrivateKeyInfo result = new EncryptedPrivateKeyInfo(algo, encryptedPrivKey);
+            EncryptedPrivateKeyInfo result = new EncryptedPrivateKeyInfo(algorithmParameters, encryptedPrivateKey);
 
             return result;
 
-        } catch (Exception failed) {
-
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | InvalidParameterSpecException failed) {
             Logging.logCheckedWarning(LOG, "Encrypt failed\n", failed);
             return null;
 
@@ -564,58 +542,55 @@ public final class PSEUtils {
      * using the PBESE1 algorithm.
      *
      * @param password         The password which will be used.
-     * @param encryptedPrivKey The private key to be decrypted.
+     * @param algorithm
+     * @param encryptedPrivateKey The private key to be decrypted.
      * @return The decrypted private key or null if the key could not be decrpyted.
      */
-    public static PrivateKey pkcs5DecryptPbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivKey) {
+    public static PrivateKey pkcs5DecryptPbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivateKey) {
 
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
+        PBEKeySpec secretKeySpec = new PBEKeySpec(password);
 
         try {
 
-            AlgorithmParameters algo = encryptedPrivKey.getAlgParameters();
+            AlgorithmParameters algorithmParameters = encryptedPrivateKey.getAlgParameters();
 
-            if (null == algo) {
+            if (null == algorithmParameters) {
 
-                Logging.logCheckedWarning(LOG, "Could not get algo parameters from ", encryptedPrivKey);
-                throw new IllegalStateException("Could not get algo parameters from " + encryptedPrivKey);
+                Logging.logCheckedWarning(LOG, "Could not get algo parameters from ", encryptedPrivateKey);
+                throw new IllegalStateException("Could not get algo parameters from " + encryptedPrivateKey);
 
             }
 
-            PBEParameterSpec pbeParamSpec = algo.getParameterSpec(PBEParameterSpec.class);
+            PBEParameterSpec pbeParameterSpec = algorithmParameters.getParameterSpec(PBEParameterSpec.class);
 
             // convert password into a SecretKey object, using a PBE key factory.
             try {
 
-                SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
-                SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
+                SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
+                SecretKey secretKey = secretKeyFactory.generateSecret(secretKeySpec);
 
                 // Create PBE Cipher
                 //Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
                 Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES/CBC/PKCS5Padding");
                 
                 // Initialize PBE Cipher with key and parameters
-                pbeCipher.init(Cipher.DECRYPT_MODE, pbeKey, pbeParamSpec);
+                pbeCipher.init(Cipher.DECRYPT_MODE, secretKey, pbeParameterSpec);
 
-                KeySpec key_spec;
+                KeySpec keySpec;
+                keySpec = encryptedPrivateKey.getKeySpec(pbeCipher);
 
-                key_spec = encryptedPrivKey.getKeySpec(pbeCipher);
-
-                KeyFactory kf = KeyFactory.getInstance(algorithm);
-
-                return kf.generatePrivate(key_spec);
+                KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+                return keyFactory.generatePrivate(keySpec);
 
             } catch (InvalidKeySpecException failed) {
 
-                Logging.logCheckedWarning(LOG, "Incorrect key for ", encryptedPrivKey, " : \n", failed);
+                Logging.logCheckedWarning(LOG, "Incorrect key for ", encryptedPrivateKey, " : \n", failed);
                 return null;
 
             }
-        } catch (Exception failed) {
-
+        } catch (IllegalStateException | InvalidParameterSpecException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException failed) {
             Logging.logCheckedWarning(LOG, "Decrypt failed\n", failed);
             return null;
-
         }
     }
 

@@ -55,11 +55,13 @@
  */
 package net.jxta.impl.peer;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import net.jxta.document.Element;
 import net.jxta.exception.PeerGroupException;
@@ -94,9 +96,9 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     private static final Random rand = new Random();
     private final static Logger LOG = Logging.getLogger(RemoteMonitorPeerInfoHandler.class.getName());
 
-    private Hashtable<Integer, RequestInfo> requestInfos = new Hashtable<Integer, RequestInfo>();
-    private Hashtable<Integer, LeaseInfo> leaseInfos = new Hashtable<Integer, LeaseInfo>();
-    private Hashtable<Integer, Long> timeouts = new Hashtable<Integer, Long>();
+    private Hashtable<Integer, RequestInfo> requestInfos = new Hashtable<>();
+    private Hashtable<Integer, LeaseInfo> leaseInfos = new Hashtable<>();
+    private Hashtable<Integer, Long> timeouts = new Hashtable<>();
     private PeerGroup peerGroup;
     private PeerInfoServiceImpl peerInfoServiceImpl;
     private ScheduledExecutorService executor;
@@ -160,6 +162,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         boolean listenerAddedToWorldGroup = false;
         PeerGroup worldGroup;
         PeerInfoMessenger peerInfoMessenger;
+        
         LeaseInfo(int leaseId, PeerID peerID, int queryId, MonitorListener monitorListener, long leaseLength, PeerInfoMessenger peerInfoMessenger) {
             this.leaseId = leaseId;
             this.peerID = peerID;
@@ -179,6 +182,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         final RequestInfo requestInfo = new RequestInfo(peerID, queryId, peerMonitorInfoListener, timeout, peerInfoMessenger);
         requestInfos.put(queryId, requestInfo);
         executor.schedule(new Runnable() {
+            @Override
             public void run() {
                 if (!requestInfo.responseReceived) {
                     PeerMonitorInfoEvent peerMonitorInfoEvent = new PeerMonitorInfoEvent(peerID, null);
@@ -197,6 +201,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         final RequestInfo requestInfo = new RequestInfo(peerID, queryId, monitorListener, timeout, peerInfoMessenger);
         requestInfos.put(queryId, requestInfo);
         executor.schedule(new Runnable() {
+            @Override
             public void run() {
                 if (!requestInfo.responseReceived) {
                     requestInfos.remove(requestInfo.queryId);
@@ -213,6 +218,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         requestInfo.requestedLease = lease;
         requestInfos.put(queryId, requestInfo);
         executor.schedule(new Runnable() {
+            @Override
             public void run() {
                 if (!requestInfo.responseReceived) {
                     MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.TIMEOUT, requestInfo.peerId,
@@ -247,6 +253,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
         final RequestInfo requestInfo = oldRequestInfo;
         executor.schedule(new Runnable() {
+            @Override
             public void run() {
                 requestInfos.remove(requestInfo.queryId);
             }
@@ -262,6 +269,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         }
     }
 
+    @Override
     public void processRequest(int queryId, PeerID requestSourceID, PeerInfoQueryMessage peerInfoQueryMessage, Element requestElement, PeerInfoMessenger peerInfoMessenger) {
         try {
             RemoteMonitorQuery remoteMonitorQuery = (RemoteMonitorQuery) DocumentSerializableUtilities.getDocumentSerializable(requestElement, RemoteMonitorQuery.class);
@@ -282,11 +290,12 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                 handleLeaseRenewalQuery(queryId, requestSourceID, remoteMonitorQuery, peerInfoMessenger);
             }
 
-        } catch (Exception e) {
+        } catch (DocumentSerializationException | MonitorException e) {
             Logging.logCheckedDebug(LOG, "Monitor failed in processQuery\n", e);
         }
     }
 
+    @Override
     public void processResponse(int queryId, PeerInfoResponseMessage peerInfoResponseMessage, Element responseElement, PeerInfoMessenger peerInfoMessenger) {
 
         RemoteMonitorResponse remoteMonitorResponse;
@@ -358,6 +367,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         final int queryId = requestInfo.queryId;
 
         SelfCancellingTask task = new SelfCancellingTask() {
+            @Override
             public void execute() {
                 if (requestInfos.containsKey(queryId)) {
                     try {
@@ -384,6 +394,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
         if (renewTime > MIN_LEASE) {
             executor.schedule(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         renewLease(queryId);
@@ -403,6 +414,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
         MonitorListener monitorListener = new MonitorListener() {
 
+            @Override
             public void processMonitorReport(MonitorEvent monitorEvent) {
 
                 MonitorReport monitorReport = monitorEvent.getMonitorReport();
@@ -415,12 +427,14 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                 }
             }
 
+            @Override
             public void monitorReportingCancelled(MonitorEvent monitorEvent) {
-                throw new RuntimeException("METHOD NOT IMPLEMENTED");
+                throw new RuntimeException("Not implemented");
             }
 
+            @Override
             public void monitorRequestFailed(MonitorEvent monitorEvent) {
-                throw new RuntimeException("METHOD NOT IMPLEMENTED");
+                throw new RuntimeException("Not implemented");
             }
         };
 
@@ -446,16 +460,17 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                         MonitorFilter worldGroupFilter = new MonitorFilter("worldGroupFilter");
 
                         worldGroupFilter.addServiceMonitorFilter(serviceMonitorFilter);
-                        i.remove();
+                        i.remove();                                                
+                        
                         PeerGroup worldGroup = peerGroup.newGroup(PeerGroupID.worldPeerGroupID);
                         PeerInfoService worldService = worldGroup.getPeerInfoService();
-
                         worldService.addMonitorListener(worldGroupFilter, remoteMonitorQuery.getReportRate(), includeCumulative,
-                                monitorListener);
+                            monitorListener);
                         leaseInfo.listenerAddedToWorldGroup = true;
                         leaseInfo.worldGroup = worldGroup;
-                    } catch (PeerGroupException e) {
-                        Logging.logCheckedDebug(LOG, e);
+                        
+                    } catch (PeerGroupException exception) {
+                        Logging.logCheckedDebug(LOG, exception);
                     }
                 }
             }
@@ -509,7 +524,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     }
 
     private void handlePeerMonitorInfoQuery(int queryId, PeerID requestSourceID, PeerInfoMessenger peerInfoMessenger) throws DocumentSerializationException {
-        // FIX-ME:
+        // TO DO
         /* Asking the NetGroup Peer won't tell me if it supports transport
          * monitoring or not, but asking the world group guy gives me
          * everything I need because as currently implemented you can't turn
@@ -523,10 +538,8 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
             RemoteMonitorResponse remoteMonitorResponse = RemoteMonitorResponse.createPeerMonitorInfoResponse(queryId, peerMonitorInfo);
             peerInfoMessenger.sendPeerInfoResponse(queryId, requestSourceID, MONITOR_HANDLER_NAME, remoteMonitorResponse);
 
-        } catch (PeerGroupException e) {
-
-            Logging.logCheckedDebug(LOG, e);
-
+        } catch (PeerGroupException exception) {
+            Logging.logCheckedDebug(LOG, exception);
         }
     }
 

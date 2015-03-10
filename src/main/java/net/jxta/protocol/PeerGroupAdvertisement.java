@@ -56,7 +56,6 @@
 
 package net.jxta.protocol;
 
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -84,8 +83,8 @@ import net.jxta.platform.ModuleSpecID;
 
 public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement implements Cloneable {
 
-    private PeerGroupID gid = null;
-    private ModuleSpecID specId = null;
+    private PeerGroupID peerGroupId = null;
+    private ModuleSpecID moduleSpecificationId = null;
 
     /**
      *  Informal, non-canonical name of this peer group
@@ -98,7 +97,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
     private Element description = null;
 
     // A table of structured documents to be interpreted by each service.
-    private final Map<ID, StructuredDocument> serviceParams = new HashMap<ID, StructuredDocument>();
+    private final Map<ID, StructuredDocument> serviceParams = new HashMap<>();
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -129,7 +128,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      *      deep-enough copy of this one.
      */
     @Override
-    public PeerGroupAdvertisement clone() {
+    public PeerGroupAdvertisement clone() throws CloneNotSupportedException {
 
         PeerGroupAdvertisement clone;
 
@@ -176,17 +175,17 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      */
 
     public ModuleSpecID getModuleSpecID() {
-        return specId;
+        return moduleSpecificationId;
     }
 
     /**
      *  Sets the id of the group spec that this peer group uses.
      *
-     *@param  sid  The id of the spec
+     *@param  moduleSpecificationId  The id of the spec
      */
 
-    public void setModuleSpecID(ModuleSpecID sid) {
-        this.specId = sid;
+    public void setModuleSpecID(ModuleSpecID moduleSpecificationId) {
+        this.moduleSpecificationId = moduleSpecificationId;
     }
 
     /**
@@ -196,17 +195,17 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      */
 
     public PeerGroupID getPeerGroupID() {
-        return gid;
+        return peerGroupId;
     }
 
     /**
      *  Sets the id of the group.
      *
-     *@param  gid  The id of this group.
+     *@param  peerGroupId  The id of this group.
      */
 
-    public void setPeerGroupID(PeerGroupID gid) {
-        this.gid = gid;
+    public void setPeerGroupID(PeerGroupID peerGroupId) {
+        this.peerGroupId = peerGroupId;
     }
 
     /**
@@ -218,7 +217,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
 
     @Override
     public ID getID() {
-        return gid;
+        return peerGroupId;
     }
 
     /**
@@ -240,7 +239,6 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      * @param description the description
      */
     public void setDescription(String description) {
-
         if (null != description) {
             StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
@@ -291,7 +289,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      *
      *@param  params  The whole set of parameters.
      */
-    public void setServiceParams(Hashtable<ID, ? extends Element> params) {
+    public void setServiceParams(Map<ID, ? extends Element> params) {
         serviceParams.clear();
 
         if (params == null) {
@@ -317,8 +315,8 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      *
      *@return    all of the parameters.
      */
-    public Hashtable<ID, StructuredDocument> getServiceParams() {
-        Hashtable<ID, StructuredDocument> copy = new Hashtable<ID, StructuredDocument>();
+    public Map<ID, StructuredDocument> getServiceParams() {
+        Map<ID, StructuredDocument> copy = new HashMap<>();
 
         for (Map.Entry<ID, StructuredDocument> anEntry : serviceParams.entrySet()) {
             Element e = anEntry.getValue();
@@ -347,7 +345,6 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
         }
 
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
-
         serviceParams.put(key, newDoc);
     }
 

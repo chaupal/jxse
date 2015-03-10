@@ -106,6 +106,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         /**
          * {@inheritDoc}
          */
+        @Override
         public String getAdvertisementType() {
             return advType;
         }
@@ -113,6 +114,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance() {
             return new PeerGroupConfigAdv();
         }
@@ -120,6 +122,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(

@@ -86,22 +86,22 @@ public class FakePeerGroup implements PeerGroup {
     @SuppressWarnings("unchecked")
     @Override
     public boolean compatible(Element compat) {
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public AccessService getAccessService() {
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
-        throw new RuntimeException("not implemented");
+    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public DiscoveryService getDiscoveryService() {
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -194,23 +194,24 @@ public class FakePeerGroup implements PeerGroup {
     }
 
     @Override
-    public PeerGroup newGroup(Advertisement pgAdv) throws PeerGroupException {
+    public PeerGroup newGroup(PeerGroupAdvertisement peerGroupAdvertisement) throws PeerGroupException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Deprecated
+    @Override
+    public PeerGroup newGroup(PeerGroupID gid, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description) throws PeerGroupException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public PeerGroup newGroup(PeerGroupID gid, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description, boolean publish) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description, boolean publish) throws PeerGroupException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException {
-        throw new RuntimeException("not implemented");
+    public PeerGroup newGroup(PeerGroupID peerGroupId) throws PeerGroupException {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override

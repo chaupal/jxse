@@ -175,6 +175,7 @@ public class StringAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public MembershipService getSourceService() {
 //        return (MembershipService) source.getInterface();
         return source;
@@ -183,6 +184,7 @@ public class StringAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public AuthenticationCredential getAuthenticationCredential() {
         return application;
     }
@@ -190,6 +192,7 @@ public class StringAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public String getMethodName() {
         return "StringAuthentication";
     }
@@ -197,6 +200,7 @@ public class StringAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     synchronized public boolean isReadyForJoin() {
         if (seedCert != null) {
             Logging.logCheckedDebug(LOG, "seed certificate:\n", seedCert.toString());
@@ -271,9 +275,7 @@ public class StringAuthenticator implements Authenticator {
                 }
 
                 return (PeerID[]) peersOnly.toArray(new PeerID[peersOnly.size()]);
-            } catch (IOException failed) {
-                return null;
-            } catch (KeyStoreException failed) {
+            } catch (IOException | KeyStoreException failed) {
                 return null;
             }
         }
@@ -297,9 +299,7 @@ public class StringAuthenticator implements Authenticator {
         } else {
             try {
                 return source.getPSEConfig().getTrustedCertificate(aPeer, storePassword);
-            } catch (IOException failed) {
-                return null;
-            } catch (KeyStoreException failed) {
+            } catch (IOException | KeyStoreException exception) {
                 return null;
             }
         }

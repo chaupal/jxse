@@ -417,7 +417,7 @@ public interface PeerGroup extends Service {
     public boolean compatible(Element<?> compat);         
 
     /**
-     * Load a Module from a ModuleImplAdv.
+     * Load a Module from a ModuleImplAdvertisement.
      * <p/>
      * Compatibility is checked and load is attempted. If compatible and loaded
      * successfully, the resulting Module is initialized and returned.
@@ -427,14 +427,14 @@ public interface PeerGroup extends Service {
      * of the new module (its' parent group if the new Module is a group) will 
      * be this group.
      *
-     * @param assignedID Id to be assigned to that module (usually its ClassID).
-     * @param impl       An implementation advertisement for that module.
+     * @param moduleClassId Id to be assigned to that module (usually its ClassID).
+     * @param moduleImplementationAdvertisement       An implementation advertisement for that module.
      * @return Module the module loaded and initialized.
      * @throws ProtocolNotSupportedException The implementation described by the
      *                                       advertisement is incompatible with this peer. The module cannot be loaded.
      * @throws PeerGroupException            The module could not be loaded or initialized
      */
-    public Module loadModule(ID assignedID, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException;
+    public Module loadModule(ID moduleClassId, Advertisement moduleImplementationAdvertisement) throws ProtocolNotSupportedException, PeerGroupException;
 
     /**
      * Load a module from a ModuleSpecID
@@ -443,8 +443,8 @@ public interface PeerGroup extends Service {
      * and load is attempted. The first one that is compatible and loads
      * successfully is initialized and returned.
      *
-     * @param assignedID Id to be assigned to that module (usually its ClassID).
-     * @param specID     The specID of this module.
+     * @param moduleClassId Id to be assigned to that module (usually its ClassID).
+     * @param moduleSpecId     The moduleSpecId of this module.
      * @param where      May be one of: {@code Here}, {@code FromParent}, or
      *                   {@code Both}, meaning that the implementation advertisement will be
      *                   searched in this group, its parent or both. As a general guideline, the
@@ -457,7 +457,7 @@ public interface PeerGroup extends Service {
      * @return Module the new module, or null if no usable implementation was
      *         found.
      */
-    public Module loadModule(ID assignedID, ModuleSpecID specID, int where);
+    public Module loadModule(ID moduleClassId, ModuleSpecID moduleSpecId, int where) throws PeerGroupException;
 
     /**
      * Publish this group's Peer Group Advertisement. The Advertisement will be
@@ -481,10 +481,10 @@ public interface PeerGroup extends Service {
      */
 
     /**
-     * Instantiate a peer group from the provided advertisement. This peer
+     * Instantiate a peer group from the provided peer group advertisement. This peer
      * group will be the parent of the newly instantiated peer group.
      * <p/>
-     * The pgAdv itself may be all new and unpublished. Therefore, the two
+     * The peerGroupAdvertisement itself may be all new and unpublished. Therefore, the two
      * typical uses of this routine are:
      * <p/>
      * <ul>
@@ -497,16 +497,16 @@ public interface PeerGroup extends Service {
      * discovered (therefore there is no need to find it by groupID
      * again).</li>
      * </ul>
-     *
+     *     
      * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
      * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
      * instanced object are copied from this peer group.
      *
-     * @param pgAdv The advertisement for the group to be instantiated.
+     * @param peerGroupAdvertisement The advertisement of the group to be instantiated.
      * @return PeerGroup the initialized (but not started) peergroup.
      * @throws PeerGroupException For problems instantiating the peer group.
      */
-    public PeerGroup newGroup(Advertisement pgAdv) throws PeerGroupException;
+    public PeerGroup newGroup(PeerGroupAdvertisement peerGroupAdvertisement) throws PeerGroupException;
 
     /**
      * Instantiates a peer group from its elementary pieces
@@ -539,19 +539,18 @@ public interface PeerGroup extends Service {
      * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
      * instanced object are copied from this peer group.
      *
-     * @param gid         The ID of that group. If <code>null</code> then a new group ID
-     *                    will be chosen.
-     * @param impl        The advertisement of the implementation to be used.
-     * @param name        The name of the group.
-     * @param description A description of this group.
-     * @return PeerGroup the initialized (but not started) peergroup.
-     * @throws PeerGroupException Thrown if the group could not be instantiated.
+     * @param peerGroupId                                       The ID of that group. If <code>null</code> then a new group ID will be chosen.
+     * @param moduleImplementationAdvertisement         The advertisement of the implementation to be used.
+     * @param name                                      The name of the group.
+     * @param description                               The description of this group.
+     * @return                                          PeerGroup the initialized (but not started) peergroup.
+     * @throws  PeerGroupException                      Thrown if the group could not be instantiated.
      *
      * @deprecated Since 2.7, use {@link #newGroup(net.jxta.peergroup.PeerGroupID, net.jxta.document.Advertisement, java.lang.String, java.lang.String, boolean)
      * instead}. Code will be removed in a future release.
      */
     @Deprecated
-    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException;
+    public PeerGroup newGroup(PeerGroupID peerGroupId, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description) throws PeerGroupException;
 
     /**
      * Instantiate a group from its Peer Group ID only. Use this when using a
@@ -577,21 +576,21 @@ public interface PeerGroup extends Service {
      * </code>
      * <p/>
      * then, <strong>REMEMBER TO PUBLISH THE GROUP IF IT IS ALL NEW.</strong>
-     *
+     *     
+     * @param peerGroupId
+     * 
      * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
      * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
      * instanced object are copied from this peer group.
-     *
-     * @param gid the groupID.
      * @return PeerGroup the initialized (but not started) peergroup.
      * @throws PeerGroupException Thrown if the group could not be instantiated.
      */
-    public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException;
+    public PeerGroup newGroup(PeerGroupID peerGroupId) throws PeerGroupException;
 
     /**
      * Instantiates a peer group from its elementary pieces
      * and eventually publishes the corresponding PeerGroupAdvertisement.
-     * The pieces are: the groups implementation adv, the group id,
+     * The pieces are: the groups module implementation advertisement (not PeerGroupADvertisement), the group id,
      * the name and description.
      * <p/>
      * The typical use of this routine is creating a whole new group based
@@ -604,32 +603,21 @@ public interface PeerGroup extends Service {
      * newGrp.publishGroup(name, description); // if publication is requested
      * </pre>
      * or, but only if the implementation advertisement has been published:
-     * <p/>
-     * <pre>
-     * newPGAdv = AdvertisementFactory.newAdvertisement(
-     *                 PeerGroupAdvertisement.getAdvertisementType());
-     * newPGAdv.setPeerGroupID(gid);
-     * newPGAdv.setModuleSpecID(impl.getModuleSpecID());
-     * newPGAdv.setName(name);
-     * newPGAdv.setDescription(description);
-     * newGrp = thisGroup.newGroup(newPGAdv);
-     * </pre>
+     * <p/>     
      *
      * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
      * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
      * instanced object are copied from this peer group.
      *
-     * @param gid         The ID of that group. If <code>null</code> then a new group ID
-     *                    will be chosen.
-     * @param impl        The advertisement of the implementation to be used.
-     * @param name        The name of the group.
-     * @param description A description of this group.
-     * @param publish publishes new group if {@code true}
-     * @return PeerGroup the initialized (but not started) peergroup.
-     * @throws PeerGroupException Thrown if the group could not be instantiated.
+     * @param gid                                       The ID of that group. If <code>null</code> then a new group ID will be chosen.
+     * @param moduleImplementationAdvertisement         The advertisement of the implementation to be used.
+     * @param name                                      The name of the group.
+     * @param description                               The description of this group.
+     * @param publish                                   publishes new group if {@code true}
+     * @return                                          PeerGroup the initialized (but not started) peergroup.
+     * @throws                                          PeerGroupException Thrown if the group could not be instantiated.
      */
-    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description,
-        boolean publish) throws PeerGroupException;
+    public PeerGroup newGroup(PeerGroupID gid, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description, boolean publish) throws PeerGroupException;
 
     /*
      * Shortcuts to the well-known services, in order to avoid calls to
@@ -766,10 +754,9 @@ public interface PeerGroup extends Service {
      * The user must remember to change the specID if the set of services
      * protocols or applications is altered before use.
      *
-     * @return ModuleImplAdvertisement The new peergroup impl adv.
-     * @throws Exception if an error occurs while creating the implementation advertisement
+     * @return ModuleImplAdvertisement The new peergroup impl adv.     
      */
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception;
+    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement();
 
 //    /**
 //     * Explicitly notifies a group interface that it will no-longer be used

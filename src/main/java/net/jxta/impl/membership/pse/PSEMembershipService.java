@@ -86,9 +86,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
@@ -116,6 +119,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.JxtaApplication;
+import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
@@ -157,12 +161,12 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * The current set of principals associated with this peer within this peergroup.
      **/
-    private final List<PSECredential> principals = new ArrayList<PSECredential>();
+    private final List<PSECredential> principals = new ArrayList<>();
 
     /**
      * The set of AuthenticationCredentials which were used to establish the principals.
      **/
-    private final List<AuthenticationCredential> authCredentials = new ArrayList<AuthenticationCredential>();
+    private final List<AuthenticationCredential> authCredentials = new ArrayList<>();
 
     /**
      *  property change support
@@ -213,6 +217,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  @inheritDoc
      **/
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }
@@ -220,6 +225,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  @inheritDoc
      **/
+    @Override
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         support.addPropertyChangeListener(propertyName, listener);
     }
@@ -227,6 +233,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  @inheritDoc
      **/
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         support.removePropertyChangeListener(listener);
     }
@@ -249,25 +256,46 @@ public final class PSEMembershipService implements MembershipService {
         this.group = group;
         this.assignedID = assignedID;
         this.implAdvertisement = (ModuleImplAdvertisement) impl;
+        
+        //02272015 mindarchitect
+        //If peer group advertisement contains service parameters than override peer group membership service parameters from peer configuration.        
+        //Should have 1 parameter containing PSE configuration        
+        
+        Map<ID, ? extends Element> peerGroupParameters = group.getPeerGroupAdvertisement().getServiceParams();
+        Set<ID> keys = peerGroupParameters.keySet();
+        
+        Element parameterElement = null;
+        Advertisement createdGroupPSEMembershipServiceParameterAdvertisement = null;
+        
+        if (!keys.isEmpty()) {            
+            Iterator<ID> iterator = keys.iterator();
+            while (iterator.hasNext()) {
+                //Get parameters form peer group advertisement
+                ModuleClassID moduleClassId = (ModuleClassID) iterator.next();
+                
+                //Check if parameters belong to Membership Service
+                if (moduleClassId.equals(IModuleDefinitions.membershipClassID)) {                
+                    parameterElement = (Element) peerGroupParameters.get(moduleClassId);            
+                    createdGroupPSEMembershipServiceParameterAdvertisement = AdvertisementFactory.newAdvertisement((XMLElement)parameterElement);            
+                }
+            }
+        } else {        
+            //Get parameters form peer configuration (NetPeerGroup PSE configuration)
+            ConfigParams configurationParametersAdvertisement = group.getConfigAdvertisement();            
+            parameterElement = configurationParametersAdvertisement.getServiceParam(assignedID);                                
+        }                
 
-        ConfigParams configAdv = group.getConfigAdvertisement();
-
-        // Get our peer-defined parameters in the configAdv
-        Element param = configAdv.getServiceParam(assignedID);
-
-        Advertisement paramsAdv = null;
-
-        if (null != param) {
+        if (null != parameterElement) {
             try {
-                paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
-            } catch (NoSuchElementException ignored) {                
+                createdGroupPSEMembershipServiceParameterAdvertisement = AdvertisementFactory.newAdvertisement((XMLElement)parameterElement);
+            } catch (NoSuchElementException exception) {                
             }
 
-            if (!(paramsAdv instanceof PSEConfigAdv)) {
+            if (!(createdGroupPSEMembershipServiceParameterAdvertisement instanceof PSEConfigAdv)) {
                 throw new PeerGroupException("Provided advertisement was not a " + PSEConfigAdv.getAdvertisementType());
             }
 
-            config = (PSEConfigAdv) paramsAdv;
+            config = (PSEConfigAdv) createdGroupPSEMembershipServiceParameterAdvertisement;
         } else {
             // Create the default advertisement.
             config = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
@@ -285,6 +313,8 @@ public final class PSEMembershipService implements MembershipService {
             NetworkConfigurator networkConfigurator = networkManager.getConfigurator();            
             String membershipPassword = networkConfigurator.getPassword();
             
+            
+            //Initialise PSE store with membership password
             pseStore = new PSEConfig(storeManager, membershipPassword.toCharArray());
             pseStore.initialize();            
         } catch (IOException ex) {                    
@@ -335,6 +365,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public Advertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -346,6 +377,7 @@ public final class PSEMembershipService implements MembershipService {
      * arguments.
      * @param arg
      */
+    @Override
     public int startApp(String[] arg) {
         Logging.logCheckedInfo(LOG, "PSE Membmership Service started.");
         return START_OK;
@@ -355,6 +387,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public void stopApp() {
         resign();
         Logging.logCheckedInfo(LOG, "PSE Membmership Service stopped.");
@@ -379,6 +412,7 @@ public final class PSEMembershipService implements MembershipService {
      * <code>"DialogAuthentication"</code>)
      * @throws net.jxta.exception.ProtocolNotSupportedException
      **/
+    @Override
     public Authenticator apply(AuthenticationCredential application) throws ProtocolNotSupportedException {
 
         String method = application.getMethod();
@@ -412,15 +446,14 @@ public final class PSEMembershipService implements MembershipService {
                             }
                         }
                     }
-                } catch (KeyStoreException bad) {
+                } catch (KeyStoreException | IOException exception) {
                     // The keystore is probably initialized but locked. Nothing else we can do.
                     newKey = false;
-                } catch (IOException bad) {
-                    // Could not read the keystore. I'm not sure it wouldn't be better to just fail.
-                    newKey = false;
                 }
+                // Could not read the keystore. I'm not sure it wouldn't be better to just fail.
+                
             } else {
-                // don't have anything to validate against.
+                // Don't have anything to validate against.
                 newKey = false;
             }
         }
@@ -451,6 +484,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public Credential getDefaultCredential() {
         return defaultCredential;
     }
@@ -480,15 +514,10 @@ public final class PSEMembershipService implements MembershipService {
             if (null != newDefault) {
                 // include the root cert in the peer advertisement
                 XMLDocument paramDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-
                 Certificate peerCerts = new Certificate();
-
                 peerCerts.setCertificates(newDefault.getCertificateChain());
-
                 XMLDocument peerCertsAsDoc = (XMLDocument) peerCerts.getDocument(MimeMediaType.XMLUTF8);
-
-                StructuredDocumentUtils.copyElements(paramDoc, paramDoc, peerCertsAsDoc, "RootCert");
-
+                StructuredDocumentUtils.copyElements(paramDoc, paramDoc, peerCertsAsDoc, "RootCertificate");
                 peeradv.putServiceParam(IModuleDefinitions.peerGroupClassID, paramDoc);
             } else {
                 peeradv.removeServiceParam(IModuleDefinitions.peerGroupClassID);
@@ -503,6 +532,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public Enumeration<Credential> getCurrentCredentials() {
         List<Credential> credList = new ArrayList<Credential>(principals);
 
@@ -514,6 +544,7 @@ public final class PSEMembershipService implements MembershipService {
      * @param authenticator
      * @throws net.jxta.exception.PeerGroupException
      **/
+    @Override
     public Credential join(Authenticator authenticator) throws PeerGroupException {
 
         if (!authenticator.getSourceService().equals(this)) {

@@ -181,6 +181,7 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public MembershipService getSourceService() {
         return (MembershipService) source;
     }
@@ -188,6 +189,7 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public AuthenticationCredential getAuthenticationCredential() {
         return application;
     }
@@ -195,6 +197,7 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public String getMethodName() {
         return "EngineAuthentication";
     }
@@ -202,12 +205,12 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      **/
+    @Override
     synchronized public boolean isReadyForJoin() {
         if (null != seedCertificate) {
             Logging.logCheckedDebug(LOG, "null seed certificate");
             return authenticatorEngine.isEnginePresent();
         } else {
-
             return source.getPSEConfig().validPasswd(identity, keyStorePassword, keyPassword);
         }
     }
@@ -225,9 +228,7 @@ public class EngineAuthenticator implements Authenticator {
      * @param keyStorePassword
      **/
     public void setKeyStorePassword(String keyStorePassword) {
-        if (null == keyStorePassword) {
-            setKeyStorePassword((char[]) null);
-        } else {
+        if (keyStorePassword != null) {            
             setKeyStorePassword(keyStorePassword.toCharArray());
         }
     }
@@ -241,7 +242,7 @@ public class EngineAuthenticator implements Authenticator {
             Arrays.fill(this.keyStorePassword, '\0');
         }
 
-        if (null == keyStorePassword) {
+        if (keyStorePassword == null) {
             this.keyStorePassword = null;
         } else {
             this.keyStorePassword = keyStorePassword.clone();
@@ -250,6 +251,8 @@ public class EngineAuthenticator implements Authenticator {
 
     /**
      *  Return the available identities.
+     * @param keyStorePassword
+     * @return 
      **/
     public PeerID[] getIdentities(char[] keyStorePassword) {
 
@@ -294,9 +297,7 @@ public class EngineAuthenticator implements Authenticator {
         } else {
             try {
                 return source.getPSEConfig().getTrustedCertificate(aPeer, keyStorePassword);
-            } catch (IOException failed) {
-                return null;
-            } catch (KeyStoreException failed) {
+            } catch (IOException | KeyStoreException failed) {
                 return null;
             }
         }
@@ -346,7 +347,9 @@ public class EngineAuthenticator implements Authenticator {
      * @param keyPassword
      **/
     public void setIdentityPassword(String keyPassword) {
-        setIdentityPassword(keyPassword.toCharArray());
+        if (keyPassword != null) {
+            setIdentityPassword(keyPassword.toCharArray());
+        }
     }
 
     /**
