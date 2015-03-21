@@ -159,7 +159,7 @@ public interface DiscoveryService extends Service {
     public final static int ADV = 2;
 
     /**
-     * Default lifetime time for advertisements. This is the maximum
+     * Default lifetime time in milliseconds for advertisements (1 year). This is the maximum
      * amount of time which the advertisement will remain valid. If the
      * advertisement remains valid after this time, then the creator will
      * need to republish the advertisement.
@@ -167,9 +167,9 @@ public interface DiscoveryService extends Service {
     public final static long DEFAULT_LIFETIME = 1000L * 60L * 60L * 24L * 365L;
 
     /**
-     *  Default expiration time for advertisements. This is the amount of
+     *  Default expiration time in milliseconds for advertisements (2 hours). This is the amount of
      *  time which advertisements will live in caches. After this time, the
-     *  advertisement should be refreshed from the source.
+     *  advertisement should be refreshed from the source. 
      */
     public final static long DEFAULT_EXPIRATION = 1000L * 60L * 60L * 2L;
 

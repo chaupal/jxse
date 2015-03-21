@@ -587,9 +587,7 @@ public final class PSEMembershipService implements MembershipService {
 
                 try {
                     pseStore.initialize();
-                } catch (KeyStoreException bad) {
-                    throw new PeerGroupException("Could not initialize new PSE keystore.", bad);
-                } catch (IOException bad) {
+                } catch (KeyStoreException | IOException bad) {
                     throw new PeerGroupException("Could not initialize new PSE keystore.", bad);
                 }
             }
@@ -613,10 +611,7 @@ public final class PSEMembershipService implements MembershipService {
 
                     pseStore.setKey(identity, seedCertificate, seedPrivateKey, keyPassword);
                 }
-            } catch (IOException failed) {
-                Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
-                throw new PeerGroupException("Could not save new key pair.", failed);
-            } catch (KeyStoreException failed) {
+            } catch (IOException | KeyStoreException failed) {
                 Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
             }
@@ -646,17 +641,7 @@ public final class PSEMembershipService implements MembershipService {
                     principals.add(newCredentials);
                     authCredentials.add(authenticator.getAuthenticationCredential());
                 }
-            } catch (IOException failed) {
-
-                Logging.logCheckedWarning(LOG, "Could not create credential.\n", failed);
-                throw new PeerGroupException("Could not create credential.", failed);
-
-            } catch (KeyStoreException failed) {
-
-                Logging.logCheckedWarning(LOG, "Could not create credential.\n", failed);
-                throw new PeerGroupException("Could not create credential.", failed);
-
-            } catch (CertificateException failed) {
+            } catch (IOException | KeyStoreException | CertificateException failed) {
 
                 Logging.logCheckedWarning(LOG, "Could not create credential.\n", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
@@ -685,6 +670,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public void resign() {
         Iterator eachCred = Arrays.asList(principals.toArray()).iterator();
 
@@ -708,6 +694,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
+    @Override
     public Credential makeCredential(Element element) {
 
         return new PSECredential(this, element);
@@ -715,6 +702,7 @@ public final class PSEMembershipService implements MembershipService {
 
     /**
      *  Returns the key store object associated with this PSE Membership Service.
+     * @return 
      **/
     public PSEConfig getPSEConfig() {
         return pseStore;
@@ -722,6 +710,7 @@ public final class PSEMembershipService implements MembershipService {
 
     /**
      *  Returns the PeerGroup associated with this PSE Membership Service.
+     * @return 
      **/
     public PeerGroup getPeerGroup() {
         return group;
