@@ -311,8 +311,7 @@ public final class PSEMembershipService implements MembershipService {
 
         try {            
             NetworkConfigurator networkConfigurator = networkManager.getConfigurator();            
-            String membershipPassword = networkConfigurator.getPassword();
-            
+            String membershipPassword = networkConfigurator.getPassword();            
             
             //Initialise PSE store with membership password
             pseStore = new PSEConfig(storeManager, membershipPassword.toCharArray());

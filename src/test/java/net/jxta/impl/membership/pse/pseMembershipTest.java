@@ -75,6 +75,8 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.membership.MembershipService;
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
@@ -198,30 +200,22 @@ public class pseMembershipTest extends TestCase {
 
             AuthenticationCredential authCred = new AuthenticationCredential(pg, "StringAuthentication", null);
 
-            StringAuthenticator auth = null;
+            StringAuthenticator stringAuthenticator = (StringAuthenticator) membership.apply(authCred);            
 
-            try {
-                auth = (StringAuthenticator) membership.apply(authCred);
-            } catch (Exception failed) {
-                ;
-            }
+            if (null != stringAuthenticator) {
+                stringAuthenticator.setKeyStorePassword("password".toCharArray());
+                stringAuthenticator.setIdentity(pg.getPeerID());
+                stringAuthenticator.setIdentityPassword("password".toCharArray());
 
-            if (null != auth) {
-                auth.setKeyStorePassword("password".toCharArray());
-                auth.setIdentity(pg.getPeerID());
-                auth.setIdentityPassword("password".toCharArray());
+                assertTrue("Should have been ready", stringAuthenticator.isReadyForJoin());
 
-                assertTrue("should have been ready", auth.isReadyForJoin());
-
-                Credential newCred = membership.join(auth);
+                Credential newCred = membership.join(stringAuthenticator);
 
                 assertTrue("Should have returned a credential", (null != newCred));
-
                 assertTrue("Should be default credential", (newCred == membership.getDefaultCredential()));
             }
-        } catch (Throwable all) {
-            all.printStackTrace();
-            fail("exception thrown : " + all.getMessage());
+        } catch (PeerGroupException | ProtocolNotSupportedException exception) {            
+            fail("Exception thrown : " + exception.getMessage());
         }
     }
 

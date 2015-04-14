@@ -64,7 +64,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -72,7 +71,6 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
-import net.jxta.exception.PeerGroupAuthenticationException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
@@ -81,10 +79,7 @@ import net.jxta.impl.access.pse.PSEAccessService;
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.content.ContentServiceImpl;
-import net.jxta.impl.membership.pse.DialogAuthenticator;
-import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
@@ -238,6 +233,8 @@ public class StdPeerGroup extends GenericPeerGroup {
 
     /**
      * {@inheritDoc}
+     * @param compat
+     * @return 
      */
     // @Override
     @Override
@@ -561,9 +558,12 @@ public class StdPeerGroup extends GenericPeerGroup {
      * computed as 1 + the square of the number of modules currently in the
      * list.</li>
      * </ul>
+     * @param parentPeerGroup
+     * @param moduleClassId
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
-    protected synchronized void initFirst(PeerGroup parent, ID moduleClassId, Advertisement impl) throws PeerGroupException {
+    protected synchronized void initFirst(PeerGroup parentPeerGroup, ID moduleClassId, Advertisement impl) throws PeerGroupException {
 
         if (initComplete) {
             Logging.logCheckedWarning(LOG, "You cannot initialize a PeerGroup more than once !");
@@ -571,7 +571,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
 
         // Set-up the minimal GenericPeerGroup
-        super.initFirst(parent, moduleClassId, impl);                
+        super.initFirst(parentPeerGroup, moduleClassId, impl);                
 
         // moduleClassId might have been null. It is now the peer group ID.
         moduleClassId = getPeerGroupID();
@@ -806,6 +806,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     // @Override
     @Override

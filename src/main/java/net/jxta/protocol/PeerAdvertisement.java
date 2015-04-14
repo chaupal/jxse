@@ -135,6 +135,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
 
     /**
      * Increments the modification count for this peer advertisement.
+     * @return 
      */
     protected int incModCount() {
 
@@ -162,6 +163,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public final String getBaseAdvType() {
@@ -170,6 +172,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public PeerAdvertisement clone() {

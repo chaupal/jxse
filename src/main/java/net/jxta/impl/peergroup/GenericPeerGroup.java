@@ -300,6 +300,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @param target
      */
     @Override
     public boolean equals(Object target) {
@@ -518,14 +519,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @param moduleClassId
+     * @throws net.jxta.exception.ServiceNotFoundException
      */
     @Override
-    synchronized public Service lookupService(ID mcid) throws ServiceNotFoundException {
+    synchronized public Service lookupService(ID moduleClassId) throws ServiceNotFoundException {
 
-        Service p = services.get(mcid);
+        Service p = services.get(moduleClassId);
 
         if (p == null) {
-            throw new ServiceNotFoundException("Not found: " + mcid.toString());
+            throw new ServiceNotFoundException("Not found: " + moduleClassId.toString());
         }
 
 //        return p.getInterface();
@@ -541,16 +544,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * not have to implement.
      */
     @Override
-    public Service lookupService(ID mcid, int roleIndex) throws ServiceNotFoundException {
+    public Service lookupService(ID moduleClassId, int roleIndex) throws ServiceNotFoundException {
 
         // If the role number is != 0, it can't be honored: we
         // do not have an explicit map.
 
         if (roleIndex != 0) {
-            throw new ServiceNotFoundException("Not found: " + mcid + "[" + roleIndex + "]");
+            throw new ServiceNotFoundException("Not found: " + moduleClassId + "[" + roleIndex + "]");
         }
 
-        return lookupService(mcid);
+        return lookupService(moduleClassId);
     }
 
     /**
@@ -615,6 +618,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
     
     /**
      * {@inheritDoc}
+     * @param moduleSpecID
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     public Module loadModule(ID moduleClassId, ModuleSpecID moduleSpecID, int where) throws PeerGroupException {
@@ -845,6 +850,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * sensitive to reference counting.
      * <p/>
      * In the future this method may become final.
+     * @param homeGroup
+     * @param impl
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     public void init(PeerGroup homeGroup, ID assignedID, Advertisement impl) throws PeerGroupException {
