@@ -137,7 +137,9 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * {@inheritDoc}
      * <p/>
      * EndpointListener for the JxtaPropagate/<peergroup-unique value>
+     * @param msg
      */
+    @Override
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
         RendezVousPropagateMessage propHdr = checkPropHeader(msg);

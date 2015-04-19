@@ -529,7 +529,9 @@ public class NetworkManager implements RendezvousListener {
             Logging.logCheckedWarning(LOG, "Trying to wait for RendezVous connection while not being an EDGE.");
         }
 
-        if (0 == timeout) timeout = Long.MAX_VALUE;
+        if (timeout == 0) {
+            timeout = Long.MAX_VALUE;
+        }
 
         long timeoutAt = System.currentTimeMillis() + timeout;
 
@@ -601,6 +603,7 @@ public class NetworkManager implements RendezvousListener {
         if (shutdownHook != null) {
             return;
         }
+        
         shutdownHook = new NetworkManager.ShutdownHook();
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
@@ -668,7 +671,5 @@ public class NetworkManager implements RendezvousListener {
             }
         TheFile.delete();
         }
-
     }
-
 }

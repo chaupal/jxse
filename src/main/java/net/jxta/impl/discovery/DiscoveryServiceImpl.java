@@ -883,17 +883,20 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
+    @Override
     public int processQuery(ResolverQueryMsg query) {
-
         return processQuery(query, null);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int processQuery(ResolverQueryMsg query, EndpointAddress srcAddress) {
 
-        if (stopped) return ResolverService.OK;
+        if (stopped) {
+            return ResolverService.OK;
+        }
 
         if (srcAddress != null) {
             Logging.logCheckedDebug(LOG, "Processing query #", query.getQueryId(), " from:", srcAddress);
@@ -1194,7 +1197,9 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             throw new IllegalArgumentException("threshold must be greater than zero");
         }
 
-        if (expirations != null) expirations.clear();
+        if (expirations != null) {
+            expirations.clear();
+        }
 
         if (attr != null) {
 

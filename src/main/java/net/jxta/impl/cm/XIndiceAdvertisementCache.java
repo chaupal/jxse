@@ -357,22 +357,23 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
                 res.ensureCapacity(searchResults.size());
 
-                if (null != expirations) expirations.clear();
+                if (null != expirations) {
+                    expirations.clear();
+                }
 
                 for (SearchResult aResult : searchResults) {
                     res.add(aResult.value.getInputStream());
                     if (null != expirations) expirations.add(aResult.expiration);
                 }
-
-            } catch (DBException dbe) {
+            } catch (DBException | IOException dbe) {
                 Logging.logCheckedDebug(LOG, "Exception during getRecords(): " + dbe);
-            } catch (IOException ie) {
-                Logging.logCheckedDebug(LOG, "Exception during getRecords(): " + ie);
             }
 
             return res;
     	}
     }
+    
+    @Override
     public synchronized void garbageCollect() {
 
         // calling getRecords() is good enough since it removes expired entries
@@ -398,6 +399,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      *         document will expire. -1 is returned if the file is not
      *         recognized or already expired.
      */
+    @Override
     public synchronized long getLifetime(String dn, String fn) {
         try {
             Key key = new Key(dn + "/" + fn);

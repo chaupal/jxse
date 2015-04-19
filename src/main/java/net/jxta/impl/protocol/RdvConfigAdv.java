@@ -116,6 +116,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         /**
          * {@inheritDoc}
          */
+        @Override
         public String getAdvertisementType() {
             return advType;
         }
@@ -123,6 +124,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance() {
             return new RdvConfigAdv();
         }
@@ -130,6 +132,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         /**
          * {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
@@ -223,12 +226,12 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
     /**
      * The set of seed rendezvous.
      */
-    private final Set<URI> seedRendezvous = new HashSet<URI>();
+    private final Set<URI> seedRendezvous = new HashSet<>();
 
     /**
      * The set of seeding resources.
      */
-    private final Set<URI> seedingURIs = new HashSet<URI>();
+    private final Set<URI> seedingURIs = new HashSet<>();
 
     /**
      * Access control URI
@@ -414,6 +417,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public String getAdvType() {
@@ -422,6 +426,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public final String getBaseAdvType() {
@@ -430,6 +435,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public ID getID() {
@@ -438,6 +444,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * {@inheritDoc}
+     * @param raw
      */
     @Override
     protected boolean handleElement(Element raw) {
@@ -515,6 +522,8 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * {@inheritDoc}
+     * @param encodeAs
+     * @return 
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
@@ -636,6 +645,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public String[] getIndexFields() {

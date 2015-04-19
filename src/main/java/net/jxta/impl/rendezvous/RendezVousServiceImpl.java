@@ -137,7 +137,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     private ScheduledExecutorService scheduledExecutor;
     private ScheduledFuture<?> autoRdvTaskHandle = null;
 
-    private long rdv_watchdog_interval = 5 * TimeUtils.AMINUTE; // 5 Minutes
+    private long rendezvousWatchdogInterval = 5 * TimeUtils.AMINUTE; // 5 Minutes
 
     private final Set<RendezvousListener> eventListeners = Collections.synchronizedSet(new HashSet<RendezvousListener>());
 
@@ -190,6 +190,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -208,9 +209,12 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * <p/>
      * <p/><b>Note</b>: it is permissible to pass null as the impl parameter
      * when this instance is not being loaded via the module framework.
+     * @param peerGroup
+     * @param impl
      */
-    public synchronized void init(PeerGroup g, ID assignedID, Advertisement impl) {
-        this.group = g;
+    @Override
+    public synchronized void init(PeerGroup peerGroup, ID assignedID, Advertisement impl) {
+        this.group = peerGroup;
         this.assignedID = assignedID;
         this.implAdvertisement = (ModuleImplAdvertisement) impl;
 
@@ -246,7 +250,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         autoRendezvous = rdvConfigAdv.getAutoRendezvousCheckInterval() > 0;
 
-        rdv_watchdog_interval = rdvConfigAdv.getAutoRendezvousCheckInterval();
+        rendezvousWatchdogInterval = rdvConfigAdv.getAutoRendezvousCheckInterval();
 
         // force AD-HOC config for World Peer Group.
         if (PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
@@ -271,7 +275,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tRendezVous : ").append(config);
             configInfo.append("\n\t\tAuto RendezVous : ").append(autoRendezvous);
-            configInfo.append("\n\t\tAuto-RendezVous Reconfig Interval : ").append(rdv_watchdog_interval);
+            configInfo.append("\n\t\tAuto-RendezVous Reconfig Interval : ").append(rendezvousWatchdogInterval);
 
             LOG.config(configInfo.toString());
         }
@@ -282,7 +286,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param arg
      */
+    @Override
     public int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
@@ -336,14 +342,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING) {
-            rendezvousServiceMonitor = (RendezvousServiceMonitor) MonitorManager.getServiceMonitor(group
-                    ,
-                    MonitorResources.rendezvousServiceMonitorClassID);
+            rendezvousServiceMonitor = (RendezvousServiceMonitor) MonitorManager.getServiceMonitor(group, MonitorResources.rendezvousServiceMonitorClassID);
             provider.setRendezvousServiceMonitor(rendezvousServiceMonitor);
         }
 
         provider.startApp(null);
-
         rdvProviderSwitchStatus.set(false);
 
         if (autoRendezvous && !PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
@@ -358,6 +361,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void stopApp() {
 
         // We won't ever release this lock. We are shutting down. There is
@@ -375,12 +379,12 @@ public final class RendezVousServiceImpl implements RendezVousService {
         eventListeners.clear();
 
         Logging.logCheckedInfo(LOG, "Rendezvous Serivce stopped");
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isRendezVous() {
         RendezVousStatus currentStatus = getRendezVousStatus();
 
@@ -390,6 +394,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * @inheritDoc
      */
+    @Override
     public RendezVousStatus getRendezVousStatus() {
         RendezVousServiceProvider currentProvider = provider;
 
@@ -409,6 +414,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean setAutoStart(boolean auto) {
         return setAutoStart(auto, rdv_watchdog_interval_default);
     }
@@ -416,8 +422,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized boolean setAutoStart(boolean auto, long period) {
-        rdv_watchdog_interval = period;
+        rendezvousWatchdogInterval = period;
         boolean old = autoRendezvous;
 
         autoRendezvous = auto;
@@ -536,6 +543,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
      *
      * @return true if connected to a rendezvous, false otherwise
      */
+    @Override
     public boolean isConnectedToRendezVous() {
         RendezVousServiceProvider currentProvider = provider;
         return currentProvider != null && currentProvider.isConnectedToRendezVous();
@@ -544,6 +552,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void startRendezVous() {
         try {
             if (isRendezVous() || PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
@@ -588,6 +597,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopRendezVous() {
 
         if (!isRendezVous()) {
@@ -656,7 +666,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param defaultTTL
+     * @throws java.io.IOException
      */
+    @Override
     public void propagate(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
 
         RendezVousServiceProvider currentProvider = provider;
@@ -669,7 +682,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param destPeerIDs
+     * @param defaultTTL
+     * @throws java.io.IOException
      */
+    @Override
     public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
 
         RendezVousServiceProvider currentProvider = provider;
@@ -682,7 +699,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param defaultTTL
+     * @throws java.io.IOException
      */
+    @Override
     public void walk(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         RendezVousServiceProvider currentProvider = provider;
 
@@ -694,7 +714,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param defaultTTL
+     * @throws java.io.IOException
      */
+    @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
 
         RendezVousServiceProvider currentProvider = provider;
@@ -731,15 +754,14 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc }
      */
+    @Override
     public List<PeerID> getLocalRendezVousView() {
 
         // Preparing result
-        ArrayList<PeerID> Result = new ArrayList<PeerID>();
+        ArrayList<PeerID> Result = new ArrayList<>();
 
         if (provider instanceof RdvPeerRdvService) {
-
             RdvPeerRdvService Temp = (RdvPeerRdvService) provider;
-
             Iterator<PeerViewElement> Iter = Temp.rpv.getView().iterator();
 
             while (Iter.hasNext()) {
@@ -747,15 +769,12 @@ public final class RendezVousServiceImpl implements RendezVousService {
             }
 
         } else if (provider instanceof EdgePeerRdvService) {
-
             EdgePeerRdvService Temp = (EdgePeerRdvService) provider;
-
             Iterator<ID> Iter = Temp.getConnectedPeerIDs().iterator();
 
             while (Iter.hasNext()) {
                 Result.add((PeerID)Iter.next());
             }
-
         }
 
         // Returning result
@@ -766,10 +785,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc }
      */
+    @Override
     public List<PeerID> getLocalEdgeView() {
-
         // Preparing result
-        ArrayList<PeerID> Result = new ArrayList<PeerID>();
+        ArrayList<PeerID> Result = new ArrayList<>();
 
         if (provider instanceof RdvPeerRdvService) {
 
@@ -806,7 +825,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
         RendezVousServiceProvider currentProvider = provider;
 
@@ -818,7 +839,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
         RendezVousServiceProvider currentProvider = provider;
         if (null == currentProvider) {
@@ -830,6 +853,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void addListener(RendezvousListener listener) {
         eventListeners.add(listener);
     }
@@ -837,6 +861,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final boolean removeListener(RendezvousListener listener) {
         return eventListeners.remove(listener);
     }
@@ -850,7 +875,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     public final void generateEvent(int type, ID regarding) {
 
         Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();
-//        RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
+        //RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
         RendezvousEvent event = new RendezvousEvent(this, type, regarding);
 
         Logging.logCheckedDebug(LOG, "Calling listeners for ", event);
@@ -877,7 +902,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         // if auto-switch is off .
         // Set a watchdog, so the peer will become rendezvous if, after rdv_watchdog_interval it
         // still has not connected to any rendezvous peer.
-        autoRdvTaskHandle = scheduledExecutor.scheduleAtFixedRate(autoRdvTask, rdv_watchdog_interval, rdv_watchdog_interval, TimeUnit.MILLISECONDS);
+        autoRdvTaskHandle = scheduledExecutor.scheduleAtFixedRate(autoRdvTask, rendezvousWatchdogInterval, rendezvousWatchdogInterval, TimeUnit.MILLISECONDS);
     }
 
     private synchronized void stopWatchDogTimer() {
@@ -891,13 +916,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * Edge Peer mode connection watchdog.
      */
     private class RdvWatchdogTask implements Runnable {
+        @Override
         public synchronized void run() {
             try {
-
                 //int connectedPeers = getConnectedPeerIDs().size();
-
                 if (!isRendezVous()) {
-
                     int connectedPeers = getLocalRendezVousView().size();
 
                     if (0 == connectedPeers) {
@@ -928,17 +951,13 @@ public final class RendezVousServiceImpl implements RendezVousService {
                         }
                     }
                 }
-
             } catch (Throwable all) {
-
                 Logging.logCheckedError(LOG, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), "\n", all);
-
             }
         }
     }
 
     public boolean isMsgIdRecorded(UUID id) {
-
         boolean found;
 
         synchronized (msgIds) {
@@ -947,9 +966,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         // LOGGING: was Finer
         Logging.logCheckedDebug(LOG, id, " = ", found);
-
         return found;
-
     }
 
     /**
@@ -960,7 +977,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
      *         {@code false}.
      */
     public boolean addMsgId(UUID id) {
-
         synchronized (msgIds) {
             if (isMsgIdRecorded(id)) {
                 // Already there. Nothing to do
@@ -972,13 +988,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
             } else {
                 msgIds.set((messagesReceived % MAX_MSGIDS), id);
             }
-
             messagesReceived++;
         }
 
         // LOGGING: was Finer
         Logging.logCheckedDebug(LOG, "Added Message ID : ", id);
-
         return true;
     }
 

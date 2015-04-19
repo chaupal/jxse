@@ -56,12 +56,8 @@
 
 package net.jxta.rendezvous;
 
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.service.Service;
 import java.io.IOException;
 import java.util.Enumeration;

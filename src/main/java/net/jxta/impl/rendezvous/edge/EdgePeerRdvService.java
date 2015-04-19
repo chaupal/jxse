@@ -154,67 +154,63 @@ public class EdgePeerRdvService extends StdRendezVousService {
     /**
      * Standard Constructor
      *
-     * @param group      Description of Parameter
-     * @param rdvService Description of Parameter
+     * @param peerGroup      Description of Parameter
+     * @param rendezvousServiceImplementation Description of Parameter
      */
-    public EdgePeerRdvService(PeerGroup group, RendezVousServiceImpl rdvService) {
+    public EdgePeerRdvService(PeerGroup peerGroup, RendezVousServiceImpl rendezvousServiceImplementation) {
 
-        super(group, rdvService);
+        super(peerGroup, rendezvousServiceImplementation);
 
         Advertisement adv = null;
-        ConfigParams confAdv = group.getConfigAdvertisement();
+        ConfigParams confAdv = peerGroup.getConfigAdvertisement();
 
         // Get the config. If we do not have a config, we're done; we just keep
         // the defaults (edge peer/no auto-rdv)
         if (confAdv != null) {
-            adv = confAdv.getSvcConfigAdvertisement(rdvService.getAssignedID());
+            adv = confAdv.getSvcConfigAdvertisement(rendezvousServiceImplementation.getAssignedID());
         }
 
-        RdvConfigAdv rdvConfigAdv;
+        RdvConfigAdv rendezvoudConfigurationAdvertisement;
 
         if (!(adv instanceof RdvConfigAdv)) {
-
             Logging.logCheckedDebug(LOG, "Creating new RdvConfigAdv for defaults.");
-            rdvConfigAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
-
+            rendezvoudConfigurationAdvertisement = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
         } else {
-
-            rdvConfigAdv = (RdvConfigAdv) adv;
-
+            rendezvoudConfigurationAdvertisement = (RdvConfigAdv) adv;
         }
 
-        if (-1 != rdvConfigAdv.getMaxTTL()) {
-            MAX_TTL = rdvConfigAdv.getMaxTTL();
+        if (-1 != rendezvoudConfigurationAdvertisement.getMaxTTL()) {
+            MAX_TTL = rendezvoudConfigurationAdvertisement.getMaxTTL();
         }
 
-        if (0 != rdvConfigAdv.getLeaseMargin()) {
-            LEASE_MARGIN = rdvConfigAdv.getLeaseMargin();
+        if (0 != rendezvoudConfigurationAdvertisement.getLeaseMargin()) {
+            LEASE_MARGIN = rendezvoudConfigurationAdvertisement.getLeaseMargin();
         }
 
-        String serviceName = rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString();
-        System.err.println("EdgePeerRdvService: " + group.getPeerGroupID().toString());
+        String serviceName = rendezvousServiceImplementation.getAssignedID().toString() + peerGroup.getPeerGroupID().getUniqueValue().toString();
+        System.err.println("EdgePeerRdvService: " + peerGroup.getPeerGroupID().toString());
 
         URISeedingManager uriSeedingManager;
 
-        if (rdvConfigAdv.getProbeRelays()) {
-            uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group, serviceName);
+        if (rendezvoudConfigurationAdvertisement.getProbeRelays()) {
+            uriSeedingManager = new RelayReferralSeedingManager(rendezvoudConfigurationAdvertisement.getAclUri(), rendezvoudConfigurationAdvertisement.getUseOnlySeeds(), peerGroup, serviceName);
         } else {
-            uriSeedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group, serviceName);
+            uriSeedingManager = new URISeedingManager(rendezvoudConfigurationAdvertisement.getAclUri(), rendezvoudConfigurationAdvertisement.getUseOnlySeeds(), peerGroup, serviceName);
         }
 
-        for (URI aSeeder : Arrays.asList(rdvConfigAdv.getSeedingURIs())) {
+        for (URI aSeeder : Arrays.asList(rendezvoudConfigurationAdvertisement.getSeedingURIs())) {
             Logging.logCheckedConfig(LOG, "EdgePeerRdvService adding seeding: ", aSeeder);
             uriSeedingManager.addSeedingURI(aSeeder);
         }
 
-        for (URI aSeed : Arrays.asList(rdvConfigAdv.getSeedRendezvous())) {
+        for (URI aSeed : Arrays.asList(rendezvoudConfigurationAdvertisement.getSeedRendezvous())) {
             Logging.logCheckedConfig(LOG, "EdgePeerRdvService adding seed   : ", aSeed);
             uriSeedingManager.addSeed(aSeed);
         }
 
         this.seedingManager = uriSeedingManager;
 
-        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", group.getPeerGroupID(), " as an Edge peer.");
+        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", peerGroup.getPeerGroupID(), " as an Edge peer.");
 
     }
 
@@ -228,6 +224,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
             Logging.logCheckedDebug(LOG, "[", group.getPeerGroupID(), "] processing ", msg);
@@ -245,6 +242,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     protected int startApp(String[] arg) {
@@ -341,6 +339,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param peerid
      */
     @Override
     public void challengeRendezVous(ID peerid, long delay) {
@@ -367,6 +366,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param peerId
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
@@ -375,6 +375,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void propagate(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
@@ -403,6 +404,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param msg
+     * @throws java.io.IOException
      */
     @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
@@ -430,21 +433,20 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void walk(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
-
         propagateInGroup(msg, serviceName, serviceParam, initialTTL);
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
-
-        propagate(Collections.enumeration(destPeerIDs), msg, serviceName,
-                  serviceParam, initialTTL);
+        propagate(Collections.enumeration(destPeerIDs), msg, serviceName, serviceParam, initialTTL);
     }
 
     /**
@@ -464,9 +466,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
     }
 
     private void disconnectFromAllRendezVous() {
-
         for (RdvConnection pConn : new ArrayList<RdvConnection>(rendezVous.values())) {
-
             try {
                 disconnectFromRendezVous(pConn.getPeerID());
             } catch (Exception failed) {
@@ -483,7 +483,6 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * @param msg Description of Parameter
      */
     private void processDisconnectRequest(Message msg) {
-
         try {
             MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, DisconnectRequest);
 
