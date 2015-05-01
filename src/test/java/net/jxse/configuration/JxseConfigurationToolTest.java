@@ -11,6 +11,7 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxse.configuration.JxsePeerConfiguration.ConnectionMode;
 import java.net.URI;
 import java.io.IOException;
+import java.util.Arrays;
 import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.NetworkManager;
 import org.junit.After;
@@ -71,16 +72,13 @@ public class JxseConfigurationToolTest {
 
     }
 
-    private boolean contains(URI[] theArray, URI theItem) {
-
-        for (URI Item : theArray) {
-            if (Item.compareTo(theItem)==0){
+    private boolean contains(URI[] array, URI item) {
+        for (URI arrayItem : array) {
+            if (arrayItem.compareTo(item) == 0) {
                 return true;
             }
         }
-
         return false;
-
     }
 
     @Test
@@ -249,116 +247,129 @@ public class JxseConfigurationToolTest {
 
         // Retrieving the NetworkManager
         //NetworkManager TheNM = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "Zoubidoo", ToBeDeleted.toURI());        
-        NetworkManager TheNM = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.ADHOC, "Zoubidoo", ToBeDeleted.toURI());
-        NetworkConfigurator TheNC = TheNM.getConfigurator();
+        NetworkManager networkManager = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.ADHOC, "Zoubidoo", ToBeDeleted.toURI());
+        NetworkConfigurator networkConfigurator = networkManager.getConfigurator();
 
         // Http config
-        TheNC.setHttpPort(3333);
-        TheNC.setHttpIncoming(false);
-        TheNC.setHttpInterfaceAddress("123.45.67.89");
-        TheNC.setHttpOutgoing(false);
-        TheNC.setHttpPublicAddress("321.34.22.66", false);
+        networkConfigurator.setHttpPort(3333);
+        networkConfigurator.setHttpIncoming(false);
+        networkConfigurator.setHttpInterfaceAddress("123.45.67.89");
+        networkConfigurator.setHttpOutgoing(false);
+        networkConfigurator.setHttpPublicAddress("321.34.22.66", false);
 
         // Http2 config
-        TheNC.setHttp2Port(2);
-        TheNC.setHttp2Incoming(false);
-        TheNC.setHttp2InterfaceAddress("123.45.67.89");
-        TheNC.setHttp2Outgoing(true);
-        TheNC.setHttp2PublicAddress("321.34.22.66", false);
-        TheNC.setHttp2StartPort(999);
-        TheNC.setHttp2EndPort(9999);
+        networkConfigurator.setHttp2Port(2);
+        networkConfigurator.setHttp2Incoming(false);
+        networkConfigurator.setHttp2InterfaceAddress("123.45.67.89");
+        networkConfigurator.setHttp2Outgoing(true);
+        networkConfigurator.setHttp2PublicAddress("321.34.22.66", false);
+        networkConfigurator.setHttp2StartPort(999);
+        networkConfigurator.setHttp2EndPort(9999);
 
         // Multicast config
-        TheNC.setMulticastPort(4444);
-        TheNC.setMulticastAddress("77.77.77.77");
-        TheNC.setMulticastInterface("88.88.88.89");
-        TheNC.setMulticastSize(9898);
+        networkConfigurator.setMulticastPort(4444);
+        networkConfigurator.setMulticastAddress("77.77.77.77");
+        networkConfigurator.setMulticastInterface("88.88.88.89");
+        networkConfigurator.setMulticastSize(9898);
 
         // Tcp config
-        TheNC.setTcpPort(3555);
-        TheNC.setTcpStartPort(2222);
-        TheNC.setTcpEndPort(4444);
-        TheNC.setTcpIncoming(false);
-        TheNC.setTcpOutgoing(false);
-        TheNC.setTcpPublicAddress("12.34.56.78", false);
-        TheNC.setTcpInterfaceAddress("33.44.55.66");
+        networkConfigurator.setTcpPort(3555);
+        networkConfigurator.setTcpStartPort(2222);
+        networkConfigurator.setTcpEndPort(4444);
+        networkConfigurator.setTcpIncoming(false);
+        networkConfigurator.setTcpOutgoing(false);
+        networkConfigurator.setTcpPublicAddress("12.34.56.78", false);
+        networkConfigurator.setTcpInterfaceAddress("33.44.55.66");
 
-        URI KSL = new File("aze").toURI(); TheNC.setKeyStoreLocation(KSL);
-        TheNC.setUseMulticast(false);
-        PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID); TheNM.setPeerID(PID);
-        TheNC.setRelayMaxClients(3456);
-        TheNC.setRendezvousMaxClients(6666);
-        TheNC.setTcpEnabled(false);
-        TheNC.setUseOnlyRendezvousSeeds(true);
-        TheNC.setUseOnlyRelaySeeds(true);
+        URI KSL = new File("aze").toURI(); networkConfigurator.setKeyStoreLocation(KSL);
+        networkConfigurator.setUseMulticast(false);
+        PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID); networkManager.setPeerID(PID);
+        networkConfigurator.setRelayMaxClients(3456);
+        networkConfigurator.setRendezvousMaxClients(6666);
+        networkConfigurator.setTcpEnabled(false);
+        networkConfigurator.setUseOnlyRendezvousSeeds(true);
+        networkConfigurator.setUseOnlyRelaySeeds(true);
 
-        URI SR = URI.create("tcp://192.168.1.1"); TheNC.addSeedRelay(SR);
-        URI SRDV = URI.create("tcp://192.168.1.2"); TheNC.addSeedRendezvous(SRDV);
-        URI SiR = URI.create("tcp://192.168.1.3"); TheNC.addRelaySeedingURI(SiR);
-        URI SiRDV = URI.create("tcp://192.168.1.4"); TheNC.addRdvSeedingURI(SiRDV);
+        URI relaySeedUri = URI.create("tcp://192.168.1.1"); 
+        networkConfigurator.addSeedRelay(relaySeedUri);
+        
+        URI rendezvousSeedUri = URI.create("tcp://192.168.1.2"); 
+        networkConfigurator.addSeedRendezvous(rendezvousSeedUri);
+        
+        URI relaySeedingUri = URI.create("tcp://192.168.1.3"); 
+        networkConfigurator.addRelaySeedingURI(relaySeedingUri);
+        
+        URI rendezvousSeedingUri = URI.create("tcp://192.168.1.4"); 
+        networkConfigurator.addRdvSeedingURI(rendezvousSeedingUri);
 
         // Retrieving a peer config
-        JxsePeerConfiguration Retr = JxseConfigurationTool.getJxsePeerConfigurationFromNetworkManager(TheNM);
+        JxsePeerConfiguration jxsePeerConfiguration = JxseConfigurationTool.getJxsePeerConfigurationFromNetworkManager(networkManager);
 
         // Http config
-        assertTrue(Retr.getHttpTransportConfiguration().getHttpPort()==3333);
-        assertFalse(Retr.getHttpTransportConfiguration().getHttpIncoming());
-        assertFalse(Retr.getHttpTransportConfiguration().getHttpOutgoing());
+        assertTrue(jxsePeerConfiguration.getHttpTransportConfiguration().getHttpPort()==3333);
+        assertFalse(jxsePeerConfiguration.getHttpTransportConfiguration().getHttpIncoming());
+        assertFalse(jxsePeerConfiguration.getHttpTransportConfiguration().getHttpOutgoing());
 
-        assertTrue(Retr.getHttpTransportConfiguration().getHttpInterfaceAddress().compareTo("123.45.67.89")==0);
-        assertTrue(Retr.getHttpTransportConfiguration().getHttpPublicAddress().compareTo("321.34.22.66")==0);
-        assertFalse(Retr.getHttpTransportConfiguration().isHttpPublicAddressExclusive());
+        assertTrue(jxsePeerConfiguration.getHttpTransportConfiguration().getHttpInterfaceAddress().compareTo("123.45.67.89")==0);
+        assertTrue(jxsePeerConfiguration.getHttpTransportConfiguration().getHttpPublicAddress().compareTo("321.34.22.66")==0);
+        assertFalse(jxsePeerConfiguration.getHttpTransportConfiguration().isHttpPublicAddressExclusive());
 
         // Http2 config
-        assertTrue(Retr.getHttp2TransportConfiguration().getHttp2Port()==2);
-        assertFalse(Retr.getHttp2TransportConfiguration().getHttp2Incoming());
-        assertTrue(Retr.getHttp2TransportConfiguration().getHttp2Outgoing());
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2Port()==2);
+        assertFalse(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2Incoming());
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2Outgoing());
 
-        assertTrue(Retr.getHttp2TransportConfiguration().getHttp2InterfaceAddress().compareTo("123.45.67.89")==0);
-        assertTrue(Retr.getHttp2TransportConfiguration().getHttp2PublicAddress().compareTo("321.34.22.66")==0);
-        assertTrue(Retr.getHttp2TransportConfiguration().isHttp2PublicAddressExclusive()==false);
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2InterfaceAddress().compareTo("123.45.67.89")==0);
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2PublicAddress().compareTo("321.34.22.66")==0);
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().isHttp2PublicAddressExclusive()==false);
 
-        assertTrue(Retr.getHttp2TransportConfiguration().getHttp2StartPort()==999);
-        assertTrue(Retr.getHttp2TransportConfiguration().getHttp2EndPort()==9999);
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2StartPort()==999);
+        assertTrue(jxsePeerConfiguration.getHttp2TransportConfiguration().getHttp2EndPort()==9999);
 
         // Multicast config
-        assertTrue(Retr.getMulticastTransportConfiguration().getMulticastPort()==4444);
-        assertTrue(Retr.getMulticastTransportConfiguration().getMulticastAddress().compareTo("77.77.77.77")==0);
-        assertTrue(Retr.getMulticastTransportConfiguration().getMulticastInterface().compareTo("88.88.88.89")==0);
-        assertTrue(Retr.getMulticastTransportConfiguration().getMulticastPacketSize()==9898);
+        assertTrue(jxsePeerConfiguration.getMulticastTransportConfiguration().getMulticastPort()==4444);
+        assertTrue(jxsePeerConfiguration.getMulticastTransportConfiguration().getMulticastAddress().compareTo("77.77.77.77")==0);
+        assertTrue(jxsePeerConfiguration.getMulticastTransportConfiguration().getMulticastInterface().compareTo("88.88.88.89")==0);
+        assertTrue(jxsePeerConfiguration.getMulticastTransportConfiguration().getMulticastPacketSize()==9898);
 
         // Tcp config
-        assertTrue(Retr.getTcpTransportConfiguration().getTcpPort()==3555);
-        assertTrue(Retr.getTcpTransportConfiguration().getTcpStartPort()==2222);
-        assertTrue(Retr.getTcpTransportConfiguration().getTcpEndPort()==4444);
-        assertFalse(Retr.getTcpTransportConfiguration().getTcpIncoming());
-        assertFalse(Retr.getTcpTransportConfiguration().getTcpOutgoing());
-        assertTrue(Retr.getTcpTransportConfiguration().getTcpPublicAddress().compareTo("12.34.56.78")==0);
-        assertTrue(Retr.getTcpTransportConfiguration().isTcpPublicAddressExclusive()==false);
-        assertTrue(Retr.getTcpTransportConfiguration().getTcpInterfaceAddress().compareTo("33.44.55.66")==0);
+        assertTrue(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpPort()==3555);
+        assertTrue(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpStartPort()==2222);
+        assertTrue(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpEndPort()==4444);
+        assertFalse(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpIncoming());
+        assertFalse(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpOutgoing());
+        assertTrue(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpPublicAddress().compareTo("12.34.56.78")==0);
+        assertTrue(jxsePeerConfiguration.getTcpTransportConfiguration().isTcpPublicAddressExclusive()==false);
+        assertTrue(jxsePeerConfiguration.getTcpTransportConfiguration().getTcpInterfaceAddress().compareTo("33.44.55.66")==0);
 
         // The rest
-        assertTrue(Retr.getConnectionMode().equals(JxseConfigurationTool.convertToJxsePeerConfigurationConfigMode(NetworkManager.ConfigMode.ADHOC)));
-        assertTrue(Retr.getKeyStoreLocation().compareTo(KSL)==0);
+        assertTrue(jxsePeerConfiguration.getConnectionMode().equals(JxseConfigurationTool.convertToJxsePeerConfigurationConfigMode(NetworkManager.ConfigMode.ADHOC)));
+        assertTrue(jxsePeerConfiguration.getKeyStoreLocation().compareTo(KSL)==0);
 
         // Following test fails because TheNC.getStoreHome() adds a '/', but otherwise is fine
         // assertTrue(Retr.getStoreHome().compareTo(LS)==0);
 
-        assertFalse(Retr.getMulticastEnabled());
-        assertTrue(Retr.getPeerID().toString().compareTo(PID.toString())==0);
-        assertTrue(Retr.getPeerInstanceName().compareTo("Zoubidoo")==0);
-        assertTrue(Retr.getRelayMaxClients()==3456);
-        assertTrue(Retr.getRendezvousMaxClients()==6666);
-        assertFalse(Retr.getTcpEnabled());
-        assertTrue(Retr.getUseOnlyRdvSeeds());
-        assertTrue(Retr.getUseOnlyRelaySeeds());
+        assertFalse(jxsePeerConfiguration.getMulticastEnabled());
+        assertTrue(jxsePeerConfiguration.getPeerID().toString().compareTo(PID.toString())==0);
+        assertTrue(jxsePeerConfiguration.getPeerInstanceName().compareTo("Zoubidoo")==0);
+        assertTrue(jxsePeerConfiguration.getRelayMaxClients()==3456);
+        assertTrue(jxsePeerConfiguration.getRendezvousMaxClients()==6666);
+        assertFalse(jxsePeerConfiguration.getTcpEnabled());
+        assertTrue(jxsePeerConfiguration.getUseOnlyRdvSeeds());
+        assertTrue(jxsePeerConfiguration.getUseOnlyRelaySeeds());
 
-        assertTrue(contains(Retr.getAllSeedingRendezvous().values().toArray(new URI[0]),SiRDV));
-        assertTrue(contains(Retr.getAllSeedingRelays().values().toArray(new URI[0]),SiR));
+        assertTrue(contains(jxsePeerConfiguration.getAllSeedingRendezvous().values().toArray(new URI[0]), rendezvousSeedingUri));
+        assertTrue(contains(jxsePeerConfiguration.getAllSeedingRelays().values().toArray(new URI[0]), relaySeedingUri));
 
-        assertTrue(contains(Retr.getAllSeedRendezvous().values().toArray(new URI[0]),SRDV));
-        assertTrue(contains(Retr.getAllSeedRelays().values().toArray(new URI[0]),SR));
-
+        assertTrue(contains(jxsePeerConfiguration.getAllSeedRendezvous().values().toArray(new URI[0]), rendezvousSeedUri));
+        assertTrue(contains(jxsePeerConfiguration.getAllSeedRelays().values().toArray(new URI[0]), relaySeedUri));
+        
+        networkConfigurator.removeSeedRendezvous(rendezvousSeedUri);
+        jxsePeerConfiguration = JxseConfigurationTool.getJxsePeerConfigurationFromNetworkManager(networkManager);
+        
+        Object[] objectArray = jxsePeerConfiguration.getAllSeedRendezvous().values().toArray();
+        URI[] rendezvousSeeds = Arrays.copyOf(objectArray, objectArray.length, URI[].class);
+        
+        assertFalse(contains(rendezvousSeeds, rendezvousSeedUri));
     }
-
 }

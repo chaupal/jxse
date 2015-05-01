@@ -318,8 +318,7 @@ public class NetworkConfigurator {
     protected transient String authenticationType = null;
 
     /**
-     * Password value used to generate root Certificate and to protect the
-     * Certificate's PrivateKey.
+     * Password value used to generate root certificate and to protect the certificate's private key.
      */
     protected transient String password = null;
 
@@ -364,22 +363,22 @@ public class NetworkConfigurator {
     /**
      * Rendezvous Config Advertisement
      */
-    protected transient RdvConfigAdv rdvConfig;
+    protected transient RdvConfigAdv rendezvousConfiguration;
 
     /**
      * Default Rendezvous Seeding URI
      */
-    protected URI rdvSeedingURI = null;
+    protected URI defaultRendezvousSeedingURI = null;
 
     /**
      * Relay Config Advertisement
      */
-    protected transient RelayConfigAdv relayConfig;
+    protected transient RelayConfigAdv relayConfiguration;
 
     /**
      * Default Relay Seeding URI
      */
-    protected transient URI relaySeedingURI = null;
+    protected transient URI defaultRelaySeedingURI = null;
 
     /**
      * TCP Config Advertisement
@@ -531,8 +530,8 @@ public class NetworkConfigurator {
         setStoreHome(storeHome);
 
         httpConfig = createHttpAdv();
-        rdvConfig = createRdvConfigAdv();
-        relayConfig = createRelayConfigAdv();
+        rendezvousConfiguration = createRdvConfigAdv();
+        relayConfiguration = createRelayConfigAdv();
         // proxyConfig = createProxyAdv();
         tcpConfig = createTcpAdv();
         multicastConfig = createMulticastAdv();
@@ -639,6 +638,7 @@ public class NetworkConfigurator {
      */
     public void setHttpEnabled(boolean enabled) {
         this.httpEnabled = enabled;
+        
         if (!httpEnabled) {
             httpConfig.setClientEnabled(false);
             httpConfig.setServerEnabled(false);
@@ -683,9 +683,9 @@ public class NetworkConfigurator {
     }
 
     /**
-     * Returns the HTTP interface Address
+     * Returns the HTTP interface address
      *
-     * @param address the HTTP interface address
+     * @return HTTP interface address
      */
     public String getHttpInterfaceAddress() {
         return httpConfig.getInterfaceAddress();
@@ -910,16 +910,16 @@ public class NetworkConfigurator {
         }
 
         // RELAY config
-        relayConfig.setClientEnabled((mode & RELAY_CLIENT) == RELAY_CLIENT);
-        relayConfig.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
+        relayConfiguration.setClientEnabled((mode & RELAY_CLIENT) == RELAY_CLIENT);
+        relayConfiguration.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
 
         // RDV_SERVER
         if ((mode & RDV_SERVER) == RDV_SERVER) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.RENDEZVOUS);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.RENDEZVOUS);
         } else if ((mode & RDV_CLIENT) == RDV_CLIENT) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.EDGE);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.EDGE);
         } else if ((mode & RDV_AD_HOC) == RDV_AD_HOC) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.AD_HOC);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.AD_HOC);
         }
 
         // TCP
@@ -939,7 +939,7 @@ public class NetworkConfigurator {
 
         // EDGE
         if (mode == EDGE_NODE) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.EDGE);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.EDGE);
         }
     }
 
@@ -1205,7 +1205,7 @@ public class NetworkConfigurator {
      * @param seedURI Rendezvous service seeding URI
      */
     public void addRdvSeedingURI(URI seedURI) {
-        rdvConfig.addSeedingURI(seedURI);
+        rendezvousConfiguration.addSeedingURI(seedURI);
     }
 
 //    /**
@@ -1273,7 +1273,7 @@ public class NetworkConfigurator {
         if ((relayMaxClients != -1) && (relayMaxClients <= 0)) {
             throw new IllegalArgumentException("Relay Max Clients : " + relayMaxClients + " must be > 0");
         }
-        relayConfig.setMaxClients(relayMaxClients);
+        relayConfiguration.setMaxClients(relayMaxClients);
     }
 
     /**
@@ -1284,7 +1284,7 @@ public class NetworkConfigurator {
      * @param seedURI RelayService seeding URI
      */
     public void addRelaySeedingURI(URI seedURI) {
-        relayConfig.addSeedingURI(seedURI);
+        relayConfiguration.addSeedingURI(seedURI);
     }
 
     /**
@@ -1296,7 +1296,7 @@ public class NetworkConfigurator {
         if ((rdvMaxClients != -1) && (rdvMaxClients <= 0)) {
             throw new IllegalArgumentException("Rendezvous Max Clients : " + rdvMaxClients + " must be > 0");
         }
-        rdvConfig.setMaxClients(rdvMaxClients);
+        rendezvousConfiguration.setMaxClients(rdvMaxClients);
     }
 
     /**
@@ -1413,7 +1413,7 @@ public class NetworkConfigurator {
      * @param useOnlyRelaySeeds restrict RelayService lease to seed list
      */
     public void setUseOnlyRelaySeeds(boolean useOnlyRelaySeeds) {
-        relayConfig.setUseOnlySeeds(useOnlyRelaySeeds);
+        relayConfiguration.setUseOnlySeeds(useOnlyRelaySeeds);
     }
 
     /**
@@ -1424,7 +1424,7 @@ public class NetworkConfigurator {
      * @param useOnlyRendezvouSeeds restrict RendezvousService lease to seed list
      */
     public void setUseOnlyRendezvousSeeds(boolean useOnlyRendezvouSeeds) {
-        rdvConfig.setUseOnlySeeds(useOnlyRendezvouSeeds);
+        rendezvousConfiguration.setUseOnlySeeds(useOnlyRendezvouSeeds);
     }
 
     /**
@@ -1435,7 +1435,7 @@ public class NetworkConfigurator {
      * @param seedURI the relay seed URI
      */
     public void addSeedRelay(URI seedURI) {
-        relayConfig.addSeedRelay(seedURI.toString());
+        relayConfiguration.addSeedRelay(seedURI.toString());
     }
 
     /**
@@ -1446,7 +1446,18 @@ public class NetworkConfigurator {
      * @param seedURI the rendezvous seed URI
      */
     public void addSeedRendezvous(URI seedURI) {
-        rdvConfig.addSeedRendezvous(seedURI);
+        rendezvousConfiguration.addSeedRendezvous(seedURI);
+    }
+    
+    /**
+     * Removes rendezvous peer seed
+     * <p/>A RendezVousService seed is defined as a physical endpoint address
+     * <p/>e.g. http://192.168.1.1:9700, or tcp://192.168.1.1:9701
+     *
+     * @param seedURI the rendezvous seed URI
+     */
+    public void removeSeedRendezvous(URI seedURI) {
+        rendezvousConfiguration.removeSeedRendezvous(seedURI);
     }
 
     /**
@@ -1459,7 +1470,7 @@ public class NetworkConfigurator {
         URI platformConfig = storeHome.resolve("PlatformConfig");
         try {
             return null != read(platformConfig);
-        } catch (IOException failed) {
+        } catch (IOException exception) {
             return false;
         }
     }
@@ -1481,7 +1492,7 @@ public class NetworkConfigurator {
      * @param seedURIStr the new rendezvous seed URI as a string
      */
     public void addRdvSeedingURI(String seedURIStr) {
-        rdvConfig.addSeedingURI(URI.create(seedURIStr));
+        rendezvousConfiguration.addSeedingURI(URI.create(seedURIStr));
     }
 
     /**
@@ -1492,7 +1503,7 @@ public class NetworkConfigurator {
      * @param seedURIStr the new RelayService seed URI as a string
      */
     public void addRelaySeedingURI(String seedURIStr) {
-        relayConfig.addSeedingURI(URI.create(seedURIStr));
+        relayConfiguration.addSeedingURI(URI.create(seedURIStr));
     }
 
     /**
@@ -1503,9 +1514,9 @@ public class NetworkConfigurator {
      * @param seeds the Set RelayService seed URIs as a string
      */
     public void setRelaySeedURIs(List<String> seeds) {
-        relayConfig.clearSeedRelays();
+        relayConfiguration.clearSeedRelays();
         for (String seedStr : seeds) {
-            relayConfig.addSeedRelay(new EndpointAddress(seedStr));
+            relayConfiguration.addSeedRelay(new EndpointAddress(seedStr));
         }
     }
 
@@ -1517,9 +1528,9 @@ public class NetworkConfigurator {
      * @param seedURIs the List relaySeeds represented as Strings
      */
     public void setRelaySeedingURIs(Set<String> seedURIs) {
-        relayConfig.clearSeedingURIs();
+        relayConfiguration.clearSeedingURIs();
         for (String seedStr : seedURIs) {
-            relayConfig.addSeedingURI(URI.create(seedStr));
+            relayConfiguration.addSeedingURI(URI.create(seedStr));
         }
     }
 
@@ -1527,14 +1538,14 @@ public class NetworkConfigurator {
      * Clears the List of RelayService seeds
      */
     public void clearRelaySeeds() {
-        relayConfig.clearSeedRelays();
+        relayConfiguration.clearSeedRelays();
     }
 
     /**
      * Clears the List of RelayService seeding URIs
      */
     public void clearRelaySeedingURIs() {
-        relayConfig.clearSeedingURIs();
+        relayConfiguration.clearSeedingURIs();
     }
 
     /**
@@ -1545,9 +1556,9 @@ public class NetworkConfigurator {
      * @param seeds the Set of rendezvousSeeds represented as Strings
      */
     public void setRendezvousSeeds(Set<String> seeds) {
-        rdvConfig.clearSeedRendezvous();
+        rendezvousConfiguration.clearSeedRendezvous();
         for (String seedStr : seeds) {
-            rdvConfig.addSeedRendezvous(URI.create(seedStr));
+            rendezvousConfiguration.addSeedRendezvous(URI.create(seedStr));
         }
     }
 
@@ -1559,9 +1570,9 @@ public class NetworkConfigurator {
      * @param seedingURIs the List rendezvousSeeds represented as Strings.
      */
     public void setRendezvousSeedingURIs(List<String> seedingURIs) {
-        rdvConfig.clearSeedingURIs();
+        rendezvousConfiguration.clearSeedingURIs();
         for (String seedStr : seedingURIs) {
-            rdvConfig.addSeedingURI(URI.create(seedStr));
+            rendezvousConfiguration.addSeedingURI(URI.create(seedStr));
         }
     }
 
@@ -1569,14 +1580,14 @@ public class NetworkConfigurator {
      * Clears the list of RendezVousService seeds
      */
     public void clearRendezvousSeeds() {
-        rdvConfig.clearSeedRendezvous();
+        rendezvousConfiguration.clearSeedRendezvous();
     }
 
     /**
      * Clears the list of RendezVousService seeding URIs
      */
     public void clearRendezvousSeedingURIs() {
-        rdvConfig.clearSeedingURIs();
+        rendezvousConfiguration.clearSeedingURIs();
     }
 
     /**
@@ -1663,12 +1674,12 @@ public class NetworkConfigurator {
             param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.rendezvousClassID);
             // backwards compatibility
             param.addAttribute("type", RdvConfigAdv.getAdvertisementType());
-            rdvConfig = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
-            if (rdvConfig.getConfiguration() == RendezVousConfiguration.AD_HOC) {
+            rendezvousConfiguration = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
+            if (rendezvousConfiguration.getConfiguration() == RendezVousConfiguration.AD_HOC) {
                 mode = mode | RDV_AD_HOC;
-            } else if (rdvConfig.getConfiguration() == RendezVousConfiguration.EDGE) {
+            } else if (rendezvousConfiguration.getConfiguration() == RendezVousConfiguration.EDGE) {
                 mode = mode | RDV_CLIENT;
-            } else if (rdvConfig.getConfiguration() == RendezVousConfiguration.RENDEZVOUS) {
+            } else if (rendezvousConfiguration.getConfiguration() == RendezVousConfiguration.RENDEZVOUS) {
                 mode = mode | RDV_SERVER;
             }
         } catch (Exception failure) {
@@ -1683,7 +1694,7 @@ public class NetworkConfigurator {
             }
             // backwards compatibility
                 param.addAttribute("type", RelayConfigAdv.getAdvertisementType());
-                relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
+                relayConfiguration = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
         } catch (Exception failure) {
             throw new IOException("Error processing the relay config advertisement", failure);
         }
@@ -1919,17 +1930,17 @@ public class NetworkConfigurator {
      * @return a RdvConfigAdv
      */
     protected RdvConfigAdv createRdvConfigAdv() {
-        rdvConfig = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
+        rendezvousConfiguration = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
         if (mode == RDV_AD_HOC) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.AD_HOC);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.AD_HOC);
         } else if ((mode & RDV_CLIENT) == RDV_CLIENT) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.EDGE);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.EDGE);
         } else if ((mode & RDV_SERVER) == RDV_SERVER) {
-            rdvConfig.setConfiguration(RendezVousConfiguration.RENDEZVOUS);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.RENDEZVOUS);
         }
         // A better alternative is to reference rdv service defaults (currently private)
         // rdvConfig.setMaxClients(200);
-        return rdvConfig;
+        return rendezvousConfiguration;
     }
 
     /**
@@ -1938,14 +1949,14 @@ public class NetworkConfigurator {
      * @return a RelayConfigAdv
      */
     protected RelayConfigAdv createRelayConfigAdv() {
-        relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
+        relayConfiguration = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
 
         // Since 2.6 - We should only use seeds when it comes to relay (see Javadoc)
         // relayConfig.setUseOnlySeeds(false);
 
-        relayConfig.setClientEnabled((mode & RELAY_CLIENT) == RELAY_CLIENT || mode == EDGE_NODE);
-        relayConfig.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
-        return relayConfig;
+        relayConfiguration.setClientEnabled((mode & RELAY_CLIENT) == RELAY_CLIENT || mode == EDGE_NODE);
+        relayConfiguration.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
+        return relayConfiguration;
     }
 
     /**
@@ -2046,9 +2057,9 @@ public class NetworkConfigurator {
         	advertisement.putServiceParam(IModuleDefinitions.http2ProtoClassID, getParmDoc(enabled, http2Config));
         }
 
-        if (relayConfig != null) {
-            boolean isOff = ((mode & RELAY_OFF) == RELAY_OFF) || (relayConfig.isServerEnabled() && relayConfig.isClientEnabled());
-            XMLDocument relayDoc = (XMLDocument) relayConfig.getDocument(MimeMediaType.XMLUTF8);
+        if (relayConfiguration != null) {
+            boolean isOff = ((mode & RELAY_OFF) == RELAY_OFF) || (relayConfiguration.isServerEnabled() && relayConfiguration.isClientEnabled());
+            XMLDocument relayDoc = (XMLDocument) relayConfiguration.getDocument(MimeMediaType.XMLUTF8);
 
             if (isOff) {
                 relayDoc.appendChild(relayDoc.createElement("isOff"));
@@ -2056,8 +2067,8 @@ public class NetworkConfigurator {
             advertisement.putServiceParam(IModuleDefinitions.relayProtoClassID, relayDoc);
         }
 
-        if (rdvConfig != null) {
-            XMLDocument rdvDoc = (XMLDocument) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
+        if (rendezvousConfiguration != null) {
+            XMLDocument rdvDoc = (XMLDocument) rendezvousConfiguration.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(IModuleDefinitions.rendezvousClassID, rdvDoc);
         }
         
@@ -2322,7 +2333,7 @@ public class NetworkConfigurator {
      * @see #setUseOnlyRelaySeeds
      */
     public boolean getUseOnlyRelaySeedsStatus() {
-        return relayConfig.getUseOnlySeeds();
+        return relayConfiguration.getUseOnlySeeds();
     }
 
     /**
@@ -2332,7 +2343,7 @@ public class NetworkConfigurator {
      * @see #setUseOnlyRendezvousSeeds
      */
     public boolean getUseOnlyRendezvousSeedsStatus() {
-        return rdvConfig.getUseOnlySeeds();
+        return rendezvousConfiguration.getUseOnlySeeds();
     }
 
     /**
@@ -2342,7 +2353,7 @@ public class NetworkConfigurator {
      * @see #setRendezvousMaxClients
      */
     public int getRendezvousMaxClients() {
-        return rdvConfig.getMaxClients();
+        return rendezvousConfiguration.getMaxClients();
     }
 
     /**
@@ -2352,7 +2363,7 @@ public class NetworkConfigurator {
      * @see #setRelayMaxClients
      */
     public int getRelayMaxClients() {
-        return relayConfig.getMaxClients();
+        return relayConfiguration.getMaxClients();
     }
 
     /**
@@ -2362,7 +2373,7 @@ public class NetworkConfigurator {
      * @see #addRdvSeedingURI
      */
     public URI[] getRdvSeedingURIs() {
-        return rdvConfig.getSeedingURIs();
+        return rendezvousConfiguration.getSeedingURIs();
     }
 
     /**
@@ -2372,7 +2383,7 @@ public class NetworkConfigurator {
      * @see #addRdvSeedURI
      */
     public URI[] getRdvSeedURIs() {
-        return rdvConfig.getSeedRendezvous();
+        return rendezvousConfiguration.getSeedRendezvous();
     }
 
     /**
@@ -2382,7 +2393,7 @@ public class NetworkConfigurator {
      * @see #addRelaySeedURI
      */
     public URI[] getRelaySeedURIs() {
-        return relayConfig.getSeedRelayURIs();
+        return relayConfiguration.getSeedRelayURIs();
     }
 
     /**
@@ -2392,7 +2403,7 @@ public class NetworkConfigurator {
      * @see #addRelaySeedingURI
      */
     public URI[] getRelaySeedingURIs() {
-        return relayConfig.getSeedingURIs();
+        return relayConfiguration.getSeedingURIs();
     }
     
     public static final int getDefaultHttp2PortNumber() {

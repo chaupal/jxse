@@ -77,8 +77,7 @@ public class NetworkConfiguratorTest extends TestCase {
     private File rdvRelayProxyHome = new File(home, "rdv_rly_prox");
     private static boolean failed = false;
     private static final int rdvRelay = NetworkConfigurator.RELAY_SERVER + NetworkConfigurator.RDV_SERVER;
-    private static final int rdvRelayProx = NetworkConfigurator.RELAY_SERVER + NetworkConfigurator.RDV_SERVER
-            + NetworkConfigurator.PROXY_SERVER;
+    private static final int rdvRelayProx = NetworkConfigurator.RELAY_SERVER + NetworkConfigurator.RDV_SERVER + NetworkConfigurator.PROXY_SERVER;
 
     /**
      *Constructor for the NetworkConfiguratorTest object
@@ -113,6 +112,7 @@ public class NetworkConfiguratorTest extends TestCase {
 
     /**
      *  The JUnit setup method
+     * @throws net.jxta.exception.ConfiguratorException
      */
     public void testCreateConfiguration() throws ConfiguratorException {
         createConfiguration(NetworkConfigurator.ADHOC_NODE);
@@ -184,6 +184,5 @@ public class NetworkConfiguratorTest extends TestCase {
         failed = true;
         junit.framework.TestCase.fail(message);
     }
-
 }
 
