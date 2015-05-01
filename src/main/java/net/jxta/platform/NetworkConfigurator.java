@@ -2137,13 +2137,10 @@ public class NetworkConfigurator {
             throw new IllegalArgumentException("Failed to convert URI to URL", mue);
         }
 
-        InputStream input = url.openStream();
-        try {
+        try (InputStream input = url.openStream()) {
             XMLDocument document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
             PlatformConfig platformConfig = (PlatformConfig) AdvertisementFactory.newAdvertisement(document);
             return platformConfig;
-        } finally {
-            input.close();
         }
     }
 
