@@ -101,6 +101,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
+        @Override
         public MimeMediaType[] getSupportedMimeTypes() {
             return (myTypes);
         }
@@ -108,6 +109,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
+        @Override
         public ExtensionMapping[] getSupportedFileExtensions() {
             return (myExtensions);
         }
@@ -115,6 +117,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, String doctype) {
             return new PlainTextDocument(mimeType, doctype);
         }
@@ -122,6 +125,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value) {
             return new PlainTextDocument(mimeType, doctype, value);
         }
@@ -129,6 +133,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
             throw new ProviderException("PlainTextDocument does not support input");
         }
@@ -136,10 +141,23 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
-            throw new ProviderException("PlainTextDocument does not support input");
+            PlainTextDocument document = null;
+            
+            if (source != null) {
+                int character = 0;
+                StringBuilder valueStringBuilder = new StringBuilder("");
+                
+                while ((character = source.read()) != -1) {
+                    valueStringBuilder.append((char) character);
+                }                                
+                
+                document = new PlainTextDocument(mimeType, "", valueStringBuilder.toString());                
+            }            
+            return document;
+            //throw new ProviderException("PlainTextDocument does not support input");
         }
-
     }
 
     public static final StructuredDocumentFactory.TextInstantiator INSTANTIATOR = new Instantiator();
@@ -148,6 +166,8 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
 
     /**
      * Creates new PlainTextDocument
+     * @param mimeType
+     * @param type
      */
     public PlainTextDocument(final MimeMediaType mimeType, String type) {
         super(null, type);
@@ -159,6 +179,9 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
 
     /**
      * Creates new PlainTextDocument with a value for the root element
+     * @param mimeType
+     * @param type
+     * @param value
      */
     public PlainTextDocument(final MimeMediaType mimeType, final String type, final String value) {
         super(null, type, value);
@@ -188,6 +211,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * get Type
      */
+    @Override
     public MimeMediaType getMimeType() {
         return mimeType;
     }
@@ -195,6 +219,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getFileExtension() {
         return TextDocumentCommon.Utils.getExtensionForMime(INSTANTIATOR.getSupportedFileExtensions(), getMimeType());
     }
@@ -202,13 +227,16 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * {@inheritDoc}
      */
+    @Override
     public PlainTextElement createElement(Object key) {
         return createElement(key, null);
     }
 
     /**
      * {@inheritDoc}
+     * @param val
      */
+    @Override
     public PlainTextElement createElement(Object key, Object val) {
         if (!String.class.isAssignableFrom(key.getClass())) {
             throw new ClassCastException(key.getClass().getName() + " not supported by createElement.");
@@ -224,20 +252,25 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * {@inheritDoc}
      */
+    @Override
     public PlainTextElement createElement(String name) {
         return new PlainTextElement(this, name);
     }
 
     /**
      * {@inheritDoc}
+     * @param val
      */
+    @Override
     public PlainTextElement createElement(String name, String val) {
         return new PlainTextElement(this, name, val);
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public InputStream getStream() throws IOException {
         // XXX  bondolo@jxta.org 20010307    Should be using a pipe
         String charset = mimeType.getParameter("charset");
@@ -251,7 +284,9 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void sendToStream(OutputStream stream) throws IOException {
         String charset = mimeType.getParameter("charset");
 
@@ -272,6 +307,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * {@inheritDoc}
      */
+    @Override
     public Reader getReader() {
         // XXX  bondolo@jxta.org 20010307    Should be using a pipe
 
@@ -280,7 +316,10 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
 
     /**
      * {@inheritDoc}
+     * @param stream
+     * @throws java.io.IOException
      */
+    @Override
     public void sendToWriter(Writer stream) throws IOException {
         printNice(stream, 0, true);
     }

@@ -301,6 +301,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public Vector<ID> getConnectedPeerIDs() {
@@ -309,6 +310,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public boolean isConnectedToRendezVous() {
@@ -405,6 +407,9 @@ public class EdgePeerRdvService extends StdRendezVousService {
     /**
      * {@inheritDoc}
      * @param msg
+     * @param serviceName
+     * @param serviceParam
+     * @param initialTTL
      * @throws java.io.IOException
      */
     @Override

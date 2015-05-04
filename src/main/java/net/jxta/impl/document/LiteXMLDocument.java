@@ -99,6 +99,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
+        @Override
         public MimeMediaType[] getSupportedMimeTypes() {
             return (myTypes);
         }
@@ -106,6 +107,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
+        @Override
         public ExtensionMapping[] getSupportedFileExtensions() {
             return (myExtensions);
         }
@@ -113,6 +115,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, String doctype) {
             return new LiteXMLDocument(mimeType, doctype);
         }
@@ -120,6 +123,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value) {
             return new LiteXMLDocument(mimeType, doctype, value);
         }
@@ -127,6 +131,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
             return new LiteXMLDocument(mimeType, source);
         }
@@ -134,6 +139,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         /**
          * {@inheritDoc}
          */
+        @Override
         public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
             return new LiteXMLDocument(mimeType, source);
         }
@@ -275,6 +281,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
     /**
      * {@inheritDoc}
      */
+    @Override
     public MimeMediaType getMimeType() {
         return mimeType;
     }
@@ -282,6 +289,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getFileExtension() {
         return TextDocumentCommon.Utils.getExtensionForMime(INSTANTIATOR.getSupportedFileExtensions(), getMimeType());
     }
@@ -289,13 +297,16 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
     /**
      * {@inheritDoc}
      */
+    @Override
     public LiteXMLElement createElement(Object key) {
         return createElement(key, null);
     }
 
     /**
      * {@inheritDoc}
+     * @param val
      */
+    @Override
     public LiteXMLElement createElement(Object key, Object val) {
         if (!(key instanceof String)) {
             throw new ClassCastException(key.getClass().getName() + " not supported by createElement as key.");
@@ -310,14 +321,21 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
 
     /**
      * {@inheritDoc}
+     * @param name
+     * @return 
      */
+    @Override
     public LiteXMLElement createElement(String name) {
         return createElement(name, (String) null);
     }
 
     /**
      * {@inheritDoc}
+     * @param name
+     * @param val
+     * @return 
      */
+    @Override
     public LiteXMLElement createElement(String name, String val) {
         return new LiteXMLElement(this, name, val);
     }
@@ -335,12 +353,14 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
     /**
      * {@inheritDoc}
      */
+    @Override
     public Reader getReader() {
         return new StringReader(toString());
     }
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public LiteXMLDocument getRoot() {
@@ -349,7 +369,9 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public InputStream getStream() throws IOException {
         String charset = mimeType.getParameter("charset");
 
@@ -362,7 +384,9 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void sendToWriter(Writer writer) throws IOException {
         String charset = mimeType.getParameter("charset");
 
@@ -384,7 +408,9 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void sendToStream(OutputStream stream) throws IOException {
         String charset = mimeType.getParameter("charset");
 
@@ -404,6 +430,8 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
 
     /**
      * Initialises LiteXMLDocument.
+     * @param in
+     * @throws java.io.IOException
      */
     protected void init(Reader in) throws IOException {
         loc = new tagRange();

@@ -102,16 +102,16 @@ public class RendezVousPropagateMessage {
     /**
      * Constructor for the RendezVousPropagateMessage object
      */
-    public RendezVousPropagateMessage() {}
+    public RendezVousPropagateMessage() {
+    }
 
     /**
      * Constructor for the RendezVousPropagateMessage object
      *
      * @param root The root element of the message.
      */
-    public RendezVousPropagateMessage(Element root) {
-        this();
-
+    public RendezVousPropagateMessage(Element root) {        
+        
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
@@ -128,8 +128,7 @@ public class RendezVousPropagateMessage {
         }
 
         if (!doctype.equals(MSG_NAME) && !MSG_NAME.equals(typedoctype)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
+            throw new IllegalArgumentException("Could not construct : " + getClass().getName() + " from doc containing a " + doc.getName());
         }
 
         Enumeration elements = doc.getChildren();
@@ -138,9 +137,9 @@ public class RendezVousPropagateMessage {
 
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if (!handleElement(elem))
+            if (!handleElement(elem)) {
                 Logging.logCheckedDebug(LOG, "Unhandled Element: ", elem);
-
+            }
         }
 
         // Sanity Check!!!

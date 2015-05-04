@@ -60,16 +60,19 @@ package net.jxta.document;
  * Common interfaces for all {@link net.jxta.document.StructuredTextDocument}
  * which are implemented by XML Documents. Appropriate for advertisements and
  * messages.
+ * @param <X>
  */
 public interface XMLDocument<X extends XMLElement< X >> extends XMLElement<X>, StructuredTextDocument<X> {
 
     /**
      * {@inheritDoc}
      */
+    @Override
     X createElement(String name);
 
     /**
      * {@inheritDoc}
      */
+    @Override
     X createElement(String name, String value);
 }
