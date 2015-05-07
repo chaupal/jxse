@@ -227,7 +227,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         @Override
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedDebug(LOG, "[", group.getPeerGroupID(), "] processing ", msg);
+            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
 
             if ((msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply) != null)
                     || (msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRdvAdvReply) != null)) {
@@ -258,7 +258,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             rendezvousMeter.startEdge();
         }
 
-        rdvService.generateEvent(RendezvousEvent.BECAMEEDGE, group.getPeerID());
+        rendezvousServiceImplementation.generateEvent(RendezvousEvent.BECAMEEDGE, peerGroup.getPeerID());
 
         scheduleMonitor(0);
 
@@ -267,7 +267,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     private void scheduleMonitor(long delayInMs) {
         stopMonitor();
-        ScheduledExecutorService scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
+        ScheduledExecutorService scheduledExecutor = peerGroup.getTaskManager().getScheduledExecutorService();
         MonitorTask monitorTask = new MonitorTask();
         monitorTask.setHandle(scheduledExecutor.scheduleAtFixedRate(monitorTask, delayInMs, MONITOR_INTERVAL, TimeUnit.MILLISECONDS));
     }
@@ -529,7 +529,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             rdvConnection = rendezVous.get(padv.getPeerID());
 
             if (null == rdvConnection) {
-                rdvConnection = new RdvConnection(group, rdvService, padv.getPeerID());
+                rdvConnection = new RdvConnection(peerGroup, rendezvousServiceImplementation, padv.getPeerID());
                 rendezVous.put(padv.getPeerID(), rdvConnection);
                 eventType = RendezvousEvent.RDVCONNECT;
             } else {
@@ -566,7 +566,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
         rdvConnection.connect(padv, lease, Math.min(LEASE_MARGIN, (lease / 2)));
 
-        rdvService.generateEvent(eventType, padv.getPeerID());
+        rendezvousServiceImplementation.generateEvent(eventType, padv.getPeerID());
     }
 
     /**
@@ -592,7 +592,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             }
         }
 
-        rdvService.generateEvent(requested ? RendezvousEvent.RDVDISCONNECT : RendezvousEvent.RDVFAILED, rdvid);
+        rendezvousServiceImplementation.generateEvent(requested ? RendezvousEvent.RDVDISCONNECT : RendezvousEvent.RDVFAILED, rdvid);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
             RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(
@@ -725,7 +725,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 addRdv(padv, lease);
 
                 try {
-                    DiscoveryService discovery = group.getDiscoveryService();
+                    DiscoveryService discovery = peerGroup.getDiscoveryService();
 
                     if (null != discovery) {
                         // This is not our own peer adv so we choose not to share it and keep it for only a short time.
@@ -769,12 +769,12 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
             try {
 
-                Logging.logCheckedDebug(LOG, "[", group, "] Periodic rendezvous check");
+                Logging.logCheckedDebug(LOG, "[", peerGroup, "] Periodic rendezvous check");
 
                 if (closed) return;
 
-                if (!PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
-                    MessageTransport router = rdvService.endpoint.getEndpointRouter();
+                if (!PeerGroupID.worldPeerGroupID.equals(peerGroup.getPeerGroupID())) {
+                    MessageTransport router = rendezvousServiceImplementation.endpoint.getEndpointRouter();
 
                     if (null == router) {
 
@@ -794,19 +794,19 @@ public class EdgePeerRdvService extends StdRendezVousService {
                     try {
 
                         if (!pConn.isConnected()) {
-                            Logging.logCheckedInfo(LOG, "[", group.getPeerGroupID(), "] Lease expired. Disconnected from ", pConn);
+                            Logging.logCheckedInfo(LOG, "[", peerGroup.getPeerGroupID(), "] Lease expired. Disconnected from ", pConn);
                             removeRdv(pConn.getPeerID(), false);
                             continue;
                         }
 
                         if (TimeUtils.toRelativeTimeMillis(pConn.getRenewal()) <= 0) {
-                            Logging.logCheckedDebug(LOG, "[", group.getPeerGroupID(), "] Attempting lease renewal for ", pConn);
+                            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] Attempting lease renewal for ", pConn);
                             sendLeaseRequest(pConn);
                         }
 
                     } catch (Exception e) {
 
-                        Logging.logCheckedWarning(LOG, "[", group.getPeerGroupID(), "] Failure while checking ", pConn, e);
+                        Logging.logCheckedWarning(LOG, "[", peerGroup.getPeerGroupID(), "] Failure while checking ", pConn, e);
 
                     }
                 }
@@ -838,13 +838,13 @@ public class EdgePeerRdvService extends StdRendezVousService {
                             if (!seed_eas.isEmpty()) {
                                 EndpointAddress aSeedHost = new EndpointAddress(seed_eas.get(0));
 
-                                msgr = rdvService.endpoint.getMessengerImmediate(aSeedHost, null);
+                                msgr = rendezvousServiceImplementation.endpoint.getMessengerImmediate(aSeedHost, null);
                             }
                         } else {
                             // We have a full route, send it to the virtual address of the route!
                             EndpointAddress aSeedHost = new EndpointAddress(aSeed.getDestPeerID(), null, null);
 
-                            msgr = rdvService.endpoint.getMessengerImmediate(aSeedHost, aSeed);
+                            msgr = rendezvousServiceImplementation.endpoint.getMessengerImmediate(aSeedHost, aSeed);
                         }
 
                         if (null != msgr) {

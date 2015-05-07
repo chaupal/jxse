@@ -144,7 +144,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         this.handler = handler;
 
-        rdvService.endpoint.addIncomingMessageListener(handler, pName, null);
+        rendezvousServiceImplementation.endpoint.addIncomingMessageListener(handler, pName, null);
 
         return super.startApp(argv);
     }
@@ -155,7 +155,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
     @Override
     public void stopApp() {
 
-        EndpointListener shouldbehandler = rdvService.endpoint.removeIncomingMessageListener(pName, null);
+        EndpointListener shouldbehandler = rendezvousServiceImplementation.endpoint.removeIncomingMessageListener(pName, null);
 
         if (handler != shouldbehandler) 
             Logging.logCheckedWarning(LOG, "Unregistered listener was not as expected.", handler, " != ", shouldbehandler);
@@ -181,7 +181,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 return;
             }
 
-            if (!group.getPeerID().equals(peerid)) {
+            if (!peerGroup.getPeerID().equals(peerid)) {
                 PeerConnection pConn = getPeerConnection(peerid);
 
                 if (null == pConn) {
@@ -200,7 +200,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                         propHdr.setTTL(Math.min(propHdr.getTTL(), 3)); // will be reduced during repropagate stage.
 
                         // FIXME 20040503 bondolo need to add tombstones so that we don't end up spamming disconnects.
-                        if (rdvService.isRendezVous() || (getPeerConnections().length > 0)) {
+                        if (rendezvousServiceImplementation.isRendezVous() || (getPeerConnections().length > 0)) {
                             // edge peers with no rdv should not send disconnect.
                             sendDisconnect(peerid, null);
                         }
@@ -248,7 +248,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                             Logging.logCheckedDebug(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", dest);
 
                             EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
-                            Messenger messenger = rdvService.endpoint.getMessengerImmediate(addr, null);
+                            Messenger messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(addr, null);
 
                             if (null != messenger) {
                                 try {
@@ -438,7 +438,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 hint = EndpointUtils.extractRouteAdv(padv);
             }
 
-            Messenger messenger = rdvService.endpoint.getMessengerImmediate(addr, hint);
+            Messenger messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(addr, hint);
 
             if (null == messenger) {
                 Logging.logCheckedWarning(LOG, "Could not get messenger for ", peerid);

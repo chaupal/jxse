@@ -108,8 +108,8 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected int MAX_TTL;
 
-    protected final PeerGroup group;
-    protected final RendezVousServiceImpl rdvService;
+    protected final PeerGroup peerGroup;
+    protected final RendezVousServiceImpl rendezvousServiceImplementation;
     protected boolean closed = false;
 
     private PeerAdvertisement cachedPeerAdv = null;
@@ -121,15 +121,15 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
     /**
      *
-     * @param group the peergroup
-     * @param rdvService the implementation
+     * @param peerGroup the peergroup
+     * @param rendezvousServiceImplementation the implementation
      */
-    protected RendezVousServiceProvider(PeerGroup group, RendezVousServiceImpl rdvService) {
+    protected RendezVousServiceProvider(PeerGroup peerGroup, RendezVousServiceImpl rendezvousServiceImplementation) {
 
-        this.group = group;
-        this.rdvService = rdvService;
+        this.peerGroup = peerGroup;
+        this.rendezvousServiceImplementation = rendezvousServiceImplementation;
 
-        PropPName = this.group.getPeerGroupID().getUniqueValue().toString();
+        PropPName = this.peerGroup.getPeerGroupID().getUniqueValue().toString();
         PROP_HDR_ELEMENT_NAME = RendezVousPropagateMessage.Name + PropPName;
     }
 
@@ -145,7 +145,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         RendezVousPropagateMessage propHdr = checkPropHeader(msg);
 
         if (null != propHdr) {
-
             // Get the destination real destination of the message
             String sName = propHdr.getDestSName();
             String sParam = propHdr.getDestSParam();
@@ -154,7 +153,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
             // Check if we have a local listener for this message
             processReceivedMessage(msg, propHdr, srcAddr, new EndpointAddress(dstAddr, sName, sParam));
-
         }
     }
 
@@ -162,7 +160,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         PeerAdvertisement newPadv;
 
         synchronized (this) {
-            newPadv = group.getPeerAdvertisement();
+            newPadv = peerGroup.getPeerAdvertisement();
             int newModCount = newPadv.getModCount();
 
             if ((cachedPeerAdv != newPadv) || (cachedPeerAdvModCount != newModCount)) {
@@ -196,38 +194,29 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         // endpointService listener for that purpose.
         // messages delivered here by rdv-to-rdv walk.
         try {
-
-            if (!rdvService.endpoint.addIncomingMessageListener(this, PropSName, PropPName)) {
-
+            if (!rendezvousServiceImplementation.endpoint.addIncomingMessageListener(this, PropSName, PropPName)) {
                 Logging.logCheckedError(LOG, "Cannot register the propagation listener (already registered)");
                 return -1;
-
             }
-
-        } catch (Exception ez1) {
-
+        } catch (Exception exception) {
             // Not much we can do here.
-            Logging.logCheckedError(LOG, "Failed registering the endpoint listener\n", ez1);
+            Logging.logCheckedError(LOG, "Failed registering the endpoint listener\n", exception);
             return -1;
-
         }
 
         try {
             // Update the peeradv with our status
-            if (rdvService.isRendezVous()) {
+            if (rendezvousServiceImplementation.isRendezVous()) {
                 XMLDocument params = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
                 XMLElement e = params.createElement("Rdv", Boolean.TRUE.toString());
 
                 params.appendChild(e);
-                group.getPeerAdvertisement().putServiceParam(rdvService.getAssignedID(), params);
+                peerGroup.getPeerAdvertisement().putServiceParam(rendezvousServiceImplementation.getAssignedID(), params);
             } else {
-                group.getPeerAdvertisement().removeServiceParam(rdvService.getAssignedID());
+                peerGroup.getPeerAdvertisement().removeServiceParam(rendezvousServiceImplementation.getAssignedID());
             }
-
         } catch (Exception ignored) {
-
             Logging.logCheckedWarning(LOG, "Could not update Rdv Params in Peer Advertisement\n", ignored);
-
         }
 
         return Module.START_OK;
@@ -238,14 +227,14 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected void stopApp() {
 
-        EndpointListener shouldbeMe = rdvService.endpoint.removeIncomingMessageListener(PropSName, PropPName);
+        EndpointListener shouldbeMe = rendezvousServiceImplementation.endpoint.removeIncomingMessageListener(PropSName, PropPName);
 
         if ((null != shouldbeMe) && (this != shouldbeMe)) {
             Logging.logCheckedWarning(LOG, "Unregistered listener was not as expected.", this, " != ", shouldbeMe);
         }
 
         // Update the peeradv. We are not a rdv.
-        group.getPeerAdvertisement().removeServiceParam(rdvService.getAssignedID());
+        peerGroup.getPeerAdvertisement().removeServiceParam(rendezvousServiceImplementation.getAssignedID());
     }
 
     /**
@@ -486,7 +475,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected void processReceivedMessage(Message message, RendezVousPropagateMessage propHdr, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        EndpointListener listener = rdvService.endpoint.getIncomingMessageListener(dstAddr.getServiceName(),
+        EndpointListener listener = rendezvousServiceImplementation.endpoint.getIncomingMessageListener(dstAddr.getServiceName(),
                 dstAddr.getServiceParameter());
 
         if (listener != null) {
@@ -496,7 +485,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
                     dstAddr.getServiceName(), "/", dstAddr.getServiceParameter(), "] with ", message,
                     " (", propHdr.getMsgId(), ")");
 
-            rdvService.endpoint.processIncomingMessage(message, srcAddr, dstAddr);
+            rendezvousServiceImplementation.endpoint.processIncomingMessage(message, srcAddr, dstAddr);
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedMessageProcessedLocally();
             }
@@ -547,7 +536,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         Logging.logCheckedDebug(LOG, "Endpoint propagating ", msg, " (", propHdr.getMsgId(), ")");
 
-        rdvService.endpoint.propagate(msg, PropSName, PropPName);
+        rendezvousServiceImplementation.endpoint.propagate(msg, PropSName, PropPName);
 
     }
 
@@ -673,7 +662,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         }
 
-        if (!rdvService.addMsgId(propHdr.getMsgId())) {
+        if (!rendezvousServiceImplementation.addMsgId(propHdr.getMsgId())) {
 
             // We already received this message - discard
             Logging.logCheckedDebug(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- feedback.");
@@ -687,7 +676,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         }
 
         // Loop detection
-        if (propHdr.isVisited(group.getPeerID().toURI())) {
+        if (propHdr.isVisited(peerGroup.getPeerID().toURI())) {
 
             // Loop is detected - discard.
             Logging.logCheckedDebug(LOG, "Discarding ", msg, "(", propHdr.getMsgId(), ") -- loopback.");
@@ -751,13 +740,13 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         propHdr.setDestSName(serviceName);
         propHdr.setDestSParam(serviceParam);
 
-        UUID msgID = rdvService.createMsgId();
+        UUID msgID = rendezvousServiceImplementation.createMsgId();
 
         propHdr.setMsgId(msgID);
-        rdvService.addMsgId(msgID);
+        rendezvousServiceImplementation.addMsgId(msgID);
 
         // Add this peer to the path.
-        propHdr.addVisited(group.getPeerID().toURI());
+        propHdr.addVisited(peerGroup.getPeerID().toURI());
 
         return propHdr;
     }
@@ -775,7 +764,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
     private RendezVousPropagateMessage updatePropHeader(RendezVousPropagateMessage propHdr, int maxTTL) {
 
         int msgTTL = propHdr.getTTL();
-        URI me = group.getPeerID().toURI();
+        URI me = peerGroup.getPeerID().toURI();
 
         int useTTL = msgTTL;
 

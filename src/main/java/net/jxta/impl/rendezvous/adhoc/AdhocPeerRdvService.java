@@ -159,7 +159,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
         // FIXME: Declaring this peer as an EDGE is really questionable and misleading
         // we are nominally an edge peer
-        rdvService.generateEvent(RendezvousEvent.BECAMEEDGE, group.getPeerID());
+        rendezvousServiceImplementation.generateEvent(RendezvousEvent.BECAMEEDGE, peerGroup.getPeerID());
 
         return Module.START_OK;
     }
@@ -296,7 +296,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
                     EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
 
-                    Messenger messenger = rdvService.endpoint.getMessenger(addr);
+                    Messenger messenger = rendezvousServiceImplementation.endpoint.getMessenger(addr);
 
                     if (null != messenger) {
                         try {

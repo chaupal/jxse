@@ -244,7 +244,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
          */
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedDebug(LOG, "[", group.getPeerGroupID(), "] processing ", msg);
+            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
 
             if (msg.getMessageElement("jxta", ConnectRequest) != null)
                 processLeaseRequest(msg);
@@ -272,20 +272,20 @@ public class RdvPeerRdvService extends StdRendezVousService {
         // and startApp().
 
         // Start the Walk protcol. Create a LimitedRange Walk
-        walk = new LimitedRangeWalk(group, new WalkListener(), pName, pParam, rpv);
+        walk = new LimitedRangeWalk(peerGroup, new WalkListener(), pName, pParam, rpv);
 
         // We need to use a Walker in order to propagate the request
         // when when have no answer.
         walker = walk.getWalker();
 
-        ScheduledExecutorService scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
+        ScheduledExecutorService scheduledExecutor = peerGroup.getTaskManager().getScheduledExecutorService();
         gcTaskHandle = scheduledExecutor.scheduleAtFixedRate(new GCTask(), GC_INTERVAL, GC_INTERVAL, TimeUnit.MILLISECONDS);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.startRendezvous();
         }
 
-        rdvService.generateEvent(RendezvousEvent.BECAMERDV, group.getPeerID());
+        rendezvousServiceImplementation.generateEvent(RendezvousEvent.BECAMERDV, peerGroup.getPeerID());
 
         Logging.logCheckedInfo(LOG, "RdvPeerRdvService is started");
 
@@ -479,7 +479,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                 eventType = RendezvousEvent.CLIENTRECONNECT;
             } else {
                 eventType = RendezvousEvent.CLIENTCONNECT;
-                pConn = new ClientConnection(group, rdvService, padv.getPeerID());
+                pConn = new ClientConnection(peerGroup, rendezvousServiceImplementation, padv.getPeerID());
                 clients.put(padv.getPeerID(), pConn);
             }
         }
@@ -498,7 +498,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             }
         }
 
-        rdvService.generateEvent(eventType, padv.getPeerID());
+        rendezvousServiceImplementation.generateEvent(eventType, padv.getPeerID());
 
         pConn.connect(padv, lease);
 
@@ -523,7 +523,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             sendDisconnect(pConn);
         }
 
-        rdvService.generateEvent(requested ? RendezvousEvent.CLIENTDISCONNECT : RendezvousEvent.CLIENTFAILED, pConn.getPeerID());
+        rendezvousServiceImplementation.generateEvent(requested ? RendezvousEvent.CLIENTDISCONNECT : RendezvousEvent.CLIENTFAILED, pConn.getPeerID());
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
             ClientConnectionMeter clientConnectionMeter = rendezvousServiceMonitor.getClientConnectionMeter(
@@ -607,7 +607,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         try {
             // This is not our own peer adv so we must not keep it longer than
             // its expiration time.
-            DiscoveryService discovery = group.getDiscoveryService();
+            DiscoveryService discovery = peerGroup.getDiscoveryService();
 
             if (null != discovery) discovery.publish(padv, LEASE_DURATION * 2, 0);
 
@@ -667,7 +667,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         msg.addMessageElement("jxta", new TextDocumentMessageElement(ConnectedRdvAdvReply, getPeerAdvertisementDoc(), null));
 
-        msg.addMessageElement("jxta", new StringMessageElement(ConnectedPeerReply, group.getPeerID().toString(), null));
+        msg.addMessageElement("jxta", new StringMessageElement(ConnectedPeerReply, peerGroup.getPeerID().toString(), null));
 
         msg.addMessageElement("jxta", new StringMessageElement(ConnectedLeaseReply, Long.toString(lease), null));
 
@@ -839,7 +839,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             Logging.logCheckedDebug(LOG, "Calling local listener for [", realDest.getServiceName(),
                 " / ", realDest.getServiceParameter(), "] with ", msg);
 
-            rdvService.endpoint.processIncomingMessage(msg, srcAddr, realDest);
+            rendezvousServiceImplementation.endpoint.processIncomingMessage(msg, srcAddr, realDest);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedMessageProcessedLocally();
