@@ -139,7 +139,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * <li>When the array reaches MaxNbOfStoredIds treat it as a ring.</li>
      * </ul>
      */
-    private final List<UUID> msgIds = new ArrayList<UUID>(MAX_RECORDED_MSGIDS);
+    private final List<UUID> msgIds = new ArrayList<>(MAX_RECORDED_MSGIDS);
 
     /**
      * Constructor
@@ -162,22 +162,27 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * {@inheritDoc}
      * <p/>
      * Closes the pipe.
+     * @throws java.lang.Throwable
      */
     @Override
     protected synchronized void finalize() throws Throwable {
-
-        if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        if (!closed) {
+            Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        }
+        
         close();
         super.finalize();
-
     }
 
     /**
      * {@inheritDoc}
+     * @param wireinputpipe
      */
+    @Override
     public synchronized boolean register(InputPipe wireinputpipe) {
-
-        if (closed) return false;
+        if (closed) {
+            return false;
+        }
 
         Logging.logCheckedDebug(LOG, "Registering input pipe for ", pipeAdv.getPipeID());
 
@@ -185,18 +190,13 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
         boolean registered;
 
         if (1 == wireinputpipes.size()) {
-
             Logging.logCheckedInfo(LOG, "Registering ", pipeAdv.getPipeID(), " with pipe resolver.");
             registered = pipeResolver.register(this);
-
         } else {
-
             registered = true;
-
         }
 
         return registered;
-
     }
 
     /**
@@ -226,9 +226,10 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
     /**
      * {@inheritDoc}
+     * @throws java.lang.InterruptedException
      */
+    @Override
     public Message waitForMessage() throws InterruptedException {
-
         Logging.logCheckedDebug(LOG, "This method is not really supported.");
         return null;
 
@@ -236,17 +237,18 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
     /**
      * {@inheritDoc}
+     * @throws java.lang.InterruptedException
      */
+    @Override
     public Message poll(int timeout) throws InterruptedException {
-
-        Logging.logCheckedDebug(LOG, "This method is not really supported.");
-        return null;
-
+        Logging.logCheckedDebug(LOG, "This method is not implemented.");
+        throw new RuntimeException("Not implemented.");
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void close() {
         if (closed) {
             return;
@@ -273,6 +275,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getType() {
         return pipeAdv.getType();
     }
@@ -280,6 +283,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ID getPipeID() {
         return pipeAdv.getPipeID();
     }
@@ -287,6 +291,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
         return pipeAdv.getName();
     }
@@ -294,6 +299,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     /**
      * {@inheritDoc}
      */
+    @Override
     public PipeAdvertisement getAdvertisement() {
         return pipeAdv;
     }
@@ -306,31 +312,24 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * <p/>
      * "PipeService" / &lt;PipeID&gt;
      */
+    @Override
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-
         // Check if there is a JXTA-WIRE header
-        MessageElement elem = message.getMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAMESPACE,
-                WirePipeImpl.WIRE_HEADER_ELEMENT_NAME);
+        MessageElement elem = message.getMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAMESPACE, WirePipeImpl.WIRE_HEADER_ELEMENT_NAME);
 
         if (null == elem) {
-
             Logging.logCheckedDebug(LOG, "No JxtaWireHeader element. Discarding ", message);
             return;
-
         }
 
         WireHeader header;
 
         try {
-
             XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
             header = new WireHeader(doc);
-
         } catch (Exception e) {
-
             Logging.logCheckedWarning(LOG, "bad wire header\n", e);
             return;
-
         }
 
         processIncomingMessage(message, header, srcAddr, dstAddr);
@@ -347,19 +346,17 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * @param dstAddr destination
      */
     void processIncomingMessage(Message message, WireHeader header, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-
         if (recordSeenMessage(header.getMsgId())) {
-
             Logging.logCheckedDebug(LOG, "Discarding duplicate ", message);
             return;
-
         }
 
         Logging.logCheckedDebug(LOG, "Processing ", message, " from ", srcAddr, " on ", pipeAdv.getPipeID());
         callLocalListeners(message, srcAddr, dstAddr);
 
-        if (peerGroup.isRendezvous()) repropagate(message, header);
-
+        if (peerGroup.isRendezvous()) {
+            repropagate(message, header);
+        }
     }
 
     /**
@@ -550,8 +547,8 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
                 msgid = UUIDFactory.newHashUUID(id.hashCode(), 0);
             }
         }
+        
         synchronized (msgIds) {
-
             if (msgIds.contains(msgid)) {
 
                 // Already there. Nothing to do
@@ -572,6 +569,5 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
         Logging.logCheckedDebug(LOG, "added ", msgid);
         return false;
-
     }
 }

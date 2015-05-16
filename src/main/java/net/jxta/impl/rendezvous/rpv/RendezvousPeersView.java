@@ -133,9 +133,9 @@ import net.jxta.rendezvous.RendezvousListener;
  * own peer advertisements to some well-known, stable, "seed" peers on
  * startup.
  */
-public final class PeerView implements EndpointListener, RendezvousListener {
+public final class RendezvousPeersView implements EndpointListener, RendezvousListener {
 
-    private static final transient Logger LOG = Logging.getLogger(PeerView.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(RendezvousPeersView.class.getName());
 
     /**
      * Our service name
@@ -402,7 +402,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * @param rdvService       The rdvService we are to use.
      * @param name             The identifying name for this Peer View instance.
      */
-    public PeerView(PeerGroup group, PeerGroup advertisingGroup, RendezVousServiceImpl rdvService, String name) {
+    public RendezvousPeersView(PeerGroup group, PeerGroup advertisingGroup, RendezVousServiceImpl rdvService, String name) {
         this.group = group;
         this.advertisingGroup = advertisingGroup;
         this.rdvService = rdvService;
@@ -1688,7 +1688,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 // that is good enough). If viewsize is <= HAPPY_SIZE, then all respond.  This is approximate, of course, since
                 // the view size is not always consistent among peers.
 
-                int viewsize = PeerView.this.localView.size();
+                int viewsize = RendezvousPeersView.this.localView.size();
 
                 if (viewsize > minHappyPeerView) {
                     int randinview = random.nextInt(viewsize);
@@ -1714,7 +1714,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             try {
 
                 // call the peerview.
-                PeerView.this.processIncomingMessage(msg, src, dest);
+                RendezvousPeersView.this.processIncomingMessage(msg, src, dest);
 
             } catch (Throwable ez) {
 
@@ -1981,7 +1981,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 if (closed) return;
 
-                Logging.logCheckedDebug(LOG, "Watchdog task executing for group ", PeerView.this.group.getPeerGroupID());
+                Logging.logCheckedDebug(LOG, "Watchdog task executing for group ", RendezvousPeersView.this.group.getPeerGroupID());
 
                 refreshSelf();
 
@@ -1992,7 +1992,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     }
                 }
 
-                PeerViewElement up = PeerView.this.getUpPeer();
+                PeerViewElement up = RendezvousPeersView.this.getUpPeer();
 
                 if (up != null) {
 
@@ -2004,12 +2004,12 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     } else {
 
                         Logging.logCheckedDebug(LOG, "Checking on UP peer : ", up);
-                        PeerView.this.send(up, PeerView.this.getSelf(), false, false);
+                        RendezvousPeersView.this.send(up, RendezvousPeersView.this.getSelf(), false, false);
 
                     }
                 }
 
-                PeerViewElement down = PeerView.this.getDownPeer();
+                PeerViewElement down = RendezvousPeersView.this.getDownPeer();
 
                 if (down != null) {
 
@@ -2021,7 +2021,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     } else {
 
                         Logging.logCheckedDebug(LOG, "Checking on DOWN peer : ", down);
-                        PeerView.this.send(down, PeerView.this.getSelf(), false, false);
+                        RendezvousPeersView.this.send(down, RendezvousPeersView.this.getSelf(), false, false);
 
                     }
 
@@ -2050,7 +2050,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 if (closed) return;
 
-                PeerView.this.kick();
+                RendezvousPeersView.this.kick();
 
             } catch (Throwable all) {
 

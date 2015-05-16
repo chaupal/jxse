@@ -5,9 +5,8 @@ package net.jxta.impl.util;
  * {@link java.lang.System#currentTimeMillis()}.
  */
 public class JavaSystemClock implements SystemClock {
-
-	public long getCurrentTime() {
-		return System.currentTimeMillis();
-	}
-
+    @Override
+    public long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
 }

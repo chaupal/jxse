@@ -147,6 +147,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageSendFailed(OutgoingMessageEvent event) {
         // If it's just a case of queue overflow, ignore it, report warning
         if (event.getFailure() == null) {
@@ -174,6 +175,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageSendSucceeded(OutgoingMessageEvent event) {// hurray!
     }
 

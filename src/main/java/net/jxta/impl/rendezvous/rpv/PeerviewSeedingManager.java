@@ -144,16 +144,16 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         this.advGroup = advGroup;
         this.name = name;
 
-        advPipeAdv = PeerView.makeWirePipeAdvertisement(advGroup, group, name);
+        advPipeAdv = RendezvousPeersView.makeWirePipeAdvertisement(advGroup, group, name);
 
-        group.getEndpointService().addIncomingMessageListener(this, PeerView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
+        group.getEndpointService().addIncomingMessageListener(this, RendezvousPeersView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
     }
 
     /**
      * {@inheritDoc}
      */
     public void stop() {
-        group.getEndpointService().removeIncomingMessageListener(PeerView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
+        group.getEndpointService().removeIncomingMessageListener(RendezvousPeersView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
     }
 
     /**
@@ -246,15 +246,15 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         Message msg = new Message();
 
-        msg.addMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT);
+        msg.addMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.EDGE_ELEMENT);
 
-        RdvAdvertisement radv = PeerView.createRdvAdvertisement(group.getPeerAdvertisement(), name);
+        RdvAdvertisement radv = RendezvousPeersView.createRdvAdvertisement(group.getPeerAdvertisement(), name);
 
         XMLDocument doc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
 
-        MessageElement msge = new TextDocumentMessageElement(PeerView.MESSAGE_ELEMENT_NAME, doc, null);
+        MessageElement msge = new TextDocumentMessageElement(RendezvousPeersView.MESSAGE_ELEMENT_NAME, doc, null);
 
-        msg.addMessageElement(PeerView.MESSAGE_NAMESPACE, msge);
+        msg.addMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, msge);
 
         return msg;
     }
@@ -268,11 +268,11 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         // check what kind of message this is (response or not).
         boolean isResponse = false;
-        MessageElement me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.MESSAGE_ELEMENT_NAME);
+        MessageElement me = msg.getMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.MESSAGE_ELEMENT_NAME);
 
         if (me == null) {
 
-            me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.RESPONSE_ELEMENT_NAME);
+            me = msg.getMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.RESPONSE_ELEMENT_NAME);
 
             if (me == null) {
 
@@ -322,7 +322,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         }
 
         // See if we can find a src route adv in the message.s
-        me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.SRCROUTEADV_ELEMENT_NAME);
+        me = msg.getMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.SRCROUTEADV_ELEMENT_NAME);
 
         if (me != null) {
 
@@ -363,9 +363,9 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         // Collect the various flags.
 
-        boolean isFailure = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.FAILURE_ELEMENT_NAME) != null);
-        boolean isCached = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.CACHED_RADV_ELEMENT_NAME) != null);
-        boolean isFromEdge = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT_NAME) != null);
+        boolean isFailure = (msg.getMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.FAILURE_ELEMENT_NAME) != null);
+        boolean isCached = (msg.getMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.CACHED_RADV_ELEMENT_NAME) != null);
+        boolean isFromEdge = (msg.getMessageElement(RendezvousPeersView.MESSAGE_NAMESPACE, RendezvousPeersView.EDGE_ELEMENT_NAME) != null);
 
         Logging.logCheckedDebug(LOG, "[", group.getPeerGroupID(), "] Received a", (isCached ? " cached" : ""), (isResponse ? " response" : ""),
             (isFailure ? " failure" : ""), " message (", msg, ")", (isFromEdge ? " from edge" : ""),

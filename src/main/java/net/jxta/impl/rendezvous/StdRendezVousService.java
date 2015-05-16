@@ -64,7 +64,7 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.endpoint.TransportUtils;
-import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
+import net.jxta.impl.rendezvous.server.RendezvouseServiceServer;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.logging.Logger;
@@ -163,9 +163,9 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    public void processReceivedMessage(Message message, RendezVousPropagateMessage propHdr, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-        if (srcAddr.getProtocolName().equalsIgnoreCase("jxta")) {
-            String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
+    public void processReceivedMessage(Message message, RendezVousPropagateMessage propHdr, EndpointAddress sourceAddress, EndpointAddress destinationAddress) {
+        if (sourceAddress.getProtocolName().equalsIgnoreCase("jxta")) {
+            String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + sourceAddress.getProtocolAddress();
 
             ID peerid;
 
@@ -182,8 +182,8 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 if (null == peerConnection) {
                     PeerViewElement peerViewElement;
 
-                    if (this instanceof RdvPeerRdvService) {                        
-                        peerViewElement = ((RdvPeerRdvService) this).rpv.getPeerViewElement(peerid);
+                    if (this instanceof RendezvouseServiceServer) {                        
+                        peerViewElement = ((RendezvouseServiceServer) this).rpv.getPeerViewElement(peerid);
                     } else {
                         peerViewElement = null;
                     }
@@ -211,7 +211,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
             Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from network -- repropagating with TTL 2");
             propHdr.setTTL(Math.min(propHdr.getTTL(), 3)); // will be reduced during repropagate stage.
         }
-        super.processReceivedMessage(message, propHdr, srcAddr, dstAddr);
+        super.processReceivedMessage(message, propHdr, sourceAddress, destinationAddress);
     }
 
     /**
@@ -235,13 +235,13 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                     ID dest = destPeerIDs.nextElement();
 
                     try {
-                        PeerConnection pConn = getPeerConnection(dest);
+                        PeerConnection peerConnection = getPeerConnection(dest);
 
                         // TODO: make use of PeerView connections as well
-                        if (null == pConn) {
+                        if (null == peerConnection) {
                             Logging.logCheckedDebug(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", dest);
 
-                            EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
+                            EndpointAddress addr = makeAddress(dest, PropSName, PropPName);
                             Messenger messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(addr, null);
 
                             if (null != messenger) {
@@ -254,10 +254,10 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                                 continue;
                             }
                         } else {
-                            Logging.logCheckedDebug(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", pConn);
+                            Logging.logCheckedDebug(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", peerConnection);
 
-                            if (pConn.isConnected()) {
-                                pConn.sendMessage(msg.clone(), PropSName, PropPName);
+                            if (peerConnection.isConnected()) {
+                                peerConnection.sendMessage(msg.clone(), PropSName, PropPName);
                             } else {
                                 continue;
                             }
@@ -422,7 +422,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         try {
             msg.replaceMessageElement("jxta", new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
 
-            EndpointAddress addr = mkAddress(peerid, null, null);
+            EndpointAddress addr = makeAddress(peerid, null, null);
 
             RouteAdvertisement hint = null;
 

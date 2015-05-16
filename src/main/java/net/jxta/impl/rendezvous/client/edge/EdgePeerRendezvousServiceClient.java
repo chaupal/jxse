@@ -114,9 +114,9 @@ import net.jxta.rendezvous.RendezvousEvent;
  * @see net.jxta.rendezvous.RendezVousService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public class EdgePeerRdvServiceClient extends StdRendezVousService {
+public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
 
-    private final static transient Logger LOG = Logging.getLogger(EdgePeerRdvServiceClient.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(EdgePeerRendezvousServiceClient.class.getName());
 
     /**
      * Interval in milliseconds at which we will check our rendezvous connection.
@@ -157,7 +157,7 @@ public class EdgePeerRdvServiceClient extends StdRendezVousService {
      * @param peerGroup      Description of Parameter
      * @param rendezvousServiceImplementation Description of Parameter
      */
-    public EdgePeerRdvServiceClient(PeerGroup peerGroup, RendezVousServiceImpl rendezvousServiceImplementation) {
+    public EdgePeerRendezvousServiceClient(PeerGroup peerGroup, RendezVousServiceImpl rendezvousServiceImplementation) {
         super(peerGroup, rendezvousServiceImplementation);
 
         Advertisement adv = null;
@@ -264,6 +264,7 @@ public class EdgePeerRdvServiceClient extends StdRendezVousService {
 
     private void scheduleMonitor(long delayInMs) {
         stopMonitor();
+        
         ScheduledExecutorService scheduledExecutor = peerGroup.getTaskManager().getScheduledExecutorService();
         MonitorTask monitorTask = new MonitorTask();
         monitorTask.setHandle(scheduledExecutor.scheduleAtFixedRate(monitorTask, delayInMs, MONITOR_INTERVAL, TimeUnit.MILLISECONDS));
@@ -772,7 +773,7 @@ public class EdgePeerRdvServiceClient extends StdRendezVousService {
                 // Not enough Rdvs? Try finding more.
                 if (rendezVous.size() < MAX_RDV_CONNECTIONS) {
                     if (seeds.isEmpty()) {
-                        seeds.addAll(Arrays.asList(EdgePeerRdvServiceClient.this.seedingManager.getActiveSeedRoutes()));
+                        seeds.addAll(Arrays.asList(EdgePeerRendezvousServiceClient.this.seedingManager.getActiveSeedRoutes()));
                     }
 
                     int sentLeaseRequests = 0;

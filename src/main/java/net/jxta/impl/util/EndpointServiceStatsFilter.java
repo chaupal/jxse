@@ -65,7 +65,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * Instances of this clas can be registered with an EndpointService
+ * Instances of this class can be registered with an EndpointService
  * to gather statistics about what kind of messages pass through it.
  * <p/>
  * This class is not MT-safe, so make sure you plug it only
@@ -91,7 +91,11 @@ public class EndpointServiceStatsFilter implements MessageFilterListener {
     /**
      * This method is called by the EndpointService to give us a chance
      * to look at the message before it is dispatched to any listeners.
+     * @param msg
+     * @param source
+     * @param dest
      */
+    @Override
     public Message filterMessage(Message msg, EndpointAddress source, EndpointAddress dest) {
         Message.ElementIterator e = msg.getMessageElements();
         MessageElement el;
@@ -104,12 +108,8 @@ public class EndpointServiceStatsFilter implements MessageFilterListener {
             namespace = e.getNamespace();
             name = el.getElementName();
 
-            incrementCount(channelTrafficTable, source.getProtocolName() + "://" + source.getProtocolAddress() + "/" + namespace
-                    ,
-                    (int) el.getByteLength());
-            incrementCount(channelTrafficTable, source.getProtocolName() + "://" + source.getProtocolAddress() + "/" + name
-                    ,
-                    (int) el.getByteLength());
+            incrementCount(channelTrafficTable, source.getProtocolName() + "://" + source.getProtocolAddress() + "/" + namespace, (int) el.getByteLength());
+            incrementCount(channelTrafficTable, source.getProtocolName() + "://" + source.getProtocolAddress() + "/" + name, (int) el.getByteLength());
         }
 
         if (source != null) {

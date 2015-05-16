@@ -87,9 +87,9 @@ import java.util.Vector;
  * @see net.jxta.rendezvous.RendezVousService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public class AdhocPeerRdvServiceClient extends RendezVousServiceProvider {
+public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider {
 
-    private final static transient Logger LOG = Logging.getLogger(AdhocPeerRdvServiceClient.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(AdhocPeerRendezvousServiceClient.class.getName());
 
     /**
      * Default Maximum TTL. This is minimum needed to bridge networks.
@@ -102,7 +102,7 @@ public class AdhocPeerRdvServiceClient extends RendezVousServiceProvider {
      * @param g          the peergroup
      * @param rdvService the rendezvous service
      */
-    public AdhocPeerRdvServiceClient(PeerGroup g, RendezVousServiceImpl rdvService) {
+    public AdhocPeerRendezvousServiceClient(PeerGroup g, RendezVousServiceImpl rdvService) {
 
         super(g, rdvService);
 
@@ -243,10 +243,10 @@ public class AdhocPeerRdvServiceClient extends RendezVousServiceProvider {
     public void propagate(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
         ttl = Math.min(ttl, MAX_TTL);
 
-        RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
+        RendezVousPropagateMessage rendezvousPropagateMessage = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
 
-        if (null != propHdr) {
-            sendToNetwork(msg, propHdr);
+        if (null != rendezvousPropagateMessage) {
+            sendToNetwork(msg, rendezvousPropagateMessage);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();
@@ -301,7 +301,7 @@ public class AdhocPeerRdvServiceClient extends RendezVousServiceProvider {
 
                     Logging.logCheckedDebug(LOG, "Sending ", msg, " to client ", dest);
 
-                    EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
+                    EndpointAddress addr = makeAddress(dest, PropSName, PropPName);
 
                     Messenger messenger = rendezvousServiceImplementation.endpoint.getMessenger(addr);
 

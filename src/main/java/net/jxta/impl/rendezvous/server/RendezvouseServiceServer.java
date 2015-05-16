@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl.rendezvous.rdv;
+package net.jxta.impl.rendezvous.server;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -80,7 +80,7 @@ import net.jxta.impl.rendezvous.StdRendezVousService;
 import net.jxta.impl.rendezvous.limited.LimitedRangeWalk;
 import net.jxta.impl.rendezvous.rendezvousMeter.ClientConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
-import net.jxta.impl.rendezvous.rpv.PeerView;
+import net.jxta.impl.rendezvous.rpv.RendezvousPeersView;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
@@ -111,9 +111,9 @@ import java.util.concurrent.TimeUnit;
  * @see net.jxta.rendezvous.RendezVousService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public class RdvPeerRdvService extends StdRendezVousService {
+public class RendezvouseServiceServer extends StdRendezVousService {
 
-    private final static Logger LOG = Logging.getLogger(RdvPeerRdvService.class.getName());
+    private final static Logger LOG = Logging.getLogger(RendezvouseServiceServer.class.getName());
 
     public static final String RDV_WALK_SVC_NAME = "RdvWalkSvcName";
     public static final String RDV_WALK_SVC_PARAM = "RdvWalkSvcParam";
@@ -143,7 +143,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
     /**
      * The peer view for this rendezvous server.
      */
-    public final PeerView rpv;
+    public final RendezvousPeersView rpv;
 
     private ScheduledFuture<?> gcTaskHandle;
 
@@ -153,7 +153,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      * @param group      the peer group
      * @param rdvService the rendezvous service object
      */
-    public RdvPeerRdvService(PeerGroup group, RendezVousServiceImpl rdvService) {
+    public RendezvouseServiceServer(PeerGroup group, RendezVousServiceImpl rdvService) {
 
         super(group, rdvService);
 
@@ -225,7 +225,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             advGroup = null;
         }
 
-        rpv = new PeerView(group, advGroup, rdvService,
+        rpv = new RendezvousPeersView(group, advGroup, rdvService,
                 rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
 
         Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", group.getPeerGroupID(), " as a Rendezvous peer.");

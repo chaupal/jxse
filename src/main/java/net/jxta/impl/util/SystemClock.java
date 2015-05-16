@@ -9,11 +9,9 @@ package net.jxta.impl.util;
  * {@link java.lang.System#currentTimeMillis()}.
  */
 public interface SystemClock {
-
-	/**
-	 * @return the current time, in milliseconds. Results should be equivalent
-	 * to those provided by {@link java.lang.System#currentTimeMillis()}.
-	 */
-	public long getCurrentTime();
-	
+    /**
+     * @return the current time, in milliseconds. Results should be equivalent
+     * to those provided by {@link java.lang.System#currentTimeMillis()}.
+     */
+    public long getCurrentTime();	
 }

@@ -62,7 +62,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvWalk;
-import net.jxta.impl.rendezvous.rpv.PeerView;
+import net.jxta.impl.rendezvous.rpv.RendezvousPeersView;
 import net.jxta.peergroup.PeerGroup;
 
 /**
@@ -87,7 +87,7 @@ public class LimitedRangeWalk extends RdvWalk {
     /**
      * The PeerView we walk.
      */
-    private final PeerView rpv;
+    private final RendezvousPeersView rpv;
 
     /**
      * The service name for listener of this walk. All walkers in the same
@@ -145,7 +145,7 @@ public class LimitedRangeWalk extends RdvWalk {
      * @param srcServiceParam Optional service parameter used by the client of this walk.
      * @param rpv             the rendezvous peer PeerView to be used by this walk.
      */
-    public LimitedRangeWalk(PeerGroup group, EndpointListener listener, String srcServiceName, String srcServiceParam, PeerView rpv) {
+    public LimitedRangeWalk(PeerGroup group, EndpointListener listener, String srcServiceName, String srcServiceParam, RendezvousPeersView rpv) {
         super(group, listener, srcServiceName, srcServiceParam);
 
         this.rpv = rpv;
@@ -162,7 +162,7 @@ public class LimitedRangeWalk extends RdvWalk {
      *
      * @return The rendezvous peer PeerView used by this walk.
      */
-    PeerView getPeerView() {
+    RendezvousPeersView getPeerView() {
         return rpv;
     }
 

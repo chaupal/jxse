@@ -83,12 +83,12 @@ import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.RdvConfigAdv;
-import net.jxta.impl.rendezvous.client.adhoc.AdhocPeerRdvServiceClient;
-import net.jxta.impl.rendezvous.client.edge.EdgePeerRdvServiceClient;
-import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
+import net.jxta.impl.rendezvous.client.adhoc.AdhocPeerRendezvousServiceClient;
+import net.jxta.impl.rendezvous.client.edge.EdgePeerRendezvousServiceClient;
+import net.jxta.impl.rendezvous.server.RendezvouseServiceServer;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
-import net.jxta.impl.rendezvous.rpv.PeerView;
+import net.jxta.impl.rendezvous.rpv.RendezvousPeersView;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logger;
@@ -154,12 +154,12 @@ public final class RendezVousServiceImpl implements RendezVousService {
     private RdvConfigAdv.RendezVousConfiguration config = RdvConfigAdv.RendezVousConfiguration.EDGE;
     private boolean autoRendezvous = false;
 
-    private String[] savedArgs = null;
+    private final String[] savedArgs = null;
 
     /**
      * If {@code true} then a rdv provider change is in progress.
      */
-    private AtomicBoolean rdvProviderSwitchStatus = new AtomicBoolean(false);
+    private final AtomicBoolean rdvProviderSwitchStatus = new AtomicBoolean(false);
 
     /**
      * The current provider
@@ -327,11 +327,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         if (RdvConfigAdv.RendezVousConfiguration.AD_HOC == config) {
-            provider = new AdhocPeerRdvServiceClient(group, this);
+            provider = new AdhocPeerRendezvousServiceClient(group, this);
         } else if (RdvConfigAdv.RendezVousConfiguration.EDGE == config) {
-            provider = new EdgePeerRdvServiceClient(group, this);
+            provider = new EdgePeerRendezvousServiceClient(group, this);
         } else if (RdvConfigAdv.RendezVousConfiguration.RENDEZVOUS == config) {
-            provider = new RdvPeerRdvService(group, this);
+            provider = new RendezvouseServiceServer(group, this);
         } else {
             throw new IllegalStateException("Unrecognized rendezvous configuration");
         }
@@ -395,11 +395,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         if (null == currentProvider) {
             return RendezVousStatus.NONE;
-        } else if (currentProvider instanceof AdhocPeerRdvServiceClient) {
+        } else if (currentProvider instanceof AdhocPeerRendezvousServiceClient) {
             return RendezVousStatus.ADHOC;
-        } else if (currentProvider instanceof EdgePeerRdvServiceClient) {
+        } else if (currentProvider instanceof EdgePeerRendezvousServiceClient) {
             return autoRendezvous ? RendezVousStatus.AUTO_EDGE : RendezVousStatus.EDGE;
-        } else if (currentProvider instanceof RdvPeerRdvService) {
+        } else if (currentProvider instanceof RendezvouseServiceServer) {
             return autoRendezvous ? RendezVousStatus.AUTO_RENDEZVOUS : RendezVousStatus.RENDEZVOUS;
         } else {
             return RendezVousStatus.UNKNOWN;
@@ -559,7 +559,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
                 IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
                 Logging.logCheckedError(LOG, "Failed to start rendezvous\n", failed);
                 throw failed;
-
             }
 
             // We are at this moment an Edge Peer. First, the current implementation
@@ -572,7 +571,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             config = RdvConfigAdv.RendezVousConfiguration.RENDEZVOUS;
 
             // Now, a new instance of RdvPeerRdvService must be created and initialized.
-            provider = new RdvPeerRdvService(group, this);
+            provider = new RendezvouseServiceServer(group, this);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING) {
                 provider.setRendezvousServiceMonitor(rendezvousServiceMonitor);
@@ -581,11 +580,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
             provider.startApp(savedArgs);
 
             rdvProviderSwitchStatus.set(false);
-
         } catch (IOException failure) {
-
             Logging.logCheckedWarning(LOG, "Failed to start rendezvous\n", failure);
-
         }
     }
 
@@ -594,7 +590,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public void stopRendezVous() {
-
         if (!isRendezVous()) {
             return;
         }
@@ -617,7 +612,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         config = RdvConfigAdv.RendezVousConfiguration.EDGE;
 
-        provider = new EdgePeerRdvServiceClient(group, this);
+        provider = new EdgePeerRendezvousServiceClient(group, this);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING) {
             provider.setRendezvousServiceMonitor(rendezvousServiceMonitor);
@@ -687,6 +682,32 @@ public final class RendezVousServiceImpl implements RendezVousService {
         
         provider.propagate(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
+    
+    /**
+     * {@inheritDoc}
+     * @throws java.io.IOException
+     */
+    @Override
+    public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
+        }
+        
+        provider.propagateToNeighbors(msg, serviceName, serviceParam, ttl);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @throws java.io.IOException
+     */
+    @Override
+    public void propagateInGroup(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
+        }
+        
+        provider.propagateInGroup(msg, serviceName, serviceParam, ttl);
+    }
 
     /**
      * {@inheritDoc}
@@ -744,20 +765,19 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public List<PeerID> getLocalRendezVousView() {
-
         // Preparing result
         ArrayList<PeerID> Result = new ArrayList<>();
 
-        if (provider instanceof RdvPeerRdvService) {
-            RdvPeerRdvService Temp = (RdvPeerRdvService) provider;
+        if (provider instanceof RendezvouseServiceServer) {
+            RendezvouseServiceServer Temp = (RendezvouseServiceServer) provider;
             Iterator<PeerViewElement> Iter = Temp.rpv.getView().iterator();
 
             while (Iter.hasNext()) {
                 Result.add((PeerID)Iter.next().getPeerID());
             }
 
-        } else if (provider instanceof EdgePeerRdvServiceClient) {
-            EdgePeerRdvServiceClient Temp = (EdgePeerRdvServiceClient) provider;
+        } else if (provider instanceof EdgePeerRendezvousServiceClient) {
+            EdgePeerRendezvousServiceClient Temp = (EdgePeerRendezvousServiceClient) provider;
             Iterator<ID> Iter = Temp.getConnectedPeerIDs().iterator();
 
             while (Iter.hasNext()) {
@@ -776,24 +796,22 @@ public final class RendezVousServiceImpl implements RendezVousService {
     @Override
     public List<PeerID> getLocalEdgeView() {
         // Preparing result
-        ArrayList<PeerID> Result = new ArrayList<>();
+        ArrayList<PeerID> result = new ArrayList<>();
 
-        if (provider instanceof RdvPeerRdvService) {
+        if (provider instanceof RendezvouseServiceServer) {
 
-            RdvPeerRdvService Temp = (RdvPeerRdvService) provider;
+            RendezvouseServiceServer Temp = (RendezvouseServiceServer) provider;
 
             // Which EDGE is connected to us RDV?
             Iterator<ID> TheIter = Temp.getConnectedPeerIDs().iterator();
 
             while (TheIter.hasNext()) {
-                Result.add((PeerID)TheIter.next());
+                result.add((PeerID)TheIter.next());
             }
-
         }
 
         // Returning result
-        return Result;
-
+        return result;
     }
 
     /**
@@ -801,41 +819,13 @@ public final class RendezVousServiceImpl implements RendezVousService {
      *
      * @return the PeerView
      */
-    public PeerView getPeerView() {
-        RendezVousServiceProvider currentProvider = provider;
-
-        if (currentProvider instanceof RdvPeerRdvService) {
-            return ((RdvPeerRdvService) currentProvider).rpv;
+    public RendezvousPeersView getRendezvousPeersView() {        
+        if (provider instanceof RendezvouseServiceServer) {
+            return ((RendezvouseServiceServer) provider).rpv;
         } else {
             return null;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws java.io.IOException
-     */
-    @Override
-    public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-        if (provider == null) {
-            throw new IOException("No Rendezvous provider");
-        }
-        
-        provider.propagateToNeighbors(msg, serviceName, serviceParam, ttl);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws java.io.IOException
-     */
-    @Override
-    public void propagateInGroup(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-        if (provider == null) {
-            throw new IOException("No Rendezvous provider");
-        }
-        
-        provider.propagateInGroup(msg, serviceName, serviceParam, ttl);
-    }
+    }    
 
     /**
      * {@inheritDoc}

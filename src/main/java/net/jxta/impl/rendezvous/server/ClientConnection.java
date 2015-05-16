@@ -53,7 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.rendezvous.rdv;
+package net.jxta.impl.rendezvous.server;
 
 import net.jxta.id.ID;
 import net.jxta.impl.rendezvous.PeerConnection;

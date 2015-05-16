@@ -90,6 +90,7 @@ public interface TernarySearchTree<E> {
      * Removes value indexed by key. Also removes all nodes that are rendered unnecessary by the removal of this data.
      *
      * @param key A string that indexes the object to be removed from the tree.
+     * @return 
      */
     public abstract E remove( final String key );
 

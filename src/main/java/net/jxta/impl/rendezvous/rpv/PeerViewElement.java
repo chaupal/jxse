@@ -114,7 +114,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
     /**
      * PeerView that owns this PeerViewElement.
      */
-    private PeerView peerview = null;
+    private RendezvousPeersView peerview = null;
 
     /**
      *  A cached Messenger for sending to the destination peer.
@@ -223,7 +223,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         // status has already changed. It is rare but will only cause a little
         // shake. So leave the sync behind, it causes a deadlock.
         if (mustNotify && doNotify) {
-            PeerView temp = peerview;
+            RendezvousPeersView temp = peerview;
 
             if (null != temp) {
                 temp.notifyFailure(this, true);
@@ -240,7 +240,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
     /**
      *  Sets the peerview
      */
-    synchronized void setPeerView(PeerView pv) {
+    synchronized void setPeerView(RendezvousPeersView pv) {
         if ((null != peerview) && (null != pv)) {
             throw new IllegalStateException("Element already in " + peerview);
         }
@@ -371,7 +371,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         // status has already changed. It is rare but will only cause a little
         // shake. So leave the sync behind, it causes a deadlock.
         if (mustNotify) {
-            PeerView temp = peerview;
+            RendezvousPeersView temp = peerview;
 
             if (null != temp) {
                 temp.notifyFailure(this, true);

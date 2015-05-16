@@ -165,7 +165,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * the resolver interface object
      */
-    private ResolverService resolverInterface = null;
+    private final ResolverService resolverInterface = null;
 
     /**
      * Encapsulates current Membership Service credential.
@@ -207,6 +207,7 @@ public class ResolverServiceImpl implements ResolverService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
 
             if (MembershipService.DEFAULT_CREDENTIAL_PROPERTY.equals(evt.getPropertyName())) {
@@ -254,7 +255,9 @@ public class ResolverServiceImpl implements ResolverService {
 
     /**
      * {@inheritDoc}
+     * @param impl
      */
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement impl) {
         implAdvertisement = (ModuleImplAdvertisement) impl;
 
@@ -304,7 +307,9 @@ public class ResolverServiceImpl implements ResolverService {
 
     /**
      * {@inheritDoc}
+     * @param arg
      */
+    @Override
     public int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
@@ -382,6 +387,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopApp() {
         endpoint.removeIncomingMessageListener(handlerName, outQueName);
         endpoint.removeIncomingMessageListener(handlerName, inQueName);
@@ -415,6 +421,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -422,6 +429,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public QueryHandler registerHandler(String name, QueryHandler handler) {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.registerQueryHandlerMeter(name);
@@ -432,6 +440,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public QueryHandler unregisterHandler(String name) {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.unregisterQueryHandlerMeter(name);
@@ -452,6 +461,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public SrdiHandler registerSrdiHandler(String name, SrdiHandler handler) {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.registerSrdiHandlerMeter(name);
