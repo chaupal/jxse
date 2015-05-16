@@ -238,10 +238,10 @@ public class RdvPeerRdvService extends StdRendezVousService {
      * &lt;assignedID>/&lt;group-unique>
      */
     private class StdRdvRdvProtocolListener implements StdRendezVousService.StdRdvProtocolListener {
-
         /**
          * {@inheritDoc}
          */
+        @Override
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
@@ -251,17 +251,16 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
             if (msg.getMessageElement("jxta", DisconnectRequest) != null)
                 processDisconnectRequest(msg);
-
         }
-
     }
 
     /**
      * {@inheritDoc}
+     * @param argv
+     * @return 
      */
     @Override
     protected int startApp(String[] argv) {
-
         super.startApp(argv, new StdRdvRdvProtocolListener());
 
         rpv.start();
@@ -290,7 +289,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
         Logging.logCheckedInfo(LOG, "RdvPeerRdvService is started");
 
         return Module.START_OK;
-
     }
 
     /**
@@ -298,7 +296,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public synchronized void stopApp() {
-
         if (closed) {
             return;
         }
@@ -329,9 +326,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public void connectToRendezVous(EndpointAddress addr, Object hint) {
-
         Logging.logCheckedWarning(LOG, "Invalid call to connectToRendezVous() on RDV peer");
-
     }
 
     /**
@@ -340,9 +335,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public void challengeRendezVous(ID peer, long delay) {
-
         Logging.logCheckedWarning(LOG, "Invalid call to challengeRendezVous() on RDV peer");
-
     }
 
     /**
@@ -351,9 +344,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
-
         Logging.logCheckedWarning(LOG, "Invalid call to disconnectFromRendezVous() on RDV peer");
-
     }
 
     /**
@@ -361,9 +352,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public boolean isConnectedToRendezVous() {
-
         return this.rpv.getSize() > 0;
-
     }
 
     /**
@@ -373,7 +362,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
     @Override
     public Vector<ID> getConnectedPeerIDs() {
 
-        Vector<ID> result = new Vector<ID>();
+        Vector<ID> result = new Vector<>();
         List allClients = Arrays.asList(clients.values().toArray());
 
         for (Object allClient : allClients) {
@@ -655,23 +644,20 @@ public class RdvPeerRdvService extends StdRendezVousService {
     /**
      * Sends a Connected lease reply message to the specified peer
      *
-     * @param pConn The client peer.
+     * @param clientConnection The client peer.
      * @param lease lease duration.
      * @return Description of the Returned Value
      */
-    private boolean sendLease(ClientConnection pConn, long lease) {
+    private boolean sendLease(ClientConnection clientConnection, long lease) {
 
-        Logging.logCheckedDebug(LOG, "Sending lease (", lease, ") to ", pConn.getPeerName());
+        Logging.logCheckedDebug(LOG, "Sending lease (", lease, ") to ", clientConnection.getPeerName());
 
         Message msg = new Message();
-
         msg.addMessageElement("jxta", new TextDocumentMessageElement(ConnectedRdvAdvReply, getPeerAdvertisementDoc(), null));
-
         msg.addMessageElement("jxta", new StringMessageElement(ConnectedPeerReply, peerGroup.getPeerID().toString(), null));
-
         msg.addMessageElement("jxta", new StringMessageElement(ConnectedLeaseReply, Long.toString(lease), null));
 
-        return pConn.sendMessage(msg, pName, pParam);
+        return clientConnection.sendMessage(msg, pName, pParam);
     }
 
     /**

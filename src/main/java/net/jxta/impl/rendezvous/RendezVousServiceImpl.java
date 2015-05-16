@@ -83,8 +83,8 @@ import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.RdvConfigAdv;
-import net.jxta.impl.rendezvous.adhoc.AdhocPeerRdvService;
-import net.jxta.impl.rendezvous.edge.EdgePeerRdvService;
+import net.jxta.impl.rendezvous.client.adhoc.AdhocPeerRdvServiceClient;
+import net.jxta.impl.rendezvous.client.edge.EdgePeerRdvServiceClient;
 import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
@@ -144,7 +144,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * The message IDs we have seen. Used for duplicate removal.
      */
-    private final List<UUID> msgIds = new ArrayList<UUID>(MAX_MSGIDS);
+    private final List<UUID> msgIds = new ArrayList<>(MAX_MSGIDS);
 
     /**
      * Total number of messages which have been received.
@@ -247,9 +247,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         config = rdvConfigAdv.getConfiguration();
-
         autoRendezvous = rdvConfigAdv.getAutoRendezvousCheckInterval() > 0;
-
         rendezvousWatchdogInterval = rdvConfigAdv.getAutoRendezvousCheckInterval();
 
         // force AD-HOC config for World Peer Group.
@@ -290,7 +288,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public int startApp(String[] arg) {
-
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
@@ -300,13 +297,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         }
 
-        Service needed = group.getMembershipService();
+        Service membershipService = group.getMembershipService();
 
-        if (null == needed) {
-
+        if (null == membershipService) {
             Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return START_AGAIN_STALLED;
-
         }
 
         // if( !PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
@@ -332,9 +327,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         if (RdvConfigAdv.RendezVousConfiguration.AD_HOC == config) {
-            provider = new AdhocPeerRdvService(group, this);
+            provider = new AdhocPeerRdvServiceClient(group, this);
         } else if (RdvConfigAdv.RendezVousConfiguration.EDGE == config) {
-            provider = new EdgePeerRdvService(group, this);
+            provider = new EdgePeerRdvServiceClient(group, this);
         } else if (RdvConfigAdv.RendezVousConfiguration.RENDEZVOUS == config) {
             provider = new RdvPeerRdvService(group, this);
         } else {
@@ -400,9 +395,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         if (null == currentProvider) {
             return RendezVousStatus.NONE;
-        } else if (currentProvider instanceof AdhocPeerRdvService) {
+        } else if (currentProvider instanceof AdhocPeerRdvServiceClient) {
             return RendezVousStatus.ADHOC;
-        } else if (currentProvider instanceof EdgePeerRdvService) {
+        } else if (currentProvider instanceof EdgePeerRdvServiceClient) {
             return autoRendezvous ? RendezVousStatus.AUTO_EDGE : RendezVousStatus.EDGE;
         } else if (currentProvider instanceof RdvPeerRdvService) {
             return autoRendezvous ? RendezVousStatus.AUTO_RENDEZVOUS : RendezVousStatus.RENDEZVOUS;
@@ -622,7 +617,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         config = RdvConfigAdv.RendezVousConfiguration.EDGE;
 
-        provider = new EdgePeerRdvService(group, this);
+        provider = new EdgePeerRdvServiceClient(group, this);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING) {
             provider.setRendezvousServiceMonitor(rendezvousServiceMonitor);
@@ -670,14 +665,12 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * @throws java.io.IOException
      */
     @Override
-    public void propagate(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-
-        RendezVousServiceProvider currentProvider = provider;
-
-        if (null == currentProvider) {
-            throw new IOException("No RDV provider");
+    public void propagate(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {        
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
         }
-        currentProvider.propagate(msg, serviceName, serviceParam, defaultTTL);
+        
+        provider.propagate(msg, serviceName, serviceParam, defaultTTL);
     }
 
     /**
@@ -688,13 +681,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-
-        RendezVousServiceProvider currentProvider = provider;
-
-        if (null == currentProvider) {
-            throw new IOException("No RDV provider");
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
         }
-        currentProvider.propagate(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
+        
+        provider.propagate(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
 
     /**
@@ -704,12 +695,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public void walk(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-        RendezVousServiceProvider currentProvider = provider;
-
-        if (null == currentProvider) {
-            throw new IOException("No RDV provider");
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
         }
-        currentProvider.walk(msg, serviceName, serviceParam, defaultTTL);
+        
+        provider.walk(msg, serviceName, serviceParam, defaultTTL);
     }
 
     /**
@@ -719,13 +709,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-
-        RendezVousServiceProvider currentProvider = provider;
-
-        if (null == currentProvider) {
-            throw new IOException("No RDV provider");
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
         }
-        currentProvider.walk(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
+        
+        provider.walk(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
 
 //    /**
@@ -768,8 +756,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
                 Result.add((PeerID)Iter.next().getPeerID());
             }
 
-        } else if (provider instanceof EdgePeerRdvService) {
-            EdgePeerRdvService Temp = (EdgePeerRdvService) provider;
+        } else if (provider instanceof EdgePeerRdvServiceClient) {
+            EdgePeerRdvServiceClient Temp = (EdgePeerRdvServiceClient) provider;
             Iterator<ID> Iter = Temp.getConnectedPeerIDs().iterator();
 
             while (Iter.hasNext()) {
@@ -829,12 +817,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-        RendezVousServiceProvider currentProvider = provider;
-
-        if (null == currentProvider) {
-            throw new IOException("No RDV provider");
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
         }
-        currentProvider.propagateToNeighbors(msg, serviceName, serviceParam, ttl);
+        
+        provider.propagateToNeighbors(msg, serviceName, serviceParam, ttl);
     }
 
     /**
@@ -843,11 +830,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-        RendezVousServiceProvider currentProvider = provider;
-        if (null == currentProvider) {
-            throw new IOException("No RDV provider");
+        if (provider == null) {
+            throw new IOException("No Rendezvous provider");
         }
-        currentProvider.propagateInGroup(msg, serviceName, serviceParam, ttl);
+        
+        provider.propagateInGroup(msg, serviceName, serviceParam, ttl);
     }
 
     /**
@@ -873,23 +860,19 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * @param regarding event peer ID
      */
     public final void generateEvent(int type, ID regarding) {
-
-        Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();
-        //RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
+        Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();        
         RendezvousEvent event = new RendezvousEvent(this, type, regarding);
 
         Logging.logCheckedDebug(LOG, "Calling listeners for ", event);
 
         while (eachListener.hasNext()) {
-
-            RendezvousListener aListener = (RendezvousListener) eachListener.next();
+            RendezvousListener rendezvousListener = (RendezvousListener) eachListener.next();
 
             try {
-                aListener.rendezvousEvent(event);
+                rendezvousListener.rendezvousEvent(event);
             } catch (Throwable ignored) {
-                Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener (", aListener, ")\n", ignored);
+                Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener (", rendezvousListener, ")\n", ignored);
             }
-
         }
     }
 

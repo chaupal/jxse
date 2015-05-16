@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl.rendezvous.adhoc;
+package net.jxta.impl.rendezvous.client.adhoc;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -82,14 +82,14 @@ import java.util.Vector;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
- * implements the ad hoc portion of the standard JXTA Rendezvous Protocol (RVP).
+ * implements the client portion of the standard JXTA Rendezvous Protocol (RVP).
  *
  * @see net.jxta.rendezvous.RendezVousService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public class AdhocPeerRdvService extends RendezVousServiceProvider {
+public class AdhocPeerRdvServiceClient extends RendezVousServiceProvider {
 
-    private final static transient Logger LOG = Logging.getLogger(AdhocPeerRdvService.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(AdhocPeerRdvServiceClient.class.getName());
 
     /**
      * Default Maximum TTL. This is minimum needed to bridge networks.
@@ -102,7 +102,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      * @param g          the peergroup
      * @param rdvService the rendezvous service
      */
-    public AdhocPeerRdvService(PeerGroup g, RendezVousServiceImpl rdvService) {
+    public AdhocPeerRdvServiceClient(PeerGroup g, RendezVousServiceImpl rdvService) {
 
         super(g, rdvService);
 
@@ -136,12 +136,13 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             MAX_TTL = DEFAULT_MAX_TTL;
         }
 
-        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", g.getPeerGroupID(), " as an ad hoc peer. ");
+        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", g.getPeerGroupID(), " as an ADHOC peer.");
 
     }
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     protected int startApp(String[] arg) {
@@ -189,13 +190,13 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      */
     @Override
     public Vector<ID> getConnectedPeerIDs() {
-
         return new Vector<ID>(0);
     }
 
     /**
      * {@inheritDoc}
      * </p>By default, ADHOC peers are never connected to Rendezvous peers.
+     * @return 
      */
     @Override
     public boolean isConnectedToRendezVous() {
@@ -208,9 +209,8 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      */
     @Override
     public void connectToRendezVous(EndpointAddress addr, Object hint) throws IOException {
-
         Logging.logCheckedWarning(LOG, "Invalid call to connectToRendezVous() on ADHOC peer");
-
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -219,28 +219,28 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      */
     @Override
     public void challengeRendezVous(ID peer, long delay) {
-
         Logging.logCheckedWarning(LOG, "Invalid call to challengeRendezVous() on ADHOC peer");
-
+        throw new RuntimeException("Not implemented");
     }
 
     /**
      * {@inheritDoc}
      * </p>This method does nothing. It should not be called on ADHOC peers.
+     * @param peerId
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
-
         Logging.logCheckedWarning(LOG, "Invalid call to disconnectFromRendezVous() on ADHOC peer");
-
+        throw new RuntimeException("Not implemented");
     }
 
     /**
      * {@inheritDoc}
+     * @param ttl
+     * @throws java.io.IOException
      */
     @Override
     public void propagate(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-
         ttl = Math.min(ttl, MAX_TTL);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
@@ -256,6 +256,11 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
     /**
      * {@inheritDoc}
+     * @param msg
+     * @param serviceName
+     * @param serviceParam
+     * @param ttl
+     * @throws java.io.IOException
      */
     @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
@@ -275,6 +280,8 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
     /**
      * {@inheritDoc}
+     * @param destPeerIDs
+     * @param ttl
      */
     @Override
     public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) {
@@ -316,6 +323,8 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
     /**
      * {@inheritDoc}
+     * @param ttl
+     * @throws java.io.IOException
      */
     @Override
     public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
@@ -361,9 +370,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      */
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-
-        propagate(Collections.enumeration(destPeerIDs), msg, serviceName,
-                  serviceParam, ttl);
+        propagate(Collections.enumeration(destPeerIDs), msg, serviceName, serviceParam, ttl);
     }
 
     /**
@@ -371,7 +378,6 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      */
     @Override
     protected void repropagate(Message msg, RendezVousPropagateMessage propHdr, String serviceName, String serviceParam) {
-
         Logging.logCheckedDebug(LOG, "Repropagating ", msg, " (", propHdr.getMsgId(), ")");
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
@@ -395,7 +401,6 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             } else {
                 Logging.logCheckedWarning(LOG, "Could to repropagate ", msg, "\n", ez1);
             }
-
         }
     }
 }

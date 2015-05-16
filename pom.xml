@@ -201,7 +201,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                          deactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
 

@@ -87,7 +87,6 @@ import java.util.List;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
 public abstract class StdRendezVousService extends RendezVousServiceProvider {
-
     private final static Logger LOG = Logging.getLogger(StdRendezVousService.class.getName());
 
     public final static String ConnectRequest = "Connect";
@@ -124,7 +123,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * @param rdvService the parent rendezvous service
      */
     protected StdRendezVousService(PeerGroup group, RendezVousServiceImpl rdvService) {
-
         super(group, rdvService);
 
         MAX_TTL = DEFAULT_MAX_TTL;
@@ -141,7 +139,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * @return module start status code
      */
     protected int startApp(String[] argv, StdRdvProtocolListener handler) {
-
         this.handler = handler;
 
         rendezvousServiceImplementation.endpoint.addIncomingMessageListener(handler, pName, null);
@@ -154,7 +151,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      */
     @Override
     public void stopApp() {
-
         EndpointListener shouldbehandler = rendezvousServiceImplementation.endpoint.removeIncomingMessageListener(pName, null);
 
         if (handler != shouldbehandler) 
@@ -168,7 +164,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      */
     @Override
     public void processReceivedMessage(Message message, RendezVousPropagateMessage propHdr, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-
         if (srcAddr.getProtocolName().equalsIgnoreCase("jxta")) {
             String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
 
@@ -182,33 +177,32 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
             }
 
             if (!peerGroup.getPeerID().equals(peerid)) {
-                PeerConnection pConn = getPeerConnection(peerid);
+                PeerConnection peerConnection = getPeerConnection(peerid);
 
-                if (null == pConn) {
-                    PeerViewElement pve;
+                if (null == peerConnection) {
+                    PeerViewElement peerViewElement;
 
-                    if (this instanceof RdvPeerRdvService) {
-                        // cheap hack....
-                        pve = ((RdvPeerRdvService) this).rpv.getPeerViewElement(peerid);
+                    if (this instanceof RdvPeerRdvService) {                        
+                        peerViewElement = ((RdvPeerRdvService) this).rpv.getPeerViewElement(peerid);
                     } else {
-                        pve = null;
+                        peerViewElement = null;
                     }
 
-                    if (null == pve) {
+                    if (null == peerViewElement) {
                         Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from unrecognized peer : ", peerid);
 
                         propHdr.setTTL(Math.min(propHdr.getTTL(), 3)); // will be reduced during repropagate stage.
 
                         // FIXME 20040503 bondolo need to add tombstones so that we don't end up spamming disconnects.
                         if (rendezvousServiceImplementation.isRendezVous() || (getPeerConnections().length > 0)) {
-                            // edge peers with no rdv should not send disconnect.
+                            //Edge peers with no rdv should not send disconnect.
                             sendDisconnect(peerid, null);
                         }
                     } else {
-                        Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", pve);
+                        Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", peerViewElement);
                     }
                 } else {
-                    Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", pConn);
+                    Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", peerConnection);
                 }
             } else {
                 Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from loopback.");
@@ -259,9 +253,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                             } else {
                                 continue;
                             }
-
                         } else {
-
                             Logging.logCheckedDebug(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", pConn);
 
                             if (pConn.isConnected()) {
