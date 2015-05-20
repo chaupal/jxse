@@ -149,10 +149,8 @@ public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider 
 
         super.startApp(arg);
 
-        // The other services may not be fully functional but they're there
-        // so we can start our subsystems.
-        // As for us, it does not matter if our methods are called between init
-        // and startApp().
+        // The other services may not be fully functional but they're there so we can start our subsystems.
+        // As for us, it does not matter if our methods are called between init and startApp().
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.startEdge();
@@ -170,7 +168,6 @@ public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider 
      */
     @Override
     public synchronized void stopApp() {
-
         if (closed) {
             return;
         }
@@ -186,10 +183,10 @@ public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider 
 
     /**
      * {@inheritDoc}
-     * </p>By default an ADHOC peer is never connected to other peers.
+     * </p>By default an ADHOC peer is never connected to rendezvous peers.
      */
     @Override
-    public Vector<ID> getConnectedPeerIDs() {
+    public Vector<ID> getConnectedRendezvousPeersIDs() {
         return new Vector<ID>(0);
     }
 

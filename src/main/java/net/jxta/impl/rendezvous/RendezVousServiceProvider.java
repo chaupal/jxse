@@ -285,7 +285,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *
      * @return The peers that are currently connected to this peer.
      */
-    public abstract Vector<ID> getConnectedPeerIDs();
+    public abstract Vector<ID> getConnectedRendezvousPeersIDs();
 
     /**
      * Propagates a message onto as many peers on the local network

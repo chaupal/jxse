@@ -919,7 +919,7 @@ public class NetworkConfigurator {
         } else if ((mode & RDV_CLIENT) == RDV_CLIENT) {
             rendezvousConfiguration.setConfiguration(RendezVousConfiguration.EDGE);
         } else if ((mode & RDV_AD_HOC) == RDV_AD_HOC) {
-            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.AD_HOC);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.ADHOC);
         }
 
         // TCP
@@ -1675,7 +1675,7 @@ public class NetworkConfigurator {
             // backwards compatibility
             param.addAttribute("type", RdvConfigAdv.getAdvertisementType());
             rendezvousConfiguration = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
-            if (rendezvousConfiguration.getConfiguration() == RendezVousConfiguration.AD_HOC) {
+            if (rendezvousConfiguration.getConfiguration() == RendezVousConfiguration.ADHOC) {
                 mode = mode | RDV_AD_HOC;
             } else if (rendezvousConfiguration.getConfiguration() == RendezVousConfiguration.EDGE) {
                 mode = mode | RDV_CLIENT;
@@ -1932,7 +1932,7 @@ public class NetworkConfigurator {
     protected RdvConfigAdv createRdvConfigAdv() {
         rendezvousConfiguration = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
         if (mode == RDV_AD_HOC) {
-            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.AD_HOC);
+            rendezvousConfiguration.setConfiguration(RendezVousConfiguration.ADHOC);
         } else if ((mode & RDV_CLIENT) == RDV_CLIENT) {
             rendezvousConfiguration.setConfiguration(RendezVousConfiguration.EDGE);
         } else if ((mode & RDV_SERVER) == RDV_SERVER) {

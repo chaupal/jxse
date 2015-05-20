@@ -246,7 +246,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         /**
          *  Connectionless 
          */
-        AD_HOC,
+        ADHOC,
 
         /**
          *  Edge peer
@@ -321,7 +321,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
                 if ("adhoc".equals(config)) {
 
-                    configuration = RendezVousConfiguration.AD_HOC;
+                    configuration = RendezVousConfiguration.ADHOC;
 
                 } else if ("client".equals(config)) {
 
@@ -535,7 +535,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
         Attributable attrDoc = (Attributable) adv;
 
-        if (RendezVousConfiguration.AD_HOC == configuration) {
+        if (RendezVousConfiguration.ADHOC == configuration) {
             attrDoc.addAttribute(RDV_CONFIG_ATTR, "adhoc");
         } else if (RendezVousConfiguration.EDGE == configuration) {
             attrDoc.addAttribute(RDV_CONFIG_ATTR, "client");

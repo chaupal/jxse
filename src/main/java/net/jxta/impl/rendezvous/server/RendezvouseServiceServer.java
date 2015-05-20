@@ -360,7 +360,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      * </p>For Rendezvous peers, this is the list of EDGE peers connected to this Rendezvous.
      */
     @Override
-    public Vector<ID> getConnectedPeerIDs() {
+    public Vector<ID> getConnectedRendezvousPeersIDs() {
 
         Vector<ID> result = new Vector<>();
         List allClients = Arrays.asList(clients.values().toArray());

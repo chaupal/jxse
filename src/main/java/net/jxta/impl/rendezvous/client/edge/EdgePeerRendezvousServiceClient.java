@@ -147,7 +147,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
     /**
      * Our current connections with RendezVous peers.
      */
-    private final Map<ID, RdvConnection> rendezVous = Collections.synchronizedMap(new HashMap<ID, RdvConnection>());
+    private final Map<ID, RdvConnection> connectedRendezVousPeers = Collections.synchronizedMap(new HashMap<ID, RdvConnection>());
 
     private MonitorTask monitorTask;
 
@@ -301,8 +301,8 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      * @return 
      */
     @Override
-    public Vector<ID> getConnectedPeerIDs() {
-        return new Vector<ID>(rendezVous.keySet());
+    public Vector<ID> getConnectedRendezvousPeersIDs() {
+        return new Vector<ID>(connectedRendezVousPeers.keySet());
     }
 
     /**
@@ -311,7 +311,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      */
     @Override
     public boolean isConnectedToRendezVous() {
-        return !rendezVous.isEmpty();
+        return !connectedRendezVousPeers.isEmpty();
     }
 
     /**
@@ -354,7 +354,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
             return;
         }
 
-        RdvConnection pConn = rendezVous.get(peerid);
+        RdvConnection pConn = connectedRendezVousPeers.get(peerid);
 
         if (null != pConn) {
             long adjusted_delay = Math.max(0, Math.min(TimeUtils.toRelativeTimeMillis(pConn.getLeaseEnd()), delay));
@@ -454,7 +454,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
     * */
     @Override
     public PeerConnection getPeerConnection(ID peer) {
-        return rendezVous.get(peer);
+        return connectedRendezVousPeers.get(peer);
     }
 
     /**
@@ -462,11 +462,11 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      * */
     @Override
     protected PeerConnection[] getPeerConnections() {
-        return rendezVous.values().toArray(new PeerConnection[0]);
+        return connectedRendezVousPeers.values().toArray(new PeerConnection[0]);
     }
 
     private void disconnectFromAllRendezVous() {
-        for (RdvConnection pConn : new ArrayList<>(rendezVous.values())) {
+        for (RdvConnection pConn : new ArrayList<>(connectedRendezVousPeers.values())) {
             try {
                 disconnectFromRendezVous(pConn.getPeerID());
             } catch (Exception failed) {
@@ -489,7 +489,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
 
                 PeerAdvertisement adv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
 
-                RdvConnection rdvConnection = rendezVous.get(adv.getPeerID());
+                RdvConnection rdvConnection = connectedRendezVousPeers.get(adv.getPeerID());
 
                 if (null != rdvConnection) {
                     rdvConnection.setConnected(false);
@@ -515,12 +515,12 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
 
         RdvConnection rdvConnection;
 
-        synchronized (rendezVous) {
-            rdvConnection = rendezVous.get(padv.getPeerID());
+        synchronized (connectedRendezVousPeers) {
+            rdvConnection = connectedRendezVousPeers.get(padv.getPeerID());
 
             if (null == rdvConnection) {
                 rdvConnection = new RdvConnection(peerGroup, rendezvousServiceImplementation, padv.getPeerID());
-                rendezVous.put(padv.getPeerID(), rdvConnection);
+                connectedRendezVousPeers.put(padv.getPeerID(), rdvConnection);
                 eventType = RendezvousEvent.RDVCONNECT;
             } else {
                 eventType = RendezvousEvent.RDVRECONNECT;
@@ -567,8 +567,8 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
 
         PeerConnection rdvConnection;
 
-        synchronized (rendezVous) {
-            rdvConnection = rendezVous.remove(rdvid);
+        synchronized (connectedRendezVousPeers) {
+            rdvConnection = connectedRendezVousPeers.remove(rdvid);
         }
 
         if (null != rdvConnection) {
@@ -664,7 +664,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         if (lease <= 0) {
             removeRdv(pId, false);
         } else {
-            if (rendezVous.containsKey(pId) || (rendezVous.size() < MAX_RDV_CONNECTIONS)) {
+            if (connectedRendezVousPeers.containsKey(pId) || (connectedRendezVousPeers.size() < MAX_RDV_CONNECTIONS)) {
                 PeerAdvertisement padv = null;
 
                 try {
@@ -749,7 +749,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
                     }
                 }
 
-                List<RdvConnection> currentRdvs = new ArrayList<>(rendezVous.values());
+                List<RdvConnection> currentRdvs = new ArrayList<>(connectedRendezVousPeers.values());
 
                 for (RdvConnection pConn : currentRdvs) {
                     try {
@@ -771,7 +771,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
                 }
 
                 // Not enough Rdvs? Try finding more.
-                if (rendezVous.size() < MAX_RDV_CONNECTIONS) {
+                if (connectedRendezVousPeers.size() < MAX_RDV_CONNECTIONS) {
                     if (seeds.isEmpty()) {
                         seeds.addAll(Arrays.asList(EdgePeerRendezvousServiceClient.this.seedingManager.getActiveSeedRoutes()));
                     }

@@ -252,7 +252,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         // force AD-HOC config for World Peer Group.
         if (PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
-            config = RdvConfigAdv.RendezVousConfiguration.AD_HOC;
+            config = RdvConfigAdv.RendezVousConfiguration.ADHOC;
         }
 
         if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
@@ -291,10 +291,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
-
         }
 
         Service membershipService = group.getMembershipService();
@@ -320,13 +318,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
         scheduledExecutor = group.getTaskManager().getLocalScheduledExecutorService("RendezVousService");
 
         if (!rdvProviderSwitchStatus.compareAndSet(true, true)) {
-
             Logging.logCheckedError(LOG, "Unable to start rendezvous provider.");
             return -1;
-
         }
 
-        if (RdvConfigAdv.RendezVousConfiguration.AD_HOC == config) {
+        if (RdvConfigAdv.RendezVousConfiguration.ADHOC == config) {
             provider = new AdhocPeerRendezvousServiceClient(group, this);
         } else if (RdvConfigAdv.RendezVousConfiguration.EDGE == config) {
             provider = new EdgePeerRendezvousServiceClient(group, this);
@@ -570,7 +566,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
             config = RdvConfigAdv.RendezVousConfiguration.RENDEZVOUS;
 
-            // Now, a new instance of RdvPeerRdvService must be created and initialized.
+            // Now, a new instance of RendezvouseServiceServer must be created and initialized.
             provider = new RendezvouseServiceServer(group, this);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING) {
@@ -619,7 +615,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         provider.startApp(savedArgs);
-
         rdvProviderSwitchStatus.set(false);
     }
 
@@ -778,7 +773,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         } else if (provider instanceof EdgePeerRendezvousServiceClient) {
             EdgePeerRendezvousServiceClient Temp = (EdgePeerRendezvousServiceClient) provider;
-            Iterator<ID> Iter = Temp.getConnectedPeerIDs().iterator();
+            Iterator<ID> Iter = Temp.getConnectedRendezvousPeersIDs().iterator();
 
             while (Iter.hasNext()) {
                 Result.add((PeerID)Iter.next());
@@ -800,13 +795,13 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         if (provider instanceof RendezvouseServiceServer) {
 
-            RendezvouseServiceServer Temp = (RendezvouseServiceServer) provider;
+            RendezvouseServiceServer rendezvouseServiceServer = (RendezvouseServiceServer) provider;
 
             // Which EDGE is connected to us RDV?
-            Iterator<ID> TheIter = Temp.getConnectedPeerIDs().iterator();
+            Iterator<ID> iterator = rendezvouseServiceServer.getConnectedRendezvousPeersIDs().iterator();
 
-            while (TheIter.hasNext()) {
-                result.add((PeerID)TheIter.next());
+            while (iterator.hasNext()) {
+                result.add((PeerID)iterator.next());
             }
         }
 
