@@ -94,7 +94,7 @@ public class RendezvousLoad extends TestCase {
     // after modifying $JXTA_HOME/jxta.properties RdvManager.MaxClients with the corresponding value
     private int ITERATIONS = 1000;
     private long NAP = 100;
-    private String serviceParm = PeerGroupID.defaultNetPeerGroupID.getUniqueValue().toString();
+    private String serviceParm = PeerGroupID.NET_PEER_GROUP_ID.getUniqueValue().toString();
     private String service = IModuleDefinitions.rendezvousClassID.toString();
 
     /**

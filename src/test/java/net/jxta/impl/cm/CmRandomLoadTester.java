@@ -140,7 +140,7 @@ public class CmRandomLoadTester implements Runnable {
 	}
 
     private void add(String dn, String fn, String peerName) throws IOException {
-        PeerAdvertisement adv = createPeerAdvert(PeerGroupID.defaultNetPeerGroupID, peerName);
+        PeerAdvertisement adv = createPeerAdvert(PeerGroupID.NET_PEER_GROUP_ID, peerName);
         expectedCounts.put(dn, expectedCounts.get(dn)+1);
         expectedFilesInDirectory.get(dn).add(fn);
         modifyPeerNameCount(dn, peerName, +1);

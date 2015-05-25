@@ -153,8 +153,8 @@ public class IDFormat {
      * globally known version.
      */
     private final static Object[][] wellKnownIDs = {
-            {net.jxta.peergroup.PeerGroupID.worldPeerGroupID, worldPeerGroupID},
-            {net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID, defaultNetPeerGroupID}
+            {net.jxta.peergroup.PeerGroupID.WORLD_PEER_GROUP_ID, worldPeerGroupID},
+            {net.jxta.peergroup.PeerGroupID.NET_PEER_GROUP_ID, defaultNetPeerGroupID}
     };
 
     /**

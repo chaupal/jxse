@@ -50,7 +50,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	
 	@Test
 	public void testSeparateIndexConcurrentSafety() throws Exception {
-		PeerGroup group = createGroup(PeerGroupID.defaultNetPeerGroupID, "group1");
+		PeerGroup group = createGroup(PeerGroupID.NET_PEER_GROUP_ID, "group1");
 		Srdi[] indices = new Srdi[NUM_INDICES];
 		
 		for(int i=0; i < NUM_INDICES; i++) {

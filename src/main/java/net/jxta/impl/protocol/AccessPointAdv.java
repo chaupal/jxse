@@ -236,7 +236,7 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
 
             InputStream in = new ByteArrayInputStream(seed.getBytes());
 
-            return IDFactory.newCodatID(PeerGroupID.worldPeerGroupID, seed.getBytes(), in);
+            return IDFactory.newCodatID(PeerGroupID.WORLD_PEER_GROUP_ID, seed.getBytes(), in);
         } catch (Exception ez) {
             IllegalStateException failed = new IllegalStateException("cannot build ID");
 

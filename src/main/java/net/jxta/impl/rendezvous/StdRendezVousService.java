@@ -89,11 +89,11 @@ import java.util.List;
 public abstract class StdRendezVousService extends RendezVousServiceProvider {
     private final static Logger LOG = Logging.getLogger(StdRendezVousService.class.getName());
 
-    public final static String ConnectRequest = "Connect";
-    public final static String DisconnectRequest = "Disconnect";
-    public final static String ConnectedPeerReply = "ConnectedPeer";
-    public final static String ConnectedLeaseReply = "ConnectedLease";
-    public final static String ConnectedRdvAdvReply = "RdvAdvReply";
+    public final static String ConnectRequest = "ConnectRequest";
+    public final static String DisconnectRequest = "DisconnectRequest";
+    public final static String ConnectedPeerReply = "ConnectedPeerReply";
+    public final static String ConnectedLeaseReply = "ConnectedLeaseReply";
+    public final static String ConnectedRendezvousAdvertisementReply = "RendezvousAdvertisementReply";
 
     /**
      * Default Maximum TTL.

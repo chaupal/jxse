@@ -285,11 +285,11 @@ public class JxseOSGiNetworkManagerActivatorTest {
         Source.setTcpTransportConfiguration(TempTcp);
 
         Source.setConnectionMode(ConnectionMode.ADHOC);
-        Source.setInfrastructureID(PeerGroupID.worldPeerGroupID);
+        Source.setInfrastructureID(PeerGroupID.WORLD_PEER_GROUP_ID);
         URI KSL = new File("aze").toURI(); Source.setKeyStoreLocation(KSL);
         URI LS = new File("eze").toURI(); Source.setPersistenceLocation(LS);
         Source.setMulticastEnabled(false);
-        PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID); Source.setPeerID(PID);
+        PeerID PID = IDFactory.newPeerID(PeerGroupID.WORLD_PEER_GROUP_ID); Source.setPeerID(PID);
         Source.setPeerInstanceName("Zoubidoo");
         Source.setRelayMaxClients(3456);
         Source.setRendezvousMaxClients(6666);
@@ -353,7 +353,7 @@ public class JxseOSGiNetworkManagerActivatorTest {
 
         // The rest
         assertTrue(TheNC.getMode()==NetworkConfigurator.ADHOC_NODE);
-        assertTrue(TheNC.getInfrastructureID().toString().compareTo(PeerGroupID.worldPeerGroupID.toString())==0);
+        assertTrue(TheNC.getInfrastructureID().toString().compareTo(PeerGroupID.WORLD_PEER_GROUP_ID.toString())==0);
         assertTrue(TheNC.getKeyStoreLocation().compareTo(KSL)==0);
         
         // Following test fails because TheNC.getStoreHome() adds a '/', but otherwise is fine

@@ -113,8 +113,8 @@ public final class IDTest extends TestCase {
             ObjectOutputStream oos = new ObjectOutputStream(baos);
 
             oos.writeObject(ID.nullID);
-            oos.writeObject(PeerGroupID.worldPeerGroupID);
-            oos.writeObject(PeerGroupID.defaultNetPeerGroupID);
+            oos.writeObject(PeerGroupID.WORLD_PEER_GROUP_ID);
+            oos.writeObject(PeerGroupID.NET_PEER_GROUP_ID);
 
             oos.close();
 
@@ -126,8 +126,8 @@ public final class IDTest extends TestCase {
             ID fakenet = (ID) ois.readObject();
 
             assertTrue("null id != read in null id", ID.nullID == fakenull);
-            assertTrue("world id != read in world id", PeerGroupID.worldPeerGroupID == fakeworld);
-            assertTrue("net id != read in net id", PeerGroupID.defaultNetPeerGroupID == fakenet);
+            assertTrue("world id != read in world id", PeerGroupID.WORLD_PEER_GROUP_ID == fakeworld);
+            assertTrue("net id != read in net id", PeerGroupID.NET_PEER_GROUP_ID == fakenet);
         } catch (Exception everything) {
             everything.printStackTrace();
             fail("caught an unexpected exception - " + everything.toString());
@@ -169,16 +169,16 @@ public final class IDTest extends TestCase {
     public void testJXTAIDFormatURI() {
         try {
             URI nulluri = ID.nullID.toURI();
-            URI worlduri = PeerGroupID.worldPeerGroupID.toURI();
-            URI neturi = PeerGroupID.defaultNetPeerGroupID.toURI();
+            URI worlduri = PeerGroupID.WORLD_PEER_GROUP_ID.toURI();
+            URI neturi = PeerGroupID.NET_PEER_GROUP_ID.toURI();
 
             ID nullid = IDFactory.fromURI(nulluri);
             ID worldid = IDFactory.fromURI(worlduri);
             ID netid = IDFactory.fromURI(neturi);
 
             assertEquals(nullid, ID.nullID);
-            assertEquals(worldid, PeerGroupID.worldPeerGroupID);
-            assertEquals(netid, PeerGroupID.defaultNetPeerGroupID);
+            assertEquals(worldid, PeerGroupID.WORLD_PEER_GROUP_ID);
+            assertEquals(netid, PeerGroupID.NET_PEER_GROUP_ID);
         } catch (Exception everything) {
             everything.printStackTrace();
             fail("caught an unexpected exception - " + everything.toString());

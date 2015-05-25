@@ -65,7 +65,7 @@ import net.jxta.peergroup.PeerGroupID;
  */
 public class ValidJxsePeerConfiguration extends JxsePeerConfiguration {
 
-    public static final PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
+    public static final PeerID PID = IDFactory.newPeerID(PeerGroupID.WORLD_PEER_GROUP_ID);
 
     /**
      * Simple constructor

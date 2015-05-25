@@ -46,7 +46,7 @@ public class AsynchronousMessengerTest {
 
     @Before
     public void setUp() throws Exception {
-        messenger = new TestableAsynchronousMessenger(PeerGroupID.defaultNetPeerGroupID, new EndpointAddress("http", "1.2.3.4", null, null), QUEUE_SIZE);
+        messenger = new TestableAsynchronousMessenger(PeerGroupID.NET_PEER_GROUP_ID, new EndpointAddress("http", "1.2.3.4", null, null), QUEUE_SIZE);
         mockListener = mockContext.mock(MessengerStateListener.class);
         msg = new Message();
         concurrentExecutor = Executors.newSingleThreadExecutor();
@@ -380,7 +380,7 @@ public class AsynchronousMessengerTest {
 
         public Exception sendException;
         public EndpointAddress localAddress = new EndpointAddress("http", "remote", null, null);
-        public EndpointAddress logicalDestAddress = new EndpointAddress("jxta", IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID).getUniqueValue().toString(), null, null);
+        public EndpointAddress logicalDestAddress = new EndpointAddress("jxta", IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID).getUniqueValue().toString(), null, null);
         public AtomicBoolean refuseToSend = new AtomicBoolean(false);
         public BlockingQueue<QueuedMessage> sentMessages = new LinkedBlockingQueue<QueuedMessage>();
         public AtomicBoolean closeRequested = new AtomicBoolean(false);

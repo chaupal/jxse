@@ -54,7 +54,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	
 	@Test
 	public void testAddPerformance() throws IOException {
-		Srdi index = new Srdi(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "testIndex");
+		Srdi index = new Srdi(createGroup(PeerGroupID.NET_PEER_GROUP_ID, "group"), "testIndex");
 		File resultsFile = File.createTempFile("perftest_" + index.getBackendClassName(), ".csv", new File("."));
 		FileWriter writer = null;
 		try {
@@ -82,7 +82,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 		StatsTracker removeTracker = new StatsTracker();
 		
 		for(int peerNum=0; peerNum < 100; peerNum++) {
-			PeerID pid = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+			PeerID pid = IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID);
 			
 			for(int opNum=0; opNum < 100; opNum++) {
 				long addStart = System.nanoTime();
@@ -127,7 +127,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 			for(int attr=0; attr < 10; attr++) {
 				for(int value=0; value < 10; value++) {
 					for(int pid = 0; pid < 10; pid++) {
-						index.add(Integer.toString(pk), Integer.toString(attr), Integer.toString(value), IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID), Long.MAX_VALUE);						
+						index.add(Integer.toString(pk), Integer.toString(attr), Integer.toString(value), IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID), Long.MAX_VALUE);						
 					}
 				}
 			}
@@ -158,7 +158,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	 */
 	@Test(timeout=30000)
 	public void testQuery_manyValuesForSameKeyAndAttribute() throws IOException {
-	    Srdi index = new Srdi(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "duplicatesTestIndex");
+	    Srdi index = new Srdi(createGroup(PeerGroupID.NET_PEER_GROUP_ID, "group"), "duplicatesTestIndex");
 	    String primaryKey = "pk";
 	    String attribute = "attr";
 	
@@ -172,7 +172,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	
     	    System.out.println("Adding test entries");
             for(int i=numAlreadyAdded; i < numEntries; i++) {
-    	        index.add(primaryKey, attribute, "value" + i, IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID), Long.MAX_VALUE);
+    	        index.add(primaryKey, attribute, "value" + i, IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID), Long.MAX_VALUE);
     	    }
     	    System.out.println("Finished adding test entries");
     	 

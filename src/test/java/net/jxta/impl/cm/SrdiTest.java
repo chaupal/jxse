@@ -276,7 +276,7 @@ public class SrdiTest {
     }
     @Ignore("Needs updating")
     public void testClientFailedEventRemovesPeerFromSrdiIndexIfCurrentlyARendezvous() throws IOException {
-        final PeerID peerId = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+        final PeerID peerId = IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID);
         
         mockery.checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(true));
@@ -287,7 +287,7 @@ public class SrdiTest {
     }
     @Ignore("Needs updating")
     public void testClientFailedEventIgnoredIfNotARendezvous() throws IOException {
-        final PeerID peerId = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+        final PeerID peerId = IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID);
         
         mockery.checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(false));

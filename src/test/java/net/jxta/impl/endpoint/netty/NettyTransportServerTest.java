@@ -22,7 +22,7 @@ import org.junit.*;
 @Ignore("Must fix - problem with port bind")
 public class NettyTransportServerTest {
 
-    protected static final PeerGroupID PEER_GROUP_ID = PeerGroupID.defaultNetPeerGroupID;
+    protected static final PeerGroupID PEER_GROUP_ID = PeerGroupID.NET_PEER_GROUP_ID;
     private NettyTransportServer server;
     private FakeEndpointService endpointService;
     private ServerChannelFactory factory;

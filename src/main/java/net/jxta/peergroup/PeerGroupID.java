@@ -99,27 +99,29 @@ public abstract class PeerGroupID extends ID {
 
     /**
      *  {@inheritDoc}
+     * @return 
      */
+    @Override
     public PeerGroupID intern() {
         return (PeerGroupID) super.intern();
     }
 
     /**
-     * The well known Unique Identifier of the world peergroup.
+     * The well known Unique Identifier of the world peer group.
      * This is a singleton within the scope of a VM.
      */
-    public final static PeerGroupID worldPeerGroupID = (new WorldPeerGroupID()).intern();
+    public final static PeerGroupID WORLD_PEER_GROUP_ID = (new WorldPeerGroupID()).intern();
 
     /**
-     * The well known Unique Identifier of the net peergroup.
+     * The well known Unique Identifier of the net peer group.
      * This is a singleton within the scope of this VM.
      */
-    public final static PeerGroupID defaultNetPeerGroupID = (new NetPeerGroupID()).intern();
+    public final static PeerGroupID NET_PEER_GROUP_ID = (new NetPeerGroupID()).intern();
 
     /**
      *  Returns the parent peer group id of this peer group id, if any.
      *
-     *  @return the id of the parent peergroup or null if this group has no
+     *  @return the id of the parent peer group or null if this group has no
      *  parent group.
      */
     public abstract PeerGroupID getParentPeerGroupID();
@@ -136,7 +138,7 @@ final class WorldPeerGroupID extends PeerGroupID {
 
     /**
      *  WorldPeerGroupID is not intended to be constructed. You should use the 
-     *  {@link PeerGroupID#worldPeerGroupID} constant instead.
+     *  {@link PeerGroupID#WORLD_PEER_GROUP_ID} constant instead.
      */
     WorldPeerGroupID() {}
 
@@ -152,7 +154,7 @@ final class WorldPeerGroupID extends PeerGroupID {
      * deserialization has to point back to the singleton in this VM
      */
     private Object readResolve() {
-        return PeerGroupID.worldPeerGroupID;
+        return PeerGroupID.WORLD_PEER_GROUP_ID;
     }
 
     /**
@@ -191,7 +193,7 @@ final class NetPeerGroupID extends PeerGroupID {
 
     /**
      *  NetPeerGroupID is not intended to be constructed. You should use the 
-     *  {@link PeerGroupID#defaultNetPeerGroupID} constant instead.
+     *  {@link PeerGroupID#NET_PEER_GROUP_ID} constant instead.
      */
     NetPeerGroupID() {}
 
@@ -207,7 +209,7 @@ final class NetPeerGroupID extends PeerGroupID {
      * deserialization has to point back to the singleton in this VM
      */
     private Object readResolve() {
-        return PeerGroupID.defaultNetPeerGroupID;
+        return PeerGroupID.NET_PEER_GROUP_ID;
     }
 
     /**
@@ -231,6 +233,6 @@ final class NetPeerGroupID extends PeerGroupID {
      */
     @Override
     public PeerGroupID getParentPeerGroupID() {
-        return PeerGroupID.worldPeerGroupID;
+        return PeerGroupID.WORLD_PEER_GROUP_ID;
     }
 }

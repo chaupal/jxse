@@ -186,7 +186,8 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         }
 
         String serviceName = rendezvousServiceImplementation.getAssignedID().toString() + peerGroup.getPeerGroupID().getUniqueValue().toString();
-        System.err.println("EdgePeerRdvService: " + peerGroup.getPeerGroupID().toString());
+        //For debugging purposes only
+        //System.out.println("Rendezvous service started for peer group: " + peerGroup.getPeerGroupID().toString());
 
         URISeedingManager uriSeedingManager;
 
@@ -216,23 +217,20 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      * <p/>
      * &lt;assignedID>
      */
-    private class StdRdvEdgeProtocolListener implements StdRendezVousService.StdRdvProtocolListener {
-
+    private class EdgePeerRendezvousServiceClientMessageListener implements StdRendezVousService.StdRdvProtocolListener {
         /**
          * {@inheritDoc}
          */
         @Override
-        public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
+        public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
+            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", message);
 
-            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
-
-            if ((msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply) != null)
-                    || (msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRdvAdvReply) != null)) {
-                processConnectedReply(msg);
+            if ((message.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply) != null) || (message.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply) != null)) {
+                processConnectedReply(message);
             }
 
-            if (msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, DisconnectRequest) != null) {
-                processDisconnectRequest(msg);
+            if (message.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, DisconnectRequest) != null) {
+                processDisconnectRequest(message);
             }
         }
     }
@@ -244,7 +242,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
     @Override
     protected int startApp(String[] arg) {
 
-        super.startApp(arg, new StdRdvEdgeProtocolListener());
+        super.startApp(arg, new EdgePeerRendezvousServiceClientMessageListener());
 
         // The other services may not be fully functional but they're there
         // so we can start our subsystems.
@@ -413,8 +411,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedDebug(LOG, "Propagating ", msg, "(TTL=", useTTL, ") in group to :\n\tsvc name:", serviceName,
-                "\tsvc params:", serviceParam);
+        Logging.logCheckedDebug(LOG, "Propagating ", msg, "(TTL=", useTTL, ") in group to :\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -592,7 +589,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      *  @param rendezvousPeerConnection The peer to which the message should be sent.
      *  @throws IOException Thrown for errors sending the lease request.
      */
-    private void sendLeaseRequest(RendezvousConnection rendezvousPeerConnection) throws IOException {
+    private void sendConnectRequest(RendezvousConnection rendezvousPeerConnection) throws IOException {
 
         Logging.logCheckedDebug(LOG, "Sending lease request to ", rendezvousPeerConnection);
 
@@ -620,93 +617,90 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      */
     private void processConnectedReply(Message msg) {
         // Get the Peer Advertisement of the RDV.
-        MessageElement peerElem = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRdvAdvReply);
+        MessageElement rendezvousPeerAdvertisementElement = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply);
 
-        if (null == peerElem) {
+        if (null == rendezvousPeerAdvertisementElement) {
             Logging.logCheckedDebug(LOG, "Missing rendezvous peer advertisement");
             return;
         }
 
-        long lease;
+        long leaseTime;
 
         try {
-            MessageElement el = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedLeaseReply);
+            MessageElement leaseTimeElement = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedLeaseReply);
 
-            if (el == null) {
-                Logging.logCheckedDebug(LOG, "missing lease");
+            if (leaseTimeElement == null) {
+                Logging.logCheckedDebug(LOG, "Missing lease time information");
                 return;
             }
-
-            lease = Long.parseLong(el.toString());
+            leaseTime = Long.parseLong(leaseTimeElement.toString());
         } catch (Exception e) {
             Logging.logCheckedDebug(LOG, "Parse lease failed with\n", e);
             return;
         }
 
-        ID pId;
-        MessageElement el = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply);
+        ID peerId;
+        MessageElement rendezvousPeerIdElement = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply);
 
-        if (el == null) {
-            Logging.logCheckedDebug(LOG, "missing rendezvous peer");
+        if (rendezvousPeerIdElement == null) {
+            Logging.logCheckedDebug(LOG, "Missing rendezvous peer ID");
             return;
         }
 
         try {
-            pId = IDFactory.fromURI(new URI(el.toString()));
+            peerId = IDFactory.fromURI(new URI(rendezvousPeerIdElement.toString()));
         } catch (URISyntaxException exception) {
             Logging.logCheckedDebug(LOG, "Bad rendezvous peer ID");
             return;
         }
 
-        if (lease <= 0) {
-            removeRendezvousPeer(pId, false);
+        if (leaseTime <= 0) {
+            removeRendezvousPeer(peerId, false);
         } else {
-            if (connectedRendezVousPeers.containsKey(pId) || (connectedRendezVousPeers.size() < MAX_RDV_CONNECTIONS)) {
-                PeerAdvertisement padv = null;
+            if (connectedRendezVousPeers.containsKey(peerId) || (connectedRendezVousPeers.size() < MAX_RDV_CONNECTIONS)) {
+                PeerAdvertisement peerAdvertisement = null;
 
                 try {
-
-                    XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(peerElem);
-                    padv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
-
+                    XMLDocument rendezvousPeerAdvertisementElementDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(rendezvousPeerAdvertisementElement);
+                    peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(rendezvousPeerAdvertisementElementDocument);
                 } catch (Exception failed) {
                     Logging.logCheckedWarning(LOG, "Failed processing peer advertisement");
                 }
 
-                if (null == padv) {
+                if (peerAdvertisement == null) {
                     Logging.logCheckedDebug(LOG, "Missing rendezvous peer advertisement");
                     return;
                 }
 
-                if (!seedingManager.isAcceptablePeer(padv)) {
-                    Logging.logCheckedDebug(LOG, "Rejecting lease offer from unacceptable peer : ", padv.getPeerID());
+                if (!seedingManager.isAcceptablePeer(peerAdvertisement)) {
+                    Logging.logCheckedDebug(LOG, "Rejecting lease offer from unacceptable peer : ", peerAdvertisement.getPeerID());
 
                     // XXX bondolo 20061123 perhaps we should send a disconnect here.
                     return;
                 }
 
-                addRendezVousPeer(padv, lease);
+                addRendezVousPeer(peerAdvertisement, leaseTime);
 
                 try {
-                    DiscoveryService discovery = peerGroup.getDiscoveryService();
+                    DiscoveryService discoveryService = peerGroup.getDiscoveryService();
 
-                    if (null != discovery) {
-                        // This is not our own peer adv so we choose not to share it and keep it for only a short time.
-                        discovery.publish(padv, lease * 2, 0);
+                    if (discoveryService != null) {
+                        // This is not our own peer advertisement so we choose not to share it and keep it for only a short time.
+                        discoveryService.publish(peerAdvertisement, leaseTime * 2, 0);
                     }
                 } catch (IOException e) {
-                    Logging.logCheckedDebug(LOG, "failed to publish Rendezvous Advertisement\n", e);
+                    Logging.logCheckedDebug(LOG, "Failed to publish rendezvous peer advertisement\n", e);
                 }
 
-                String rdvName = padv.getName();
+                String rendezvousPeerName = peerAdvertisement.getName();
 
-                if (null == padv.getName()) {
-                    rdvName = pId.toString();
+                if (peerAdvertisement.getName() == null) {
+                    rendezvousPeerName = peerId.toString();
                 }
 
-                Logging.logCheckedDebug(LOG, "RDV Connect Response : peer=", rdvName, " lease=", lease, "ms");
+                Logging.logCheckedDebug(LOG, "Rendezvous connect response : peer = ", rendezvousPeerName, " lease time = ", leaseTime, "ms");
             } else {
-                Logging.logCheckedDebug(LOG, "Ignoring lease offer from ", pId);
+                Logging.logCheckedDebug(LOG, "Ignoring lease offer from ", peerId);
                 // XXX bondolo 20040423 perhaps we should send a disconnect here.
             }
         }
@@ -732,7 +726,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
                     return;
                 }
 
-                if (!PeerGroupID.worldPeerGroupID.equals(peerGroup.getPeerGroupID())) {
+                if (!PeerGroupID.WORLD_PEER_GROUP_ID.equals(peerGroup.getPeerGroupID())) {
                     MessageTransport router = rendezvousServiceImplementation.endpoint.getEndpointRouter();
 
                     if (null == router) {
@@ -759,7 +753,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
 
                         if (TimeUtils.toRelativeTimeMillis(pConn.getRenewal()) <= 0) {
                             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] Attempting lease renewal for ", pConn);
-                            sendLeaseRequest(pConn);
+                            sendConnectRequest(pConn);
                         }
 
                     } catch (Exception e) {

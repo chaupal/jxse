@@ -65,8 +65,8 @@ public class EndToEndTest {
             ignoring(clientGroup).getPeerID(); will(returnValue(LOCAL_PEER_ID));
             ignoring(serverGroup).getPeerID(); will(returnValue(REMOTE_PEER_ID));
             
-            ignoring(clientGroup).getPeerGroupID(); will(returnValue(PeerGroupID.defaultNetPeerGroupID));
-            ignoring(serverGroup).getPeerGroupID(); will(returnValue(PeerGroupID.defaultNetPeerGroupID));
+            ignoring(clientGroup).getPeerGroupID(); will(returnValue(PeerGroupID.NET_PEER_GROUP_ID));
+            ignoring(serverGroup).getPeerGroupID(); will(returnValue(PeerGroupID.NET_PEER_GROUP_ID));
         }});
     }
 

@@ -86,8 +86,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      */
     final static Object[][] wellKnownIDs = {
         { net.jxta.id.ID.nullID.getUniqueValue(), net.jxta.id.ID.nullID},
-        { net.jxta.peergroup.PeerGroupID.worldPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.worldPeerGroupID},
-        { net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID}
+        { net.jxta.peergroup.PeerGroupID.WORLD_PEER_GROUP_ID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.WORLD_PEER_GROUP_ID},
+        { net.jxta.peergroup.PeerGroupID.NET_PEER_GROUP_ID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.NET_PEER_GROUP_ID}
     };
 
     /**

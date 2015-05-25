@@ -2110,14 +2110,14 @@ public class NetworkConfigurator {
         }              
         
         if (peerid == null) {
-            peerid = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID, cert[0].getPublicKey().getEncoded());
+            peerid = IDFactory.newPeerID(PeerGroupID.WORLD_PEER_GROUP_ID, cert[0].getPublicKey().getEncoded());
         }
         
         advertisement.setPeerID(peerid);
 
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
                 && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
-                && (PeerGroupID.defaultNetPeerGroupID != infraPeerGroupConfig.getPeerGroupID())) {
+                && (PeerGroupID.NET_PEER_GROUP_ID != infraPeerGroupConfig.getPeerGroupID())) {
             advertisement.setSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID, infraPeerGroupConfig);
         }
         return advertisement;
@@ -2430,7 +2430,7 @@ public class NetworkConfigurator {
          * tunables.
          */
         NetGroupTunables() {
-            id = PeerGroupID.defaultNetPeerGroupID;
+            id = PeerGroupID.NET_PEER_GROUP_ID;
             name = "NetPeerGroup";
             desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
         }

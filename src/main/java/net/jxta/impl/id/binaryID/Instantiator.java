@@ -164,8 +164,8 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
 
         case BinaryID.flagPeerGroupID:
             result = new PeerGroupBinaryID(encoded);
-            if (PeerGroupID.worldPeerGroupID.equals(result)) {
-                result = net.jxta.peergroup.PeerGroupID.worldPeerGroupID;
+            if (PeerGroupID.WORLD_PEER_GROUP_ID.equals(result)) {
+                result = net.jxta.peergroup.PeerGroupID.WORLD_PEER_GROUP_ID;
             }
             break;
 

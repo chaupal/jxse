@@ -86,7 +86,7 @@ import net.jxta.util.DevNullOutputStream;
  */
 public class MessageUtil {
 
-    static String incarnationTagName = "RdvIncarn" + PeerGroupID.defaultNetPeerGroupID.getUniqueValue().toString();
+    static String incarnationTagName = "RdvIncarn" + PeerGroupID.NET_PEER_GROUP_ID.getUniqueValue().toString();
     static final MembershipService DEFAULT_MEMBERSHIP_SERVICE = new NoneMembershipService();
     
     public static void addServiceParam(Message message, PeerAdvertisement padv, String myaddress, PeerID dstAddress, String service, String serviceParam) {
@@ -103,19 +103,15 @@ public class MessageUtil {
      *@param  service       destination service id
      *@param  serviceParam  destination service Param
      */
-    public static void addServiceParam(Message message, PeerAdvertisement padv, String myaddress, PeerID dstAddress, String service, String serviceParam, MembershipService membershipService) {
+    public static void addServiceParam(Message message, PeerAdvertisement peerAdvertisement, String myaddress, PeerID dstAddress, String service, String serviceParam, MembershipService membershipService) {
 
-        PeerID srcPeer = padv.getPeerID();
+        PeerID srcPeer = peerAdvertisement.getPeerID();
         EndpointAddress srcAddr = new EndpointAddress("jxta", srcPeer.toString(), null, null);
         MessageElement srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, myaddress, null);
 
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddressElement);
 
-        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME
-                ,
-                "jxta://" + dstAddress.getUniqueValue().toString() + "/EndpointService:jxta-NetGroup/EndpointRouter"
-                ,
-                (MessageElement) null);
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, "jxta://" + dstAddress.getUniqueValue().toString() + "/EndpointService:jxta-NetGroup/EndpointRouter", (MessageElement) null);
 
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
@@ -125,7 +121,7 @@ public class MessageUtil {
         erm.setDestAddress(
                 new EndpointAddress("jxta://" + dstAddress.getUniqueValue().toString() + "/" + service + "/" + serviceParam));
         erm.setLastHop(new EndpointAddress("jxta://" + srcPeer.getUniqueValue().toString()));
-        erm.setRouteAdv(getRouteAdv(padv, myaddress));
+        erm.setRouteAdv(getRouteAdv(peerAdvertisement, myaddress));
         erm.updateMessage();
 
     }

@@ -323,7 +323,7 @@ public class JxsePeerConfigurationTest {
 
         assertTrue(Source.getPeerID()==null);
 
-        PeerID TempPID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
+        PeerID TempPID = IDFactory.newPeerID(PeerGroupID.WORLD_PEER_GROUP_ID);
 
         Source.setPeerID(TempPID);
         assertTrue(Source.getPeerID().toString().compareTo(TempPID.toString())==0);
@@ -331,7 +331,7 @@ public class JxsePeerConfigurationTest {
         Source.setPeerID(null);
         assertTrue(Source.getPeerID()==null);
 
-        PeerID TempPID2 = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
+        PeerID TempPID2 = IDFactory.newPeerID(PeerGroupID.WORLD_PEER_GROUP_ID);
 
         Source.setPeerID(TempPID2);
         assertTrue(Source.getPeerID().toString().compareTo(TempPID2.toString())==0);
@@ -921,11 +921,11 @@ public class JxsePeerConfigurationTest {
         Source.setTcpTransportConfiguration(TempTcp);
 
         Source.setConnectionMode(ConnectionMode.RENDEZVOUS);
-        Source.setInfrastructureID(PeerGroupID.worldPeerGroupID);
+        Source.setInfrastructureID(PeerGroupID.WORLD_PEER_GROUP_ID);
         URI KSL = new File("aze").toURI(); Source.setKeyStoreLocation(KSL);
         URI LS = new File("eze").toURI(); Source.setPersistenceLocation(LS);
         Source.setMulticastEnabled(false);
-        PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID); Source.setPeerID(PID);
+        PeerID PID = IDFactory.newPeerID(PeerGroupID.WORLD_PEER_GROUP_ID); Source.setPeerID(PID);
         Source.setPeerInstanceName("Zoubidoo");
         Source.setRelayMaxClients(3456);
         Source.setRendezvousMaxClients(6666);
@@ -975,7 +975,7 @@ public class JxsePeerConfigurationTest {
 
 
         assertTrue(Restore.getConnectionMode().compareTo(ConnectionMode.RENDEZVOUS)==0);
-        assertTrue(Restore.getInfrastructureID().toString().compareTo(PeerGroupID.worldPeerGroupID.toString())==0);
+        assertTrue(Restore.getInfrastructureID().toString().compareTo(PeerGroupID.WORLD_PEER_GROUP_ID.toString())==0);
         assertTrue(Restore.getKeyStoreLocation().compareTo(KSL)==0);
         assertTrue(Restore.getPersistenceLocation().compareTo(LS)==0);
         assertFalse(Restore.getMulticastEnabled());

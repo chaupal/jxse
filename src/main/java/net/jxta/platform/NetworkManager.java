@@ -149,7 +149,7 @@ public class NetworkManager implements RendezvousListener {
     private ShutdownHook shutdownHook;
     private ConfigMode mode;
     private URI instanceHome;
-    private PeerGroupID infrastructureID = PeerGroupID.defaultNetPeerGroupID;
+    private PeerGroupID infrastructureID = PeerGroupID.NET_PEER_GROUP_ID;
     private PeerID peerID = null;
     private NetworkConfigurator config;
     private boolean configPersistent = true;

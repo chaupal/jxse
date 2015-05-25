@@ -245,9 +245,9 @@ public class PeerGroupTest {
     @Test
     public void newFromID() {
         try {
-            PeerGroup newpg = pg1.newGroup(PeerGroupID.defaultNetPeerGroupID);
+            PeerGroup newpg = pg1.newGroup(PeerGroupID.NET_PEER_GROUP_ID);
 
-            assertTrue("Group id should match", newpg.getPeerGroupID().equals(PeerGroupID.defaultNetPeerGroupID));
+            assertTrue("Group id should match", newpg.getPeerGroupID().equals(PeerGroupID.NET_PEER_GROUP_ID));
 
 //            newpg.unref();
             newpg = null;

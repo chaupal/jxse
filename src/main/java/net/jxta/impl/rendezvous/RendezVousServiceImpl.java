@@ -251,7 +251,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         rendezvousWatchdogInterval = rdvConfigAdv.getAutoRendezvousCheckInterval();
 
         // force AD-HOC config for World Peer Group.
-        if (PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
+        if (PeerGroupID.WORLD_PEER_GROUP_ID.equals(group.getPeerGroupID())) {
             config = RdvConfigAdv.RendezVousConfiguration.ADHOC;
         }
 
@@ -340,7 +340,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         provider.startApp(null);
         rdvProviderSwitchStatus.set(false);
 
-        if (autoRendezvous && !PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
+        if (autoRendezvous && !PeerGroupID.WORLD_PEER_GROUP_ID.equals(group.getPeerGroupID())) {
             startWatchDogTimer();
         }
 
@@ -546,7 +546,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     @Override
     public void startRendezVous() {
         try {
-            if (isRendezVous() || PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
+            if (isRendezVous() || PeerGroupID.WORLD_PEER_GROUP_ID.equals(group.getPeerGroupID())) {
                 return;
             }
 

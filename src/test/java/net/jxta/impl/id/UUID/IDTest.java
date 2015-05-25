@@ -151,7 +151,7 @@ public final class IDTest extends TestCase {
 
             assertTrue("comparison of a PeerGroupID against itself failed", first.equals(first));
 
-            assertTrue("comparison against worldPeerGroup should have failed", !first.equals(PeerGroupID.worldPeerGroupID));
+            assertTrue("comparison against worldPeerGroup should have failed", !first.equals(PeerGroupID.WORLD_PEER_GROUP_ID));
 
             assertTrue("comparison of two different PeerGroupIDs should have failed", !first.equals(second));
 
@@ -163,7 +163,7 @@ public final class IDTest extends TestCase {
 
             assertTrue("hashcode for world group should not have matched."
                     ,
-                    PeerGroupID.worldPeerGroupID.hashCode() != first.hashCode());
+                    PeerGroupID.WORLD_PEER_GROUP_ID.hashCode() != first.hashCode());
 
             asURI = first.toURI();
             asString = first.toString();
@@ -187,9 +187,9 @@ public final class IDTest extends TestCase {
 
             assertTrue("parent group didnt match expected.", third.getParentPeerGroupID().equals(second));
 
-            third = IDFactory.newPeerGroupID(PeerGroupID.worldPeerGroupID);
+            third = IDFactory.newPeerGroupID(PeerGroupID.WORLD_PEER_GROUP_ID);
 
-            assertTrue("parent group wasnt world group", third.getParentPeerGroupID().equals(PeerGroupID.worldPeerGroupID));
+            assertTrue("parent group wasnt world group", third.getParentPeerGroupID().equals(PeerGroupID.WORLD_PEER_GROUP_ID));
 
             assertTrue("parent didnt match", fifth.equals(sixth.getParentPeerGroupID()));
 

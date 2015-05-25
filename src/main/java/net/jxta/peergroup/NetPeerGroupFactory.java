@@ -481,7 +481,7 @@ public final class NetPeerGroupFactory {
          * tunables.
          */
         NetGroupTunables() {
-            id = PeerGroupID.defaultNetPeerGroupID;
+            id = PeerGroupID.NET_PEER_GROUP_ID;
             name = "NetPeerGroup";
             desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
         }

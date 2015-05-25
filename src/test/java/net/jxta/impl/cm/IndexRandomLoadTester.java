@@ -58,7 +58,7 @@ public class IndexRandomLoadTester implements Runnable {
 				 */
 				if(decider < 0.49) {
 					String attribute = ATTRIBUTES[(int)Math.floor(Math.random() * ATTRIBUTES.length)];
-					PeerID peerId = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+					PeerID peerId = IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID);
 					peerIds.add(peerId);
 					expectedPeersForAttribute.get(attribute).add(peerId);
 					index.add("x", attribute, "y", peerId, Long.MAX_VALUE);

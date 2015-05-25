@@ -210,7 +210,7 @@ public class Platform extends StdPeerGroup {
         }
 
         // Initialize the group.
-        super.initFirst(null, PeerGroupID.worldPeerGroupID, implAdv);
+        super.initFirst(null, PeerGroupID.WORLD_PEER_GROUP_ID, implAdv);
     }
 
     /**

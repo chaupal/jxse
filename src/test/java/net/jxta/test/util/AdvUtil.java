@@ -89,11 +89,11 @@ public class AdvUtil {
         try {
             peerAdvertisement = (PeerAdvertisement)
                     AdvertisementFactory.newAdvertisement(PeerAdvertisement.getAdvertisementType());
-            PeerID pid = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+            PeerID pid = IDFactory.newPeerID(PeerGroupID.NET_PEER_GROUP_ID);
 
             peerAdvertisement.setPeerID(pid);
             peerAdvertisement.setName(name);
-            peerAdvertisement.setPeerGroupID(PeerGroupID.defaultNetPeerGroupID);
+            peerAdvertisement.setPeerGroupID(PeerGroupID.NET_PEER_GROUP_ID);
             TCPAdv tcpAdv = (TCPAdv) AdvertisementFactory.newAdvertisement(TCPAdv.getAdvertisementType());
             MulticastAdv multicastAdv = (MulticastAdv) AdvertisementFactory.newAdvertisement(MulticastAdv.getAdvertisementType());
 

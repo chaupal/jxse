@@ -37,7 +37,7 @@ public class FakePeerGroup implements PeerGroup {
     public static final PeerID DEFAULT_PEER_ID = PeerID.create(URI.create("urn:jxta:uuid-59616261646162614E50472050325033857CA397BC2A48DB86FED88696A80AA003"));
     
     public PeerGroup parentGroup = null;
-    public PeerGroupID peerGroupId = PeerGroupID.defaultNetPeerGroupID;
+    public PeerGroupID peerGroupId = PeerGroupID.NET_PEER_GROUP_ID;
     public PeerID peerId = DEFAULT_PEER_ID;
     public String peerGroupName = "FakeGroupForTesting";
     public String peerName = "FakePeerForTesting";

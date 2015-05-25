@@ -219,7 +219,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
 
         PeerGroup advGroup = group.getParentGroup();
 
-        if ((null == advGroup) || PeerGroupID.worldPeerGroupID.equals(advGroup.getPeerGroupID())) {
+        if ((null == advGroup) || PeerGroupID.WORLD_PEER_GROUP_ID.equals(advGroup.getPeerGroupID())) {
             // For historical reasons, we publish in our own group rather than
             // the parent if our parent is the world group.
             advGroup = null;
@@ -649,7 +649,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         Logging.logCheckedDebug(LOG, "Sending lease (", lease, ") to ", clientConnection.getPeerName());
 
         Message msg = new Message();
-        msg.addMessageElement("jxta", new TextDocumentMessageElement(ConnectedRdvAdvReply, getPeerAdvertisementDoc(), null));
+        msg.addMessageElement("jxta", new TextDocumentMessageElement(ConnectedRendezvousAdvertisementReply, getPeerAdvertisementDoc(), null));
         msg.addMessageElement("jxta", new StringMessageElement(ConnectedPeerReply, peerGroup.getPeerID().toString(), null));
         msg.addMessageElement("jxta", new StringMessageElement(ConnectedLeaseReply, Long.toString(lease), null));
 

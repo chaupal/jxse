@@ -306,7 +306,7 @@ public final class WorldPeerGroupFactory {
                     }
                 }
 
-                result.init(null, PeerGroupID.worldPeerGroupID, null);
+                result.init(null, PeerGroupID.WORLD_PEER_GROUP_ID, null);
                 worldPeerGroups.put(storeHomeString, result);
                 return result;
             } catch (RuntimeException e) {

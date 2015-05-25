@@ -462,7 +462,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                         worldGroupFilter.addServiceMonitorFilter(serviceMonitorFilter);
                         i.remove();                                                
                         
-                        PeerGroup worldGroup = peerGroup.newGroup(PeerGroupID.worldPeerGroupID);
+                        PeerGroup worldGroup = peerGroup.newGroup(PeerGroupID.WORLD_PEER_GROUP_ID);
                         PeerInfoService worldService = worldGroup.getPeerInfoService();
                         worldService.addMonitorListener(worldGroupFilter, remoteMonitorQuery.getReportRate(), includeCumulative,
                             monitorListener);
@@ -531,7 +531,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
          * monitoring on or off at the PeerGroup level, only the device level.
          */
         try {
-            PeerGroup worldGroup = peerGroup.newGroup(PeerGroupID.worldPeerGroupID);
+            PeerGroup worldGroup = peerGroup.newGroup(PeerGroupID.WORLD_PEER_GROUP_ID);
             PeerInfoService worldService = worldGroup.getPeerInfoService();
 
             PeerMonitorInfo peerMonitorInfo = worldService.getPeerMonitorInfo();
