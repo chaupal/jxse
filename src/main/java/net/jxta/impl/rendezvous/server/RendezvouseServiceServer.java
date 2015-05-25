@@ -225,11 +225,9 @@ public class RendezvouseServiceServer extends StdRendezVousService {
             advGroup = null;
         }
 
-        rpv = new RendezvousPeersView(group, advGroup, rdvService,
-                rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
+        rpv = new RendezvousPeersView(group, advGroup, rdvService, rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
 
         Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", group.getPeerGroupID(), " as a Rendezvous peer.");
-
     }
 
     /**
@@ -243,14 +241,15 @@ public class RendezvouseServiceServer extends StdRendezVousService {
          */
         @Override
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-
             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
 
-            if (msg.getMessageElement("jxta", ConnectRequest) != null)
+            if (msg.getMessageElement("jxta", ConnectRequest) != null) {
                 processLeaseRequest(msg);
+            }
 
-            if (msg.getMessageElement("jxta", DisconnectRequest) != null)
+            if (msg.getMessageElement("jxta", DisconnectRequest) != null) {
                 processDisconnectRequest(msg);
+            }
         }
     }
 
@@ -406,6 +405,11 @@ public class RendezvouseServiceServer extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @param msg
+     * @param serviceName
+     * @param serviceParam
+     * @param initialTTL
+     * @throws java.io.IOException
      */
     @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
@@ -432,15 +436,16 @@ public class RendezvouseServiceServer extends StdRendezVousService {
     }
 
     /**
-     * @inheritDoc
-     */
+     * @param peerId     
+     * @return Peer connection     
+     */    
     @Override
-    public PeerConnection getPeerConnection(ID peer) {
-        return clients.get(peer);
+    public PeerConnection getPeerConnection(ID peerId) {
+        return clients.get(peerId);
     }
 
     /**
-     * @inheritDoc
+     * @return Peer connections
      */
     @Override
     protected PeerConnection[] getPeerConnections() {
@@ -450,31 +455,31 @@ public class RendezvouseServiceServer extends StdRendezVousService {
     /**
      * Add a client to our collection of clients.
      *
-     * @param padv  The advertisement of the peer to be added.
+     * @param peerAdvertisement  The advertisement of the peer to be added.
      * @param lease The lease duration in relative milliseconds.
      * @return the ClientConnection
      */
-    private ClientConnection addClient(PeerAdvertisement padv, long lease) {
+    private ClientConnection addClient(PeerAdvertisement peerAdvertisement, long lease) {
         ClientConnectionMeter clientConnectionMeter = null;
 
         int eventType;
-        ClientConnection pConn;
+        ClientConnection clientPeerConnection;
 
         synchronized (clients) {
-            pConn = clients.get(padv.getPeerID());
+            clientPeerConnection = clients.get(peerAdvertisement.getPeerID());
 
             // Check if the peer is already registered.
-            if (null != pConn) {
+            if (null != clientPeerConnection) {
                 eventType = RendezvousEvent.CLIENTRECONNECT;
             } else {
                 eventType = RendezvousEvent.CLIENTCONNECT;
-                pConn = new ClientConnection(peerGroup, rendezvousServiceImplementation, padv.getPeerID());
-                clients.put(padv.getPeerID(), pConn);
+                clientPeerConnection = new ClientConnection(peerGroup, rendezvousServiceImplementation, peerAdvertisement.getPeerID());
+                clients.put(peerAdvertisement.getPeerID(), clientPeerConnection);
             }
         }
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
-            clientConnectionMeter = rendezvousServiceMonitor.getClientConnectionMeter(padv.getPeerID());
+            clientConnectionMeter = rendezvousServiceMonitor.getClientConnectionMeter(peerAdvertisement.getPeerID());
         }
 
         if (RendezvousEvent.CLIENTCONNECT == eventType) {
@@ -487,52 +492,47 @@ public class RendezvouseServiceServer extends StdRendezVousService {
             }
         }
 
-        rendezvousServiceImplementation.generateEvent(eventType, padv.getPeerID());
-
-        pConn.connect(padv, lease);
-
-        return pConn;
+        rendezvousServiceImplementation.generateEvent(eventType, peerAdvertisement.getPeerID());
+        clientPeerConnection.connect(peerAdvertisement, lease);
+        return clientPeerConnection;
     }
 
     /**
      * Removes the specified client from the clients collections.
      *
-     * @param pConn     The connection object to remove.
+     * @param peerConnection     The connection object to remove.
      * @param requested If <code>true</code> then the disconnection was
      *                  requested by the remote peer.
      * @return the ClientConnection object of the client or <code>null</code>
      *         if the client was not known.
      */
-    private ClientConnection removeClient(PeerConnection pConn, boolean requested) {
+    private ClientConnection removeClient(PeerConnection peerConnection, boolean requested) {
+        Logging.logCheckedDebug(LOG, "Disconnecting client ", peerConnection);
 
-        Logging.logCheckedDebug(LOG, "Disconnecting client ", pConn);
-
-        if (pConn.isConnected()) {
-            pConn.setConnected(false);
-            sendDisconnect(pConn);
+        if (peerConnection.isConnected()) {            
+            sendDisconnect(peerConnection);
+            peerConnection.setConnected(false);
         }
 
-        rendezvousServiceImplementation.generateEvent(requested ? RendezvousEvent.CLIENTDISCONNECT : RendezvousEvent.CLIENTFAILED, pConn.getPeerID());
+        rendezvousServiceImplementation.generateEvent(requested ? RendezvousEvent.CLIENTDISCONNECT : RendezvousEvent.CLIENTFAILED, peerConnection.getPeerID());
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
-            ClientConnectionMeter clientConnectionMeter = rendezvousServiceMonitor.getClientConnectionMeter(
-                    (PeerID) pConn.getPeerID());
-
+            ClientConnectionMeter clientConnectionMeter = rendezvousServiceMonitor.getClientConnectionMeter((PeerID) peerConnection.getPeerID());
             clientConnectionMeter.clientConnectionDisconnected(requested);
         }
 
-        return clients.remove(pConn.getPeerID());
+        return clients.remove(peerConnection.getPeerID());
     }
 
     private void disconnectAllClients() {
         for (Object o : Arrays.asList(clients.values().toArray())) {
 
-            ClientConnection pConn = (ClientConnection) o;
+            ClientConnection clientPeerConnection = (ClientConnection) o;
 
             try {
-                removeClient(pConn, false);
+                removeClient(clientPeerConnection, false);
             } catch (Exception ez1) {
-                Logging.logCheckedWarning(LOG, "disconnectClient failed for", pConn, "\n", ez1);
+                Logging.logCheckedWarning(LOG, "disconnectClient failed for", clientPeerConnection, "\n", ez1);
             }
         }
     }
@@ -544,26 +544,22 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      */
     private void processDisconnectRequest(Message msg) {
 
-        PeerAdvertisement adv;
+        PeerAdvertisement peerAdvertisement;
 
         try {
             MessageElement elem = msg.getMessageElement("jxta", DisconnectRequest);
-
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
-
-            adv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
-
+            peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
         } catch (Exception e) {
-
             Logging.logCheckedWarning(LOG, "Could not process disconnect request\n", e);
             return;
-
         }
 
-        ClientConnection pConn = clients.get(adv.getPeerID());
+        ClientConnection pConn = clients.get(peerAdvertisement.getPeerID());
 
         if (null != pConn) {
-            pConn.setConnected(false); // Make sure we don't send a disconnect
+            // Make sure we don't send a disconnect
+            pConn.setConnected(false); 
             removeClient(pConn, true);
         }
     }

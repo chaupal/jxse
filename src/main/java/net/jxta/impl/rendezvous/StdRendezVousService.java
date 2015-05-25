@@ -411,29 +411,28 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
     /**
      * Sends a disconnect message to the specified peer.
      *
-     * @param peerid The peer to be disconnected.
-     * @param padv   The peer to be disconnected.
+     * @param peerId The peer to be disconnected.
+     * @param peerAdvertisement   The peer to be disconnected.
      */
-    protected void sendDisconnect(ID peerid, PeerAdvertisement padv) {
-
+    protected void sendDisconnect(ID peerId, PeerAdvertisement peerAdvertisement) {
         Message msg = new Message();
 
         // The request simply includes the local peer advertisement.
         try {
-            msg.replaceMessageElement("jxta", new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+            msg.replaceMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
 
-            EndpointAddress addr = makeAddress(peerid, null, null);
+            EndpointAddress addr = makeAddress(peerId, null, null);
 
             RouteAdvertisement hint = null;
 
-            if (null != padv) {
-                hint = EndpointUtils.extractRouteAdv(padv);
+            if (null != peerAdvertisement) {
+                hint = EndpointUtils.extractRouteAdv(peerAdvertisement);
             }
 
             Messenger messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(addr, hint);
 
             if (null == messenger) {
-                Logging.logCheckedWarning(LOG, "Could not get messenger for ", peerid);
+                Logging.logCheckedWarning(LOG, "Could not get messenger for ", peerId);
                 return;
             }
 
@@ -454,9 +453,8 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         // The request simply includes the local peer advertisement.
         try {
-            msg.replaceMessageElement("jxta", new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+            msg.replaceMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
             pConn.sendMessage(msg, pName, pParam);
-
         } catch (Exception e) {
             Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
         }

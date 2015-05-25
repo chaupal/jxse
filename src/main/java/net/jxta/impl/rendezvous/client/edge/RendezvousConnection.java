@@ -65,7 +65,7 @@ import net.jxta.protocol.PeerAdvertisement;
 /**
  * Manages a connection with a client or a rendezvous peer.
  */
-public class RdvConnection extends PeerConnection {
+public class RendezvousConnection extends PeerConnection {
 
     protected long leasedTil;
     protected long beginRenewalAt;
@@ -76,14 +76,14 @@ public class RdvConnection extends PeerConnection {
     /**
      * Constructor for the PeerConnection object
      *
-     * @param group      group context
+     * @param peerGroup      group context
      * @param rdvService the rendezvous service to use for sending messages.
-     * @param peer       destination peerid
+     * @param peerId       destination peerId
      */
-    public RdvConnection(PeerGroup group, RendezVousServiceImpl rdvService, ID peer) {
-        super(group, rdvService.endpoint, peer);
+    public RendezvousConnection(PeerGroup peerGroup, RendezVousServiceImpl rdvService, ID peerId) {
+        super(peerGroup, rdvService.endpoint, peerId);
 
-        cachedPeerAdvertisement = group.getPeerAdvertisement();
+        cachedPeerAdvertisement = peerGroup.getPeerAdvertisement();
         cachedModCount = cachedPeerAdvertisement.getModCount();
     }
 
@@ -111,7 +111,6 @@ public class RdvConnection extends PeerConnection {
      * @param earlyRenewal  amount of time in relative milliseconds before lease end to begin renewal
      */
     public void setLease(long leaseDuration, long earlyRenewal) {
-
         if (leaseDuration < earlyRenewal) {
             throw new IllegalArgumentException("Renewal scheduled before begining of lease");
         }
@@ -125,7 +124,7 @@ public class RdvConnection extends PeerConnection {
      *
      * @param padv          the node advertisement
      * @param leaseDuration lease duration in milliseconds
-     * @param earlyRenewal  early renwal in milliseconds
+     * @param earlyRenewal  early renewal in milliseconds
      */
     public void connect(PeerAdvertisement padv, long leaseDuration, long earlyRenewal) {
         super.connect(leaseDuration);
