@@ -239,11 +239,11 @@ public class RendezvouseServiceServer extends RendezVousService {
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
 
-            if (msg.getMessageElement("jxta", ConnectRequest) != null) {
+            if (msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest) != null) {
                 processLeaseRequest(msg);
             }
 
-            if (msg.getMessageElement("jxta", DisconnectRequest) != null) {
+            if (msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest) != null) {
                 processDisconnectRequest(msg);
             }
         }
@@ -543,7 +543,7 @@ public class RendezvouseServiceServer extends RendezVousService {
         PeerAdvertisement peerAdvertisement;
 
         try {
-            MessageElement elem = msg.getMessageElement("jxta", DisconnectRequest);
+            MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest);
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
             peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
         } catch (Exception e) {
@@ -569,7 +569,7 @@ public class RendezvouseServiceServer extends RendezVousService {
         PeerAdvertisement peerAdvertisement;
 
         try {
-            MessageElement elem = msg.getMessageElement("jxta", ConnectRequest);
+            MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
 
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
 
@@ -687,8 +687,8 @@ public class RendezvouseServiceServer extends RendezVousService {
         Logging.logCheckedDebug(LOG, "Directed walk of ", msg, "(TTL=", useTTL, ") to :\n\tsvc name:",
             serviceName, "\tsvc params:", serviceParam);
 
-        msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
-        msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
 
         for (ID destPeerID : destPeerIDs) {
             try {
@@ -762,7 +762,7 @@ public class RendezvouseServiceServer extends RendezVousService {
         @Override
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            MessageElement serviceME = msg.getMessageElement("jxta", RDV_WALK_SVC_NAME);
+            MessageElement serviceME = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_NAME);
 
             if (null == serviceME) {
                 Logging.logCheckedDebug(LOG, "Discarding ", msg, " because its missing service name element");
@@ -772,7 +772,7 @@ public class RendezvouseServiceServer extends RendezVousService {
             msg.removeMessageElement(serviceME);
             String sName = serviceME.toString();
 
-            MessageElement paramME = msg.getMessageElement("jxta", RDV_WALK_SVC_PARAM);
+            MessageElement paramME = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_PARAM);
 
             String sParam;
 
