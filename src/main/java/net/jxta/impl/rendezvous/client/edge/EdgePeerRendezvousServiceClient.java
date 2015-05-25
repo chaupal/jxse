@@ -88,7 +88,7 @@ import net.jxta.impl.rendezvous.PeerConnection;
 import net.jxta.impl.rendezvous.RendezVousPropagateMessage;
 import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.rendezvous.RendezVousServiceProvider;
-import net.jxta.impl.rendezvous.StdRendezVousService;
+import net.jxta.impl.rendezvous.RendezVousService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerviewSeedingManager;
@@ -114,7 +114,7 @@ import net.jxta.rendezvous.RendezvousEvent;
  * @see net.jxta.rendezvous.RendezVousService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
+public class EdgePeerRendezvousServiceClient extends RendezVousService {
 
     private final static transient Logger LOG = Logging.getLogger(EdgePeerRendezvousServiceClient.class.getName());
 
@@ -217,7 +217,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      * <p/>
      * &lt;assignedID>
      */
-    private class EdgePeerRendezvousServiceClientMessageListener implements StdRendezVousService.StdRdvProtocolListener {
+    private class EdgePeerRendezvousServiceClientMessageListener implements RendezVousService.RendezvousMessageListener {
         /**
          * {@inheritDoc}
          */
@@ -225,11 +225,11 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", message);
 
-            if ((message.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply) != null) || (message.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply) != null)) {
+            if ((message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedPeerReply) != null) || (message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply) != null)) {
                 processConnectedReply(message);
             }
 
-            if (message.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, DisconnectRequest) != null) {
+            if (message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest) != null) {
                 processDisconnectRequest(message);
             }
         }
@@ -479,7 +479,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      */
     private void processDisconnectRequest(Message msg) {
         try {
-            MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, DisconnectRequest);
+            MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest);
 
             if (null != elem) {
                 XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
@@ -602,7 +602,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         Message message = new Message();
 
         // The request simply includes the local peer advertisement.
-        message.replaceMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequest, getPeerAdvertisementDoc(), null));
+        message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequest, getPeerAdvertisementDoc(), null));
         rendezvousPeerConnection.sendMessage(message, pName, pParam);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousConnectionMeter != null)) {
@@ -617,7 +617,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
      */
     private void processConnectedReply(Message msg) {
         // Get the Peer Advertisement of the RDV.
-        MessageElement rendezvousPeerAdvertisementElement = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply);
+        MessageElement rendezvousPeerAdvertisementElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply);
 
         if (null == rendezvousPeerAdvertisementElement) {
             Logging.logCheckedDebug(LOG, "Missing rendezvous peer advertisement");
@@ -627,7 +627,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         long leaseTime;
 
         try {
-            MessageElement leaseTimeElement = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedLeaseReply);
+            MessageElement leaseTimeElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedLeaseReply);
 
             if (leaseTimeElement == null) {
                 Logging.logCheckedDebug(LOG, "Missing lease time information");
@@ -640,7 +640,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
         }
 
         ID peerId;
-        MessageElement rendezvousPeerIdElement = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply);
+        MessageElement rendezvousPeerIdElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedPeerReply);
 
         if (rendezvousPeerIdElement == null) {
             Logging.logCheckedDebug(LOG, "Missing rendezvous peer ID");
@@ -775,7 +775,7 @@ public class EdgePeerRendezvousServiceClient extends StdRendezVousService {
                         Message msg = new Message();
 
                         // The lease request simply includes the local peer advertisement.
-                        msg.addMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequest, getPeerAdvertisementDoc(), null));
+                        msg.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequest, getPeerAdvertisementDoc(), null));
 
                         Messenger msgr = null;
 

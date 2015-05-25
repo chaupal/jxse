@@ -765,7 +765,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         if (provider instanceof RendezvouseServiceServer) {
             RendezvouseServiceServer Temp = (RendezvouseServiceServer) provider;
-            Iterator<PeerViewElement> Iter = Temp.rpv.getView().iterator();
+            Iterator<PeerViewElement> Iter = Temp.rendezvousPeersView.getView().iterator();
 
             while (Iter.hasNext()) {
                 Result.add((PeerID)Iter.next().getPeerID());
@@ -816,7 +816,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
      */
     public RendezvousPeersView getRendezvousPeersView() {        
         if (provider instanceof RendezvouseServiceServer) {
-            return ((RendezvouseServiceServer) provider).rpv;
+            return ((RendezvouseServiceServer) provider).rendezvousPeersView;
         } else {
             return null;
         }

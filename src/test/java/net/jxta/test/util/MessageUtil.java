@@ -72,7 +72,7 @@ import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.router.EndpointRouterMessage;
 import net.jxta.impl.membership.none.NoneMembershipService;
-import net.jxta.impl.rendezvous.StdRendezVousService;
+import net.jxta.impl.rendezvous.RendezVousService;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -228,7 +228,7 @@ public class MessageUtil {
 
             XMLDocument doc = (XMLDocument) peeradv.getDocument(MimeMediaType.XMLUTF8);
 
-            msg.replaceMessageElement("jxta", new TextDocumentMessageElement(StdRendezVousService.ConnectRequest, doc, null));
+            msg.replaceMessageElement("jxta", new TextDocumentMessageElement(RendezVousService.ConnectRequest, doc, null));
         } catch (Exception e) {
             e.printStackTrace();
         }

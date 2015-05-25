@@ -86,8 +86,8 @@ import java.util.List;
  *
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public abstract class StdRendezVousService extends RendezVousServiceProvider {
-    private final static Logger LOG = Logging.getLogger(StdRendezVousService.class.getName());
+public abstract class RendezVousService extends RendezVousServiceProvider {
+    private final static Logger LOG = Logging.getLogger(RendezVousService.class.getName());
 
     public final static String ConnectRequest = "ConnectRequest";
     public final static String DisconnectRequest = "DisconnectRequest";
@@ -109,12 +109,12 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      *
      * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol
      */
-    private StdRdvProtocolListener handler;
+    private RendezvousMessageListener handler;
 
     /**
      * Interface for listeners to : &lt;assignedID>/<group-unique>
      */
-    protected interface StdRdvProtocolListener extends EndpointListener {}
+    protected interface RendezvousMessageListener extends EndpointListener {}
 
     /**
      * Constructor
@@ -122,7 +122,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * @param group      the PeerGroup
      * @param rdvService the parent rendezvous service
      */
-    protected StdRendezVousService(PeerGroup group, RendezVousServiceImpl rdvService) {
+    protected RendezVousService(PeerGroup group, RendezVousServiceImpl rdvService) {
         super(group, rdvService);
 
         MAX_TTL = DEFAULT_MAX_TTL;
@@ -138,7 +138,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * @param handler rdv protocol handler instance
      * @return module start status code
      */
-    protected int startApp(String[] argv, StdRdvProtocolListener handler) {
+    protected int startApp(String[] argv, RendezvousMessageListener handler) {
         this.handler = handler;
 
         rendezvousServiceImplementation.endpoint.addIncomingMessageListener(handler, pName, null);
@@ -183,7 +183,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                     PeerViewElement peerViewElement;
 
                     if (this instanceof RendezvouseServiceServer) {                        
-                        peerViewElement = ((RendezvouseServiceServer) this).rpv.getPeerViewElement(peerid);
+                        peerViewElement = ((RendezvouseServiceServer) this).rendezvousPeersView.getPeerViewElement(peerid);
                     } else {
                         peerViewElement = null;
                     }
@@ -419,7 +419,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         // The request simply includes the local peer advertisement.
         try {
-            msg.replaceMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+            msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
 
             EndpointAddress addr = makeAddress(peerId, null, null);
 
@@ -453,7 +453,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         // The request simply includes the local peer advertisement.
         try {
-            msg.replaceMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+            msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
             pConn.sendMessage(msg, pName, pParam);
         } catch (Exception e) {
             Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);

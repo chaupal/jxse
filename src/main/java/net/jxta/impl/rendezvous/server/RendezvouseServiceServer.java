@@ -76,7 +76,7 @@ import net.jxta.impl.rendezvous.RdvWalk;
 import net.jxta.impl.rendezvous.RdvWalker;
 import net.jxta.impl.rendezvous.RendezVousPropagateMessage;
 import net.jxta.impl.rendezvous.RendezVousServiceImpl;
-import net.jxta.impl.rendezvous.StdRendezVousService;
+import net.jxta.impl.rendezvous.RendezVousService;
 import net.jxta.impl.rendezvous.limited.LimitedRangeWalk;
 import net.jxta.impl.rendezvous.rendezvousMeter.ClientConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
@@ -102,6 +102,7 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import net.jxta.impl.rendezvous.RendezVousServiceProvider;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -111,7 +112,7 @@ import java.util.concurrent.TimeUnit;
  * @see net.jxta.rendezvous.RendezVousService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
-public class RendezvouseServiceServer extends StdRendezVousService {
+public class RendezvouseServiceServer extends RendezVousService {
 
     private final static Logger LOG = Logging.getLogger(RendezvouseServiceServer.class.getName());
 
@@ -143,7 +144,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
     /**
      * The peer view for this rendezvous server.
      */
-    public final RendezvousPeersView rpv;
+    public final RendezvousPeersView rendezvousPeersView;
 
     private ScheduledFuture<?> gcTaskHandle;
 
@@ -185,7 +186,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         if (rdvConfigAdv.getMaxTTL() > 0) {
             MAX_TTL = rdvConfigAdv.getMaxTTL();
         } else {
-            MAX_TTL = StdRendezVousService.DEFAULT_MAX_TTL;
+            MAX_TTL = RendezVousService.DEFAULT_MAX_TTL;
         }
 
         if (rdvConfigAdv.getMaxClients() > 0) {
@@ -203,18 +204,14 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         // Update the peeradv with that information:
         // XXX 20050409 bondolo How does this interact with auto-rdv?
         try {
-            XMLDocument params = (XMLDocument)
-                    StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            XMLDocument params = (XMLDocument)StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
             Element e = params.createElement("Rdv", Boolean.TRUE.toString());
 
             params.appendChild(e);
             group.getPeerAdvertisement().putServiceParam(rdvService.getAssignedID(), params);
-
         } catch (Exception ohwell) {
-
             // don't worry about it for now. It'll still work.
             Logging.logCheckedWarning(LOG, "Failed adding service params\n", ohwell);
-
         }
 
         PeerGroup advGroup = group.getParentGroup();
@@ -225,8 +222,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
             advGroup = null;
         }
 
-        rpv = new RendezvousPeersView(group, advGroup, rdvService, rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
-
+        rendezvousPeersView = new RendezvousPeersView(group, advGroup, rdvService, rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
         Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", group.getPeerGroupID(), " as a Rendezvous peer.");
     }
 
@@ -235,7 +231,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      * <p/>
      * &lt;assignedID>/&lt;group-unique>
      */
-    private class StdRdvRdvProtocolListener implements StdRendezVousService.StdRdvProtocolListener {
+    private class RendezvousServiceServerMessageListener implements RendezVousService.RendezvousMessageListener {
         /**
          * {@inheritDoc}
          */
@@ -260,9 +256,9 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      */
     @Override
     protected int startApp(String[] argv) {
-        super.startApp(argv, new StdRdvRdvProtocolListener());
+        super.startApp(argv, new RendezvousServiceServerMessageListener());
 
-        rpv.start();
+        rendezvousPeersView.start();
 
         // The other services may not be fully functional but they're there
         // so we can start our subsystems.
@@ -270,7 +266,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         // and startApp().
 
         // Start the Walk protcol. Create a LimitedRange Walk
-        walk = new LimitedRangeWalk(peerGroup, new WalkListener(), pName, pParam, rpv);
+        walk = new LimitedRangeWalk(peerGroup, new WalkListener(), pName, pParam, rendezvousPeersView);
 
         // We need to use a Walker in order to propagate the request
         // when when have no answer.
@@ -304,7 +300,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         walk.stop();
         walk = null;
 
-        rpv.stop();
+        rendezvousPeersView.stop();
 
         // Tell all our clientss that we are going down
         disconnectAllClients();
@@ -340,6 +336,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
     /**
      * By default a RendezVous is never connected to another RendezVous through
      * a lease. This method does nothing.
+     * @param peerId
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
@@ -348,10 +345,11 @@ public class RendezvouseServiceServer extends StdRendezVousService {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public boolean isConnectedToRendezVous() {
-        return this.rpv.getSize() > 0;
+        return this.rendezvousPeersView.getSize() > 0;
     }
 
     /**
@@ -386,8 +384,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedDebug(LOG, "Propagating ", msg, "(TTL=", useTTL, ") to :",
-                    "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
+        Logging.logCheckedDebug(LOG, "Propagating ", msg, "(TTL=", useTTL, ") to :", "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -420,8 +417,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedDebug(LOG, "Propagating ", msg, "(TTL=", useTTL, ") in group to :",
-                    "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
+        Logging.logCheckedDebug(LOG, "Propagating ", msg, "(TTL=", useTTL, ") in group to :", "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -570,22 +566,19 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      * @param msg Message containing the lease request
      */
     private void processLeaseRequest(Message msg) {
-
-        PeerAdvertisement padv;
+        PeerAdvertisement peerAdvertisement;
 
         try {
             MessageElement elem = msg.getMessageElement("jxta", ConnectRequest);
 
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
 
-            padv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
+            peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
             msg.removeMessageElement(elem);
 
         } catch (Exception e) {
-
             Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from lease request\n", e);
             return;
-
         }
 
         // Publish the client's peer advertisement
@@ -593,47 +586,35 @@ public class RendezvouseServiceServer extends StdRendezVousService {
             // This is not our own peer adv so we must not keep it longer than
             // its expiration time.
             DiscoveryService discovery = peerGroup.getDiscoveryService();
-
-            if (null != discovery) discovery.publish(padv, LEASE_DURATION * 2, 0);
-
+            if (null != discovery) {
+                discovery.publish(peerAdvertisement, LEASE_DURATION * 2, 0);
+            }
         } catch (Exception e) {
-
             Logging.logCheckedWarning(LOG, "Client peer advertisement publish failed\n", e);
-
         }
 
-        long lease;
+        long leaseTime;
 
-        ClientConnection pConn = clients.get(padv.getPeerID());
+        ClientConnection pConn = clients.get(peerAdvertisement.getPeerID());
 
         if (null != pConn) {
-
             Logging.logCheckedDebug(LOG, "Renewing client lease to ", pConn);
-            lease = LEASE_DURATION;
-
+            leaseTime = LEASE_DURATION;
         } else {
-
             if (clients.size() < MAX_CLIENTS) {
-
-                lease = LEASE_DURATION;
-                Logging.logCheckedDebug(LOG, "Offering new client lease to ", padv.getName(), " [", padv.getPeerID(), "]");
-
+                leaseTime = LEASE_DURATION;
+                Logging.logCheckedDebug(LOG, "Offering new client lease to ", peerAdvertisement.getName(), " [", peerAdvertisement.getPeerID(), "]");
             } else {
-
-                lease = 0;
-
-                Logging.logCheckedWarning(LOG, "Max clients exceeded, declining lease request from: ",
-                    padv.getName(), " [", padv.getPeerID(), "]");
-
+                leaseTime = 0;
+                Logging.logCheckedWarning(LOG, "Max clients exceeded, declining lease request from: ", peerAdvertisement.getName(), " [", peerAdvertisement.getPeerID(), "]");
             }
-
         }
 
-        if (lease > 0) {
-            pConn = addClient(padv, lease);
+        if (leaseTime > 0) {
+            pConn = addClient(peerAdvertisement, leaseTime);
 
             // FIXME 20041015 bondolo We're supposed to send a lease 0 if we can't accept new clients.
-            sendLease(pConn, lease);
+            sendLeaseReplyMessage(pConn, leaseTime);
         }
     }
 
@@ -644,14 +625,15 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      * @param lease lease duration.
      * @return Description of the Returned Value
      */
-    private boolean sendLease(ClientConnection clientConnection, long lease) {
+    private boolean sendLeaseReplyMessage(ClientConnection clientConnection, long lease) {
 
         Logging.logCheckedDebug(LOG, "Sending lease (", lease, ") to ", clientConnection.getPeerName());
 
         Message msg = new Message();
-        msg.addMessageElement("jxta", new TextDocumentMessageElement(ConnectedRendezvousAdvertisementReply, getPeerAdvertisementDoc(), null));
-        msg.addMessageElement("jxta", new StringMessageElement(ConnectedPeerReply, peerGroup.getPeerID().toString(), null));
-        msg.addMessageElement("jxta", new StringMessageElement(ConnectedLeaseReply, Long.toString(lease), null));
+        
+        msg.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectedRendezvousAdvertisementReply, getPeerAdvertisementDoc(), null));
+        msg.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(ConnectedPeerReply, peerGroup.getPeerID().toString(), null));
+        msg.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(ConnectedLeaseReply, Long.toString(lease), null));
 
         return clientConnection.sendMessage(msg, pName, pParam);
     }
@@ -668,12 +650,10 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedDebug(LOG,
-            "Undirected walk of ", msg, "(TTL=", useTTL, ") to :", "\n\tsvc name:",
-            serviceName, "\tsvc params:", serviceParam);
+        Logging.logCheckedDebug(LOG, "Undirected walk of ", msg, "(TTL=", useTTL, ") to :", "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
-        msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
-        msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
 
         try {
             walker.walkMessage(null, msg, pName, pParam, useTTL);
@@ -689,7 +669,6 @@ public class RendezvouseServiceServer extends StdRendezVousService {
 
             Logging.logCheckedWarning(LOG, "Cannot send message with Walker\n", failure);
             throw failure;
-
         }
     }
 
@@ -721,12 +700,10 @@ public class RendezvouseServiceServer extends StdRendezVousService {
                 }
 
                 Logging.logCheckedWarning(LOG, "Cannot send message with Walker to: ", destPeerID, "\n", failed);
-                IOException failure = new IOException("Cannot send message with Walker to: " + destPeerID);
-                failure.initCause(failed);
-                throw failure;
-
+                throw new IOException("Cannot send message with Walker to: " + destPeerID, failed);
             }
         }
+        
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.walkToPeers(destPeerIDs.size());
         }
@@ -736,12 +713,11 @@ public class RendezvouseServiceServer extends StdRendezVousService {
      * Periodic cleanup task
      */
     private class GCTask implements Runnable {
-
         /**
          * {@inheritDoc
          */
+        @Override
         public void run() {
-
             try {
                 long gcStart = TimeUtils.timeNow();
                 int gcedClients = 0;
@@ -763,24 +739,14 @@ public class RendezvouseServiceServer extends StdRendezVousService {
                             pConn.setConnected(false);
                             removeClient(pConn, false);
                             gcedClients++;
-
                         }
-
                     } catch (Exception e) {
-
                         Logging.logCheckedWarning(LOG, "GCTask failed for ", pConn, "\n", e);
-
                     }
                 }
-
-                Logging.logCheckedDebug(LOG, "Client GC ", gcedClients, " of ", allClients.size(),
-                    " clients completed in ", TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart),
-                    "ms.");
-
+                Logging.logCheckedDebug(LOG, "Client GC ", gcedClients, " of ", allClients.size(), " clients completed in ", TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart), "ms.");
             } catch (Throwable all) {
-
                 Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-
             }
         }
     }
@@ -793,6 +759,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
             MessageElement serviceME = msg.getMessageElement("jxta", RDV_WALK_SVC_NAME);
@@ -818,8 +785,7 @@ public class RendezvouseServiceServer extends StdRendezVousService {
 
             EndpointAddress realDest = new EndpointAddress(dstAddr, sName, sParam);
 
-            Logging.logCheckedDebug(LOG, "Calling local listener for [", realDest.getServiceName(),
-                " / ", realDest.getServiceParameter(), "] with ", msg);
+            Logging.logCheckedDebug(LOG, "Calling local listener for [", realDest.getServiceName(), " / ", realDest.getServiceParameter(), "] with ", msg);
 
             rendezvousServiceImplementation.endpoint.processIncomingMessage(msg, srcAddr, realDest);
 

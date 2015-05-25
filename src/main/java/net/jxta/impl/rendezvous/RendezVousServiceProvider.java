@@ -97,7 +97,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
     protected static final String PropSName = "JxtaPropagate";
 
-    protected static final String RDV_MSG_NAMESPACE_NAME = "jxta";
+    protected static final String RENDEZVOUS_MESSAGE_NAMESPACE_NAME = "jxta";
 
     protected final String PropPName;
     protected final String PROP_HDR_ELEMENT_NAME;
@@ -563,7 +563,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @return endpointAddress for this peer id.
      */
     protected static EndpointAddress makeAddress(ID destPeer, String serv, String parm) {
-        EndpointAddress addr = new EndpointAddress(RDV_MSG_NAMESPACE_NAME, destPeer.getUniqueValue().toString(), serv, parm);
+        EndpointAddress addr = new EndpointAddress(RENDEZVOUS_MESSAGE_NAMESPACE_NAME, destPeer.getUniqueValue().toString(), serv, parm);
         return addr;
     }
 
@@ -575,7 +575,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected RendezVousPropagateMessage getPropHeader(Message msg) {
 
-        MessageElement elem = msg.getMessageElement(RDV_MSG_NAMESPACE_NAME, PROP_HDR_ELEMENT_NAME);
+        MessageElement elem = msg.getMessageElement(RENDEZVOUS_MESSAGE_NAMESPACE_NAME, PROP_HDR_ELEMENT_NAME);
 
         if (elem == null) {
             return null;
@@ -700,7 +700,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         Logging.logCheckedDebug(LOG, (newHeader ? "Added" : "Updated"), " prop header for ", msg, " (", propHdr.getMsgId(), ") TTL = ", propHdr.getTTL());
 
-        msg.replaceMessageElement(RDV_MSG_NAMESPACE_NAME, elem);
+        msg.replaceMessageElement(RENDEZVOUS_MESSAGE_NAMESPACE_NAME, elem);
         return propHdr;
     }
 
