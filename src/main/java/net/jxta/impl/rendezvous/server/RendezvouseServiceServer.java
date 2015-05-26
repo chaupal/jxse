@@ -571,12 +571,8 @@ public class RendezvouseServiceServer extends RendezVousService {
 
         try {
             MessageElement messageElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
-
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(messageElement);
-
-            peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
-            msg.removeMessageElement(messageElement);
-
+            peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);            
         } catch (Exception e) {
             Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from lease request\n", e);
             return;
@@ -617,8 +613,8 @@ public class RendezvouseServiceServer extends RendezVousService {
             // FIXME 20041015 bondolo We're supposed to send a lease 0 if we can't accept new clients.
             sendLeaseReplyMessage(clientConnection, leaseTime);
             
-            //mindarchitect
-            //Notify peer group that new client lease request was processed and rendezvous registered it
+            //mindarchitect 27052015
+            //Notify rendezvous clients that new client lease request was processed and rendezvous registered it
             try {
                 propagateInGroup(msg, pName, pParam, MAX_TTL);
             } catch (IOException exception) {

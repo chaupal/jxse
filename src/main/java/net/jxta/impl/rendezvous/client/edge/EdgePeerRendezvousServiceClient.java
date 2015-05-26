@@ -89,6 +89,7 @@ import net.jxta.impl.rendezvous.RendezVousPropagateMessage;
 import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.rendezvous.RendezVousServiceProvider;
 import net.jxta.impl.rendezvous.RendezVousService;
+import static net.jxta.impl.rendezvous.RendezVousService.ConnectRequest;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerviewSeedingManager;
@@ -227,6 +228,27 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
 
             if ((message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedPeerReply) != null) || (message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply) != null)) {
                 processConnectedReply(message);
+            }
+            
+            //mindarchitect 27052015
+            //This message is propagated by rendezvous server service to notify all rendezvous clients that peer lease request was processed and it connected to rendezvous in peer group
+            //We need to know when peer connects or disconnects from the rendezvous to notify all peers about that
+            if ((message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest) != null)) {                
+                //Just generate the corresponding event
+                PeerAdvertisement peerAdvertisement;
+
+                try {
+                    MessageElement messageElement = message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
+                    XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(messageElement);
+                    peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
+                } catch (Exception e) {
+                    Logging.logCheckedWarning(LOG, "Could not process connect request\n", e);
+                    return;
+                }
+                
+                //TODO
+                //Make sure we are not processing own request                
+                rendezvousServiceImplementation.generateEvent(RendezvousEvent.CLIENTCONNECT, peerAdvertisement.getPeerID());
             }
 
             if (message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest) != null) {
@@ -589,7 +611,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
      *  @param rendezvousPeerConnection The peer to which the message should be sent.
      *  @throws IOException Thrown for errors sending the lease request.
      */
-    private void sendConnectRequest(RendezvousConnection rendezvousPeerConnection) throws IOException {
+    private void sendLeaseRequest(RendezvousConnection rendezvousPeerConnection) throws IOException {
 
         Logging.logCheckedDebug(LOG, "Sending lease request to ", rendezvousPeerConnection);
 
@@ -753,7 +775,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
 
                         if (TimeUtils.toRelativeTimeMillis(pConn.getRenewal()) <= 0) {
                             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] Attempting lease renewal for ", pConn);
-                            sendConnectRequest(pConn);
+                            sendLeaseRequest(pConn);
                         }
 
                     } catch (Exception e) {
