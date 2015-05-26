@@ -374,6 +374,7 @@ public class RendezvouseServiceServer extends RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void propagate(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
@@ -551,12 +552,12 @@ public class RendezvouseServiceServer extends RendezVousService {
             return;
         }
 
-        ClientConnection pConn = clients.get(peerAdvertisement.getPeerID());
+        ClientConnection clientPeerConnection = clients.get(peerAdvertisement.getPeerID());
 
-        if (null != pConn) {
+        if (null != clientPeerConnection) {
             // Make sure we don't send a disconnect
-            pConn.setConnected(false); 
-            removeClient(pConn, true);
+            clientPeerConnection.setConnected(false); 
+            removeClient(clientPeerConnection, true);
         }
     }
 
@@ -569,12 +570,12 @@ public class RendezvouseServiceServer extends RendezVousService {
         PeerAdvertisement peerAdvertisement;
 
         try {
-            MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
+            MessageElement messageElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(messageElement);
 
             peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
-            msg.removeMessageElement(elem);
+            msg.removeMessageElement(messageElement);
 
         } catch (Exception e) {
             Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from lease request\n", e);
@@ -589,16 +590,16 @@ public class RendezvouseServiceServer extends RendezVousService {
             if (null != discovery) {
                 discovery.publish(peerAdvertisement, LEASE_DURATION * 2, 0);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             Logging.logCheckedWarning(LOG, "Client peer advertisement publish failed\n", e);
         }
 
         long leaseTime;
 
-        ClientConnection pConn = clients.get(peerAdvertisement.getPeerID());
+        ClientConnection clientConnection = clients.get(peerAdvertisement.getPeerID());
 
-        if (null != pConn) {
-            Logging.logCheckedDebug(LOG, "Renewing client lease to ", pConn);
+        if (null != clientConnection) {
+            Logging.logCheckedDebug(LOG, "Renewing client lease to ", clientConnection);
             leaseTime = LEASE_DURATION;
         } else {
             if (clients.size() < MAX_CLIENTS) {
@@ -611,10 +612,18 @@ public class RendezvouseServiceServer extends RendezVousService {
         }
 
         if (leaseTime > 0) {
-            pConn = addClient(peerAdvertisement, leaseTime);
+            clientConnection = addClient(peerAdvertisement, leaseTime);
 
             // FIXME 20041015 bondolo We're supposed to send a lease 0 if we can't accept new clients.
-            sendLeaseReplyMessage(pConn, leaseTime);
+            sendLeaseReplyMessage(clientConnection, leaseTime);
+            
+            //mindarchitect
+            //Notify peer group that new client lease request was processed and rendezvous registered it
+            try {
+                propagateInGroup(msg, pName, pParam, MAX_TTL);
+            } catch (IOException exception) {
+                Logging.logCheckedDebug(LOG, "Propagating in peer group ", pParam, " failed with error\n", exception.getLocalizedMessage());
+            }
         }
     }
 
