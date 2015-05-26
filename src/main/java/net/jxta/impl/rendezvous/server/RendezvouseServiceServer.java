@@ -548,7 +548,7 @@ public class RendezvouseServiceServer extends RendezVousService {
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
             peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
         } catch (Exception e) {
-            Logging.logCheckedWarning(LOG, "Could not process disconnect request\n", e);
+            Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from disconnect request\n", e);
             return;
         }
 
@@ -559,6 +559,10 @@ public class RendezvouseServiceServer extends RendezVousService {
             clientPeerConnection.setConnected(false); 
             removeClient(clientPeerConnection, true);
         }
+        
+        //mindarchitect 27052015
+        //TODO
+        //Implement group propagation on disconnect request
     }
 
     /**
