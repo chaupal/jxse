@@ -234,6 +234,8 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
             if (message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest) != null) {
                 processDisconnectRequest(message);                
             }
+            
+            PeerID peerId = peerGroup.getPeerID();                        
 
             //mindarchitect 27052015
             //This message is propagated by rendezvous server service to notify all rendezvous clients that peer lease request was processed and it connected to rendezvous in peer group
@@ -249,11 +251,12 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                 } catch (IOException e) {
                     Logging.logCheckedWarning(LOG, "Could not process connect request notification\n", e);
                     return;
-                }
+                }                
                 
-                //TODO
                 //Make sure we are not processing own request                
-                rendezvousServiceImplementation.generateEvent(RendezvousEvent.CLIENTCONNECT, peerAdvertisement.getPeerID());
+                if (!peerAdvertisement.getPeerID().equals(peerId)) {
+                    rendezvousServiceImplementation.generateEvent(RendezvousEvent.CLIENTCONNECT, peerAdvertisement.getPeerID());
+                }
             }  
             
             //mindarchitect 27052015
@@ -270,11 +273,12 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                 } catch (IOException e) {
                     Logging.logCheckedWarning(LOG, "Could not process disconnect request notification\n", e);
                     return;
-                }
+                }                
                 
-                //TODO
                 //Make sure we are not processing own request                
-                rendezvousServiceImplementation.generateEvent(RendezvousEvent.CLIENTDISCONNECT, peerAdvertisement.getPeerID());
+                if (!peerAdvertisement.getPeerID().equals(peerId)) {
+                    rendezvousServiceImplementation.generateEvent(RendezvousEvent.CLIENTDISCONNECT, peerAdvertisement.getPeerID());
+                }
             }
         }
     }
