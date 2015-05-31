@@ -236,7 +236,7 @@ public class RendezvouseServiceServer extends RendezVousService {
          * {@inheritDoc}
          */
         @Override
-        public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
+        public void processIncomingMessage(Message msg, EndpointAddress sourceAddress, EndpointAddress destinationAddress) {
             Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] processing ", msg);
 
             if (msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest) != null) {
@@ -321,7 +321,7 @@ public class RendezvouseServiceServer extends RendezVousService {
      */
     @Override
     public void connectToRendezVous(EndpointAddress addr, Object hint) {
-        Logging.logCheckedWarning(LOG, "Invalid call to connectToRendezVous() on RDV peer");
+        Logging.logCheckedWarning(LOG, "Invalid call to connectToRendezVous() on rendezvous peer");
     }
 
     /**
@@ -537,44 +537,44 @@ public class RendezvouseServiceServer extends RendezVousService {
     /**
      * Handle a disconnection request
      *
-     * @param msg Message containing the disconnection request.
+     * @param message Message containing the disconnection request.
      */
-    private void processDisconnectRequest(Message msg) {
+    private void processDisconnectRequest(Message message) {
 
         PeerAdvertisement peerAdvertisement;
 
         try {
-            MessageElement elem = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest);
+            MessageElement elem = message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, DisconnectRequest);
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
             peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
-        } catch (Exception e) {
+        } catch (IOException e) {
             Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from disconnect request\n", e);
             return;
         }
 
         ClientConnection clientPeerConnection = clients.get(peerAdvertisement.getPeerID());
 
-        if (null != clientPeerConnection) {
+        if (clientPeerConnection != null) {
             // Make sure we don't send a disconnect
             clientPeerConnection.setConnected(false); 
             removeClient(clientPeerConnection, true);
-        }
+        }                
         
         //mindarchitect 27052015
-        //TODO
-        //Implement group propagation on disconnect request
+        //Notify rendezvous clients that client disconnect request was processed
+        propagateRequestMessageInPeerGroup(message, DisconnectRequestNotification);        
     }
 
     /**
      * Handles a lease request message
      *
-     * @param msg Message containing the lease request
+     * @param message Message containing the lease request
      */
-    private void processLeaseRequest(Message msg) {
+    private void processLeaseRequest(Message message) {
         PeerAdvertisement peerAdvertisement;
 
         try {
-            MessageElement messageElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
+            MessageElement messageElement = message.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectRequest);
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(messageElement);
             peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);            
         } catch (Exception e) {
@@ -615,15 +615,11 @@ public class RendezvouseServiceServer extends RendezVousService {
             clientConnection = addClient(peerAdvertisement, leaseTime);
 
             // FIXME 20041015 bondolo We're supposed to send a lease 0 if we can't accept new clients.
-            sendLeaseReplyMessage(clientConnection, leaseTime);
+            sendLeaseReplyMessage(clientConnection, leaseTime);            
             
             //mindarchitect 27052015
-            //Notify rendezvous clients that new client lease request was processed and rendezvous registered it
-            try {
-                propagateInGroup(msg, pName, pParam, MAX_TTL);
-            } catch (IOException exception) {
-                Logging.logCheckedDebug(LOG, "Propagating in peer group ", pParam, " failed with error\n", exception.getLocalizedMessage());
-            }
+            //Notify rendezvous clients that new client lease request was processed and rendezvous registered it                        
+            propagateRequestMessageInPeerGroup(message, ConnectRequestNotification); 
         }
     }
 
@@ -717,6 +713,16 @@ public class RendezvouseServiceServer extends RendezVousService {
             rendezvousMeter.walkToPeers(destPeerIDs.size());
         }
     }
+    
+    private void propagateRequestMessageInPeerGroup(Message message, String messageTag) {
+        //mindarchitect 27052015        
+        try {            
+            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(messageTag, getPeerAdvertisementDoc(), null));
+            propagateInGroup(message, pName, pParam, MAX_TTL);
+        } catch (IOException exception) {
+            Logging.logCheckedDebug(LOG, "Propagating in peer group ", pParam, " failed with error: \n", exception.getLocalizedMessage());
+        }
+    }
 
     /**
      * Periodic cleanup task
@@ -769,17 +775,17 @@ public class RendezvouseServiceServer extends RendezVousService {
          * {@inheritDoc}
          */
         @Override
-        public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
+        public void processIncomingMessage(Message msg, EndpointAddress sourceAddress, EndpointAddress destinationAddress) {
 
-            MessageElement serviceME = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_NAME);
+            MessageElement serviceMessageElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_NAME);
 
-            if (null == serviceME) {
+            if (null == serviceMessageElement) {
                 Logging.logCheckedDebug(LOG, "Discarding ", msg, " because its missing service name element");
                 return;
             }
 
-            msg.removeMessageElement(serviceME);
-            String sName = serviceME.toString();
+            msg.removeMessageElement(serviceMessageElement);
+            String serviceName = serviceMessageElement.toString();
 
             MessageElement paramME = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_PARAM);
 
@@ -792,11 +798,11 @@ public class RendezvouseServiceServer extends RendezVousService {
                 sParam = paramME.toString();
             }
 
-            EndpointAddress realDest = new EndpointAddress(dstAddr, sName, sParam);
+            EndpointAddress realDest = new EndpointAddress(destinationAddress, serviceName, sParam);
 
             Logging.logCheckedDebug(LOG, "Calling local listener for [", realDest.getServiceName(), " / ", realDest.getServiceParameter(), "] with ", msg);
 
-            rendezvousServiceImplementation.endpoint.processIncomingMessage(msg, srcAddr, realDest);
+            rendezvousServiceImplementation.endpoint.processIncomingMessage(msg, sourceAddress, realDest);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedMessageProcessedLocally();

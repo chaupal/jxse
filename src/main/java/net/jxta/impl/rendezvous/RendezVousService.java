@@ -94,6 +94,10 @@ public abstract class RendezVousService extends RendezVousServiceProvider {
     public final static String ConnectedPeerReply = "ConnectedPeerReply";
     public final static String ConnectedLeaseReply = "ConnectedLeaseReply";
     public final static String ConnectedRendezvousAdvertisementReply = "RendezvousAdvertisementReply";
+    
+    public final static String ConnectRequestNotification = "ConnectRequestNotification";
+    public final static String DisconnectRequestNotification = "DisonnectRequestNotification";
+    
 
     /**
      * Default Maximum TTL.
@@ -167,36 +171,36 @@ public abstract class RendezVousService extends RendezVousServiceProvider {
         if (sourceAddress.getProtocolName().equalsIgnoreCase("jxta")) {
             String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + sourceAddress.getProtocolAddress();
 
-            ID peerid;
+            ID peerId;
 
             try {
-                peerid = IDFactory.fromURI(new URI(idstr));
+                peerId = IDFactory.fromURI(new URI(idstr));
             } catch (URISyntaxException badID) {
                 Logging.logCheckedWarning(LOG, "Bad ID in message\n", badID);
                 return;
             }
 
-            if (!peerGroup.getPeerID().equals(peerid)) {
-                PeerConnection peerConnection = getPeerConnection(peerid);
+            if (!peerGroup.getPeerID().equals(peerId)) {
+                PeerConnection peerConnection = getPeerConnection(peerId);
 
                 if (null == peerConnection) {
                     PeerViewElement peerViewElement;
 
                     if (this instanceof RendezvouseServiceServer) {                        
-                        peerViewElement = ((RendezvouseServiceServer) this).rendezvousPeersView.getPeerViewElement(peerid);
+                        peerViewElement = ((RendezvouseServiceServer) this).rendezvousPeersView.getPeerViewElement(peerId);
                     } else {
                         peerViewElement = null;
                     }
 
                     if (null == peerViewElement) {
-                        Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from unrecognized peer : ", peerid);
+                        Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from unrecognized peer : ", peerId);
 
                         propHdr.setTTL(Math.min(propHdr.getTTL(), 3)); // will be reduced during repropagate stage.
 
                         // FIXME 20040503 bondolo need to add tombstones so that we don't end up spamming disconnects.
                         if (rendezvousServiceImplementation.isRendezVous() || (getPeerConnections().length > 0)) {
                             //Edge peers with no rdv should not send disconnect.
-                            sendDisconnect(peerid, null);
+                            sendDisconnect(peerId, null);
                         }
                     } else {
                         Logging.logCheckedDebug(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", peerViewElement);
@@ -415,28 +419,26 @@ public abstract class RendezVousService extends RendezVousServiceProvider {
      * @param peerAdvertisement   The peer to be disconnected.
      */
     protected void sendDisconnect(ID peerId, PeerAdvertisement peerAdvertisement) {
-        Message msg = new Message();
+        Message message = new Message();
 
         // The request simply includes the local peer advertisement.
         try {
-            msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
-
+            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
             EndpointAddress addr = makeAddress(peerId, null, null);
-
-            RouteAdvertisement hint = null;
+            RouteAdvertisement routeAdvertisement = null;
 
             if (null != peerAdvertisement) {
-                hint = EndpointUtils.extractRouteAdv(peerAdvertisement);
+                routeAdvertisement = EndpointUtils.extractRouteAdv(peerAdvertisement);
             }
 
-            Messenger messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(addr, hint);
+            Messenger messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(addr, routeAdvertisement);
 
             if (null == messenger) {
                 Logging.logCheckedWarning(LOG, "Could not get messenger for ", peerId);
                 return;
             }
 
-            messenger.sendMessage(msg, pName, pParam);
+            messenger.sendMessage(message, pName, pParam);
         } catch (Exception e) {
             Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
         }
@@ -445,16 +447,16 @@ public abstract class RendezVousService extends RendezVousServiceProvider {
     /**
      * Sends a disconnect message to the specified peer.
      *
-     * @param pConn The peer to be disconnected.
+     * @param peerConnection The peer to be disconnected.
      */
-    protected void sendDisconnect(PeerConnection pConn) {
+    protected void sendDisconnect(PeerConnection peerConnection) {
 
-        Message msg = new Message();
+        Message message = new Message();
 
         // The request simply includes the local peer advertisement.
         try {
-            msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
-            pConn.sendMessage(msg, pName, pParam);
+            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+            peerConnection.sendMessage(message, pName, pParam);
         } catch (Exception e) {
             Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
         }

@@ -261,7 +261,6 @@ public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider 
      */
     @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-
         ttl = Math.min(ttl, MAX_TTL);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
@@ -282,7 +281,6 @@ public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider 
      */
     @Override
     public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) {
-
         ttl = Math.min(ttl, MAX_TTL);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
@@ -325,7 +323,6 @@ public class AdhocPeerRendezvousServiceClient extends RendezVousServiceProvider 
      */
     @Override
     public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-
         ttl = Math.min(ttl, MAX_TTL);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);

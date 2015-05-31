@@ -113,12 +113,10 @@ public class RendezvousEvent extends EventObject {
     /**
      *  Node has become a edge
      */
-    public final static int BECAMEEDGE = 9;
+    public final static int BECAMEEDGE = 9;        
 
     private final static String EVENTNAMES[] = {
-        "RDVCONNECT", "RDVRECONNECT", "CLIENTCONNECT", "CLIENTRECONNECT", "RDVDISCONNECT", "RDVFAILED", "CLIENTDISCONNECT"
-                ,
-        "CLIENTFAILED", "BECAMERDV", "BECAMEEDGE"
+        "RDVCONNECT", "RDVRECONNECT", "CLIENTCONNECT", "CLIENTRECONNECT", "RDVDISCONNECT", "RDVFAILED", "CLIENTDISCONNECT", "CLIENTFAILED", "BECAMERDV", "BECAMEEDGE"
     };
 
     private int type;
