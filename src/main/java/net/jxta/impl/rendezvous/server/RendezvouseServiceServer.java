@@ -562,7 +562,8 @@ public class RendezvouseServiceServer extends RendezVousService {
         
         //mindarchitect 27052015
         //Notify rendezvous clients that client disconnect request was processed
-        propagateRequestMessageInPeerGroup(message, DisconnectRequestNotification);        
+        message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequestNotification, (XMLDocument) peerAdvertisement.getSignedDocument(), null));
+        propagateRequestMessageInPeerGroup(message);        
     }
 
     /**
@@ -619,7 +620,8 @@ public class RendezvouseServiceServer extends RendezVousService {
             
             //mindarchitect 27052015
             //Notify rendezvous clients that new client lease request was processed and rendezvous registered it                        
-            propagateRequestMessageInPeerGroup(message, ConnectRequestNotification); 
+            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequestNotification, (XMLDocument) peerAdvertisement.getSignedDocument(), null));
+            propagateRequestMessageInPeerGroup(message); 
         }
     }
 
@@ -714,10 +716,9 @@ public class RendezvouseServiceServer extends RendezVousService {
         }
     }
     
-    private void propagateRequestMessageInPeerGroup(Message message, String messageTag) {
+    private void propagateRequestMessageInPeerGroup(Message message) {
         //mindarchitect 27052015        
-        try {            
-            //message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(messageTag, getPeerAdvertisementDoc(), null));
+        try {                        
             propagateInGroup(message, pName, pParam, MAX_TTL);
         } catch (IOException exception) {
             Logging.logCheckedDebug(LOG, "Propagating in peer group ", pParam, " failed with error: \n", exception.getLocalizedMessage());
