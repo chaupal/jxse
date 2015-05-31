@@ -717,7 +717,7 @@ public class RendezvouseServiceServer extends RendezVousService {
     private void propagateRequestMessageInPeerGroup(Message message, String messageTag) {
         //mindarchitect 27052015        
         try {            
-            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(messageTag, getPeerAdvertisementDoc(), null));
+            //message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(messageTag, getPeerAdvertisementDoc(), null));
             propagateInGroup(message, pName, pParam, MAX_TTL);
         } catch (IOException exception) {
             Logging.logCheckedDebug(LOG, "Propagating in peer group ", pParam, " failed with error: \n", exception.getLocalizedMessage());
