@@ -74,13 +74,13 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
 
     private final static transient Logger LOG = Logging.getLogger(PeerConnection.class.getName());
 
-    protected final PeerGroup group;
-    protected final EndpointService endpoint;
+    protected final PeerGroup peerGroup;
+    protected final EndpointService endpointService;
 
     /**
      * ID of the remote peer.
      */
-    protected final ID peerid;
+    protected final ID peerId;
 
     /**
      * Cached name of the peer for display purposes.
@@ -111,9 +111,9 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * @param peerid   destination peerid
      */
     public PeerConnection(PeerGroup group, EndpointService endpoint, ID peerid) {
-        this.group = group;
-        this.endpoint = endpoint;
-        this.peerid = peerid;
+        this.peerGroup = group;
+        this.endpointService = endpoint;
+        this.peerId = peerid;
 
         this.peerName = peerid.toString();
     }
@@ -125,7 +125,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      */
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof PeerConnection && peerid.equals(((PeerConnection) obj).peerid);
+        return obj instanceof PeerConnection && peerId.equals(((PeerConnection) obj).peerId);
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      */
     @Override
     public int hashCode() {
-        return peerid.hashCode();
+        return peerId.hashCode();
     }
 
     /**
@@ -185,7 +185,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * @return The peer id of the connected peer.
      */
     public ID getPeerID() {
-        return peerid;
+        return peerId;
     }
 
     /**
@@ -308,7 +308,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      *         none is available.
      */
     protected synchronized Messenger getCachedMessenger(PeerAdvertisement padv) {
-        if ((null != padv) && !peerid.equals(padv.getPeerID())) {
+        if ((null != padv) && !peerId.equals(padv.getPeerID())) {
             throw new IllegalArgumentException("Peer Advertisement does not match connection");
         }
 
@@ -332,15 +332,16 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
 
             RouteAdvertisement hint = null;
 
-            if (null != padv) 
+            if (null != padv) {
                 hint = EndpointUtils.extractRouteAdv(padv);
+            }
 
-            EndpointAddress destAddress = new EndpointAddress(peerid, null, null);
+            EndpointAddress destinationAddress = new EndpointAddress(peerId, null, null);
 
-            cachedMessenger = endpoint.getMessenger(destAddress, hint);
+            cachedMessenger = endpointService.getMessenger(destinationAddress, hint);
 
             if (null == cachedMessenger) {
-                // no messenger? avoid doing more work.
+                // no messenger? Avoid doing more work.
                 setConnected(false);
             }
 
@@ -375,27 +376,24 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     /**
      * Send a message to remote peer, blocking until on network or connection failed
      *
-     * @param msg the message to send
+     * @param message the message to send
      * @param service the destination service
-     * @param param Parameters for the destination service.
+     * @param parameter Parameters for the destination service.
      * @return  <true>true</true> if the message has been queued for send and should succeed if connection maintained.
      */
-    public boolean sendMessageB(Message msg, String service, String param)
+    public boolean sendMessageB(Message message, String service, String parameter)
     {
         Messenger messenger = cachedMessenger;
 
         if (null != messenger) {
-            try
-            {
-                messenger.sendMessageB(msg, service, param);
+            try {
+                messenger.sendMessageB(message, service, parameter);
+                return true;
             }
-            catch (IOException e)
-            {
-                LOG.warn("Failed to send blocking message owing to IOException " + e);
-            }
-            return true;
-        } else {
-            return false;
-        }
+            catch (IOException e) {
+                LOG.error("Failed to send blocking message owing to IOException " + e);
+            }            
+        } 
+        return false;        
     }
 }

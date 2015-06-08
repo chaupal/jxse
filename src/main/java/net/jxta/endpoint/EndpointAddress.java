@@ -324,7 +324,7 @@ public class EndpointAddress {
 
         result = newResult.toString();
 
-        cachedToString = new SoftReference<String>(result);
+        cachedToString = new SoftReference<>(result);
 
         return result;
     }

@@ -68,6 +68,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -582,9 +583,8 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
             Logging.logCheckedInfo(LOG, "New RDV lease from ", rendezvousConnection);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
-                RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(
-                        padv.getPeerID());
-
+                RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(padv.getPeerID());
+                
                 rendezvousConnectionMeter.connectionEstablished(lease);
             }
         }
@@ -601,20 +601,24 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
      */
     private void removeRendezvousPeer(ID rendezvousPeerId, boolean requested) {
 
-        Logging.logCheckedInfo(LOG, "Disconnect from RDV ", rendezvousPeerId);
+        Logging.logCheckedInfo(LOG, "Disconnecting from rendezvous peer ", rendezvousPeerId);
 
-        PeerConnection peerConnection;
+        RendezvousConnection rendezvousConnection;
 
         synchronized (connectedRendezVousPeers) {
-            peerConnection = connectedRendezVousPeers.remove(rendezvousPeerId);
+            rendezvousConnection = connectedRendezVousPeers.remove(rendezvousPeerId);
         }
 
-        if (null != peerConnection) {
-            if (peerConnection.isConnected()) {
-                sendDisconnect(peerConnection);
-                peerConnection.setConnected(false);                
+        if (null != rendezvousConnection) {
+            if (rendezvousConnection.isConnected()) {
+                //TODO
+                //Investigate the problem of not sending the message using this method
+                //sendDisconnect(rendezvousConnection);                                
+                //sendDisconnect(rendezvousPeerId, rendezvousConnection.getRendezvousPeerAdvertisement());                                
+                sendBlockingDisconnect(rendezvousConnection);                
+                rendezvousConnection.setConnected(false);                
             }
-        }
+        }                
 
         rendezvousServiceImplementation.generateEvent(requested ? RendezvousEvent.RDVDISCONNECT : RendezvousEvent.RDVFAILED, rendezvousPeerId);
 

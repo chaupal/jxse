@@ -287,6 +287,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         /**
          * {@inheritDoc}
          */
+        @Override
         public int getState() {
             return BlockingMessenger.this.getState();
         }
@@ -294,6 +295,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void resolve() {
             BlockingMessenger.this.resolve();
         }
@@ -301,6 +303,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void close() {
             BlockingMessenger.this.close();
         }
@@ -311,6 +314,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
          * <p/>
          * Address rewriting done here.
          */
+        @Override
         public boolean sendMessageN(Message msg, String service, String serviceParam) {
             return BlockingMessenger.this.sendMessageN(msg, effectiveService(service), effectiveParam(service, serviceParam));
         }
@@ -321,6 +325,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
          * <p/>
          * Address rewriting done here.
          */
+        @Override
         public void sendMessageB(Message msg, String service, String serviceParam) throws IOException {
             BlockingMessenger.this.sendMessageB(msg, effectiveService(service), effectiveParam(service, serviceParam));
         }
@@ -334,6 +339,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
          * this should include the cross-group mangling, though. For now, let's
          * say it does not.
          */
+        @Override
         public EndpointAddress getLogicalDestinationAddress() {
             EndpointAddress rawLogical = getLogicalDestinationImpl();
 
@@ -394,6 +400,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * @param homeGroupID  the group that this messenger works for. This is the group of the endpoint service or transport
      *                     that created this messenger.
      * @param dest         where messages should be addressed to
+     * @param taskManager
      * @param selfDestruct true if this messenger must self close destruct when idle. <b>Warning:</b> If selfDestruct is used,
      *                     this messenger will remained referenced for as long as isIdleImpl returns false.
      */
@@ -428,17 +435,16 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         	
             SelfCancellingTask selfDestructTask = new SelfCancellingTask() {
 
-                public void execute() {
-        		 
+                @Override
+                public void execute() {        		 
                     try {
-
-                        if (isIdleImpl()) close();
-                        else return;
-
+                        if (isIdleImpl()) {
+                            close();
+                        } else {
+                            return;
+                        }
                     } catch (Throwable uncaught) {
-
                         Logging.logCheckedError(LOG, "Uncaught Throwable in selfDescructTask. \n", uncaught);
-
                     }
                 }
             };
@@ -480,6 +486,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * @param service The destination service or {@code null} to use default.
      * @param serviceParam The destination service parameter or {@code null} to 
      * use default.
+     * @return Endpoint address
      */
     protected EndpointAddress getDestAddressToUse(String service, String serviceParam) {
         EndpointAddress defaultAddress = getDestinationAddress();
@@ -532,6 +539,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * gently.
      *
      * FIXME - jice@jxta.org 20040413: transports should get a deeper retrofit eventually.
+     * @return 
      */
     @Override
     public boolean isClosed() {
@@ -543,7 +551,9 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * <p/>
      * getLogicalDestinationAddress() requires resolution (it's the address advertised by the other end).
      * For a blocking messenger it's easy. We're born resolved. So, just ask the implementor what it is.
+     * @return 
      */
+    @Override
     public final EndpointAddress getLogicalDestinationAddress() {
         return getLogicalDestinationImpl();
     }
@@ -559,24 +569,28 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * actually break anything. However, that will cause the state machine to go through the close process.
      * this will end up calling closeImpl(). That will do.
      */
+    @Override
     public final void close() {
         DeferredAction action;
 
         synchronized (stateMachine) {
             stateMachine.closeEvent();
-
             action = eventCalled();
         }
 
         // We called an event. State may have changed.
         notifyChange();
-
         performDeferredAction(action);
     }
 
     /**
      * {@inheritDoc}
+     * @param msg
+     * @param service
+     * @param serviceParam
+     * @throws java.io.IOException
      */
+    @Override
     public void sendMessageB(Message msg, String service, String serviceParam) throws IOException {
 
         DeferredAction action;
@@ -637,14 +651,17 @@ public abstract class BlockingMessenger extends AbstractMessenger {
             throw (Error) failure;
         }
 
-        IOException failed = new IOException("Failure sending message");
-        failed.initCause(failure);
-        throw failed;
+        throw new IOException("Failure sending message", failure);
     }
 
     /**
      * {@inheritDoc}
+     * @param msg
+     * @param service
+     * @param serviceParam
+     * @return 
      */
+    @Override
     public final boolean sendMessageN(Message msg, String service, String serviceParam) {
 
         boolean queued = false;
@@ -700,27 +717,32 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void resolve() {// We're born resolved. Don't bother calling the event.
     }
 
     /**
      * {@inheritDoc}
+     * @return 
      */
+    @Override
     public final int getState() {
         return stateMachine.getState();
     }
 
     /**
      * {@inheritDoc}
+     * @param redirection
+     * @param service
+     * @param serviceParam
+     * @return 
      */
+    @Override
     public final Messenger getChannelMessenger(PeerGroupID redirection, String service, String serviceParam) {
 
         // Our transport is always in the same group. If the channel's target group is the same, no group
         // redirection is ever needed.
-
-        return new BlockingMessengerChannel(getDestinationAddress(),
-                homeGroupID.equals(redirection) ? null : redirection, service,
-                serviceParam);
+        return new BlockingMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service, serviceParam);
     }
 
     /**
@@ -775,10 +797,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     private void sendIt() {
 
         if (currentMessage == null) {
-
             Logging.logCheckedError(LOG, "Internal error. Asked to send with no message.");
             return;
-
         }
 
         DeferredAction action;
@@ -861,6 +881,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
     /**
      * Obtain the logical destination address from the implementer (a transport for example).
+     * @return 
      */
     protected abstract EndpointAddress getLogicalDestinationImpl();
 }

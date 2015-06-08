@@ -63,7 +63,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Extends Channel Messenger behaviour to provide asynchronous message sending
+ * Extends Channel Messenger behavior to provide asynchronous message sending
  * via queuing.
  */
 public abstract class AsyncChannelMessenger extends ChannelMessenger {
@@ -115,7 +115,7 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
     private final AsyncChannelMessengerState stateMachine;
 
     /**
-     * Our statemachine implementation; just connects the standard MessengerState action methods to
+     * Our state machine implementation; just connects the standard MessengerState action methods to
      * this object.
      */
     private class AsyncChannelMessengerState extends MessengerState {
@@ -174,9 +174,7 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
             // need to signal completion with an idleEvent.
             PendingMessage theMsg;
 
-            while (true) {
-                theMsg = null;
-
+            while (true) {                
                 synchronized (stateMachine) {
                     theMsg = queue.poll();
                 }
@@ -242,12 +240,13 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
         super(baseAddress, redirection, origService, origServiceParam);
 
         stateMachine = new AsyncChannelMessengerState(connected, distributingListener);
-        queue = new ArrayBlockingQueue<PendingMessage>(queueSize);
+        queue = new ArrayBlockingQueue<>(queueSize);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void close() {
         DeferredAction action;
 
@@ -349,40 +348,51 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
 
     /**
      * {@inheritDoc}
+     * @param message
+     * @param rService
+     * @param rServiceParam
+     * @return 
      */
-    public final boolean sendMessageN(Message msg, String rService, String rServiceParam) {
+    @Override
+    public final boolean sendMessageN(Message message, String rService, String rServiceParam) {
 
         try {
-            if (sendMessageCommon(msg, rService, rServiceParam)) {
+            if (sendMessageCommon(message, rService, rServiceParam)) {
                 // If it worked the message is queued; the outcome will be notified later.
                 return true;
             }
             // Non-blocking and queue full: report overflow.
-            msg.setMessageProperty(Messenger.class, OutgoingMessageEvent.OVERFLOW);
+            message.setMessageProperty(Messenger.class, OutgoingMessageEvent.OVERFLOW);
         } catch (IOException oie) {
-            msg.setMessageProperty(Messenger.class, new OutgoingMessageEvent(msg, oie));
+            message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, oie));
         } catch (InterruptedException interrupted) {
-            msg.setMessageProperty(Messenger.class, new OutgoingMessageEvent(msg, interrupted));
+            message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, interrupted));
         }
         return false;
     }
 
     /**
      * {@inheritDoc}
+     * @param message Message to send
+     * @param rService Service class id
+     * @param rServiceParam Service parameter
+     * @throws java.io.IOException
      */
-    public final void sendMessageB(Message msg, String rService, String rServiceParam) throws IOException {
+    @Override
+    public final void sendMessageB(Message message, String rService, String rServiceParam) throws IOException {
 
         try {
-            while (true) {
-                // if sendMessageCommon says "true" it worked.
-                if (sendMessageCommon(msg, rService, rServiceParam)) {
+            /*if (sendMessageCommon(message, rService, rServiceParam)) {                
+                return;
+            }*/
+            
+            sendMessageCommon(message, rService, rServiceParam);
+            
+            while (true) {                                                                                
+                // Do a shallow check on the queue. 
+                if (queue.isEmpty()) {                    
                     return;
-                }
-                // Do a shallow check on the queue. If it seems empty (without getting into a critical section to
-                // verify it), then yielding is good bet. It is a lot cheaper and smoother than waiting.
-                // Note the message should be enqueued now. yielding makes sense now if the queue is empty
-                if (queue.isEmpty()) {
-                    Thread.yield();
+                    //Thread.yield();
                 }
 
                 // If we reached this far, it is neither closed, nor ok. So it was saturated.
@@ -391,17 +401,17 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
                     stateMachine.wait();
                 }
             }
-        } catch (InterruptedException ie) {
-            InterruptedIOException iie = new InterruptedIOException("Message send interrupted");
-
-            iie.initCause(ie);
-            throw iie;
+        } catch (InterruptedException exception) {
+            InterruptedIOException interruptedIOException = new InterruptedIOException("Message send interrupted");
+            interruptedIOException.initCause(exception);
+            throw interruptedIOException;
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void resolve() {
         DeferredAction action;
 
@@ -415,7 +425,9 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
+    @Override
     public final int getState() {
         return stateMachine.getState();
     }

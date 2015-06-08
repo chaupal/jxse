@@ -143,4 +143,8 @@ public class RendezvousConnection extends PeerConnection {
     public long getRenewal() {
         return beginRenewalAt;
     }
+    
+    public PeerAdvertisement getRendezvousPeerAdvertisement() {
+        return cachedPeerAdvertisement;
+    }
 }
