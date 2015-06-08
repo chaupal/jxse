@@ -448,30 +448,20 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          */
         @Override
         protected void sendMessageBImpl(Message msg, String service, String param) throws IOException {
-
             if (cachedMessenger == null) {
-
                 Logging.logCheckedError(LOG, "Internal messenger error: send requested while not connected.");
                 throw new IOException("Internal messenger error.");
-
             }
 
             try {
-
                 cachedMessenger.sendMessageB(msg, service, param);
-
             } catch (IOException any) {
-
                 cachedMessenger = null;
                 throw any;
-
             } catch (RuntimeException any) {
-
                 Logging.logCheckedWarning(LOG, "Failure sending ", msg, "\n", any);
                 throw any;
-
             }
-
         }
     }
 
@@ -524,21 +514,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                         LOG.warn("Illegal MessengerQueueSize : " + textQSz);
                     }
                 } catch (NumberFormatException e) {
-
                     Logging.logCheckedWarning(LOG, "could not parse MessengerQueueSize string\n", e);
-
                 }
             }
 
             param = paramBlock.getChildren("UseParentEndpoint");
 
             if (param.hasMoreElements()) {
-
                 String textUPE = ((XMLElement) param.nextElement()).getTextValue();
                 useParentEndpoint = textUPE.trim().equalsIgnoreCase("true");
-
             }
-
         }
 
         PeerGroup parentGroup = group.getParentGroup();
@@ -586,6 +571,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public int startApp(String[] args) {
 
         if (!initialized) {
@@ -631,6 +617,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * The transports and services are going to be stopped as well. When
      * they are, they will dereference us and we'll go into oblivion.
      */
+    @Override
     public void stopApp() {
 
         if (parentEndpoint != null) {
@@ -684,6 +671,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public PeerGroup getGroup() {
         return group;
     }
@@ -709,6 +697,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -743,40 +732,44 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 }
 
                 if (null == filtered) {
-
                     Logging.logCheckedDebug(LOG, "   message ", myMsg, " discarded upon filter decision");
 
-                    if (EndpointMeterBuildSettings.ENDPOINT_METERING) metrics.numFilteredOut++;
-
+                    if (EndpointMeterBuildSettings.ENDPOINT_METERING) {
+                        metrics.numFilteredOut++;
+                    }
                     break;
-
                 }
 
                 propagater.propagate(filtered.clone(), serviceName, serviceParam, initialTTL);
 
-                if (EndpointMeterBuildSettings.ENDPOINT_METERING) metrics.numPropagatedTo++;
+                if (EndpointMeterBuildSettings.ENDPOINT_METERING) {
+                    metrics.numPropagatedTo++;
+                }
 
             } catch (Exception e) {
-
                 Logging.logCheckedWarning(LOG, "Failed propagating message ", filtered, " on message transport ", aTransport, "\n", e);
 
-                if (EndpointMeterBuildSettings.ENDPOINT_METERING) 
+                if (EndpointMeterBuildSettings.ENDPOINT_METERING) {
                     metrics.numErrorsPropagated++;
-
+                }
             }
         }
     }
 
     /**
      * {@inheritDoc}
+     * @param msg
      */
+    @Override
     public void propagate(Message msg, String serviceName, String serviceParam) {
         propagate(msg, serviceName, serviceParam, Integer.MAX_VALUE);
     }
 
     /**
      * {@inheritDoc}
+     * @param msg
      */
+    @Override
     public void propagate(Message msg, String serviceName, String serviceParam, int initialTTL) {
         long startPropagationTime = 0;
 

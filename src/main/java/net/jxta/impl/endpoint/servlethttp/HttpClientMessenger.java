@@ -231,6 +231,7 @@ final class HttpClientMessenger extends BlockingMessenger {
      *  A simple implementation for debugging. <b>Do not parse the String
      *  returned. All of the information is available in other (simpler) ways.</b>
      */
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder(super.toString());
         result.append(" {");
@@ -574,11 +575,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                         Integer.toString(EXTRA_RESPONSE_TIMEOUT) + "," + 
                         destAddr);
             } catch (MalformedURLException badAddr) {
-                IllegalArgumentException failure = new IllegalArgumentException("Could not construct polling URL");
-
-                failure.initCause(badAddr);
-
-                throw failure;
+                throw new IllegalArgumentException("Could not construct polling URL", badAddr);
             }
 
             pollerThread = new Thread(this, "HttpClientMessenger poller for " + senderURL);
@@ -626,6 +623,7 @@ final class HttpClientMessenger extends BlockingMessenger {
          *
          *  <p/>Connects to the http server and waits for messages to be received and processes them.
          */
+        @Override
         public void run() {
 
             try {
@@ -756,7 +754,6 @@ final class HttpClientMessenger extends BlockingMessenger {
                             break;
 
                         } else {
-
                             Logging.logCheckedDebug(LOG, "Failed connecting to ", senderURL);
 
                             if (null != conn) {
@@ -766,9 +763,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                             conn = null;
                             connectAttempt++;
                             continue;
-
                         }
-
                     } catch (IOException ioe) {
 
                         if (connectAttempt > CONNECT_RETRIES) {
@@ -788,9 +783,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                             conn = null;
                             connectAttempt++;
                             continue;
-
                         }
-
                     }
 
                     // start receiving messages
@@ -860,20 +853,14 @@ final class HttpClientMessenger extends BlockingMessenger {
                         }
                     }
                 }
-
             } catch (Throwable argh) {
-
                 Logging.logCheckedError(LOG, "Poller exiting because of uncaught exception\n", argh);
                 stop();
-
             } finally {
-
                 pollerThread = null;
-
             }
 
             Logging.logCheckedInfo(LOG, "Message polling stopped for ", senderURL);
-
         }
     }
 
@@ -882,18 +869,16 @@ final class HttpClientMessenger extends BlockingMessenger {
      */ 
     private class MessageProcessor implements Runnable {
 
-        private Message msg;
+        private final Message message;
 
-        MessageProcessor(Message msg) {
-            this.msg = msg;
+        MessageProcessor(Message message) {
+            this.message = message;
         }
 
+        @Override
         public void run() {
-
-            Logging.logCheckedDebug(LOG, "Demuxing ", msg, " from ", senderURL);
-            servletHttpTransport.getEndpointService().processIncomingMessage(msg);
-
+            Logging.logCheckedDebug(LOG, "Demuxing ", message, " from ", senderURL);
+            servletHttpTransport.getEndpointService().processIncomingMessage(message);
         }
-
     }
 }

@@ -66,7 +66,7 @@ public class PeerConfigurator {
 	 * @param tcpPort what port the peer should listen on for HTTP connections. Set to -1 to disable incoming connections.
 	 */
 	public static void configureHttpOnly(NetworkManager man, int httpPort) throws IOException {
-		configureTransports(man, false, -1, true, httpPort, false, -1);
+            configureTransports(man, false, -1, true, httpPort, false, -1);
 	}
 	
 	/**
@@ -131,8 +131,8 @@ public class PeerConfigurator {
 		NetworkConfigurator clientConfig = clientMan.getConfigurator();
 		
 		for(URI rdvRelayAddr : getRelayAddresses(rdvRelayMan)) {
-			clientConfig.addSeedRelay(rdvRelayAddr);
-			clientConfig.addSeedRendezvous(rdvRelayAddr);
+                    clientConfig.addSeedRelay(rdvRelayAddr);
+                    clientConfig.addSeedRendezvous(rdvRelayAddr);
 		}
 	}
 	

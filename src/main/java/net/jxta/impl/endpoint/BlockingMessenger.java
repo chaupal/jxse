@@ -84,7 +84,7 @@ import net.jxta.util.SimpleSelectable;
  * to preserve the names without forcing an API change for applications).
  *
  * The other difference which is not API visible, is that it implements the
- * standard MessengerState behaviour and semantics required by the changes in the endpoint framework.
+ * standard MessengerState behavior and semantics required by the changes in the endpoint framework.
  *
  * This the only base messenger class meant to be extended by outside code that is in the impl tree. The
  * reason being that what it replaces was there already and that new code should not become dependant upon it.
@@ -454,9 +454,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
             selfDestructTask.setHandle(selfDestructTaskHandle);
 
         } else {
-
             selfDestructTaskHandle = null;
-
         }
     }
 

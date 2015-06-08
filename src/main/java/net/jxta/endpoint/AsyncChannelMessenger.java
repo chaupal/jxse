@@ -354,7 +354,7 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      * @return 
      */
     @Override
-    public final boolean sendMessageN(Message message, String rService, String rServiceParam) {
+    public boolean sendMessageN(Message message, String rService, String rServiceParam) {
 
         try {
             if (sendMessageCommon(message, rService, rServiceParam)) {
@@ -379,13 +379,9 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      * @throws java.io.IOException
      */
     @Override
-    public final void sendMessageB(Message message, String rService, String rServiceParam) throws IOException {
+    public void sendMessageB(Message message, String rService, String rServiceParam) throws IOException {
 
-        try {
-            /*if (sendMessageCommon(message, rService, rServiceParam)) {                
-                return;
-            }*/
-            
+        try {                        
             sendMessageCommon(message, rService, rServiceParam);
             
             while (true) {                                                                                

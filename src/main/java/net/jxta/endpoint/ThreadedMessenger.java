@@ -76,7 +76,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * Our thread group.
      */
-    private final static transient ThreadGroup myThreadGroup = new ThreadGroup("Threaded Messengers");
+    private final static transient ThreadGroup backgroundThreadsGroup = new ThreadGroup("Threaded Messengers");
 
     /**
      * The logical destination address of the other party (if we know it).
@@ -136,7 +136,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * The current background thread.
      */
-    private volatile Thread bgThread = null;
+    private volatile Thread backgroundThread = null;
 
     /**
      * The number of messages which may be queued for in each channel.
@@ -146,7 +146,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * The active channel queue.
      */
-    private final BlockingQueue<ThreadedMessengerChannel> activeChannels = new LinkedBlockingQueue<ThreadedMessengerChannel>();
+    private final BlockingQueue<ThreadedChannelMessenger> activeChannels = new LinkedBlockingQueue<>();
 
     /**
      * The resolving channels set. This is unordered. We use a weak hash map because abandoned channels could otherwise
@@ -157,13 +157,12 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * and then abandoning the channel. This is has to be dealt with at another level; limiting the number of channels
      * per application, or having a global limit on messages...TBD.
      */
-    private final WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel> resolvingChannels = new WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel>(4);
+    private final WeakHashMap<ThreadedChannelMessenger, ThreadedChannelMessenger> resolvingChannels = new WeakHashMap<>(4);
 
     /**
-     * A default channel where we put messages that are send directly through
-     * this messenger rather than via one of its channels.
+     * A default channel where we put messages that are send directly through this messenger rather than via one of its channels.
      */
-    private ThreadedMessengerChannel defaultChannel = null;
+    private ThreadedChannelMessenger defaultChannel = null;
 
     /**
      * State lock and engine.
@@ -173,9 +172,9 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * The implementation of channel messenger that getChannelMessenger returns:
      */
-    private class ThreadedMessengerChannel extends AsyncChannelMessenger {
+    private class ThreadedChannelMessenger extends AsyncChannelMessenger {
 
-        public ThreadedMessengerChannel(EndpointAddress baseAddress, PeerGroupID redirection, String origService, String origServiceParam, int queueSize, boolean connected) {
+        public ThreadedChannelMessenger(EndpointAddress baseAddress, PeerGroupID redirection, String origService, String origServiceParam, int queueSize, boolean connected) {
             super(baseAddress, redirection, origService, origServiceParam, queueSize, connected);
         }
 
@@ -187,6 +186,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
          * this should include the cross-group mangling, though. Historically,
          * it does not.
          */
+        @Override
         public EndpointAddress getLogicalDestinationAddress() {
             return logicalDestination;
         }
@@ -237,11 +237,10 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
             // it becomes strongly referenced.
             strongRefResolvingChannel(this);
         }
-
     }
 
     /**
-     * Our statemachine implementation; just connects the standard AbstractMessengerState action methods to
+     * Our state machine implementation; just connects the standard AbstractMessengerState action methods to
      * this object.
      */
     private class ThreadedMessengerState extends MessengerState {
@@ -281,7 +280,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         @Override
         protected void closeInputAction() {
             inputClosed = true;
-            ThreadedMessengerChannel[] channels = resolvingChannels.keySet().toArray(new ThreadedMessengerChannel[0]);
+            ThreadedChannelMessenger[] channels = resolvingChannels.keySet().toArray(new ThreadedChannelMessenger[0]);
 
             resolvingChannels.clear();
             int i = channels.length;
@@ -317,13 +316,11 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         protected void failAllAction() {
 
             while (true) {
-                ThreadedMessengerChannel theChannel;
-
-                theChannel = activeChannels.poll();
-                if (theChannel == null) {
+                ThreadedChannelMessenger threadedChannelMessenger = activeChannels.poll();
+                if (threadedChannelMessenger == null) {
                     break;
                 }
-                theChannel.down();
+                threadedChannelMessenger.down();
             }
         }
     }
@@ -364,11 +361,12 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * regardless the number of concurrent threads invoking the exposed methods, and it can only happen once per deferred action
      * performed.
      */
+    @Override
     public void run() {
-
         try {
             while (true) {
                 final DeferredAction nextAction = nextAction();
+                
                 switch (nextAction) {
                 case ACTION_NONE:
                     return;
@@ -382,32 +380,29 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                     break;
                 }
             }
-
-        } catch (Throwable any) {
-
-            Logging.logCheckedError(LOG, "Uncaught throwable in background thread\n", any);
-            // Hope the next thread has more luck. It'll need it.
-
+        } catch (Throwable throwable) {
+            Logging.logCheckedError(LOG, "Uncaught throwable in background thread\n", throwable);
+            // Hope the next thread has more luck. It'll need it. */
         } finally {
-
-            synchronized (stateMachine) {
-                bgThread = null;
-                if (stateMachine.getState() == SENDING)
-                {
+            synchronized (stateMachine) {                
+                backgroundThread = null;
+                
+                if (stateMachine.getState() == SENDING) {
                     stateMachine.idleEvent();
                 }
             }
-
         }
     }
 
     private void deferAction(DeferredAction action) {
         deferredAction = action;
-
-        if (bgThread == null) {
-            bgThread = new Thread(myThreadGroup, this, "ThreadedMessenger for " + getDestinationAddress());
-            bgThread.setDaemon(true);
-            bgThread.start();
+        
+        synchronized (stateMachine) {            
+            if (backgroundThread == null) {
+                backgroundThread = new Thread(backgroundThreadsGroup, this, "ThreadedMessenger for " + getDestinationAddress());
+                backgroundThread.setDaemon(true);                
+                backgroundThread.start();
+            }
         }
     }
 
@@ -447,11 +442,11 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      */
     private void send() throws InterruptedException {
 
-        ThreadedMessengerChannel theChannel;
+        ThreadedChannelMessenger threadedChannelMessenger;
 
         synchronized (stateMachine) {
-            theChannel = activeChannels.peek();
-            if (theChannel == null) {
+            threadedChannelMessenger = activeChannels.peek();
+            if (threadedChannelMessenger == null) {
                 // No notifyChange: this is defensive code. NotifyChange() should have been called already.
                 stateMachine.idleEvent();
                 stateMachine.notifyAll();
@@ -460,7 +455,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         }
 
         while (true) {
-            AsyncChannelMessenger.PendingMessage theMsg = theChannel.peek();
+            AsyncChannelMessenger.PendingMessage theMsg = threadedChannelMessenger.peek();
 
             if (theMsg == null) {
                 // done with that channel for now. (And it knows it). Move to the next channel. Actually
@@ -469,8 +464,8 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 // in the same time than down.
                 synchronized (stateMachine) {
                     activeChannels.poll();
-                    theChannel = activeChannels.peek();
-                    if (theChannel != null) {
+                    threadedChannelMessenger = activeChannels.peek();
+                    if (threadedChannelMessenger != null) {
                         continue; // Nothing changes; we do not call msgsEvent because we never call saturatedEvent either.
                     }
                     // Done with all channels. We're now idle.
@@ -496,7 +491,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 // recorded for this message, we bounce it.
                 synchronized (stateMachine) {
                     if (theMsg.failure != null) {
-                        theChannel.poll();
+                        threadedChannelMessenger.poll();
                         currentMsg.setMessageProperty(Messenger.class, new OutgoingMessageEvent(currentMsg, theMsg.failure));
                     } else {
                         theMsg.failure = any;
@@ -510,21 +505,21 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
             synchronized (stateMachine) {
                 // Remove the message sent
-                theChannel.poll();
+                threadedChannelMessenger.poll();
                 // Rotate the queues (Things are quite a bit simpler if there's a single still active channel
                 // and it's frequent, so it's worth checking)
-                boolean empty = (theChannel.peek() == null);
+                boolean empty = (threadedChannelMessenger.peek() == null);
 
                 if ((activeChannels.size() != 1) || empty) {
                     activeChannels.poll();
                     if (!empty) {
                         // We're not done with that channel. Put it back at the end
-                        activeChannels.put(theChannel);
+                        activeChannels.put(threadedChannelMessenger);
                     }
 
                     // Get the next channel.
-                    theChannel = activeChannels.peek();
-                    if (theChannel == null) {
+                    threadedChannelMessenger = activeChannels.peek();
+                    if (threadedChannelMessenger == null) {
                         // Done with all channels. We're now idle.
                         stateMachine.idleEvent();
                         stateMachine.notifyAll();
@@ -532,7 +527,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 } // else {continue to use the current channel}
             }
 
-            if (theChannel == null) {
+            if (threadedChannelMessenger == null) {
                 notifyChange();
                 // We're about to go wait(). Yielding is a good bet. It is
                 // very inexpenssive and may be all it takes to get a new job
@@ -548,7 +543,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      */
     private void connect() {
         boolean worked = connectImpl();
-        ThreadedMessengerChannel[] channels = null;
+        ThreadedChannelMessenger[] channels = null;
 
         synchronized (stateMachine) {
             if (worked) {
@@ -562,13 +557,13 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                     // We did not know what was supposed to be on the other side. Anything will do.
                     logicalDestination = effectiveLogicalDest;
                     stateMachine.upEvent();
-                    channels = resolvingChannels.keySet().toArray(new ThreadedMessengerChannel[0]);
+                    channels = resolvingChannels.keySet().toArray(new ThreadedChannelMessenger[0]);
                     resolvingChannels.clear();
                 } else if (logicalDestination.equals(effectiveLogicalDest)) {
                     // Good. It's what we expected.
                     stateMachine.upEvent();
 
-                    channels = resolvingChannels.keySet().toArray(new ThreadedMessengerChannel[0]);
+                    channels = resolvingChannels.keySet().toArray(new ThreadedChannelMessenger[0]);
                     resolvingChannels.clear();
                 } else {
                     // Ooops, not what we wanted. Can't connect then. (force close the underlying cnx).
@@ -587,7 +582,6 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         // It's ok to do that outside of sync. Channel.up may synchronize, but it never calls
         // this class while synchronized.
         if (channels != null) {
-
             int i = channels.length;
 
             while (i-- > 0) {
@@ -609,14 +603,16 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     protected final void shutdown() {
         synchronized (stateMachine) {
             stateMachine.shutdownEvent();
-            stateMachine.notifyAll();
+            stateMachine.notifyAll();            
         }
         notifyChange();
     }
 
     /**
      * {@inheritDoc}
+     * @return 
      */
+    @Override
     public EndpointAddress getLogicalDestinationAddress() {
 
         // If it's not resolved, we can't know what the logical destination is, unless we had an expectation.
@@ -630,6 +626,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() {
         synchronized (stateMachine) {
             stateMachine.closeEvent();
@@ -644,13 +641,18 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * In this case, this method is here out of principle but is not really expected to be invoked.  The normal way
      * of using a ThreadedMessenger is through its channels. We do provide a default channel that all invokers that go around
      * channels will share. That could be useful to send rare out of band messages for example.
+     * @param msg
+     * @param service
+     * @param serviceParam
+     * @return 
      */
+    @Override
     public final boolean sendMessageN(Message msg, String service, String serviceParam) {
 
         synchronized (stateMachine) {
             if (defaultChannel == null) {
                 // Need a default channel.
-                defaultChannel = new ThreadedMessengerChannel(getDestinationAddress(), null, null, null, channelQueueSize, false);
+                defaultChannel = new ThreadedChannelMessenger(getDestinationAddress(), null, null, null, channelQueueSize, false);
             }
         }
 
@@ -659,20 +661,25 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
     /**
      * {@inheritDoc}
+     * @param message
+     * @param service
+     * @param serviceParam
+     * @throws java.io.IOException
      */
-    public final void sendMessageB(Message msg, String service, String serviceParam) throws IOException {
+    @Override
+    public final void sendMessageB(Message message, String service, String serviceParam) throws IOException {
 
         synchronized (stateMachine) {
             if (defaultChannel == null) {
                 // Need a default channel.
-                defaultChannel = new ThreadedMessengerChannel(getDestinationAddress(), null, null, null, channelQueueSize, false);
+                defaultChannel = new ThreadedChannelMessenger(getDestinationAddress(), null, null, null, channelQueueSize, false);
             }
         }
 
-        defaultChannel.sendMessageB(msg, service, serviceParam);
+        defaultChannel.sendMessageB(message, service, serviceParam);
     }
 
-    private boolean addToActiveChannels(final ThreadedMessengerChannel channel) {
+    private boolean addToActiveChannels(final ThreadedChannelMessenger channel) {
 
         synchronized (stateMachine) {
             if (inputClosed) {
@@ -694,11 +701,10 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         }
 
         notifyChange();
-
         return true;
     }
 
-    private void strongRefResolvingChannel(ThreadedMessengerChannel channel) {
+    private void strongRefResolvingChannel(ThreadedChannelMessenger channel) {
 
         // If, and only if, this channel is already among the resolving channels, add a strong ref
         // to it. This is invoked when a message is queued to that channel while it is still
@@ -712,7 +718,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         }
     }
 
-    private boolean addToResolvingChannels(ThreadedMessengerChannel channel) {
+    private boolean addToResolvingChannels(ThreadedChannelMessenger channel) {
 
         synchronized (stateMachine) {
             // If we're in a state where no resolution event will ever occur, we must not add anything to the list.
@@ -734,6 +740,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void resolve() {
         synchronized (stateMachine) {
             stateMachine.resolveEvent();
@@ -744,20 +751,27 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
     /**
      * {@inheritDoc}
+     * @return 
      */
+    @Override
     public final int getState() {
         return stateMachine.getState();
     }
 
     /**
      * {@inheritDoc}
+     * @param redirection
+     * @param service
+     * @param serviceParam
+     * @return 
      */
+    @Override
     public Messenger getChannelMessenger(PeerGroupID redirection, String service, String serviceParam) {
 
         // Our transport is always in the same group. If the channel's target group is the same, no group
         // redirection is ever needed.
         // are we happily resolved ?
-        return new ThreadedMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service,
+        return new ThreadedChannelMessenger(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service,
                 serviceParam, channelQueueSize, (stateMachine.getState() & (RESOLVED & USABLE)) != 0);
     }
 

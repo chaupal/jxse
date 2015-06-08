@@ -603,20 +603,20 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
 
         Logging.logCheckedInfo(LOG, "Disconnecting from rendezvous peer ", rendezvousPeerId);
 
-        RendezvousConnection rendezvousConnection;
+        RendezvousConnection rendezvousPeerConnection;
 
         synchronized (connectedRendezVousPeers) {
-            rendezvousConnection = connectedRendezVousPeers.remove(rendezvousPeerId);
+            rendezvousPeerConnection = connectedRendezVousPeers.remove(rendezvousPeerId);
         }
 
-        if (null != rendezvousConnection) {
-            if (rendezvousConnection.isConnected()) {
+        if (null != rendezvousPeerConnection) {
+            if (rendezvousPeerConnection.isConnected()) {
                 //TODO
                 //Investigate the problem of not sending the message using this method
                 //sendDisconnect(rendezvousConnection);                                
-                //sendDisconnect(rendezvousPeerId, rendezvousConnection.getRendezvousPeerAdvertisement());                                
-                sendBlockingDisconnect(rendezvousConnection);                
-                rendezvousConnection.setConnected(false);                
+                //sendDisconnect(rendezvousPeerId, rendezvousConnection.getRendezvousPeerAdvertisement());                                                
+                sendBlockingDisconnect(rendezvousPeerConnection);                                                        
+                rendezvousPeerConnection.setConnected(false);                
             }
         }                
 

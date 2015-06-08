@@ -106,16 +106,16 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     /**
      * Constructor for the PeerConnection object
      *
-     * @param group    group context
-     * @param endpoint the endpoint service to use for sending messages.
-     * @param peerid   destination peerid
+     * @param peerGroup    group context
+     * @param endpointService the endpoint service to use for sending messages.
+     * @param peerId   destination peerid
      */
-    public PeerConnection(PeerGroup group, EndpointService endpoint, ID peerid) {
-        this.peerGroup = group;
-        this.endpointService = endpoint;
-        this.peerId = peerid;
+    public PeerConnection(PeerGroup peerGroup, EndpointService endpointService, ID peerId) {
+        this.peerGroup = peerGroup;
+        this.endpointService = endpointService;
+        this.peerId = peerId;
 
-        this.peerName = peerid.toString();
+        this.peerName = peerId.toString();
     }
 
     /**
@@ -241,11 +241,10 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * @return The connected value
      */
     public boolean isConnected() {
-
         if ( connected ) {
             connected = (TimeUtils.toRelativeTimeMillis(leasedTil) >= 0);
         }
-
+        
         return connected;
     }
 
@@ -302,18 +301,18 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     /**
      * Return a messenger suitable for communicating to this peer.
      *
-     * @param padv A peer advertisement which will be used for route hints if
+     * @param peerAdvertisement A peer advertisement which will be used for route hints if
      *             a new messenger is needed.
      * @return a messenger for sending to this peer or <code>null</code> if
      *         none is available.
      */
-    protected synchronized Messenger getCachedMessenger(PeerAdvertisement padv) {
-        if ((null != padv) && !peerId.equals(padv.getPeerID())) {
+    protected synchronized Messenger getCachedMessenger(PeerAdvertisement peerAdvertisement) {
+        if ((null != peerAdvertisement) && !peerId.equals(peerAdvertisement.getPeerID())) {
             throw new IllegalArgumentException("Peer Advertisement does not match connection");
         }
 
-        if ((null != padv) && (null != padv.getName())) {
-            setPeerName(padv.getName());
+        if ((null != peerAdvertisement) && (null != peerAdvertisement.getName())) {
+            setPeerName(peerAdvertisement.getName());
         }
 
         // if we have a good messenger then re-use it.
@@ -332,8 +331,8 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
 
             RouteAdvertisement hint = null;
 
-            if (null != padv) {
-                hint = EndpointUtils.extractRouteAdv(padv);
+            if (null != peerAdvertisement) {
+                hint = EndpointUtils.extractRouteAdv(peerAdvertisement);
             }
 
             EndpointAddress destinationAddress = new EndpointAddress(peerId, null, null);
@@ -381,8 +380,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * @param parameter Parameters for the destination service.
      * @return  <true>true</true> if the message has been queued for send and should succeed if connection maintained.
      */
-    public boolean sendMessageB(Message message, String service, String parameter)
-    {
+    public boolean sendMessageB(Message message, String service, String parameter) {
         Messenger messenger = cachedMessenger;
 
         if (null != messenger) {

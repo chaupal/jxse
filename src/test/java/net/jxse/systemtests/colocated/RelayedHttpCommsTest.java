@@ -11,7 +11,7 @@ import org.junit.rules.TemporaryFolder;
 
 public class RelayedHttpCommsTest {
 
-	@Rule
+    @Rule
     public TemporaryFolder tempStorage = new TemporaryFolder();
 
     private NetworkManager aliceManager;
@@ -38,15 +38,15 @@ public class RelayedHttpCommsTest {
         Thread.sleep(5000);
     }
 
-	@After
+    @After
     public void killPeers() throws Exception {
         aliceManager.stopNetwork();
         bobManager.stopNetwork();
         relayManager.stopNetwork();
     }
 	
-	@Test(timeout=30000)
-	public void testComms() throws Exception {
-		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
-	}
+    @Test(timeout=30000)
+    public void testComms() throws Exception {
+        SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+    }
 }
