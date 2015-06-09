@@ -187,6 +187,7 @@ public abstract class ChannelMessenger extends AbstractMessenger implements Mess
      * <p/>
      * By default a channel refuses to make a channel.
      */
+    @Override
     public Messenger getChannelMessenger(PeerGroupID redirection, String service, String serviceParam) {
         return null;
     }

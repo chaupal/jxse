@@ -86,6 +86,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
 
     private final MessengerStateListenerSet listeners = new MessengerStateListenerSet();
     protected final MessengerStateListener distributingListener = new MessengerStateListener() {
+        @Override
         public boolean messengerStateChanged(int newState) {
         	listeners.notifyNewState(newState);
             return true;
@@ -113,6 +114,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * {@inheritDoc}
      */
+    @Override
     public final EndpointAddress getDestinationAddress() {
         return dstAddress;
     }
@@ -121,6 +123,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * {@inheritDoc}
      * <p/>It is not always enforced. At least this much can always be sent. 
      */
+    @Override
     public long getMTU() {
         return DEFAULT_MTU;
     }
@@ -138,13 +141,16 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * since we canonicalize transport messengers and so do not need to
      * aggressively collect closed ones. When not used, messengers die by themselves.
      */
+    @Override
     public boolean isClosed() {
         return (getState() & USABLE) == 0;
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public final void flush() throws IOException {
         int currentState = 0;
 
@@ -166,7 +172,9 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public final boolean sendMessage(Message msg) throws IOException {
         return sendMessage(msg, null, null);
     }
@@ -175,6 +183,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * {@inheritDoc}
      *
      */
+    @Override
     public void sendMessage(Message msg, String service, String serviceParam, OutgoingMessageEventListener listener) {
         throw new UnsupportedOperationException("This legacy method is not supported by this messenger.");
     }
@@ -185,6 +194,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * @param rServiceParam
      * @throws java.io.IOException
      */
+    @Override
     public final boolean sendMessage(Message msg, String rService, String rServiceParam) throws IOException {
 
         // We have to retrieve the failure from the message and throw it if its an IOException, this is what the API
@@ -228,6 +238,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * {@inheritDoc}
      * @throws java.lang.InterruptedException
      */
+    @Override
     public final int waitState(int wantedStates, long timeout) throws InterruptedException {
     	// register the barrier first, in case the state changes concurrently while we do
     	// our initial interrogation
@@ -252,10 +263,12 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         }
     }
 
+    @Override
     public void addStateListener(MessengerStateListener listener) {
         listeners.addStateListener(listener);
     }
 
+    @Override
     public void removeStateListener(MessengerStateListener listener) {
         listeners.removeStateListener(listener);
     }
@@ -271,6 +284,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      *
      * @param changedObject Ignored.
      */
+    @Override
     public void itemChanged(SimpleSelectable changedObject) {
         notifyChange();
     }

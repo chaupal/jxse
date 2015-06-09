@@ -265,6 +265,7 @@ public class EndpointAddress {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public int hashCode() {

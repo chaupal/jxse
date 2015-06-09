@@ -172,26 +172,25 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
             // message is really the last one. This is a synchronous action. The
             // state machine assumes that it is done when we return. There is no
             // need to signal completion with an idleEvent.
-            PendingMessage theMsg;
+            PendingMessage pendingMessage;
 
             while (true) {                
                 synchronized (stateMachine) {
-                    theMsg = queue.poll();
+                    pendingMessage = queue.poll();
                 }
 
-                if (theMsg == null) {
+                if (pendingMessage == null) {
                     return;
                 }
 
-                Message currentMsg = theMsg.msg;
-                Throwable currentFailure = theMsg.failure;
+                Message currentMsg = pendingMessage.msg;
+                Throwable currentFailure = pendingMessage.failure;
 
                 if (currentFailure == null) {
                     currentFailure = new IOException("Messenger unexpectedly closed");
                 }
 
                 OutgoingMessageEvent event = new OutgoingMessageEvent(currentMsg, currentFailure);
-
                 currentMsg.setMessageProperty(Messenger.class, event);
             }
         }
@@ -382,19 +381,19 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
     public void sendMessageB(Message message, String rService, String rServiceParam) throws IOException {
 
         try {                        
-            sendMessageCommon(message, rService, rServiceParam);
-            
-            while (true) {                                                                                
-                // Do a shallow check on the queue. 
-                if (queue.isEmpty()) {                    
-                    return;
-                    //Thread.yield();
-                }
+            if (sendMessageCommon(message, rService, rServiceParam)) {            
+                while (true) {                                                                                
+                    // Do a shallow check on the queue. 
+                    if (queue.isEmpty()) {                    
+                        return;
+                        //Thread.yield();
+                    }
 
-                // If we reached this far, it is neither closed, nor ok. So it was saturated.
-                synchronized (stateMachine) {
-                    // Cheaper than waitState. sendMessageCommon already does the relevant state checks.
-                    stateMachine.wait();
+                    // If we reached this far, it is neither closed, nor ok. So it was saturated.
+                    synchronized (stateMachine) {
+                        // Cheaper than waitState. sendMessageCommon already does the relevant state checks.
+                        stateMachine.wait();
+                    }
                 }
             }
         } catch (InterruptedException exception) {
@@ -430,6 +429,10 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
 
     /**
      * {@inheritDoc}
+     * @param redirection
+     * @param service
+     * @param serviceParam
+     * @return 
      */
     @Override
     public final Messenger getChannelMessenger(PeerGroupID redirection, String service, String serviceParam) {

@@ -160,17 +160,17 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     /**
      * the namespaces in this message and the elements in each.
      */
-    protected transient Map<String, List<MessageElement>> namespaces = new HashMap<String, List<MessageElement>>();
+    protected transient Map<String, List<MessageElement>> namespaces = new HashMap<>();
 
     /**
      * List of the elements.
      */
-    protected transient List<element> elements = new ArrayList<element>();
+    protected transient List<element> elements = new ArrayList<>();
 
     /**
      * Message properties HashMap
      */
-    protected transient Map<Object, Object> properties = Collections.synchronizedMap(new HashMap<Object, Object>());
+    protected transient Map<Object, Object> properties = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * A list of {@link java.lang.Integer} which details the lineage (history
@@ -182,7 +182,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * lifetime and is normally shown as part of the <tt>toString()</tt>
      * display for Messages.
      */
-    protected transient List<Integer> lineage = new ArrayList<Integer>();
+    protected transient List<Integer> lineage = new ArrayList<>();
 
     /**
      * Modification count of this message. Can be used to detect message being
@@ -267,8 +267,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean hasNext() {
-
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
@@ -286,8 +286,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public MessageElement next() {
-
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
@@ -307,6 +307,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public int nextIndex() {
             return list.nextIndex();
         }
@@ -314,6 +315,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean hasPrevious() {
 
             if (origModCount != Message.this.getMessageModCount()) {
@@ -336,7 +338,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * {@inheritDoc}
          */
         public MessageElement previous() {
-
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
@@ -356,6 +357,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public int previousIndex() {
             return list.previousIndex();
         }
@@ -365,6 +367,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * <p/>
          * Not provided because the namespace cannot be specified.
          */
+        @Override
         public void add(MessageElement obj) {
             throw new UnsupportedOperationException("add() not supported");
         }
@@ -372,6 +375,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void remove() {
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
@@ -452,7 +456,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * <p/>
          * Replacement MessageElement will be in the same name space as the
          * replaced element.
+         * @param obj
          */
+        @Override
         public void set(MessageElement obj) {
 
             if (origModCount != Message.this.getMessageModCount()) {
