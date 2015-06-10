@@ -74,6 +74,7 @@ import java.net.URI;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.peergroup.ShadowPeerGroup;
 
@@ -119,34 +120,30 @@ public final class NetPeerGroupFactory {
         WorldPeerGroupFactory world = new WorldPeerGroupFactory();
         PeerGroup worldGroup = world.getWorldPeerGroup();
         NePeertGroupConstructionContainer netPeerGroupConstructionContainer;
-
         
-            ConfigParams cp = worldGroup.getConfigAdvertisement();
-            PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
+        ConfigParams configurationParameters = worldGroup.getConfigAdvertisement();
+        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) configurationParameters.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
 
-            if (null == netGroupConfig) {
-                netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(ResourceBundle.getBundle("net.jxta.impl.config"), new NePeertGroupConstructionContainer());
-                // load overides from "${JXTA_HOME}config.properties".
-                URI storeHome = worldGroup.getStoreHome();
+        if (null == netGroupConfig) {
+            netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(ResourceBundle.getBundle("net.jxta.impl.config"), new NePeertGroupConstructionContainer());
+            // load overides from "${JXTA_HOME}config.properties".
+            URI storeHome = worldGroup.getStoreHome();
 
-                if (null != storeHome) {
-                    try {
+            if (null != storeHome) {
+                try {
+                    File configProperties = new File(new File(storeHome), "config.properties");
+                    ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
 
-                        File configProperties = new File(new File(storeHome), "config.properties");
-                        ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
-
-                        netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(rsrcs, netPeerGroupConstructionContainer);
-                        Logging.logCheckedDebug(LOG, "Loaded defaults from ", rsrcs);
-
-                    } catch (MissingResourceException | IOException ignored) {                        
-                    }                                        
-                }
-            } else {
-                netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
+                    netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(rsrcs, netPeerGroupConstructionContainer);
+                    Logging.logCheckedDebug(LOG, "Loaded defaults from ", rsrcs);
+                } catch (MissingResourceException | IOException exception) {                        
+                }                                        
             }
+        } else {
+            netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
+        }
 
-            netPeerGroup = newNetPeerGroup(worldGroup, null, netPeerGroupConstructionContainer.id, netPeerGroupConstructionContainer.name, netPeerGroupConstructionContainer.desc);
-         
+        netPeerGroup = newNetPeerGroup(worldGroup, null, netPeerGroupConstructionContainer.id, netPeerGroupConstructionContainer.name, netPeerGroupConstructionContainer.desc);         
     }
 
     /**
@@ -161,8 +158,8 @@ public final class NetPeerGroupFactory {
      * Group.
      */
     public NetPeerGroupFactory(PeerGroup parentGroup) throws PeerGroupException {
-        ConfigParams cp = parentGroup.getConfigAdvertisement();
-        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
+        ConfigParams configurationParameters = parentGroup.getConfigAdvertisement();
+        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) configurationParameters.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
         NePeertGroupConstructionContainer tunables;
 
         if (null == netGroupConfig) {
@@ -190,7 +187,6 @@ public final class NetPeerGroupFactory {
      * Group.
      */
     public NetPeerGroupFactory(ConfigParams config, URI storeHome) throws PeerGroupException {
-
         WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
         PeerGroup worldGroup = world.getWorldPeerGroup();
         
@@ -228,7 +224,6 @@ public final class NetPeerGroupFactory {
      * @param parentGroup the parent peer group
      */
     public NetPeerGroupFactory(PeerGroup parentGroup, ConfigParams config, URI storeHome) throws PeerGroupException {
-
         if (config != parentGroup.getConfigAdvertisement()) {
             throw new IllegalArgumentException("This constructor cannot currently accept group parameters different than the parent group");
         }
@@ -245,15 +240,15 @@ public final class NetPeerGroupFactory {
 
         ConfigParams cp = parentGroup.getConfigAdvertisement();
         PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
-        NePeertGroupConstructionContainer tunables;
+        NePeertGroupConstructionContainer nePeertGroupConstructionContainer;
 
         if (null == netGroupConfig) {
-            tunables = new NePeertGroupConstructionContainer(ResourceBundle.getBundle("net.jxta.impl.config"), new NePeertGroupConstructionContainer());
+            nePeertGroupConstructionContainer = new NePeertGroupConstructionContainer(ResourceBundle.getBundle("net.jxta.impl.config"), new NePeertGroupConstructionContainer());
         } else {
-            tunables = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
+            nePeertGroupConstructionContainer = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
 
-        netPeerGroup = newNetPeerGroup(parentGroup, config, tunables.id, tunables.name, tunables.desc);
+        netPeerGroup = newNetPeerGroup(parentGroup, config, nePeertGroupConstructionContainer.id, nePeertGroupConstructionContainer.name, nePeertGroupConstructionContainer.desc);
     }
 
 //    /**
@@ -421,15 +416,12 @@ public final class NetPeerGroupFactory {
                 }
 
                 return result;
-            } catch (PeerGroupException | RuntimeException failed) {
-                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", failed);                
-                throw failed;
-            } catch (Exception e) {
-                // should be all other checked exceptions
-                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", e);
-                // Simplify exception scheme for caller: every sort of problem 
-                // wrapped in a PeerGroupException.
-                throw new PeerGroupException("newNetPeerGroup failed", e);
+            } catch (PeerGroupException exception) {
+                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", exception);                
+                throw exception;
+            } catch (ProtocolNotSupportedException | IOException exception) {                
+                Logging.logCheckedError(LOG, "newNetPeerGroup failed\n", exception);                
+                throw new PeerGroupException("newNetPeerGroup failed", exception);
             }
         }
     }

@@ -58,7 +58,6 @@ package net.jxta.impl.peergroup;
 import net.jxta.document.Advertisement;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
-import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
@@ -73,7 +72,6 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.IJxtaLoader;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.service.Service;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -171,6 +169,7 @@ public class Platform extends StdPeerGroup {
     /**
      * {@inheritDoc}
      * @param nullParent
+     * @param moduleImplemetationAdvertisement
      * @throws net.jxta.exception.PeerGroupException
      */
     @Override

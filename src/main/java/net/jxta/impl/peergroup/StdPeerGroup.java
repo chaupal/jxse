@@ -361,16 +361,13 @@ public class StdPeerGroup extends GenericPeerGroup {
             try {
                 if (messageTransports.containsKey(aModule)) {
                     Module theMessageTransport = (Module) messageTransports.remove(aModule);
-
                     theMessageTransport.stopApp();
                 } else {
                     removeService(aModule);
                 }
 
-            } catch (Exception any) {
-
-                Logging.logCheckedWarning(LOG, "Failed to stop module: ", aModule, "\n", any);
-
+            } catch (ServiceNotFoundException exception) {
+                Logging.logCheckedWarning(LOG, "Failed to stop module: ", aModule, "\n", exception);
             }
         }
 
@@ -437,9 +434,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
 
                 switch (res) {
-
                     case Module.START_OK:
-
                         Logging.logCheckedDebug(LOG, "Module started : ", aModule);
 
                         if (aModule instanceof Service) {
@@ -454,27 +449,23 @@ public class StdPeerGroup extends GenericPeerGroup {
                         break;
 
                     case Module.START_AGAIN_PROGRESS:
-
                     	// LOGGING: was Finer
                         Logging.logCheckedDebug(LOG, "Service made progress during start : ", aModule);
                         progress = true;
                         break;
 
                     case Module.START_AGAIN_STALLED:
-
                     	// LOGGING: was Finer
                         Logging.logCheckedDebug(LOG, "Service stalled during start : ", aModule);
                         break;
 
                     case Module.START_DISABLED:
-
                         Logging.logCheckedDebug(LOG, "Service declined to start : ", aModule);
                         eachService.remove();
                         progress = true;
                         break;
 
                     default: // (negative)
-
                         Logging.logCheckedWarning(LOG, "Service failed to start (", res, ") : ", aModule);
                         eachService.remove();
                         progress = true;
