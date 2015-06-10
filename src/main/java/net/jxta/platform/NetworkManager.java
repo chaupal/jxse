@@ -389,7 +389,6 @@ public class NetworkManager implements RendezvousListener {
      * @throws net.jxta.exception.ConfiguratorException if platform is not configured properly
      */
     public synchronized PeerGroup startNetwork() throws PeerGroupException, IOException, ConfiguratorException {
-
         if (started) {
             return netPeerGroup;
         }
@@ -416,8 +415,50 @@ public class NetworkManager implements RendezvousListener {
         stopped = false;
 
         Logging.logCheckedInfo(LOG, "Started JXTA Network!");
-
         return netPeerGroup;
+    }
+    
+    /**
+     * Stops NetPeerGroup
+     */
+    public synchronized void stopNetwork() {
+
+        if (stopped || !started) {
+            return;
+        }
+
+        Logging.logCheckedInfo(LOG, "Stopping JXTA Network!");
+
+        stopped = true;
+        synchronized (networkConnectLock) {
+            connected = false;
+            networkConnectLock.notifyAll();
+        }
+
+        rendezvous.removeListener(this);               
+        
+        PeerGroup worldPeerGroup = netPeerGroup.getParentGroup();
+        
+        //mindarchitect 16052014
+        //Check parent peer group should not be null
+        if (worldPeerGroup != null) {
+            PeerGroupAdvertisement worldPeerGroupAdvertisement = worldPeerGroup.getPeerGroupAdvertisement();
+            
+            //mindarchitect 16052014
+            //Should be platform specification ID
+            //Unfortunately cannot check by ID as WorldPeerGroupID is package level visible only
+            if (worldPeerGroupAdvertisement.getModuleSpecID().equals(IModuleDefinitions.refPlatformSpecID)) {
+                //Stop peer group
+                worldPeerGroup.stopApp();                
+            }
+        }
+        
+        netPeerGroup.stopApp();        
+
+        // Permit restart.
+        started = false;
+
+        Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
     }
 
     /**
@@ -462,50 +503,7 @@ public class NetworkManager implements RendezvousListener {
                 membership.join(iAuth);
             }
         }
-    }
-
-    /**
-     * Stops NetPeerGroup
-     */
-    public synchronized void stopNetwork() {
-
-        if (stopped || !started) {
-            return;
-        }
-
-        Logging.logCheckedInfo(LOG, "Stopping JXTA Network!");
-
-        stopped = true;
-        synchronized (networkConnectLock) {
-            connected = false;
-            networkConnectLock.notifyAll();
-        }
-
-        rendezvous.removeListener(this);               
-        
-        PeerGroup worldPeerGroup = netPeerGroup.getParentGroup();
-        
-        //mindarchitect 16052014
-        //Check parent peer group should not be null
-        if (worldPeerGroup != null) {
-            PeerGroupAdvertisement worldPeerGroupAdvertisement = worldPeerGroup.getPeerGroupAdvertisement();
-            
-            //mindarchitect 16052014
-            //Should be platform specification ID
-            //Unfortunately cannot check by ID as WorldPeerGroupID is package level visible only
-            if (worldPeerGroupAdvertisement.getModuleSpecID().equals(IModuleDefinitions.refPlatformSpecID)) {
-                //Stop peer group
-                worldPeerGroup.stopApp();                
-            }
-        }
-        
-        netPeerGroup.stopApp();        
-
-        // Permit restart.
-        started = false;
-
-        Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
-    }
+    }    
 
     /**
      * Gets the netPeerGroup object

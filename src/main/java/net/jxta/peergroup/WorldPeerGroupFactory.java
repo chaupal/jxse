@@ -70,6 +70,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import net.jxta.impl.loader.DynamicJxtaLoader;
 import net.jxta.impl.peergroup.DefaultConfigurator;
@@ -205,7 +206,6 @@ public final class WorldPeerGroupFactory {
      */
     public PeerGroup getWorldPeerGroup() {
         return world;
-//        return world.getInterface();
     }
 
 //    /**
@@ -229,21 +229,18 @@ public final class WorldPeerGroupFactory {
      * be used for the World Peer Group.
      */
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
-
         try {
             IJxtaLoader loader = DynamicJxtaLoader.getInstance();
 
             ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
 
             if(null == worldGroupImplAdv) {
-                throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");
+                throw new PeerGroupException("Could not locate World PeerGroup Module implementation");
             }
 
             return Class.forName(worldGroupImplAdv.getCode());
-        } catch (RuntimeException failed) {
-            throw new PeerGroupException("Could not load World PeerGroup class.", failed);
-        } catch (ClassNotFoundException failed) {
-            throw new PeerGroupException("Could not load World PeerGroup class.", failed);
+        } catch (RuntimeException | ClassNotFoundException exception) {
+            throw new PeerGroupException("Could not load World PeerGroup class.", exception);
         }
     }
 
@@ -276,63 +273,32 @@ public final class WorldPeerGroupFactory {
         {
             String storeHomeString = storeHome.toString();
             //A global registry per Peer installation in VM.
-            final PeerGroup worldPeerGroup = worldPeerGroups.get(storeHomeString);
-            if (worldPeerGroup != null)
-            {
-                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a time.");
-            }
-
-            PeerGroup result = null;
+            PeerGroup worldPeerGroup = worldPeerGroups.get(storeHomeString);
+            
+            if (worldPeerGroup != null) {
+                /*StringBuilder exceptionStringBuilder = new StringBuilder();
+                exceptionStringBuilder.append("Only a single instance of the World Peer Group may be instantiated at a time with the home path sepcified");
+                exceptionStringBuilder.append(System.getProperty("line.separator"));                
+                exceptionStringBuilder.append("Home path: ");                
+                exceptionStringBuilder.append(storeHomeString);
+                throw new PeerGroupException(exceptionStringBuilder.toString());*/
+                
+                //Return already created WorldPeerGroup object for this store home path
+                return worldPeerGroup;
+            }            
 
             try {
-
                 Logging.logCheckedInfo(LOG, "Making a new World Peer Group instance using : ", worldPeerGroupClass.getName());
-
-                Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);
-
-                try {
-                    result = twoParams.newInstance(config, storeHome);
-                } catch (InvocationTargetException failure) {
-                    // unwrap the real exception.
-                    Throwable cause = failure.getCause();
-
-                    if (cause instanceof Exception) {
-                        throw (Exception) cause;
-                    } else if (cause instanceof Error) {
-                        throw (Error) cause;
-                    } else {
-                        // just rethrow what we already had. sigh.
-                        throw failure;
-                    }
-                }
-
-                result.init(null, PeerGroupID.WORLD_PEER_GROUP_ID, null);
-                worldPeerGroups.put(storeHomeString, result);
-                return result;
-            } catch (RuntimeException e) {
-                // should be all other checked exceptions
-                LOG.error("World Peer Group could not be instantiated.\n", e);
-
-                // cleanup broken instance
-                if (null != result) {
-//                    result.unref();
-                }
-
-                // just rethrow.
-                throw e;
-            } catch (Exception e) {
-                // should be all other checked exceptions
-                LOG.error("World Peer Group could not be instantiated.\n", e);
-
-                // cleanup broken instance
-                if (null != result) {
-//                    result.unref();
-                }
-
-                // Simplify exception scheme for caller: any sort of problem wrapped
-                // in a PeerGroupException.
-                throw new PeerGroupException("World Peer Group could not be instantiated.", e);
-            }
+                
+                Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);                
+                worldPeerGroup = twoParams.newInstance(config, storeHome);               
+                worldPeerGroup.init(null, PeerGroupID.WORLD_PEER_GROUP_ID, null);
+                worldPeerGroups.put(storeHomeString, worldPeerGroup);
+                return worldPeerGroup;
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException exception) {                
+                LOG.error("World Peer Group could not be instantiated.\n", exception);                                
+                throw new PeerGroupException(exception);
+            }            
         }
     }
 }
