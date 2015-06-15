@@ -152,30 +152,30 @@ public interface PeerGroup extends Service {
     /**
      * Global registry of instantiated peer groups. We allow only a single
      * PeerGroup instance for a specific PeerGroupID within the context of the
-     * classloader JXTA is loaded into.
+     * class loader JXTA is loaded into.
      */
     static class GlobalRegistry {
 
-        private final Map<ID, Reference<PeerGroup>> registry = new HashMap<ID, Reference<PeerGroup>>(8);
+        private final Map<ID, Reference<PeerGroup>> registry = new HashMap<>(8);
 
         /**
          * Registers a new instance.
          *
-         * @param gid the ID of the group of which an instance is being registered.
-         * @param pg  the group instance being registered.
+         * @param peerGroupId the ID of the group of which an instance is being registered.
+         * @param peerGroup  the group instance being registered.
          * @return false if the instance could not be registered because there
          *         was already such an instance registered.
          */
-        public synchronized boolean registerInstance(PeerGroupID gid, PeerGroup pg) {
+        public synchronized boolean registerInstance(PeerGroupID peerGroupId, PeerGroup peerGroup) {
 
-            Reference<PeerGroup> ref = registry.get(gid);
+            Reference<PeerGroup> peerGroupReference = registry.get(peerGroupId);
 
-            if ((ref != null) && (ref.get() != null)) {
+            if ((peerGroupReference != null) && (peerGroupReference.get() != null)) {
                 return false;
             }
 
             // If the ref is a dead instance, we can also replace it.
-            registry.put(gid, new WeakReference<PeerGroup>(pg));
+            registry.put(peerGroupId, new WeakReference<>(peerGroup));
             return true;
         }
 
@@ -183,57 +183,57 @@ public interface PeerGroup extends Service {
          * Unregisters a group instance (normally because the group is being
          * stopped).
          *
-         * @param gid the ID of the group of which an instance is unregistered.
-         * @param pg  the group instance itself (serves as a credential).
+         * @param peerGroupId the ID of the group of which an instance is unregistered.
+         * @param peerGroup  the group instance itself (serves as a credential).
          * @return false if the group could not be unregistered because no such
          *         registration (exact ID, exact object) was not found.
          */
-        public synchronized boolean unRegisterInstance(PeerGroupID gid, PeerGroup pg) {
+        public synchronized boolean unRegisterInstance(PeerGroupID peerGroupId, PeerGroup peerGroup) {
 
-            Reference<PeerGroup> ref = registry.get(gid);
+            Reference<PeerGroup> peerGroupReference = registry.get(peerGroupId);
 
-            if (ref == null) {
+            if (peerGroupReference == null) {
                 return false;
             }
 
-            PeerGroup found = ref.get();
+            PeerGroup foundPeerGroup = peerGroupReference.get();
 
-            if (found == null) {
+            if (foundPeerGroup == null) {
                 // Dead instance. Remove from table.
-                registry.remove(gid);
+                registry.remove(peerGroupId);
                 return false;
             }
 
             // Note the use of "!=", not "!equals()"
-            if (pg != found) {
+            if (peerGroup != foundPeerGroup) {
                 return false;
             }
 
-            registry.remove(gid);
+            registry.remove(peerGroupId);
             return true;
         }
 
         /**
-         * Returns a running instance of the peergroup with given ID if any
+         * Returns a running instance of the peer group with given ID if any
          * exists. The instance should be {@link PeerGroup#unref()}ed when it is
          * no longer needed.
          *
-         * @param gid the id of the group of which an instance is wanted.
+         * @param peerGroupId the id of the group of which an instance is wanted.
          * @return the group, or {@code null} if no instance exists.
          */
-        public synchronized PeerGroup lookupInstance(PeerGroupID gid) {
+        public synchronized PeerGroup lookupInstance(PeerGroupID peerGroupId) {
 
-            Reference<PeerGroup> ref = registry.get(gid);
+            Reference<PeerGroup> peerGroupReference = registry.get(peerGroupId);
 
-            if (ref == null) {
+            if (peerGroupReference == null) {
                 return null;
             }
 
-            PeerGroup pg = ref.get();
+            PeerGroup peerGroup = peerGroupReference.get();
 
-            if (pg == null) {
+            if (peerGroup == null) {
                 // Dead instance. remove from table.
-                registry.remove(gid);
+                registry.remove(peerGroupId);
                 return null;
             }
 
@@ -245,59 +245,58 @@ public interface PeerGroup extends Service {
             // automatic if the grp object is GC'ed (the references are weak
             // references).
 //            return pg.getInterface();
-            return pg;
+            return peerGroup;
         }
 
         /**
-         * Returns a running instance of the peergroup with given ID if any
+         * Returns a running instance of the peer group with given ID if any
          * exists.
          *
-         * @param gid The id of the group of which an instance is wanted.
+         * @param peerGroupId The id of the group of which an instance is wanted.
          * @return The group, or {@code null} if no instance exists.
          */
-        synchronized PeerGroup getInstance(PeerGroupID gid) {
+        synchronized PeerGroup getInstance(PeerGroupID peerGroupId) {
 
-            Reference<PeerGroup> ref = registry.get(gid);
+            Reference<PeerGroup> peerGroupReference = registry.get(peerGroupId);
 
-            if (ref == null) {
+            if (peerGroupReference == null) {
                 return null;
             }
 
-            PeerGroup pg = ref.get();
+            PeerGroup peerGroup = peerGroupReference.get();
 
-            if (pg == null) {
+            if (peerGroup == null) {
                 // Dead instance. remove from table.
-                registry.remove(gid);
+                registry.remove(peerGroupId);
                 return null;
             }
 
-            return pg;
+            return peerGroup;
         }
 
         /**
-         * Returns {@code true} if there is a registered peergroup of the
+         * Returns {@code true} if there is a registered peer group of the
          * specified ID.
          *
-         * @param gid the id of the group of which an instance is wanted.
+         * @param peerGroupId the id of the group of which an instance is wanted.
          * @return {@code} true if the peergroup is currently registered
          *         otherwise false;
          */
-        public synchronized boolean registeredInstance(PeerGroupID gid) {
+        public synchronized boolean registeredInstance(PeerGroupID peerGroupId) {
 
-            Reference<PeerGroup> ref = registry.get(gid);
+            Reference<PeerGroup> peerGroupReference = registry.get(peerGroupId);
 
-            if (ref == null) {
+            if (peerGroupReference == null) {
                 return false;
             }
 
-            PeerGroup pg = ref.get();
+            PeerGroup peerGroup = peerGroupReference.get();
 
-            if (pg == null) {
+            if (peerGroup == null) {
                 // Dead instance. remove from table.
-                registry.remove(gid);
+                registry.remove(peerGroupId);
                 return false;
             }
-
             return true;
         }
     }
@@ -456,6 +455,7 @@ public interface PeerGroup extends Service {
      *                   ({@code Both}).
      * @return Module the new module, or null if no usable implementation was
      *         found.
+     * @throws net.jxta.exception.PeerGroupException
      */
     public Module loadModule(ID moduleClassId, ModuleSpecID moduleSpecId, int where) throws PeerGroupException;
 
@@ -520,7 +520,7 @@ public interface PeerGroup extends Service {
      * This is a convenience method equivalent to either:
      * <p/>
      * <pre>
-     * newGrp = thisGroup.loadModule(gid, impl);
+     * newGrp = thisGroup.loadModule(peerGroupId, impl);
      * newGrp.publishGroup(name, description);
      * </pre>
      * or, but only if the implementation advertisement has been published:
@@ -528,7 +528,7 @@ public interface PeerGroup extends Service {
      * <pre>
      * newPGAdv = AdvertisementFactory.newAdvertisement(
      *                 PeerGroupAdvertisement.getAdvertisementType());
-     * newPGAdv.setPeerGroupID(gid);
+     * newPGAdv.setPeerGroupID(peerGroupId);
      * newPGAdv.setModuleSpecID(impl.getModuleSpecID());
      * newPGAdv.setName(name);
      * newPGAdv.setDescription(description);
@@ -572,7 +572,7 @@ public interface PeerGroup extends Service {
      * <p/>
      * <code>
      * grp = new GroupSubClass();
-     * grp.init(parentGroup, gid, impladv);
+     * grp.init(parentGroup, peerGroupId, impladv);
      * </code>
      * <p/>
      * then, <strong>REMEMBER TO PUBLISH THE GROUP IF IT IS ALL NEW.</strong>
@@ -599,7 +599,7 @@ public interface PeerGroup extends Service {
      * This is a convenience method equivalent to either:
      * <p/>
      * <pre>
-     * newGrp = thisGroup.loadModule(gid, impl);
+     * newGrp = thisGroup.loadModule(peerGroupId, impl);
      * newGrp.publishGroup(name, description); // if publication is requested
      * </pre>
      * or, but only if the implementation advertisement has been published:
@@ -609,7 +609,7 @@ public interface PeerGroup extends Service {
      * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
      * instanced object are copied from this peer group.
      *
-     * @param gid                                       The ID of that group. If <code>null</code> then a new group ID will be chosen.
+     * @param peerGroupId                                       The ID of that group. If <code>null</code> then a new group ID will be chosen.
      * @param moduleImplementationAdvertisement         The advertisement of the implementation to be used.
      * @param name                                      The name of the group.
      * @param description                               The description of this group.
@@ -617,7 +617,7 @@ public interface PeerGroup extends Service {
      * @return                                          PeerGroup the initialized (but not started) peergroup.
      * @throws                                          PeerGroupException Thrown if the group could not be instantiated.
      */
-    public PeerGroup newGroup(PeerGroupID gid, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description, boolean publish) throws PeerGroupException;
+    public PeerGroup newGroup(PeerGroupID peerGroupId, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description, boolean publish) throws PeerGroupException;
 
     /*
      * Shortcuts to the well-known services, in order to avoid calls to

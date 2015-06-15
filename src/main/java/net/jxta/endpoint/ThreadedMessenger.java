@@ -531,8 +531,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 notifyChange();
                 // We're about to go wait(). Yielding is a good bet. It is
                 // very inexpenssive and may be all it takes to get a new job
-                // queued.
-                Thread.yield();
+                // queued.                
                 return;
             }
         }

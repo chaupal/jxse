@@ -440,9 +440,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
                     try {
                         if (isIdleImpl()) {
                             close();
-                        } else {
-                            return;
-                        }
+                        } 
                     } catch (Throwable uncaught) {
                         Logging.logCheckedError(LOG, "Uncaught Throwable in selfDescructTask. \n", uncaught);
                     }

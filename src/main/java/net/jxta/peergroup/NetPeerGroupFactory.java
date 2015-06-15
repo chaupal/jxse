@@ -132,10 +132,10 @@ public final class NetPeerGroupFactory {
             if (null != storeHome) {
                 try {
                     File configProperties = new File(new File(storeHome), "config.properties");
-                    ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
+                    ResourceBundle resourceBundle = new PropertyResourceBundle(new FileInputStream(configProperties));
 
-                    netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(rsrcs, netPeerGroupConstructionContainer);
-                    Logging.logCheckedDebug(LOG, "Loaded defaults from ", rsrcs);
+                    netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(resourceBundle, netPeerGroupConstructionContainer);
+                    Logging.logCheckedDebug(LOG, "Loaded defaults from ", resourceBundle);
                 } catch (MissingResourceException | IOException exception) {                        
                 }                                        
             }
@@ -143,7 +143,7 @@ public final class NetPeerGroupFactory {
             netPeerGroupConstructionContainer = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
 
-        netPeerGroup = newNetPeerGroup(worldGroup, null, netPeerGroupConstructionContainer.id, netPeerGroupConstructionContainer.name, netPeerGroupConstructionContainer.desc);         
+        netPeerGroup = newNetPeerGroup(worldGroup, null, netPeerGroupConstructionContainer.id, netPeerGroupConstructionContainer.name, netPeerGroupConstructionContainer.description);         
     }
 
     /**
@@ -168,7 +168,7 @@ public final class NetPeerGroupFactory {
             tunables = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
 
-        netPeerGroup = newNetPeerGroup(parentGroup, null, tunables.id, tunables.name, tunables.desc);
+        netPeerGroup = newNetPeerGroup(parentGroup, null, tunables.id, tunables.name, tunables.description);
     }
 
     /**
@@ -199,7 +199,7 @@ public final class NetPeerGroupFactory {
             netPeertGroupConstructionContainer = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
 
-        netPeerGroup = newNetPeerGroup(worldGroup, config, netPeertGroupConstructionContainer.id, netPeertGroupConstructionContainer.name, netPeertGroupConstructionContainer.desc);        
+        netPeerGroup = newNetPeerGroup(worldGroup, config, netPeertGroupConstructionContainer.id, netPeertGroupConstructionContainer.name, netPeertGroupConstructionContainer.description);        
     }
 
     /**
@@ -238,8 +238,8 @@ public final class NetPeerGroupFactory {
             }
         }
 
-        ConfigParams cp = parentGroup.getConfigAdvertisement();
-        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
+        ConfigParams configurationParameters = parentGroup.getConfigAdvertisement();
+        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) configurationParameters.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
         NePeertGroupConstructionContainer nePeertGroupConstructionContainer;
 
         if (null == netGroupConfig) {
@@ -248,7 +248,7 @@ public final class NetPeerGroupFactory {
             nePeertGroupConstructionContainer = new NePeertGroupConstructionContainer(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
 
-        netPeerGroup = newNetPeerGroup(parentGroup, config, nePeertGroupConstructionContainer.id, nePeertGroupConstructionContainer.name, nePeertGroupConstructionContainer.desc);
+        netPeerGroup = newNetPeerGroup(parentGroup, config, nePeertGroupConstructionContainer.id, nePeertGroupConstructionContainer.name, nePeertGroupConstructionContainer.description);
     }
 
 //    /**
@@ -371,7 +371,7 @@ public final class NetPeerGroupFactory {
     /**
      * Construct the new Net Peer Group instance.
      *
-     * @param parentGroup The parent group of the newly created net peer group.
+     * @param parentPeerGroup The parent group of the newly created net peer group.
      * @param config Configuration parameters for the newly created net peer group.
      * @param id The name to use for the newly created Net Peer Group.
      * @param name The name to use for the newly created Net Peer Group.
@@ -383,19 +383,20 @@ public final class NetPeerGroupFactory {
      * @throws PeerGroupException Thrown for errors instantiating the new Net
      * Peer Group instance.
      */
-    private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement desc) throws PeerGroupException {
-    	final PeerGroup.GlobalRegistry globalRegistry = parentGroup.getGlobalRegistry();
+    private PeerGroup newNetPeerGroup(PeerGroup parentPeerGroup, ConfigParams config, ID id, String name, XMLElement desc) throws PeerGroupException {
+    	final PeerGroup.GlobalRegistry globalRegistry = parentPeerGroup.getGlobalRegistry();
+        
         synchronized (globalRegistry) {
 
             PeerGroup result = globalRegistry.lookupInstance((PeerGroupID) id);
             ModuleImplAdvertisement NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
 
             if (null != result) {
-                throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
+                throw new PeerGroupException("Only a single instance of a Net Peer Group may be instantiated at a single time.");
             }
 
             Logging.logCheckedInfo(LOG, "Instantiating net peer group : ", id,
-                        "\n\tParent : ", parentGroup,
+                        "\n\tParent : ", parentPeerGroup,
                         "\n\tID : ", id,
                         "\n\tName : ", name,
                         "\n\timpl : ", NPGAdv);
@@ -405,7 +406,7 @@ public final class NetPeerGroupFactory {
                 // Build the group
                 GenericPeerGroup.setGroupConfigAdvertisement(id,config);
 
-                result = (PeerGroup) parentGroup.loadModule(id, NPGAdv);
+                result = (PeerGroup) parentPeerGroup.loadModule(id, NPGAdv);
 
                 // Set the name and description
                 // FIXME 20060217 bondolo How sad, we can't use our XML description.
@@ -430,19 +431,19 @@ public final class NetPeerGroupFactory {
      * Holds the construction details for the NetPeerGroup. This consists of
      * the peer group id, the peer group name and the peer group description.
      */
-    static class NePeertGroupConstructionContainer {
+    public static class NePeertGroupConstructionContainer {
 
-        final ID id;
-        final String name;
-        final XMLElement desc;
+        private final ID id;
+        private final String name;
+        private final XMLElement description;
 
         /**
          * Constructor for loading the default Net Peer Group construction details
          */
-        NePeertGroupConstructionContainer() {
+        public NePeertGroupConstructionContainer() {
             id = PeerGroupID.NET_PEER_GROUP_ID;
             name = "NetPeerGroup";
-            desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
+            description = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
         }
 
         /**
@@ -452,10 +453,10 @@ public final class NetPeerGroupFactory {
          * @param pgname the group name
          * @param pgdesc the group description
          */
-        NePeertGroupConstructionContainer(ID pgid, String pgname, XMLElement pgdesc) {
+        public NePeertGroupConstructionContainer(ID pgid, String pgname, XMLElement pgdesc) {
             id = pgid;
             name = pgname;
-            desc = pgdesc;
+            description = pgdesc;
         }
 
         /**
@@ -464,7 +465,7 @@ public final class NetPeerGroupFactory {
          * @param rsrcs The resource bundle from which resources will be loaded.
          * @param defaults default values
          */
-        NePeertGroupConstructionContainer(ResourceBundle rsrcs, NePeertGroupConstructionContainer defaults) {
+        public NePeertGroupConstructionContainer(ResourceBundle rsrcs, NePeertGroupConstructionContainer defaults) {
             ID idTmp;
             String nameTmp;
             XMLElement descTmp;
@@ -486,7 +487,7 @@ public final class NetPeerGroupFactory {
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
-                    descTmp = defaults.desc;
+                    descTmp = defaults.description;
                 } else {
                     Logging.logCheckedError(LOG, "NetPeerGroup construction container not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup construction container not defined or could not be loaded.");
@@ -495,7 +496,19 @@ public final class NetPeerGroupFactory {
 
             id = idTmp;
             name = nameTmp;
-            desc = descTmp;
+            description = descTmp;
+        }
+        
+        public ID getId() {
+            return id;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public XMLElement getDescription() {
+            return description;
         }
     }
 }

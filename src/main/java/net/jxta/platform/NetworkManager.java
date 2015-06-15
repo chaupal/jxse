@@ -75,6 +75,7 @@ import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
@@ -422,7 +423,6 @@ public class NetworkManager implements RendezvousListener {
      * Stops NetPeerGroup
      */
     public synchronized void stopNetwork() {
-
         if (stopped || !started) {
             return;
         }
@@ -437,7 +437,13 @@ public class NetworkManager implements RendezvousListener {
 
         rendezvous.removeListener(this);               
         
-        PeerGroup worldPeerGroup = netPeerGroup.getParentGroup();
+        //mindarchitect                
+        
+        //PeerGroup worldPeerGroup = netPeerGroup.getParentGroup();
+        
+        //WorldPeerGroupFactory performs world peer group registering upon group instantiation.
+        //We should unregister created world peer group instance from WorldPeerGroupFactory when stoping network
+        PeerGroup worldPeerGroup = WorldPeerGroupFactory.unregisterWorldPeerGroup(instanceHome.toString());
         
         //mindarchitect 16052014
         //Check parent peer group should not be null
@@ -448,17 +454,19 @@ public class NetworkManager implements RendezvousListener {
             //Should be platform specification ID
             //Unfortunately cannot check by ID as WorldPeerGroupID is package level visible only
             if (worldPeerGroupAdvertisement.getModuleSpecID().equals(IModuleDefinitions.refPlatformSpecID)) {
-                //Stop peer group
-                worldPeerGroup.stopApp();                
+                //Stop world peer group                
+                worldPeerGroup.stopApp();                  
+            }            
+            
+            //We should unregister created net peer group instance from WorldPeerGroup global registry when stoping network
+            if (worldPeerGroup.getGlobalRegistry().unRegisterInstance(PeerGroupID.NET_PEER_GROUP_ID, netPeerGroup)) {            
+                netPeerGroup.stopApp();        
             }
-        }
-        
-        netPeerGroup.stopApp();        
-
-        // Permit restart.
-        started = false;
-
-        Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
+            
+            // Permit restart.
+            started = false;
+            Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
+        }                                       
     }
 
     /**

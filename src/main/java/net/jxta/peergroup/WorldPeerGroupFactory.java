@@ -113,7 +113,7 @@ public final class WorldPeerGroupFactory {
     /**
      * Our strong reference to the World Peer Group.
      */
-    private final PeerGroup world;
+    private static PeerGroup worldPeerGroup;    
 
     /**
      * Provided for backwards compatibility, this constructor instantiates the
@@ -149,13 +149,12 @@ public final class WorldPeerGroupFactory {
         try {
             NullConfigurator configurator = new DefaultConfigurator(storeHome);
             // Get (and possibly generate) the platform configuration.
-            ConfigParams config = configurator.getConfigParams();
+            ConfigParams configurationParameters = configurator.getConfigParams();
 
-            world = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), config, storeHome);
+            worldPeerGroup = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), configurationParameters, storeHome);
 
-            // persist any changes which were made to the platform config by
-            // service initialization.
-            configurator.setConfigParams(config);
+            //Persist any changes which were made to the platform config by service initialization.
+            configurator.setConfigParams(configurationParameters);
             configurator.save();
         } catch (ConfiguratorException configFailure) {
             String exceptionMessage = "Failure while managing World Peer Group configuration";
@@ -177,7 +176,7 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      */
     public WorldPeerGroupFactory(ConfigParams config, URI storeHome) throws PeerGroupException {
-        world = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), config, storeHome);
+        worldPeerGroup = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), config, storeHome);
     }
 
     /**
@@ -195,8 +194,7 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      */
     public WorldPeerGroupFactory(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
-
-        world = newWorldPeerGroup(worldPeerGroupClass, config, storeHome);
+        worldPeerGroup = newWorldPeerGroup(worldPeerGroupClass, config, storeHome);
     }
 
     /**
@@ -205,7 +203,7 @@ public final class WorldPeerGroupFactory {
      * @return An World Peer Group.
      */
     public PeerGroup getWorldPeerGroup() {
-        return world;
+        return worldPeerGroup;
     }
 
 //    /**
@@ -243,6 +241,10 @@ public final class WorldPeerGroupFactory {
             throw new PeerGroupException("Could not load World PeerGroup class.", exception);
         }
     }
+    
+    public static PeerGroup unregisterWorldPeerGroup(String storeHome) {
+        return worldPeerGroups.remove(storeHome);                    
+    }
 
     /**
      * Constructs the World Peer Group instance.
@@ -271,9 +273,9 @@ public final class WorldPeerGroupFactory {
 
         synchronized (worldPeerGroups)
         {
-            String storeHomeString = storeHome.toString();
             //A global registry per Peer installation in VM.
-            PeerGroup worldPeerGroup = worldPeerGroups.get(storeHomeString);
+            String storeHomeString = storeHome.toString();            
+            worldPeerGroup = worldPeerGroups.get(storeHomeString);
             
             if (worldPeerGroup != null) {
                 /*StringBuilder exceptionStringBuilder = new StringBuilder();

@@ -107,6 +107,7 @@ import java.util.Set;
 import net.jxta.exception.ConfiguratorException;
 
 import net.jxta.impl.protocol.MulticastAdv;
+import net.jxta.peergroup.NetPeerGroupFactory;
 
 /**
  * NetworkConfigurator provides a simple programmatic interface for JXTA configuration.
@@ -177,7 +178,7 @@ import net.jxta.impl.protocol.MulticastAdv;
  *
  * @since JXTA JSE 2.4
  */
-public class NetworkConfigurator {
+public final class NetworkConfigurator {
 
     private final static transient Logger LOG = Logging.getLogger(NetworkConfigurator.class.getName());
 
@@ -1734,11 +1735,11 @@ public class NetworkConfigurator {
                     rsrcs = new PropertyResourceBundle(configPropsIS);
                 }
 
-                NetGroupTunables tunables = new NetGroupTunables(rsrcs, new NetGroupTunables());
+                NetPeerGroupFactory.NePeertGroupConstructionContainer nePeertGroupConstructionContainer = new NetPeerGroupFactory.NePeertGroupConstructionContainer(rsrcs, new NetPeerGroupFactory.NePeertGroupConstructionContainer());
 
-                infraPeerGroupConfig.setPeerGroupID(tunables.id);
-                infraPeerGroupConfig.setName(tunables.name);
-                infraPeerGroupConfig.setDesc(tunables.desc);
+                infraPeerGroupConfig.setPeerGroupID(nePeertGroupConstructionContainer.getId());
+                infraPeerGroupConfig.setName(nePeertGroupConstructionContainer.getName());
+                infraPeerGroupConfig.setDesc(nePeertGroupConstructionContainer.getDescription());
             } catch (MissingResourceException | IOException ignored) {
                 //ignored
             } 
@@ -2009,14 +2010,13 @@ public class NetworkConfigurator {
     }
 
     protected PeerGroupConfigAdv createInfraConfigAdv() {
-        infraPeerGroupConfig = (PeerGroupConfigAdv) AdvertisementFactory.newAdvertisement(
-                PeerGroupConfigAdv.getAdvertisementType());
+        infraPeerGroupConfig = (PeerGroupConfigAdv) AdvertisementFactory.newAdvertisement(PeerGroupConfigAdv.getAdvertisementType());        
+        
+        NetPeerGroupFactory.NePeertGroupConstructionContainer nePeertGroupConstructionContainer = new NetPeerGroupFactory.NePeertGroupConstructionContainer(ResourceBundle.getBundle("net.jxta.impl.config"), new NetPeerGroupFactory.NePeertGroupConstructionContainer());
 
-        NetGroupTunables tunables = new NetGroupTunables(ResourceBundle.getBundle("net.jxta.impl.config"), new NetGroupTunables());
-
-        infraPeerGroupConfig.setPeerGroupID(tunables.id);
-        infraPeerGroupConfig.setName(tunables.name);
-        infraPeerGroupConfig.setDesc(tunables.desc);
+        infraPeerGroupConfig.setPeerGroupID(nePeertGroupConstructionContainer.getId());
+        infraPeerGroupConfig.setName(nePeertGroupConstructionContainer.getName());
+        infraPeerGroupConfig.setDesc(nePeertGroupConstructionContainer.getDescription());
 
         return infraPeerGroupConfig;
     }
@@ -2413,85 +2413,5 @@ public class NetworkConfigurator {
     
     public static final int getDefaultHttp2PortRangeUpperBound() {
         return DEFAULT_HTTP2_PORT_RANGE_UPPER_BOUND;
-    }
-
-    /**
-     * Holds the construction tunables for the Net Peer Group. This consists of
-     * the peer group id, the peer group name and the peer group description.
-     */
-    static class NetGroupTunables {
-
-        final ID id;
-        final String name;
-        final XMLElement desc;
-
-        /**
-         * Constructor for loading the default Net Peer Group construction
-         * tunables.
-         */
-        NetGroupTunables() {
-            id = PeerGroupID.NET_PEER_GROUP_ID;
-            name = "NetPeerGroup";
-            desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
-        }
-
-        /**
-         * Constructor for loading the default Net Peer Group construction
-         * tunables.
-         *
-         * @param pgid   the PeerGroupID
-         * @param pgname the group name
-         * @param pgdesc the group description
-         */
-        NetGroupTunables(ID pgid, String pgname, XMLElement pgdesc) {
-            id = pgid;
-            name = pgname;
-            desc = pgdesc;
-        }
-
-        /**
-         * Constructor for loading the Net Peer Group construction
-         * tunables from the provided resource bundle.
-         *
-         * @param rsrcs    The resource bundle from which resources will be loaded.
-         * @param defaults default values
-         */
-        NetGroupTunables(ResourceBundle rsrcs, NetGroupTunables defaults) {
-            ID idTmp;
-            String nameTmp;
-            XMLElement descTmp;
-
-            try {
-                String idTmpStr = rsrcs.getString("NetPeerGroupID").trim();
-
-                if (idTmpStr.startsWith(ID.URNNamespace + ":")) {
-                    idTmpStr = idTmpStr.substring(5);
-                }
-                idTmp = IDFactory.fromURI(new URI(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + idTmpStr));
-                nameTmp = rsrcs.getString("NetPeerGroupName").trim();
-                descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", rsrcs.getString("NetPeerGroupDesc").trim());
-
-            } catch (Exception failed) {
-
-                if (null != defaults) {
-
-                    Logging.logCheckedDebug(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
-
-                    idTmp = defaults.id;
-                    nameTmp = defaults.name;
-                    descTmp = defaults.desc;
-
-                } else {
-
-                    Logging.logCheckedError(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
-                    throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
-
-                }
-            }
-
-            id = idTmp;
-            name = nameTmp;
-            desc = descTmp;
-        }
-    }
+    }    
 }

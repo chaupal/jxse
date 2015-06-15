@@ -362,10 +362,8 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
             }
             // Non-blocking and queue full: report overflow.
             message.setMessageProperty(Messenger.class, OutgoingMessageEvent.OVERFLOW);
-        } catch (IOException oie) {
-            message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, oie));
-        } catch (InterruptedException interrupted) {
-            message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, interrupted));
+        } catch (IOException | InterruptedException exception) {
+            message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, exception));
         }
         return false;
     }
@@ -385,8 +383,7 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
                 while (true) {                                                                                
                     // Do a shallow check on the queue. 
                     if (queue.isEmpty()) {                    
-                        return;
-                        //Thread.yield();
+                        return;                        
                     }
 
                     // If we reached this far, it is neither closed, nor ok. So it was saturated.

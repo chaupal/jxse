@@ -170,10 +170,12 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdv;
     }
 
+    @Override
     public GlobalRegistry getGlobalRegistry()
     {
         return group.getGlobalRegistry(); 
