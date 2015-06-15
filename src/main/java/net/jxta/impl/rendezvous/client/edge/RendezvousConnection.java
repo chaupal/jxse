@@ -65,26 +65,22 @@ import net.jxta.protocol.PeerAdvertisement;
 /**
  * Manages a connection with a client or a rendezvous peer.
  */
-public class RendezvousConnection extends PeerConnection {
-
-    protected long leasedTil;
-    protected long beginRenewalAt;
-
-    protected PeerAdvertisement cachedPeerAdvertisement = null;
-    protected int cachedModCount = -1;
+public final class RendezvousConnection extends PeerConnection {
+    
+    private long beginRenewalAt;
+    private PeerAdvertisement peerAdvertisement = null;
+    
 
     /**
      * Constructor for the PeerConnection object
      *
-     * @param peerGroup      group context
-     * @param rdvService the rendezvous service to use for sending messages.
-     * @param peerId       destination peerId
+     * @param peerGroup                                 Peer group
+     * @param rendezvousServiceImplementation           The rendezvous service to use for sending messages.
+     * @param peerAdvertisement                         Rendezvous peer advertisement
      */
-    public RendezvousConnection(PeerGroup peerGroup, RendezVousServiceImpl rdvService, ID peerId) {
-        super(peerGroup, rdvService.endpoint, peerId);
-
-        cachedPeerAdvertisement = peerGroup.getPeerAdvertisement();
-        cachedModCount = cachedPeerAdvertisement.getModCount();
+    public RendezvousConnection(PeerGroup peerGroup, RendezVousServiceImpl rendezvousServiceImplementation, PeerAdvertisement peerAdvertisement) {
+        super(peerGroup, rendezvousServiceImplementation.endpoint, peerAdvertisement.getPeerID());
+        this.peerAdvertisement = peerAdvertisement;        
     }
 
     /**
@@ -145,6 +141,6 @@ public class RendezvousConnection extends PeerConnection {
     }
     
     public PeerAdvertisement getRendezvousPeerAdvertisement() {
-        return cachedPeerAdvertisement;
+        return peerAdvertisement;
     }
 }

@@ -674,7 +674,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 defaultChannel = new ThreadedChannelMessenger(getDestinationAddress(), null, null, null, channelQueueSize, false);
             }
         }
-
+        
         defaultChannel.sendMessageB(message, service, serviceParam);
     }
 

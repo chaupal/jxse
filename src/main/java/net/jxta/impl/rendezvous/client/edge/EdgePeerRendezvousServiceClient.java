@@ -535,8 +535,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                 RendezvousConnection rendezvousPeerConnection = connectedRendezVousPeers.get(peerAdvertisement.getPeerID());
 
                 if (null != rendezvousPeerConnection) {                    
-                    removeRendezvousPeer(peerAdvertisement.getPeerID(), true);
-                    rendezvousPeerConnection.setConnected(false);
+                    removeRendezvousPeer(peerAdvertisement.getPeerID(), true);                    
                 } else {
                     Logging.logCheckedDebug(LOG, "Ignoring disconnect request from ", peerAdvertisement.getPeerID());
                 }
@@ -549,21 +548,21 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
     /**
      * Add a rendezvous to our collection of rendezvous peers.
      *
-     * @param padv  PeerAdvertisement for the rendezvous peer.
+     * @param peerAdvertisement  PeerAdvertisement for the rendezvous peer.
      * @param lease The duration of the lease in relative milliseconds.
      */
-    private void addRendezVousPeer(PeerAdvertisement padv, long lease) {
+    private void addRendezVousPeer(PeerAdvertisement peerAdvertisement, long lease) {
 
         int eventType;
 
         RendezvousConnection rendezvousConnection;
 
         synchronized (connectedRendezVousPeers) {
-            rendezvousConnection = connectedRendezVousPeers.get(padv.getPeerID());
+            rendezvousConnection = connectedRendezVousPeers.get(peerAdvertisement.getPeerID());
 
             if (null == rendezvousConnection) {
-                rendezvousConnection = new RendezvousConnection(peerGroup, rendezvousServiceImplementation, padv.getPeerID());
-                connectedRendezVousPeers.put(padv.getPeerID(), rendezvousConnection);
+                rendezvousConnection = new RendezvousConnection(peerGroup, rendezvousServiceImplementation, peerAdvertisement);
+                connectedRendezVousPeers.put(peerAdvertisement.getPeerID(), rendezvousConnection);
                 eventType = RendezvousEvent.RDVCONNECT;
             } else {
                 eventType = RendezvousEvent.RDVRECONNECT;
@@ -576,21 +575,21 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
 
             // Already connected, just upgrade the lease
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
-                RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(padv.getPeerID());
+                RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(peerAdvertisement.getPeerID());
                 rendezvousConnectionMeter.leaseRenewed(lease);
             }
         } else {
             Logging.logCheckedInfo(LOG, "New RDV lease from ", rendezvousConnection);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
-                RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(padv.getPeerID());
+                RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(peerAdvertisement.getPeerID());
                 
                 rendezvousConnectionMeter.connectionEstablished(lease);
             }
         }
 
-        rendezvousConnection.connect(padv, lease, Math.min(LEASE_MARGIN, (lease / 2)));
-        rendezvousServiceImplementation.generateEvent(eventType, padv.getPeerID());
+        rendezvousConnection.connect(peerAdvertisement, lease, Math.min(LEASE_MARGIN, (lease / 2)));
+        rendezvousServiceImplementation.generateEvent(eventType, peerAdvertisement.getPeerID());
     }
 
     /**

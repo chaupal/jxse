@@ -230,19 +230,19 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * The set of listener managed by this instance of the endpoint svc.
      */
-    private final Map<String, EndpointListener> incomingMessageListeners = new HashMap<String, EndpointListener>(16);
+    private final Map<String, EndpointListener> incomingMessageListeners = new HashMap<>(16);
 
     /**
      * The set of shared transport messengers currently ready for use.
      */
-    private final Map<EndpointAddress, Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
+    private final Map<EndpointAddress, Reference<Messenger>> messengerMap = new WeakHashMap<>(32);
 
     /**
      * A means of preserving CanonicalMessenger instances as long as their cached messenger
      * is still alive. This is a replacement for the original behaviour of setting an
      * "owner" reference on a messenger to the CanonicalMessenger.
      */
-    private final WeakHashMap<Messenger, CanonicalMessenger> canonicalPreservingMap = new WeakHashMap<Messenger, CanonicalMessenger>();
+    private final WeakHashMap<Messenger, CanonicalMessenger> canonicalPreservingMap = new WeakHashMap<>();
 
     /**
      * The number of active instances of this class. We use this for deciding
@@ -272,7 +272,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * create an infinite number of channels with pending messages, thus an
      * infinite number of messages too.
      */
-    private final Map<EndpointAddress, Reference<Messenger>> channelCache = new WeakHashMap<EndpointAddress, Reference<Messenger>>();
+    private final Map<EndpointAddress, Reference<Messenger>> channelCache = new WeakHashMap<>();
 
     /**
      * The filter listeners.
@@ -281,8 +281,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * and insert objects that are always unique. So using a set
      * does not make sense. An array list is the best.
      */
-    private final Collection<FilterListenerAndMask> incomingFilterListeners = new ArrayList<FilterListenerAndMask>();
-    private final Collection<FilterListenerAndMask> outgoingFilterListeners = new ArrayList<FilterListenerAndMask>();
+    private final Collection<FilterListenerAndMask> incomingFilterListeners = new ArrayList<>();
+    private final Collection<FilterListenerAndMask> outgoingFilterListeners = new ArrayList<>();
 
     /**
      * Holder for a filter listener and its conditions
@@ -398,17 +398,14 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         protected boolean connectImpl() {
 
             if (cachedMessenger != null) {
-
                 if ((cachedMessenger.getState() & Messenger.TERMINAL) != 0) {
 
                     Logging.logCheckedDebug(LOG, "Closing TERMINAL internal messenger : attempting requested connect.");
                     cachedMessenger.close();
                     cachedMessenger = null;
-
                 } else {
                     return true;
                 }
-
             }
 
 //            // Consume the hint, if any.
@@ -431,16 +428,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          */
         @Override
         protected EndpointAddress getLogicalDestinationImpl() {
-
             if (cachedMessenger == null) {
 
                 Logging.logCheckedError(LOG, "Internal messenger error: logical destination requested while not connected.");
                 return null;
 
             }
-
             return cachedMessenger.getLogicalDestinationAddress();
-
         }
 
         /**
@@ -474,7 +468,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
+     * @param impl
+     * @throws net.jxta.exception.PeerGroupException
      */
+    @Override
     public synchronized void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         if (initialized) {
@@ -892,7 +889,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
+     * @param msg
+     * @param srcAddress
+     * @param dstAddress
      */
+    @Override
     public void processIncomingMessage(Message msg, EndpointAddress srcAddress, EndpointAddress dstAddress) {
 
         // check for propagate loopback.
