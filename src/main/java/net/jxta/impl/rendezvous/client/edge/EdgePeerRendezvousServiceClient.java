@@ -326,7 +326,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void stopApp() {
+    public synchronized void stopApp() {                
         if (closed) {
             return;
         }
@@ -612,6 +612,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
             if (rendezvousPeerConnection.isConnected()) {
                 //TODO
                 //Investigate the problem of not sending the message using this method
+                
                 //sendDisconnect(rendezvousConnection);                                
                 //sendDisconnect(rendezvousPeerId, rendezvousConnection.getRendezvousPeerAdvertisement());                                                
                 sendBlockingDisconnect(rendezvousPeerConnection);                                                        

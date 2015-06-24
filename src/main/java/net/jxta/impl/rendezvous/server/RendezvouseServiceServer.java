@@ -116,8 +116,8 @@ public class RendezvouseServiceServer extends RendezVousService {
 
     private final static Logger LOG = Logging.getLogger(RendezvouseServiceServer.class.getName());
 
-    public static final String RDV_WALK_SVC_NAME = "RdvWalkSvcName";
-    public static final String RDV_WALK_SVC_PARAM = "RdvWalkSvcParam";
+    public static final String REDVEZVOUS_WALK_SERVICE_NAME = "RdvWalkSvcName";
+    public static final String RENDEZVOUS_WALK_SERVICE_PARAMETER = "RdvWalkSvcParam";
 
     public final static long GC_INTERVAL = 2 * TimeUtils.AMINUTE;
     public final static long DEFAULT_LEASE_DURATION = 20L * TimeUtils.AMINUTE;
@@ -647,6 +647,7 @@ public class RendezvouseServiceServer extends RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void walk(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
@@ -659,8 +660,8 @@ public class RendezvouseServiceServer extends RendezVousService {
 
         Logging.logCheckedDebug(LOG, "Undirected walk of ", msg, "(TTL=", useTTL, ") to :", "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
-        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
-        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(REDVEZVOUS_WALK_SERVICE_NAME, serviceName, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RENDEZVOUS_WALK_SERVICE_PARAMETER, serviceParam, null));
 
         try {
             walker.walkMessage(null, msg, pName, pParam, useTTL);
@@ -681,6 +682,7 @@ public class RendezvouseServiceServer extends RendezVousService {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
@@ -694,8 +696,8 @@ public class RendezvouseServiceServer extends RendezVousService {
         Logging.logCheckedDebug(LOG, "Directed walk of ", msg, "(TTL=", useTTL, ") to :\n\tsvc name:",
             serviceName, "\tsvc params:", serviceParam);
 
-        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
-        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(REDVEZVOUS_WALK_SERVICE_NAME, serviceName, null));
+        msg.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(RENDEZVOUS_WALK_SERVICE_PARAMETER, serviceParam, null));
 
         for (ID destPeerID : destPeerIDs) {
             try {
@@ -716,6 +718,16 @@ public class RendezvouseServiceServer extends RendezVousService {
         }
     }
     
+    /**
+     * Propagate notification in peer group.
+     * 
+     * This serves as a callback notification mechanism notifying peers in peer group about following events:
+     *      
+     * 1. ConnectRequestNotification
+     * 2. DisconnectRequestNotification
+     *
+     * @param message Message containing the lease request
+     */
     private void propagateRequestMessageInPeerGroup(Message message) {
         //mindarchitect 27052015        
         try {                        
@@ -778,7 +790,7 @@ public class RendezvouseServiceServer extends RendezVousService {
         @Override
         public void processIncomingMessage(Message msg, EndpointAddress sourceAddress, EndpointAddress destinationAddress) {
 
-            MessageElement serviceMessageElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_NAME);
+            MessageElement serviceMessageElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, REDVEZVOUS_WALK_SERVICE_NAME);
 
             if (null == serviceMessageElement) {
                 Logging.logCheckedDebug(LOG, "Discarding ", msg, " because its missing service name element");
@@ -788,7 +800,7 @@ public class RendezvouseServiceServer extends RendezVousService {
             msg.removeMessageElement(serviceMessageElement);
             String serviceName = serviceMessageElement.toString();
 
-            MessageElement paramME = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RDV_WALK_SVC_PARAM);
+            MessageElement paramME = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, RENDEZVOUS_WALK_SERVICE_PARAMETER);
 
             String sParam;
 
