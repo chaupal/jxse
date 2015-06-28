@@ -171,19 +171,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * The table of global discovery listeners.
      */
-    private final Set<DiscoveryListener> listeners = new HashSet<DiscoveryListener>();
+    private final Set<DiscoveryListener> listeners = new HashSet<>();
 
     /**
      * The table of discovery query listeners.
      */
-    private final Map<Integer, DiscoveryListener> queryListeners = new HashMap<Integer, DiscoveryListener>();
+    private final Map<Integer, DiscoveryListener> queryListeners = new HashMap<>();
     private final String checkPeerAdvLock = "Check/Update PeerAdvertisement Lock";
     private PeerAdvertisement lastPeerAdv = null;
     private int lastModCount = -1;
     private boolean isRdv = false;
     private Srdi srdiIndex = null;
     private SrdiManager srdiManager = null;
-    private long runInterval = 30 * TimeUtils.ASECOND;
+    private final long runInterval = 30 * TimeUtils.ASECOND;
 
     /**
      * Encapsulates current Membership Service credential.
@@ -220,9 +220,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
          */
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-
             if (MembershipService.DEFAULT_CREDENTIAL_PROPERTY.equals(evt.getPropertyName())) {
-
                 Logging.logCheckedDebug(LOG, "New default credential event");
 
                 synchronized (DiscoveryServiceImpl.this) {
@@ -230,23 +228,15 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                     XMLDocument credentialDoc;
 
                     if (null != cred) {
-
                         try {
-
                             credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
-
-                        } catch (Exception all) {
-
-                            Logging.logCheckedWarning(LOG, "Could not generate credential document\n", all);
+                        } catch (Exception exception) {
+                            Logging.logCheckedWarning(LOG, "Could not generate credential document\n", exception);
                             currentCredential = null;
-
                         }
-
                     } else {
-
                         currentCredential = null;
-
                     }
                 }
             }
@@ -281,33 +271,29 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
     /**
      * {@inheritDoc}
+     * @param peer
      */
     @Override
     public int getRemoteAdvertisements(String peer, int type, String attribute, String value, int threshold) {
-
         return getRemoteAdvertisements(peer, type, attribute, value, threshold, null);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getRemoteAdvertisements(String peer, int type, String attribute, String value, int threshold, DiscoveryListener listener) {
-
         int myQueryID = qid.incrementAndGet();
 
         if (localonly || stopped) {
-
             Logging.logCheckedDebug(LOG, "localonly, no network operations performed");
             return myQueryID;
-
         }
 
         if (resolver == null) {
-
             // warn about calling the service before it started
             Logging.logCheckedWarning(LOG, "resolver has not started yet, query discarded.");
             return myQueryID;
-
         }
 
         if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
@@ -391,7 +377,9 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public Enumeration<Advertisement> getLocalAdvertisements(int type, String attribute, String value) throws IOException {
 
         if ((type > DiscoveryService.ADV) || (type < DiscoveryService.PEER)) {
@@ -406,7 +394,6 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             if (value != null) query.append("\tvalue = ").append(value);
 
             LOG.debug(query.toString());
-
         }
 
         return Collections.enumeration(search(type, attribute, value, Integer.MAX_VALUE, null));
@@ -414,15 +401,18 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
     /**
      * {@inheritDoc}
+     * @param peerGroup
+     * @param impl
+     * @throws net.jxta.exception.PeerGroupException
      */
-    public void init(PeerGroup pg, ID assignedID, Advertisement impl) throws PeerGroupException {
-
-        group = pg;
+    @Override
+    public void init(PeerGroup peerGroup, ID assignedID, Advertisement impl) throws PeerGroupException {
+        group = peerGroup;
         handlerName = assignedID.toString();
         implAdvertisement = (ModuleImplAdvertisement) impl;
         localPeerId = group.getPeerID();
 
-        ConfigParams confAdv = pg.getConfigAdvertisement();
+        ConfigParams confAdv = peerGroup.getConfigAdvertisement();
 
         // Get the config. If we do not have a config, we're done; we just keep
         // the defaults (edge peer/no auto-rdv)
@@ -441,11 +431,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             if (adv instanceof DiscoveryConfigAdv) {
                 DiscoveryConfigAdv discoConfigAdv = (DiscoveryConfigAdv) adv;
-
                 alwaysUseReplicaPeer = discoConfigAdv.getForwardAlwaysReplica();
-
                 forwardBelowThreshold = discoConfigAdv.getForwardBelowTreshold();
-
                 localonly |= discoConfigAdv.getLocalOnly();
             }
         }
@@ -476,54 +463,44 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             LOG.config(configInfo.toString());
         }
-
     }
 
     /**
      * {@inheritDoc}
+     * @param arg
      */
+    @Override
     public int startApp(String[] arg) {
 
         resolver = group.getResolverService();
 
         if (null == resolver) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a resolver service");
             return Module.START_AGAIN_STALLED;
-
         }
 
         membership = group.getMembershipService();
 
         if (null == membership) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return Module.START_AGAIN_STALLED;
-
         }
 
         rendezvous = group.getRendezVousService();
 
         if (null == rendezvous) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a rendezvous service");
             return Module.START_AGAIN_STALLED;
-
         }
 
         // Get the initial credential doc
         synchronized (this) {
-
             membership.addPropertyChangeListener("defaultCredential", membershipCredListener);
 
             try {
-
                 membershipCredListener.propertyChange(new PropertyChangeEvent(membership, "defaultCredential", null, membership.getDefaultCredential()));
-
             } catch (Exception all) {
-
                 Logging.logCheckedWarning(LOG, "Could not get credential\n", all);
-
             }
         }
 
@@ -545,7 +522,6 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         Logging.logCheckedInfo(LOG, "Discovery service started");
 
         return Module.START_OK;
-
     }
 
     /**
@@ -553,6 +529,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * <p/>
      * Detach from the resolver and from rendezvous
      */
+    @Override
     public void stopApp() {
         stopped = true;
         boolean failed = false;
@@ -577,7 +554,9 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         // stop SRDI
-        if (srdiManager != null) srdiManager.stop();
+        if (srdiManager != null) {
+            srdiManager.stop();
+        }
 
         srdiIndex = null;
 
@@ -586,18 +565,18 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         queryListeners.clear();
 
         Logging.logCheckedInfo(LOG, "Discovery service stopped.");
-
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void flushAdvertisements(String id, int type) throws IOException {
         if (stopped) {
             return;
         }
         if ((type >= PEER) && (type <= ADV)) {
-
             if (null != id) {
 
                 ID advID = ID.create(URI.create(id));
@@ -605,24 +584,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
                 Logging.logCheckedDebug(LOG, "flushing adv ", advName, " of type ", dirname[type]);
                 cm.remove(dirname[type], advName);
-
             } else {
-
                 // XXX bondolo 20050902 For historical purposes we ignore null
                 Logging.logCheckedWarning(LOG, "Flush request by type IGNORED. You must delete advertisements individually.");
-
             }
-
         } else {
-
             throw new IllegalArgumentException("Invalid Advertisement type.");
-
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void flushAdvertisement(Advertisement adv) throws IOException {
         if (stopped) {
             return;
@@ -653,10 +627,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             try {
                 doc = (XMLDocument) adv.getSignedDocument();
             } catch (Exception everything) {
-                IOException failure = new IOException("Failure removing Advertisement");
-
-                failure.initCause(everything);
-                throw failure;
+                throw new IOException("Failure removing Advertisement", everything);
             }
             advName = CacheManager.createTmpName(doc);
         }
@@ -668,14 +639,18 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void publish(Advertisement adv) throws IOException {
         publish(adv, DiscoveryService.DEFAULT_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
     }
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
+    @Override
     public void publish(Advertisement adv, long lifetime, long expiration) throws IOException {
 
         if (stopped) {
@@ -699,30 +674,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         // if we dont have a unique id for the adv, use the hash method
         if ((null == advID) || advID.equals(ID.nullID)) {
-
             XMLDocument doc;
 
             try {
-
                 doc = (XMLDocument) adv.getSignedDocument();
-
             } catch (Exception everything) {
-
                 Logging.logCheckedWarning(LOG, "Failed to generated document from advertisement\n", everything);
-                IOException failure = new IOException("Failed to generate document from advertisement");
-                failure.initCause(everything);
-                throw failure;
-
+                throw new IOException("Failed to generate document from advertisement", everything);
             }
 
             try {
-
                 advName = CacheManager.createTmpName(doc);
             } catch (IllegalStateException ise) {
-                IOException failure = new IOException("Failed to generate tempname from advertisement");
-
-                failure.initCause(ise);
-                throw failure;
+                throw new IOException("Failed to generate tempname from advertisement", ise);
             }
         } else {
             advName = advID.getUniqueValue().toString();
@@ -730,13 +694,13 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         Logging.logCheckedDebug(LOG, "Publishing a ", adv.getAdvType(), " as ", dirname[type], " / ", advName, "\n\texpiration : ", expiration, "\tlifetime :", lifetime);
 
-        // save it
         cm.save(dirname[type], advName, adv, lifetime, expiration);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void remotePublish(Advertisement adv) {
         remotePublish(null, adv, DiscoveryService.DEFAULT_EXPIRATION);
     }
@@ -744,6 +708,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
+    @Override
     public void remotePublish(Advertisement adv, long expiration) {
         remotePublish(null, adv, expiration);
     }
@@ -751,6 +716,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
+    @Override
     public void remotePublish(String peerid, Advertisement adv) {
         remotePublish(peerid, adv, DiscoveryService.DEFAULT_EXPIRATION);
     }
@@ -758,35 +724,30 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
+    @Override
     public void processResponse(ResolverResponseMsg response) {
         processResponse(response, null);
     }
 
     /**
      * {@inheritDoc}
+     * @param srcAddress
      */
+    @Override
     public void processResponse(ResolverResponseMsg response, EndpointAddress srcAddress) {
         if (stopped) {
             return;
         }
-
         long t0 = System.currentTimeMillis();
         DiscoveryResponse res;
 
         try {
-
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(
-                    MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
-
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
             res = new DiscoveryResponse(asDoc);
-
         } catch (Exception e) {
-
             // we don't understand this msg, let's skip it
             Logging.logCheckedWarning(LOG, "Failed to Read Discovery Response\n", e);
-
             return;
-
         }
 
         /*

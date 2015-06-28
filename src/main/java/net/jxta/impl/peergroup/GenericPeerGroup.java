@@ -513,7 +513,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
 
         services.put(mcid, service);
-
         setShortCut(mcid, service);
     }
 

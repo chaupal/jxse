@@ -449,33 +449,5 @@ public abstract class RendezVousService extends RendezVousServiceProvider {
      *
      * @param peerConnection The peer to be disconnected from.
      */
-    protected void sendDisconnect(PeerConnection peerConnection) {
-
-        Message message = new Message();
-
-        // The request simply includes the local peer advertisement.
-        try {
-            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
-            peerConnection.sendMessage(message, pName, pParam);
-        } catch (Exception e) {
-            Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
-        }
-    }
-    
-    /**
-     * Sends a disconnect message to the specified peer in blocking mode.
-     *
-     * @param peerConnection The peer to be disconnected from.
-     */
-    protected void sendBlockingDisconnect(PeerConnection peerConnection) {
-        Message message = new Message();
-
-        // The request simply includes the local peer advertisement.
-        try {
-            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
-            peerConnection.sendMessageB(message, pName, pParam);
-        } catch (Exception e) {
-            Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
-        }
-    }
+    protected abstract void sendDisconnectRequest(PeerConnection peerConnection);        
 }

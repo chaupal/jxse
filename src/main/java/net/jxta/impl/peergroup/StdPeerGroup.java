@@ -168,7 +168,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     private final Map<ModuleClassID, Object> messageTransports = new HashMap<>();
 
     /**
-     * A map of the applications for this group.
+     * A map of the applications for this peer group.
      * <p/>
      * <ul>
      * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
@@ -177,7 +177,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@link net.jxta.platform.ModuleSpecID}</li>
      * </ul>
      */
-    private final Map<ModuleClassID, Object> applications = new HashMap<>();
+    private final Map<ModuleClassID, Object> peerGroupModules = new HashMap<>();
 
     /**
      * Cache for this group.
@@ -185,50 +185,47 @@ public class StdPeerGroup extends GenericPeerGroup {
     private CacheManager cacheManager = null;
 
     /**
-     *  Create and populate the default module impl Advertisement for this class.
+     *  Create and populate the default module implementation advertisement for this class.
      *
-     *  @return The default module impl advertisement for this class.
+     *  @return The default module implementation advertisement for this class.
      */
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(), "General Purpose Peer Group Implementation");
+        ModuleImplAdvertisement moduleImplementationAdvertisement = CompatibilityUtils.createModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(), "General Purpose Peer Group Implementation");
 
         // Create the service list for the group.
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+        StdPeerGroupParamAdv standardPeerGroupParameterAdvertisements = new StdPeerGroupParamAdv();
 
-        // Set core services        
-        IJxtaLoader loader = getJxtaLoader();
-
-        paramAdv.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
-        paramAdv.addService(IModuleDefinitions.resolverClassID, IModuleDefinitions.refResolverSpecID);
-        paramAdv.addService(IModuleDefinitions.membershipClassID, PSEMembershipService.pseMembershipSpecID);
-        paramAdv.addService(IModuleDefinitions.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
+        //mindarchitect 28062015
+        //IMPORTANT
+        //This defines the order of module loading
+        
+        // Set core services                        
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.resolverClassID, IModuleDefinitions.refResolverSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
 
         // Set standard services
-        paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
-        paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
-        paramAdv.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
-        paramAdv.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
-        paramAdv.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
-//        // Applications
-//        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
-//        if (null != moduleAdv) {
-//            peerGroupParametersAdvertisement.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
+//        // Modules
+//        ModuleImplAdvertisement moduleAdvertisement = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+//        if (null != moduleAdvertisement) {
+//            peerGroupParametersAdvertisement.addModule(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
 //        }
 
         // Insert the newParamAdv in implAdv
-        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+        XMLElement paramElement = (XMLElement) standardPeerGroupParameterAdvertisements.getDocument(MimeMediaType.XMLUTF8);
+        moduleImplementationAdvertisement.setParam(paramElement);
 
-        implAdv.setParam(paramElement);
-
-        return implAdv;
+        return moduleImplementationAdvertisement;
     }
-
-    /**
-     * constructor
-     */
-    public StdPeerGroup() {
-        // Empty
+    
+    public StdPeerGroup() {        
     }
 
     /**
@@ -293,7 +290,6 @@ public class StdPeerGroup extends GenericPeerGroup {
                 anEntry.setValue(module);
 
             } catch (ProtocolNotSupportedException | PeerGroupException e) {
-
                 Logging.logCheckedWarning(LOG, "Could not load module for class ID : ", classID, "\n", e);
 
                 if (value instanceof ModuleImplAdvertisement) {
@@ -311,20 +307,18 @@ public class StdPeerGroup extends GenericPeerGroup {
      * The group does not care for start args, and does not come-up
      * with args to pass to its main app. So, until we decide on something
      * more useful, the args of the group's startApp are passed-on to the
-     * group's main app. NB: both the apps init and startApp methods are
-     * invoked.
+     * group's main app. 
+     * 
+     * NB: both the apps init and startApp methods are invoked.
      *
      * @param arg
      * @return int Status.
      */
     @Override
     public int startApp(String[] arg) {
-
         if (!initComplete) {
-
             Logging.logCheckedError(LOG, "Group has not been initialized or init failed.");
             return -1;
-
         }
 
         // FIXME: maybe concurrent callers should be blocked until the
@@ -336,17 +330,17 @@ public class StdPeerGroup extends GenericPeerGroup {
         started = true;
 
         // Normally does nothing, but we have to.
-        int res = super.startApp(arg);
+        int result = super.startApp(arg);
 
-        if (Module.START_OK != res) {
-            return res;
+        if (Module.START_OK != result) {
+            return result;
         }
 
-        loadAllModules(applications, false); // Apps are non-privileged;
+        //Modules are non-privileged;
+        loadAllModules(peerGroupModules, false); 
 
-        res = startModules((Map) applications);
-
-        return res;
+        result = startModules((Map) peerGroupModules);
+        return result;
     }
 
     /**
@@ -357,17 +351,17 @@ public class StdPeerGroup extends GenericPeerGroup {
         // Shut down the group services and message transports.
         Collections.reverse(moduleStartOrder);
 
-        for (ModuleClassID aModule : moduleStartOrder) {
+        for (ModuleClassID moduleClassId : moduleStartOrder) {
             try {
-                if (messageTransports.containsKey(aModule)) {
-                    Module theMessageTransport = (Module) messageTransports.remove(aModule);
-                    theMessageTransport.stopApp();
+                if (messageTransports.containsKey(moduleClassId)) {
+                    Module messageTransport = (Module) messageTransports.remove(moduleClassId);
+                    messageTransport.stopApp();
                 } else {
-                    removeService(aModule);
+                    removeService(moduleClassId);
                 }
 
             } catch (ServiceNotFoundException exception) {
-                Logging.logCheckedWarning(LOG, "Failed to stop module: ", aModule, "\n", exception);
+                Logging.logCheckedWarning(LOG, "Failed to stop module: ", moduleClassId, "\n", exception);
             }
         }
 
@@ -398,76 +392,70 @@ public class StdPeerGroup extends GenericPeerGroup {
      * and still allow the process to eventually fail if it has no chance of
      * success.
      *
-     * @param services The services to start.
+     * @param peerGroupModules The services to start.
      */
-    private int startModules(Map<ModuleClassID,Module> services) {
+    private int startModules(Map<ModuleClassID,Module> peerGroupModules) {
         int iterations = 0;
-        int maxIterations = services.size() * services.size() + iterations + 1;
+        int maxIterations = peerGroupModules.size() * peerGroupModules.size() + iterations + 1;
 
         boolean progress = true;
 
-        while (!services.isEmpty() && (progress || (iterations < maxIterations))) {
+        while (!peerGroupModules.isEmpty() && (progress || (iterations < maxIterations))) {
 
             progress = false;
             iterations++;
 
             Logging.logCheckedDebug(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
 
-            Iterator<Map.Entry<ModuleClassID, Module>> eachService = services.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Module>> peerGroupModulesIterator = peerGroupModules.entrySet().iterator();
 
-            while (eachService.hasNext()) {
-                Map.Entry<ModuleClassID, Module> anEntry = eachService.next();
-                ModuleClassID mcid = anEntry.getKey();
-                Module aModule = anEntry.getValue();
+            while (peerGroupModulesIterator.hasNext()) {
+                Map.Entry<ModuleClassID, Module> peerGroupModuleEntry = peerGroupModulesIterator.next();
+                ModuleClassID moduleClassId = peerGroupModuleEntry.getKey();
+                Module module = peerGroupModuleEntry.getValue();
 
-                int res;
+                int result;
 
                 try {
-
-                    res = aModule.startApp(null);
-
+                    result = module.startApp(null);
                 } catch (Throwable all) {
-
-                    Logging.logCheckedWarning(LOG, "Exception in startApp() : ", aModule, "\n", all);
-                    res = -1;
-
+                    Logging.logCheckedWarning(LOG, "Exception in startApp() : ", module, "\n", all);
+                    result = -1;
                 }
 
-                switch (res) {
+                switch (result) {
                     case Module.START_OK:
-                        Logging.logCheckedDebug(LOG, "Module started : ", aModule);
+                        Logging.logCheckedDebug(LOG, "Module started : ", module);
 
-                        if (aModule instanceof Service) {
-                            addService(mcid, (Service) aModule);
+                        if (module instanceof Service) {
+                            addService(moduleClassId, (Service) module);
                         } else {
-                            messageTransports.put(mcid, aModule);
+                            messageTransports.put(moduleClassId, module);
                         }
 
-                        moduleStartOrder.add(mcid);
-                        eachService.remove();
+                        moduleStartOrder.add(moduleClassId);
+                        peerGroupModulesIterator.remove();
                         progress = true;
                         break;
 
-                    case Module.START_AGAIN_PROGRESS:
-                    	// LOGGING: was Finer
-                        Logging.logCheckedDebug(LOG, "Service made progress during start : ", aModule);
+                    case Module.START_AGAIN_PROGRESS:                    	
+                        Logging.logCheckedDebug(LOG, "Service made progress during start : ", module);
                         progress = true;
                         break;
 
-                    case Module.START_AGAIN_STALLED:
-                    	// LOGGING: was Finer
-                        Logging.logCheckedDebug(LOG, "Service stalled during start : ", aModule);
+                    case Module.START_AGAIN_STALLED:                    	
+                        Logging.logCheckedDebug(LOG, "Service stalled during start : ", module);
                         break;
 
                     case Module.START_DISABLED:
-                        Logging.logCheckedDebug(LOG, "Service declined to start : ", aModule);
-                        eachService.remove();
+                        Logging.logCheckedDebug(LOG, "Service declined to start : ", module);
+                        peerGroupModulesIterator.remove();
                         progress = true;
                         break;
 
-                    default: // (negative)
-                        Logging.logCheckedWarning(LOG, "Service failed to start (", res, ") : ", aModule);
-                        eachService.remove();
+                    default:
+                        Logging.logCheckedWarning(LOG, "Service failed to start (", result, ") : ", module);
+                        peerGroupModulesIterator.remove();
                         progress = true;
                         break;
 
@@ -475,20 +463,19 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
 
             if (progress) {
-                maxIterations = services.size() * services.size() + iterations + 1;
+                maxIterations = peerGroupModules.size() * peerGroupModules.size() + iterations + 1;
             }
         }
 
         // Services co-dependency prevented them from starting.
-        if (!services.isEmpty()) {
-
+        if (!peerGroupModules.isEmpty()) {
             if (Logging.SHOW_ERROR && LOG.isErrorEnabled()) {
                 StringBuilder failed = new StringBuilder( "No progress is being made in starting services after "
                         + iterations + " iterations. Giving up.");
 
                 failed.append("\nThe following services could not be started : ");
 
-                for (Map.Entry<ModuleClassID, Module> aService : services.entrySet()) {
+                for (Map.Entry<ModuleClassID, Module> aService : peerGroupModules.entrySet()) {
                     failed.append("\n\t");
                     failed.append(aService.getKey());
                     failed.append(" : ");
@@ -497,10 +484,8 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 LOG.error(failed.toString());
             }
-
             return -1;
         }
-
         return Module.START_OK;
     }
 
@@ -668,11 +653,15 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
         }
         
-        // Applications are shelved until startApp()
-        applications.putAll(peerGroupParametersAdvertisement.getApps());
+        // Peer group modules are shelved until startApp() is called
+        
+        //mindarchitect 28062015
+        //IMPORTANT
+        //This defines the order of module loading
+        peerGroupModules.putAll(peerGroupParametersAdvertisement.getModules());
 
         if(null != configurationParametersAdvertisement) {
-            Iterator<ModuleClassID> eachModule = applications.keySet().iterator();
+            Iterator<ModuleClassID> eachModule = peerGroupModules.keySet().iterator();
 
             while(eachModule.hasNext()) {
                 ModuleClassID aModule = eachModule.next();
@@ -772,7 +761,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         ? ((MessageTransport) anMT).getProtocolName()
                         : anMT.getClass().getName());
             }
-            Iterator<Map.Entry<ModuleClassID, Object>> eachApp = applications.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Object>> eachApp = peerGroupModules.entrySet().iterator();
 
             if (eachApp.hasNext()) {
                 configInfo.append("\n\t\tApplications :");
@@ -830,7 +819,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * @return a map of the applications for this group.
      */
     public Map<ModuleClassID, Object> getApplications() {
-        return Collections.unmodifiableMap(applications);
+        return Collections.unmodifiableMap(peerGroupModules);
     }    
 }
 

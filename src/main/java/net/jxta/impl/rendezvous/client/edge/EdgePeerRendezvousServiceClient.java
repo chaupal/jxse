@@ -599,7 +599,6 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
      * @param requested if true, indicates a requested operation
      */
     private void removeRendezvousPeer(ID rendezvousPeerId, boolean requested) {
-
         Logging.logCheckedInfo(LOG, "Disconnecting from rendezvous peer ", rendezvousPeerId);
 
         RendezvousConnection rendezvousPeerConnection;
@@ -610,13 +609,13 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
 
         if (null != rendezvousPeerConnection) {
             if (rendezvousPeerConnection.isConnected()) {
-                //TODO
-                //Investigate the problem of not sending the message using this method
                 
-                //sendDisconnect(rendezvousConnection);                                
-                //sendDisconnect(rendezvousPeerId, rendezvousConnection.getRendezvousPeerAdvertisement());                                                
-                sendBlockingDisconnect(rendezvousPeerConnection);                                                        
-                rendezvousPeerConnection.setConnected(false);                
+                //TODO
+                //Investigate the problem of not sending the message using this method                                                            
+                
+                sendBlockingDisconnectRequest(rendezvousPeerConnection);                    
+                //sendDisconnectRequest(rendezvousPeerConnection);
+                rendezvousPeerConnection.setConnected(false);                                
             }
         }                
 
@@ -631,11 +630,10 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
     /**
      *  Send lease request to the specified rendezvous peer.
      *
-     *  @param rendezvousPeerConnection The peer to which the message should be sent.
+     *  @param rendezvousPeerConnection The rendezvous peer to which the message should be sent.
      *  @throws IOException Thrown for errors sending the lease request.
      */
     private void sendLeaseRequest(RendezvousConnection rendezvousPeerConnection) throws IOException {
-
         Logging.logCheckedDebug(LOG, "Sending lease request to ", rendezvousPeerConnection);
 
         RendezvousConnectionMeter rendezvousConnectionMeter = null;
@@ -654,6 +652,39 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
             rendezvousConnectionMeter.beginConnection();
         }
     }
+    
+    /**
+     *  Send disconnect request to the specified rendezvous peer.
+     *
+     *  @param rendezvousPeerConnection The rendezvous peer to which the message should be sent.
+     */
+    @Override
+    protected void sendDisconnectRequest(PeerConnection rendezvousPeerConnection) {
+        Logging.logCheckedDebug(LOG, "Sending disconnect request to ", rendezvousPeerConnection);        
+
+        Message message = new Message();
+
+        // The request simply includes the local peer advertisement.
+        message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+        rendezvousPeerConnection.sendMessage(message, pName, pParam);        
+    }
+    
+    /**
+     * Sends a disconnect message to the specified peer in blocking mode.
+     *
+     * @param rendezvousPeerConnection The rendezvous peer to be disconnected from.
+     */
+    protected void sendBlockingDisconnectRequest(PeerConnection rendezvousPeerConnection) {
+        Message message = new Message();
+
+        // The request simply includes the local peer advertisement.
+        try {
+            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+            rendezvousPeerConnection.sendMessageB(message, pName, pParam);
+        } catch (Exception e) {
+            Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
+        }
+    }
 
     /**
      * Processes peer connection reply from the rendezvous peer service
@@ -661,7 +692,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
      * @param msg Description of Parameter
      */
     private void processConnectedReply(Message msg) {
-        // Get the Peer Advertisement of the RDV.
+        // Get the rendezvous peer advertisement.
         MessageElement rendezvousPeerAdvertisementElement = msg.getMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, ConnectedRendezvousAdvertisementReply);
 
         if (null == rendezvousPeerAdvertisementElement) {
@@ -757,14 +788,12 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
      * Checks leases, initiates lease renewals, starts new lease requests.
      */
     private class MonitorTask extends SelfCancellingTask {
-
         /**
          * @inheritDoc
          */
         @Override
         public void execute() {
             try {
-
                 Logging.logCheckedDebug(LOG, "[", peerGroup, "] Periodic rendezvous check");
 
                 if (closed) {
@@ -775,34 +804,31 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                     MessageTransport router = rendezvousServiceImplementation.endpoint.getEndpointRouter();
 
                     if (null == router) {
-
                         Logging.logCheckedWarning(LOG, "Rendezvous connection stalled until router is started!");
 
-                        // Reschedule another run very soon.
+                        //Reschedule another run
                         this.cancel();
                         scheduleMonitor(2 * TimeUtils.ASECOND);
                         return;
                     }
                 }
 
-                List<RendezvousConnection> currentRdvs = new ArrayList<>(connectedRendezVousPeers.values());
+                List<RendezvousConnection> rendezvousConnections = new ArrayList<>(connectedRendezVousPeers.values());
 
-                for (RendezvousConnection pConn : currentRdvs) {
+                for (RendezvousConnection rendezvousConnection : rendezvousConnections) {
                     try {
-
-                        if (!pConn.isConnected()) {
-                            Logging.logCheckedInfo(LOG, "[", peerGroup.getPeerGroupID(), "] Lease expired. Disconnected from ", pConn);
-                            removeRendezvousPeer(pConn.getPeerID(), false);
+                        if (!rendezvousConnection.isConnected()) {
+                            Logging.logCheckedInfo(LOG, "[", peerGroup.getPeerGroupID(), "] Lease expired. Disconnected from ", rendezvousConnection);
+                            removeRendezvousPeer(rendezvousConnection.getPeerID(), false);
                             continue;
                         }
 
-                        if (TimeUtils.toRelativeTimeMillis(pConn.getRenewal()) <= 0) {
-                            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] Attempting lease renewal for ", pConn);
-                            sendLeaseRequest(pConn);
+                        if (TimeUtils.toRelativeTimeMillis(rendezvousConnection.getRenewal()) <= 0) {
+                            Logging.logCheckedDebug(LOG, "[", peerGroup.getPeerGroupID(), "] Attempting lease renewal for ", rendezvousConnection);
+                            sendLeaseRequest(rendezvousConnection);
                         }
-
                     } catch (Exception e) {
-                        Logging.logCheckedWarning(LOG, "[", peerGroup.getPeerGroupID(), "] Failure while checking ", pConn, e);
+                        Logging.logCheckedWarning(LOG, "[", peerGroup.getPeerGroupID(), "] Failure while checking ", rendezvousConnection, e);
                     }
                 }
 
@@ -817,36 +843,30 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                     while (!seeds.isEmpty() && (sentLeaseRequests < 3)) {
                         RouteAdvertisement aSeed = seeds.remove(0);
 
-                        Message msg = new Message();
+                        Message message = new Message();
 
                         // The lease request simply includes the local peer advertisement.
-                        msg.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequest, getPeerAdvertisementDoc(), null));
+                        message.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(ConnectRequest, getPeerAdvertisementDoc(), null));
 
-                        Messenger msgr = null;
+                        Messenger messenger = null;
 
                         if (null == aSeed.getDestPeerID()) {
                             // It is an incomplete route advertisement. We are going to assume that it is only a wrapper for a single ea.
-                            List<String> seed_eas = aSeed.getDest().getVectorEndpointAddresses();
+                            List<String> endpointAddresses = aSeed.getDest().getVectorEndpointAddresses();
 
-                            if (!seed_eas.isEmpty()) {
-                                EndpointAddress aSeedHost = new EndpointAddress(seed_eas.get(0));
-
-                                msgr = rendezvousServiceImplementation.endpoint.getMessengerImmediate(aSeedHost, null);
+                            if (!endpointAddresses.isEmpty()) {
+                                EndpointAddress seedEndpointAddress = new EndpointAddress(endpointAddresses.get(0));
+                                messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(seedEndpointAddress, null);
                             }
                         } else {
                             // We have a full route, send it to the virtual address of the route!
                             EndpointAddress aSeedHost = new EndpointAddress(aSeed.getDestPeerID(), null, null);
-
-                            msgr = rendezvousServiceImplementation.endpoint.getMessengerImmediate(aSeedHost, aSeed);
+                            messenger = rendezvousServiceImplementation.endpoint.getMessengerImmediate(aSeedHost, aSeed);
                         }
 
-                        if (null != msgr) {
-                            try {
-                                msgr.sendMessageN(msg, pName, pParam);
-                                sentLeaseRequests++;
-                            } catch (Exception failed) {
-                                // ignored
-                            }
+                        if (null != messenger) {                            
+                            messenger.sendMessageN(message, pName, pParam);
+                            sentLeaseRequests++;                            
                         }
                     }
                 } else {

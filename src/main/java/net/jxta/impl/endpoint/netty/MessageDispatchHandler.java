@@ -30,10 +30,9 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * @author iain.mcginniss@onedrum.com
  */
 public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
-
     private static final Logger LOG = Logger.getLogger(MessageDispatchHandler.class.getName());
     
-	public static final String NAME = "messageDispatch";
+    public static final String NAME = "messageDispatch";
 	
     private final NettyChannelRegistry registry;
     private final ReentrantLock listenerLock;
@@ -60,10 +59,9 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        final MessageArrivalListener l = listener;
-        if (l != null)
-        {
-            l.connectionDisposed();
+        final MessageArrivalListener messageArrivalListener = listener;
+        if (messageArrivalListener != null) {
+            messageArrivalListener.connectionDisposed();
         }
     }
     
@@ -79,18 +77,18 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
         final Message message = (Message) e.getMessage();
         
         dispatchImportantListenerEvent(new Runnable() {
-                @Override
-        	public void run() {
-        		listener.messageArrived(message);
-        	}
+            @Override
+            public void run() {
+                listener.messageArrived(message);
+            }
         });
     }
     
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
-		if(cause instanceof ConnectException) {
-			LOG.log(Level.FINE, "Unable to connect to remote host");
+        if(cause instanceof ConnectException) {
+                LOG.log(Level.FINE, "Unable to connect to remote host");
         } else if(cause instanceof ClosedChannelException) {
     		LOG.log(Level.FINE, "Channel to {0} has been closed", new Object[] { ctx.getChannel().getRemoteAddress() });
         } else if(cause instanceof IOException) {
@@ -122,14 +120,14 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     public synchronized void setMessageArrivalListener(MessageArrivalListener listener) {
     	listenerLock.lock();
     	try {
-	        this.listener = listener;
-	        
-	        Runnable eventDispatcher;
-	        while((eventDispatcher = events.poll()) != null) {
-	        	eventDispatcher.run();
-	        }
+            this.listener = listener;
+
+            Runnable eventDispatcher;
+            while((eventDispatcher = events.poll()) != null) {
+                eventDispatcher.run();
+            }
     	} finally {
-    		listenerLock.unlock();
+            listenerLock.unlock();
     	}
     }
     
@@ -141,13 +139,13 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     private void dispatchImportantListenerEvent(Runnable r) {
     	listenerLock.lock();
     	try {
-    		if(listener == null) {
-    			events.add(r);
-    		} else {
-    			r.run();
-    		}
+            if(listener == null) {
+                events.add(r);
+            } else {
+                r.run();
+            }
     	} finally {
-    		listenerLock.unlock();
+            listenerLock.unlock();
     	}
     }
     
@@ -159,11 +157,11 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     private void dispatchListenerEvent(Runnable r) {
     	listenerLock.lock();
     	try {
-    		if(listener != null) {
-    			r.run();
-    		}
+            if(listener != null) {
+                r.run();
+            }
     	} finally {
-    		listenerLock.unlock();
+            listenerLock.unlock();
     	}
     }
 }

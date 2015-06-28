@@ -454,14 +454,14 @@ public class NetworkManager implements RendezvousListener {
             //Should be platform specification ID
             //Unfortunately cannot check by ID as WorldPeerGroupID is package level visible only
             if (worldPeerGroupAdvertisement.getModuleSpecID().equals(IModuleDefinitions.refPlatformSpecID)) {
+                //We should unregister created net peer group instance from WorldPeerGroup global registry when stoping network
+                if (worldPeerGroup.getGlobalRegistry().unRegisterInstance(PeerGroupID.NET_PEER_GROUP_ID, netPeerGroup)) {            
+                    netPeerGroup.stopApp();        
+                }
+                
                 //Stop world peer group                
                 worldPeerGroup.stopApp();                  
-            }            
-            
-            //We should unregister created net peer group instance from WorldPeerGroup global registry when stoping network
-            if (worldPeerGroup.getGlobalRegistry().unRegisterInstance(PeerGroupID.NET_PEER_GROUP_ID, netPeerGroup)) {            
-                netPeerGroup.stopApp();        
-            }
+            }                                   
             
             // Permit restart.
             started = false;

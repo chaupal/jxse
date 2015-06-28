@@ -97,7 +97,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
     protected static final String PropSName = "JxtaPropagate";
 
-    protected static final String RENDEZVOUS_MESSAGE_NAMESPACE_NAME = "jxta";
+    public static final String RENDEZVOUS_MESSAGE_NAMESPACE_NAME = "jxta";
 
     protected final String PropPName;
     protected final String PROP_HDR_ELEMENT_NAME;

@@ -507,7 +507,7 @@ public class RendezvouseServiceServer extends RendezVousService {
         Logging.logCheckedDebug(LOG, "Disconnecting client ", peerConnection);
 
         if (peerConnection.isConnected()) {            
-            sendDisconnect(peerConnection);
+            sendDisconnectRequest(peerConnection);
             peerConnection.setConnected(false);
         }
 
@@ -643,6 +643,22 @@ public class RendezvouseServiceServer extends RendezVousService {
         msg.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new StringMessageElement(ConnectedLeaseReply, Long.toString(lease), null));
 
         return clientConnection.sendMessage(msg, pName, pParam);
+    }
+    
+    /**
+     * Sends a disconnect message to the specified edge peer.
+     *
+     * @param peerConnection The peer to be disconnected from.
+     */
+    @Override
+    protected void sendDisconnectRequest(PeerConnection peerConnection) {
+
+        Message message = new Message();
+
+        // The request simply includes the local peer advertisement.
+        
+        message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(DisconnectRequest, getPeerAdvertisementDoc(), null));
+        peerConnection.sendMessage(message, pName, pParam);        
     }
 
     /**

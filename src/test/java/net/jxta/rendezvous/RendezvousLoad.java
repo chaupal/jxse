@@ -161,7 +161,7 @@ public class RendezvousLoad extends TestCase {
                 fail("Could not create a connection to " + getMyInetAddress() + " rdv on port 9701");
             }
             String incNum = newIncarnation();
-            Message connectMsg = MessageUtil.rdvConnectMessage(padv, incNum);
+            Message connectMsg = MessageUtil.rendezvousConnectMessage(padv, incNum);
 
             MessageUtil.addServiceParam(connectMsg, padv, "tcp://" + getMyAddress() + ":" + (PORT + i), destPeerID, service, serviceParm, new NoneMembershipService());
             // MessageUtil.printMessageStats(connectMsg, true);

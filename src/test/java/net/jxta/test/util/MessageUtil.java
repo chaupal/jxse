@@ -58,6 +58,8 @@ package net.jxta.test.util;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -73,6 +75,7 @@ import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.router.EndpointRouterMessage;
 import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.impl.rendezvous.RendezVousService;
+import net.jxta.impl.rendezvous.RendezVousServiceProvider;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -118,8 +121,7 @@ public class MessageUtil {
         EndpointRouterMessage erm = new EndpointRouterMessage(message, true, membershipService);
 
         erm.setSrcAddress(new EndpointAddress("jxta://" + srcPeer.getUniqueValue().toString()));
-        erm.setDestAddress(
-                new EndpointAddress("jxta://" + dstAddress.getUniqueValue().toString() + "/" + service + "/" + serviceParam));
+        erm.setDestAddress(new EndpointAddress("jxta://" + dstAddress.getUniqueValue().toString() + "/" + service + "/" + serviceParam));
         erm.setLastHop(new EndpointAddress("jxta://" + srcPeer.getUniqueValue().toString()));
         erm.setRouteAdv(getRouteAdv(peerAdvertisement, myaddress));
         erm.updateMessage();
@@ -129,7 +131,7 @@ public class MessageUtil {
     /**
      *  Print message element names, and sizes to stdout.
      *
-     * @param  msg  the Message
+     * @param  message  the Message
      */
     public static void printMessageStats(final Message message) {
         printMessageStats(message, false);
@@ -150,51 +152,53 @@ public class MessageUtil {
     }
     
     private static class MessageStatsIterator implements Iterator<String> {
-		private final boolean verbose;
-		private final LinkedList<String> list = new LinkedList<String>();
-		private Iterator<MessageElement> en;
+        private final boolean verbose;
+        private final LinkedList<String> list = new LinkedList<String>();
+        private Iterator<MessageElement> en;
 
-		public MessageStatsIterator(final Message msg, final boolean verbose) {
-			this.verbose = verbose;
-			en = msg.getMessageElements();
+        public MessageStatsIterator(final Message msg, final boolean verbose) {
+            this.verbose = verbose;
+            en = msg.getMessageElements();
+
+            list.add("------------------Begin Message---------------------");
 			
-			list.add("------------------Begin Message---------------------");
-			
-            final WireFormatMessage serialed = WireFormatMessageFactory.toWire(
-            		msg, new MimeMediaType("application/x-jxta-msg"),
-            		(MimeMediaType[]) null);
+            final WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, new MimeMediaType("application/x-jxta-msg"), (MimeMediaType[]) null);
             list.add("Message Size :" + serialed.getByteLength());
     	}
 		
-		public boolean hasNext() {
-			return !list.isEmpty() || en.hasNext();
-		}
+        @Override
+        public boolean hasNext() {
+            return !list.isEmpty() || en.hasNext();
+        }
 
-		public String next() {
-			try {
-				if (list.isEmpty()) {
-	                final MessageElement el = (MessageElement) en.next();
-	                String eName = el.getElementName();
-	
-	                final CountingOutputStream cnt = new CountingOutputStream(new DevNullOutputStream());
-	                el.sendToStream(cnt);
-	                long size = cnt.getBytesWritten();
-	
-	                list.add("Element " + eName + " : " + size);
-	                if (verbose) {
-	                    list.add("[" + el + "]");
-	                }
-				}
-				return list.remove();
-			} catch (final IOException ioe) {
-				// do nothing
-			}
-			return "";
-		}
+        @Override
+        public String next() {            
+            if (list.isEmpty()) {
+                final MessageElement el = (MessageElement) en.next();
+                String eName = el.getElementName();
 
-		public void remove() {
-			throw new UnsupportedOperationException("Can't remove");
-		}
+                final CountingOutputStream cnt = new CountingOutputStream(new DevNullOutputStream());
+                
+                try {
+                    el.sendToStream(cnt);
+                    long size = cnt.getBytesWritten();
+
+                    list.add("Element " + eName + " : " + size);
+                    if (verbose) {
+                        list.add("[" + el + "]");
+                    }
+                    return list.remove();
+                } catch (IOException ex) {
+                    Logger.getLogger(MessageUtil.class.getName()).log(Level.SEVERE, null, ex);
+                }                
+            }                        
+            return "";
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Can't remove");
+        }
     }
 
     /**
@@ -213,38 +217,33 @@ public class MessageUtil {
      *  Create a Rendezvous Connect Message
      *
      *@param  incarnation  a pre-created incarnation number
-     *@param  peeradv      Description of the Parameter
-     *@return              The rdv connect message
+     *@param  peerAdvertisement      Peer advertisement
+     *@return Rendezvous connect message
      */
-    public static Message rdvConnectMessage(PeerAdvertisement peeradv, String incarnation) {
-        Message msg = new Message();
-        PeerID peerid = peeradv.getPeerID();
+    public static Message rendezvousConnectMessage(PeerAdvertisement peerAdvertisement, String incarnation) {
+        Message message = new Message();
+        PeerID peerid = peerAdvertisement.getPeerID();
+        
+        String incStr = peerid.toString() + "#" + incarnation;
+        
+        MessageElement messageElement = new StringMessageElement(incarnationTagName, incStr, null);
+        message.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, messageElement);
 
-        try {
-            String incStr = peerid.toString() + "#" + incarnation;
-            MessageElement el = new StringMessageElement(incarnationTagName, incStr, null);
-
-            msg.addMessageElement("jxta", el);
-
-            XMLDocument doc = (XMLDocument) peeradv.getDocument(MimeMediaType.XMLUTF8);
-
-            msg.replaceMessageElement("jxta", new TextDocumentMessageElement(RendezVousService.ConnectRequest, doc, null));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return msg;
+        XMLDocument doc = (XMLDocument) peerAdvertisement.getDocument(MimeMediaType.XMLUTF8);
+        message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(RendezVousService.ConnectRequest, doc, null));
+        
+        return message;
     }
 
     public static RouteAdvertisement getRouteAdv(PeerAdvertisement padv, String address) {
         RouteAdvertisement route = null;
 
         try {
-            route = (RouteAdvertisement)
-                    AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
+            route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
             route.setDestPeerID(padv.getPeerID());
             route.addDestEndpointAddress(new EndpointAddress(address));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Logger.getLogger(MessageUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
         return route;
     }

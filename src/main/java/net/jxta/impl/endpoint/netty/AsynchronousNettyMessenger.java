@@ -128,21 +128,25 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
 
         ExecutorService executorService = endpointService.getGroup().getTaskManager().getExecutorService();
         executorService.execute(new Runnable() {
+            @Override
             public void run() {
                 endpointService.processIncomingMessage(msg, srcAddr, dstAddr);
             }
         });
     }
 
+    @Override
     public void connectionDied() {
         LOG.log(Level.INFO, "Underlying channel for messenger to {0} has died", logicalDestinationAddr);
         connectionFailed();
     }
 
+    @Override
     public final void connectionDisposed() {
         connectionCloseComplete();
     }
 
+    @Override
     public void channelSaturated(boolean saturated) {
         if(saturated == false) {
             pullMessages();
