@@ -103,10 +103,7 @@ public class Platform extends StdPeerGroup {
      *  @return The default module impl advertisement for this class.
      */
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = 
-                CompatibilityUtils.createModuleImplAdvertisement(
-                IModuleDefinitions.refPlatformSpecID, Platform.class.getName(),
-                "Standard World PeerGroup Reference Implementation");
+        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID, Platform.class.getName(), "Standard World PeerGroup Reference Implementation");
 
         // Build the param section now.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
@@ -127,10 +124,10 @@ public class Platform extends StdPeerGroup {
 
         // Do the Message Transports
 
-        paramAdv.addProto(IModuleDefinitions.tcpProtoClassID, IModuleDefinitions.refTcpProtoSpecID);
-        paramAdv.addProto(IModuleDefinitions.httpProtoClassID, IModuleDefinitions.refHttpProtoSpecID);
-        paramAdv.addProto(IModuleDefinitions.http2ProtoClassID, IModuleDefinitions.refHttp2ProtoSpecID);
-        paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
+        paramAdv.addTransport(IModuleDefinitions.tcpProtoClassID, IModuleDefinitions.refTcpProtoSpecID);
+        paramAdv.addTransport(IModuleDefinitions.httpProtoClassID, IModuleDefinitions.refHttpProtoSpecID);
+        paramAdv.addTransport(IModuleDefinitions.http2ProtoClassID, IModuleDefinitions.refHttp2ProtoSpecID);
+        paramAdv.addTransport(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
 
         // Do the Applications
 
@@ -195,16 +192,11 @@ public class Platform extends StdPeerGroup {
         }
 
         if (null != jxtaHome) {
-
             try {
-
                 URL downloadablesURL = jxtaHome.resolve("Downloaded/").toURL();
                 loader.addURL(downloadablesURL);
-
-            } catch (MalformedURLException badPath) {
-
+            } catch (MalformedURLException exception) {
                 Logging.logCheckedWarning(LOG, "Could not install path for downloadables into JXTA Class Loader.");
-
             }
         }
 

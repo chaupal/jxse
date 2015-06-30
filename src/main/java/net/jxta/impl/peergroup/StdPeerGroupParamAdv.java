@@ -103,7 +103,7 @@ public class StdPeerGroupParamAdv {
  
     private final Map<ModuleClassID, Object> services; 
     private final Map<ModuleClassID, Object> transports; 
-    private final Map<ModuleClassID, Object> peerGroupModules;
+    private final Map<ModuleClassID, Object> applications;
 
     /**
      * Private constructor for new instances.
@@ -111,7 +111,7 @@ public class StdPeerGroupParamAdv {
     public StdPeerGroupParamAdv() {
         this.services = new HashMap<>();
         this.transports = new HashMap<>();
-        this.peerGroupModules = new HashMap<>();
+        this.applications = new HashMap<>();
     }
 
     /**
@@ -122,7 +122,7 @@ public class StdPeerGroupParamAdv {
     public StdPeerGroupParamAdv(Element root) {
         this.services = new HashMap<>();
         this.transports = new HashMap<>();
-        this.peerGroupModules = new HashMap<>();
+        this.applications = new HashMap<>();
         
         if (!(root instanceof XMLElement)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
@@ -138,7 +138,7 @@ public class StdPeerGroupParamAdv {
     public StdPeerGroupParamAdv(XMLElement doc) {
         this.services = new HashMap<>();
         this.transports = new HashMap<>();
-        this.peerGroupModules = new HashMap<>();
+        this.applications = new HashMap<>();
         initialize(doc);
     }
 
@@ -181,7 +181,7 @@ public class StdPeerGroupParamAdv {
      * @param mcid   The module class id of the module being added.
      * @param module The module being added.
      */
-    public void addProto(ModuleClassID mcid, Object module) {
+    public void addTransport(ModuleClassID mcid, Object module) {
         if(null == mcid) {
             throw new IllegalArgumentException("Illegal ModuleClassID");
         }
@@ -202,17 +202,17 @@ public class StdPeerGroupParamAdv {
      *
      * @return the protocols (message transports) entries described in this Advertisement.
      */
-    public Map<ModuleClassID, Object> getProtos() {
+    public Map<ModuleClassID, Object> getTransports() {
         return transports;
     }
 
     /**
-     * Add a module to the set of application entries described in this advertisement.
+     * Add an application to the set of application entries described in this advertisement.
      *
      * @param mcid   The module class id of the module being added.
      * @param module The module being added.
      */
-    public void addModule(ModuleClassID mcid, Object module) {
+    public void addApplication(ModuleClassID mcid, Object module) {
         if(null == mcid) {
             throw new IllegalArgumentException("Illegal ModuleClassID");
         }
@@ -221,7 +221,7 @@ public class StdPeerGroupParamAdv {
             throw new IllegalArgumentException("Illegal module");
         }
 
-        peerGroupModules.put(mcid, module);
+        applications.put(mcid, module);
     }
 
     /**
@@ -233,8 +233,8 @@ public class StdPeerGroupParamAdv {
      *
      * @return the application entries described in this Advertisement.
      */
-    public Map<ModuleClassID, Object> getModules() {
-        return peerGroupModules;
+    public Map<ModuleClassID, Object> getApplications() {
+        return applications;
     }
 
     /**
@@ -270,7 +270,7 @@ public class StdPeerGroupParamAdv {
      *
      * @param protosTable The message transport descriptors for the group.
      */
-    public void setProtos(Map<ModuleClassID, Object> protosTable) {
+    public void setTransports(Map<ModuleClassID, Object> protosTable) {
         if(protosTable.containsKey(null)) {
             throw new IllegalArgumentException("null key in protosTable");
         }
@@ -297,7 +297,7 @@ public class StdPeerGroupParamAdv {
      *
      * @param appsTable The application descriptors for the group.
      */
-    public void setApps(Map<ModuleClassID, Object> appsTable) {
+    public void setApplications(Map<ModuleClassID, Object> appsTable) {
         if(appsTable.containsKey(null)) {
             throw new IllegalArgumentException("null key in appsTable");
         }
@@ -306,15 +306,15 @@ public class StdPeerGroupParamAdv {
             throw new IllegalArgumentException("null value in appsTable");
         }
 
-        if (appsTable == this.peerGroupModules) {
+        if (appsTable == this.applications) {
             return;
         }
 
-        this.peerGroupModules.clear();
+        this.applications.clear();
 
         // We are assuming it is not null earlier (FindBugs)
 //        if (null != appsTable) {
-            this.peerGroupModules.putAll(appsTable);
+            this.applications.putAll(appsTable);
 //        }
 
     }
@@ -341,7 +341,7 @@ public class StdPeerGroupParamAdv {
 
             } else if (APP_TAG.equals(tagName)) {
 
-                theTable = peerGroupModules;
+                theTable = applications;
 
             } else if (PROTO_TAG.equals(tagName)) {
 
@@ -422,7 +422,7 @@ public class StdPeerGroupParamAdv {
             // unique role ID on the fly.
             // When outputing the adv we get rid of it to save space.
 
-            if (theTable == peerGroupModules) {
+            if (theTable == applications) {
                 // Only the first (or only) one may use the base class.
                 if (classID == IModuleDefinitions.applicationClassID) {
                     if (appCount++ != 0) {
@@ -445,7 +445,7 @@ public class StdPeerGroupParamAdv {
 
         outputModules(doc, services, SVC_TAG);
         outputModules(doc, transports, PROTO_TAG);
-        outputModules(doc, peerGroupModules, APP_TAG);
+        outputModules(doc, applications, APP_TAG);
 
         return doc;
     }
@@ -468,7 +468,7 @@ public class StdPeerGroupParamAdv {
                 m = doc.createElement(mainTag);
                 doc.appendChild(m);
 
-                if (modulesTable != peerGroupModules && !mcid.equals(mcid.getBaseClass())) {
+                if (modulesTable != applications && !mcid.equals(mcid.getBaseClass())) {
                     // It is not an app and there is a role ID. Output it.
                     Element i = doc.createElement(MCID_TAG, mcid.toString());
 
@@ -479,7 +479,7 @@ public class StdPeerGroupParamAdv {
 
                 StructuredDocumentUtils.copyElements(doc, m, advdoc);
             } else if (val instanceof ModuleSpecID) {
-                if (modulesTable == peerGroupModules || mcid.equals(mcid.getBaseClass())) {
+                if (modulesTable == applications || mcid.equals(mcid.getBaseClass())) {
                     // Either it is an app or there is no role ID.
                     // So the specId is good enough.
                     m = doc.createElement(mainTag, val.toString());

@@ -177,7 +177,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@link net.jxta.platform.ModuleSpecID}</li>
      * </ul>
      */
-    private final Map<ModuleClassID, Object> peerGroupModules = new HashMap<>();
+    private final Map<ModuleClassID, Object> applications = new HashMap<>();
 
     /**
      * Cache for this group.
@@ -337,9 +337,9 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
 
         //Modules are non-privileged;
-        loadAllModules(peerGroupModules, false); 
+        loadAllModules(applications, false); 
 
-        result = startModules((Map) peerGroupModules);
+        result = startModules((Map) applications);
         return result;
     }
 
@@ -567,7 +567,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         StdPeerGroupParamAdv peerGroupParametersAdvertisement = new StdPeerGroupParamAdv(moduleImplementationAdvertisement.getParam());        
         
         Map<ModuleClassID, Object> services = new HashMap<> (peerGroupParametersAdvertisement.getServices());
-        services.putAll(peerGroupParametersAdvertisement.getProtos());
+        services.putAll(peerGroupParametersAdvertisement.getTransports());
 
         // Remove the modules disabled in the configuration file.        
         if(configurationParametersAdvertisement != null) {
@@ -653,15 +653,11 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
         }
         
-        // Peer group modules are shelved until startApp() is called
-        
-        //mindarchitect 28062015
-        //IMPORTANT
-        //This defines the order of module loading
-        peerGroupModules.putAll(peerGroupParametersAdvertisement.getModules());
+        // Peer group modules are shelved until startApp() is called               
+        applications.putAll(peerGroupParametersAdvertisement.getApplications());
 
         if(null != configurationParametersAdvertisement) {
-            Iterator<ModuleClassID> eachModule = peerGroupModules.keySet().iterator();
+            Iterator<ModuleClassID> eachModule = applications.keySet().iterator();
 
             while(eachModule.hasNext()) {
                 ModuleClassID aModule = eachModule.next();
@@ -761,7 +757,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         ? ((MessageTransport) anMT).getProtocolName()
                         : anMT.getClass().getName());
             }
-            Iterator<Map.Entry<ModuleClassID, Object>> eachApp = peerGroupModules.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Object>> eachApp = applications.entrySet().iterator();
 
             if (eachApp.hasNext()) {
                 configInfo.append("\n\t\tApplications :");
@@ -819,7 +815,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * @return a map of the applications for this group.
      */
     public Map<ModuleClassID, Object> getApplications() {
-        return Collections.unmodifiableMap(peerGroupModules);
+        return Collections.unmodifiableMap(applications);
     }    
 }
 

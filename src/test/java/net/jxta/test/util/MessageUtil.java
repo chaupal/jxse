@@ -172,14 +172,13 @@ public class MessageUtil {
         }
 
         @Override
-        public String next() {            
-            if (list.isEmpty()) {
-                final MessageElement el = (MessageElement) en.next();
-                String eName = el.getElementName();
+        public String next() {
+            try {
+                if (list.isEmpty()) {
+                    final MessageElement el = (MessageElement) en.next();
+                    String eName = el.getElementName();
 
-                final CountingOutputStream cnt = new CountingOutputStream(new DevNullOutputStream());
-                
-                try {
+                    final CountingOutputStream cnt = new CountingOutputStream(new DevNullOutputStream());
                     el.sendToStream(cnt);
                     long size = cnt.getBytesWritten();
 
@@ -187,11 +186,12 @@ public class MessageUtil {
                     if (verbose) {
                         list.add("[" + el + "]");
                     }
-                    return list.remove();
-                } catch (IOException ex) {
-                    Logger.getLogger(MessageUtil.class.getName()).log(Level.SEVERE, null, ex);
-                }                
-            }                        
+                }
+                
+                return list.remove();
+            } catch (final IOException ioe) {            
+            }
+            
             return "";
         }
 
@@ -224,13 +224,17 @@ public class MessageUtil {
         Message message = new Message();
         PeerID peerid = peerAdvertisement.getPeerID();
         
-        String incStr = peerid.toString() + "#" + incarnation;
-        
-        MessageElement messageElement = new StringMessageElement(incarnationTagName, incStr, null);
-        message.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, messageElement);
+        try {
+            String incStr = peerid.toString() + "#" + incarnation;
 
-        XMLDocument doc = (XMLDocument) peerAdvertisement.getDocument(MimeMediaType.XMLUTF8);
-        message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(RendezVousService.ConnectRequest, doc, null));
+            MessageElement messageElement = new StringMessageElement(incarnationTagName, incStr, null);
+            message.addMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, messageElement);
+
+            XMLDocument doc = (XMLDocument) peerAdvertisement.getDocument(MimeMediaType.XMLUTF8);
+            message.replaceMessageElement(RendezVousServiceProvider.RENDEZVOUS_MESSAGE_NAMESPACE_NAME, new TextDocumentMessageElement(RendezVousService.ConnectRequest, doc, null));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
         
         return message;
     }

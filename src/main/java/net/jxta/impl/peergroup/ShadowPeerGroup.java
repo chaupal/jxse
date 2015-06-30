@@ -113,10 +113,10 @@ public class ShadowPeerGroup extends StdPeerGroup {
          * the NPG should define tls and CbJxDefs in 2.6.
          */
         //High-level Message Transports.
-        paramAdv.addProto(IModuleDefinitions.routerProtoClassID, IModuleDefinitions.refRouterProtoSpecID);
-        paramAdv.addProto(IModuleDefinitions.tlsProtoClassID, IModuleDefinitions.refTlsProtoSpecID);
-//      paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
-        paramAdv.addProto(IModuleDefinitions.relayProtoClassID, IModuleDefinitions.refRelayProtoSpecID);
+        paramAdv.addTransport(IModuleDefinitions.routerProtoClassID, IModuleDefinitions.refRouterProtoSpecID);
+        paramAdv.addTransport(IModuleDefinitions.tlsProtoClassID, IModuleDefinitions.refTlsProtoSpecID);
+//      paramAdv.addTransport(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
+        paramAdv.addTransport(IModuleDefinitions.relayProtoClassID, IModuleDefinitions.refRelayProtoSpecID);
 
         // Pour our newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
@@ -131,6 +131,8 @@ public class ShadowPeerGroup extends StdPeerGroup {
      *
      * <p/>This implementation initializes the configuration advertisement with
      * that of the parent group and otherwise behave exactly like its superclass.
+     * @param parent
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     protected void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {
@@ -144,6 +146,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     protected void initLast() throws PeerGroupException {
@@ -155,6 +158,8 @@ public class ShadowPeerGroup extends StdPeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
+     * @param args
+     * @return 
      */
     @Override
     public int startApp(String[] args) {
