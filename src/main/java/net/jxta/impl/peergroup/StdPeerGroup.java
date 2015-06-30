@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -206,16 +207,16 @@ public class StdPeerGroup extends GenericPeerGroup {
         standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
 
         // Set standard services
-        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
-        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
         standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);        
+        standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);        
         standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
         standardPeerGroupParameterAdvertisements.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
 //        // Modules
 //        ModuleImplAdvertisement moduleAdvertisement = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
 //        if (null != moduleAdvertisement) {
-//            peerGroupParametersAdvertisement.addModule(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
+//            peerGroupParametersAdvertisement.addApplication(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
 //        }
 
         // Insert the newParamAdv in implAdv
@@ -336,7 +337,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             return result;
         }
 
-        //Modules are non-privileged;
+        //Applications are non-privileged;
         loadAllModules(applications, false); 
 
         result = startModules((Map) applications);
@@ -566,8 +567,16 @@ public class StdPeerGroup extends GenericPeerGroup {
         // Load the list of peer group services from the module implementation advertisement parameters.
         StdPeerGroupParamAdv peerGroupParametersAdvertisement = new StdPeerGroupParamAdv(moduleImplementationAdvertisement.getParam());        
         
-        Map<ModuleClassID, Object> services = new HashMap<> (peerGroupParametersAdvertisement.getServices());
-        services.putAll(peerGroupParametersAdvertisement.getTransports());
+        //mindarchitect
+        
+        //HashMap does not provide any sorting for entries.
+        //Instead, services and transports should be sorted precizely according to their loading order
+        
+        //Map<ModuleClassID, Object> services = new HashMap<> (peerGroupParametersAdvertisement.getServices());
+        //services.putAll(peerGroupParametersAdvertisement.getTransports());                
+        
+        Map<ModuleClassID, Object> services = new LinkedHashMap<>(peerGroupParametersAdvertisement.getTransports());
+        services.putAll(peerGroupParametersAdvertisement.getServices());                                
 
         // Remove the modules disabled in the configuration file.        
         if(configurationParametersAdvertisement != null) {
@@ -589,71 +598,10 @@ public class StdPeerGroup extends GenericPeerGroup {
         //The membership service is mandatory from now on (Jan. 20, 2008). It will be loaded first
         //and logged in. That will make sure the subsequent publishing will be signed.
         //The objective of this section is to establish the peer's default credential for this group.
-        Object membershipServiceSpecification = services.remove(IModuleDefinitions.membershipClassID);
+        startMembershipService(services);                
         
-        if(membershipServiceSpecification == null) {
-            throw new PeerGroupException("Membership service is mandatory. It is not found for this group : " + this.getPeerGroupName());
-        } else {
-            Map<ModuleClassID, Object> membershipServiceModuleParameters = new HashMap<>();
-            membershipServiceModuleParameters.put(IModuleDefinitions.membershipClassID, membershipServiceSpecification);
-            //Load peer group membership service
-            loadAllModules(membershipServiceModuleParameters, true);
-            int startModulesResult = startModules((Map)membershipServiceModuleParameters);                        
-            
-            if(startModulesResult == Module.START_OK) {                
-                //Automatic authentication only for World Peer Group and Net Peer Group
-                ID peerGroupModuleSpecId =  getPeerGroupAdvertisement().getModuleSpecID();
-            
-                if (peerGroupModuleSpecId.equals(IModuleDefinitions.refPlatformSpecID) || peerGroupModuleSpecId.equals(IModuleDefinitions.refNetPeerGroupSpecID)) {
-                    MembershipService membershipService = this.getMembershipService();
-                    Credential defaultCredentials = null;                                
-
-                    NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
-                    assert networkManager != null;
-
-                    String membershipAuthenticationType = "";
-                    String membershipPassword = "";
-
-                    try {
-                        NetworkConfigurator networkConfigurator = networkManager.getConfigurator();
-                        membershipAuthenticationType = networkConfigurator.getAuthenticationType();
-                        membershipPassword = networkConfigurator.getPassword();
-                        
-                        defaultCredentials = membershipService.getDefaultCredential();
-                        
-                        if (defaultCredentials == null && membershipAuthenticationType != null) {                        
-                            AuthenticationStrategy authenticationStrategy;
-                            
-                            switch (membershipAuthenticationType) {
-                                case "StringAuthentication" :
-                                    authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);                                                                    
-                                    break;
-                                case "EngineAuthentication":
-                                    authenticationStrategy = new EngineAuthenticationStrategy(this);                                                                    
-                                    break;                                                                
-                                default:
-                                    authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);
-                                    break;
-                            }                            
-                            authenticationStrategy.authenticate();
-                            
-                            //The default credentials for nep peer group should be established.
-                            //From now on, all the advertisements will be signed by this credential.
-                        }                        
-                    } catch (IOException ex) {                    
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("Failed to retrieve network manager");
-                        stringBuilder.append(ex.getLocalizedMessage());
-                        LOG.error(stringBuilder.toString());                                       
-                    }  
-                }                
-                //The credential has already been established, perhaps done during the module startup.                
-            } else {
-                throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
-            }
-        }
-        
-        // Peer group modules are shelved until startApp() is called               
+        //Peer group applications are shelved until startApp() is called
+        //See startApp() for loading peer group applications
         applications.putAll(peerGroupParametersAdvertisement.getApplications());
 
         if(null != configurationParametersAdvertisement) {
@@ -706,6 +654,74 @@ public class StdPeerGroup extends GenericPeerGroup {
 
             } catch (Exception nevermind) {
                 Logging.logCheckedWarning(LOG, "Failed to publish Impl adv within group.", nevermind);
+            }
+        }
+    }
+    
+    private void startMembershipService(Map<ModuleClassID, Object> services) throws PeerGroupException {
+        
+        Object membershipServiceSpecification = services.remove(IModuleDefinitions.membershipClassID);
+        
+        if(membershipServiceSpecification == null) {
+            throw new PeerGroupException("Membership service is mandatory. It is not found for this group : " + this.getPeerGroupName());
+        } else {
+            Map<ModuleClassID, Object> membershipServiceModuleParameters = new HashMap<>();
+            membershipServiceModuleParameters.put(IModuleDefinitions.membershipClassID, membershipServiceSpecification);
+            //Load peer group membership service only
+            loadAllModules(membershipServiceModuleParameters, true);
+            int startModulesResult = startModules((Map)membershipServiceModuleParameters);                        
+            
+            if(startModulesResult == Module.START_OK) {                                
+                ID peerGroupModuleSpecId =  getPeerGroupAdvertisement().getModuleSpecID();
+                
+                //Automatic authentication only for World Peer Group and Net Peer Group
+                if (peerGroupModuleSpecId.equals(IModuleDefinitions.refPlatformSpecID) || peerGroupModuleSpecId.equals(IModuleDefinitions.refNetPeerGroupSpecID)) {
+                    MembershipService membershipService = this.getMembershipService();
+                    Credential defaultCredentials = null;                                
+
+                    NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
+                    assert networkManager != null;
+
+                    String membershipAuthenticationType = "";
+                    String membershipPassword = "";
+
+                    try {
+                        NetworkConfigurator networkConfigurator = networkManager.getConfigurator();
+                        
+                        membershipAuthenticationType = networkConfigurator.getAuthenticationType();
+                        membershipPassword = networkConfigurator.getPassword();
+                        
+                        defaultCredentials = membershipService.getDefaultCredential();
+                        
+                        if (defaultCredentials == null && membershipAuthenticationType != null) {                        
+                            AuthenticationStrategy authenticationStrategy;
+                            
+                            switch (membershipAuthenticationType) {
+                                case "StringAuthentication" :
+                                    authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);                                                                    
+                                    break;
+                                case "EngineAuthentication":
+                                    authenticationStrategy = new EngineAuthenticationStrategy(this);                                                                    
+                                    break;                                                                
+                                default:
+                                    authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);
+                                    break;
+                            }                            
+                            authenticationStrategy.authenticate();
+                            
+                            //The default credentials for nep peer group should be established.
+                            //From now on, all the advertisements will be signed by this credential.
+                        }                        
+                    } catch (IOException ex) {                    
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("Failed to retrieve network manager");
+                        stringBuilder.append(ex.getLocalizedMessage());
+                        LOG.error(stringBuilder.toString());                                       
+                    }  
+                }                
+                //The credential has already been established, perhaps done during the module startup.                
+            } else {
+                throw new PeerGroupException("Failed to start peer group membership service for this group: " + this.getPeerGroupName() + ". Error = " + startModulesResult);
             }
         }
     }
@@ -816,6 +832,6 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     public Map<ModuleClassID, Object> getApplications() {
         return Collections.unmodifiableMap(applications);
-    }    
+    }        
 }
 

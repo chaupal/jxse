@@ -293,7 +293,8 @@ public final class WorldPeerGroupFactory {
                 Logging.logCheckedInfo(LOG, "Making a new World Peer Group instance using : ", worldPeerGroupClass.getName());
                 
                 Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);                
-                worldPeerGroup = twoParams.newInstance(config, storeHome);               
+                worldPeerGroup = twoParams.newInstance(config, storeHome);
+                
                 worldPeerGroup.init(null, PeerGroupID.WORLD_PEER_GROUP_ID, null);
                 worldPeerGroups.put(storeHomeString, worldPeerGroup);
                 return worldPeerGroup;

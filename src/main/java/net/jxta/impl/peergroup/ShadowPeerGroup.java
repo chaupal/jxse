@@ -100,9 +100,9 @@ public class ShadowPeerGroup extends StdPeerGroup {
         paramAdv.addService(IModuleDefinitions.accessClassID, IModuleDefinitions.refAccessSpecID);
 
         // "Standard" Services
-        paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
-        paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
         paramAdv.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
+        paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
+        paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);        
         paramAdv.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
 //        paramAdv.addService(IModuleDefinitions.proxyClassID, IModuleDefinitions.refProxySpecID);
         paramAdv.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);

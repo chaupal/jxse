@@ -430,6 +430,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void stopApp() {
         if (null != endpoint) {
             endpoint.removeIncomingMessageListener(JTlsDefs.ServiceName, null);

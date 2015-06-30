@@ -832,6 +832,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * <p/>
      * Careful that stopApp() could in theory be called before startApp().
      */
+    @Override
     public synchronized void stopApp() {
         stopped = true;
 
@@ -856,6 +857,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isConnectionOriented() {
         return false;
     }
@@ -863,6 +865,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean allowsRouting() {
         // Yes, this is the router, and it does not allow routing.
         // Otherwise we would have a chicken and egg problem.
@@ -872,6 +875,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointService getEndpointService() {
         return endpoint;
     }
@@ -879,6 +883,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointAddress getPublicAddress() {
         return localPeerAddr;
     }
@@ -886,6 +891,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterator<EndpointAddress> getPublicAddresses() {
         return Collections.singletonList(getPublicAddress()).iterator();
     }
@@ -893,6 +899,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getProtocolName() {
         return ROUTER_PROTOCOL_NAME;
     }

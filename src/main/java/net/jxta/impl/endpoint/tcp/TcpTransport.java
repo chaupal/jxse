@@ -718,6 +718,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void stopApp() {
         if (isClosed) {
             return;
@@ -737,15 +738,10 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             temp.interrupt();
 
             try {
-
                 messengerSelector.close();
-
             } catch (IOException failed) {
-
                 Logging.logCheckedError(LOG, "IO error occured while closing server socket\n", failed);
-
             }
-
         }
 
         // Inform the pool that we don't need as many write selectors.
@@ -769,12 +765,12 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             LOG.info("TCP Message Transport shut down.");
 
         }
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getProtocolName() {
         return protocolName;
     }

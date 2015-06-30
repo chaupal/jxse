@@ -202,7 +202,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     private int vmQueueSize = DEFAULT_MESSAGE_QUEUE_SIZE;
 
-    private PeerGroup group = null;
+    private PeerGroup peerGroup = null;
     private ID assignedID = null;
     private ModuleImplAdvertisement implAdvertisement = null;
 
@@ -364,7 +364,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          * @param messengerMeter     the metering object if any
          */
         public CanonicalMessenger(int vmQueueSize, EndpointAddress destination, EndpointAddress logicalDestination, Object hint, OutboundMeter messengerMeter) {
-            super(group.getPeerGroupID(), destination, logicalDestination, vmQueueSize);
+            super(peerGroup.getPeerGroupID(), destination, logicalDestination, vmQueueSize);
             this.hint = hint;
         }
 
@@ -478,7 +478,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             throw new PeerGroupException("Cannot initialize service more than once");
         }
 
-        this.group = group;
+        this.peerGroup = group;
         // The selector for the element of the peer adv params that we have to update.
         this.assignedID = assignedID;
         this.implAdvertisement = (ModuleImplAdvertisement) impl;
@@ -576,7 +576,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         // TODO: This listener should probably go at some stage (legacy stuff)
-        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), group.getTaskManager().getExecutorService());
+        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), peerGroup.getTaskManager().getExecutorService());
 
         // FIXME  when Load order Issue is resolved this should fail
         // until it is able to get a non-failing service Monitor (or
@@ -584,7 +584,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // FIXME it is ok because of the hack in StdPeerGroup that starts 
         // endpoint service first
         if (EndpointMeterBuildSettings.ENDPOINT_METERING) { // Fix-Me: Move to startApp() when load order issue is resolved
-            endpointServiceMonitor = (EndpointServiceMonitor) MonitorManager.getServiceMonitor(group, MonitorResources.endpointServiceMonitorClassID);
+            endpointServiceMonitor = (EndpointServiceMonitor) MonitorManager.getServiceMonitor(peerGroup, MonitorResources.endpointServiceMonitorClassID);
 
             if (endpointServiceMonitor != null) {
                 endpointMeter = endpointServiceMonitor.getEndpointMeter();
@@ -596,7 +596,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             synchronized (this) {
                 while (parentMTs.hasNext()) {
-                    addProtoToAdv(parentMTs.next());
+                    addTransportToAdvertisement(parentMTs.next());
                 }
             }
         }
@@ -635,7 +635,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         // Forget about any message filters.
         incomingFilterListeners.clear();
-        outgoingFilterListeners.clear();
+        outgoingFilterListeners.clear();                
 
         // Forget any message transports
         messageTransports.clear();
@@ -670,7 +670,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     @Override
     public PeerGroup getGroup() {
-        return group;
+        return peerGroup;
     }
 
 //    /**
@@ -724,7 +724,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     // run process filters only once
                     filtered = processFilters(myMsg,
                             propagater.getPublicAddress(),
-                            new EndpointAddress(group.getPeerGroupID(), serviceName, serviceParam),
+                            new EndpointAddress(peerGroup.getPeerGroupID(), serviceName, serviceParam),
                             false);
                 }
 
@@ -814,8 +814,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointServiceMonitor != null)) {
             PropagationMeter propagationMeter = endpointServiceMonitor.getPropagationMeter(serviceName, serviceParam);
 
-            propagationMeter.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut, metrics.numErrorsPropagated,
-                    System.currentTimeMillis() - startPropagationTime);
+            propagationMeter.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut, metrics.numErrorsPropagated, System.currentTimeMillis() - startPropagationTime);
         }
     }
 
@@ -889,25 +888,25 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     * @param msg
-     * @param srcAddress
-     * @param dstAddress
+     * @param message
+     * @param sourceAddress
+     * @param destinationAddress
      */
     @Override
-    public void processIncomingMessage(Message msg, EndpointAddress srcAddress, EndpointAddress dstAddress) {
+    public void processIncomingMessage(Message message, EndpointAddress sourceAddress, EndpointAddress destinationAddress) {
 
         // check for propagate loopback.
-        MessageElement srcPeerElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_SRCPEERHDR_NS, EndpointServiceImpl.MESSAGE_SRCPEERHDR_NAME);
+        MessageElement srcPeerElement = message.getMessageElement(EndpointServiceImpl.MESSAGE_SRCPEERHDR_NS, EndpointServiceImpl.MESSAGE_SRCPEERHDR_NAME);
 
         if (null != srcPeerElement) {
 
-            msg.removeMessageElement(srcPeerElement);
+            message.removeMessageElement(srcPeerElement);
             String srcPeer = srcPeerElement.toString();
 
             if (localPeerId.equals(srcPeer)) {
 
                 // This is a loopback. Discard.
-                Logging.logCheckedDebug(LOG, msg, " is a propagate loopback. Discarded");
+                Logging.logCheckedDebug(LOG, message, " is a propagate loopback. Discarded");
 
                 if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                     endpointMeter.discardedLoopbackDemuxMessage();
@@ -917,9 +916,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
         }
 
-        if (null == srcAddress) {
+        if (null == sourceAddress) {
 
-            Logging.logCheckedWarning(LOG, "null src address, discarding message ", msg);
+            Logging.logCheckedWarning(LOG, "null src address, discarding message ", message);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.invalidIncomingMessage();
@@ -927,9 +926,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             return;
         }
 
-        if (null == dstAddress) {
+        if (null == destinationAddress) {
 
-            Logging.logCheckedWarning(LOG, "null destination address, discarding message ", msg);
+            Logging.logCheckedWarning(LOG, "null destination address, discarding message ", message);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.invalidIncomingMessage();
@@ -945,13 +944,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // So, basically we want the original serviceName part stuck to the group mangling, not stuck to the original
         // serviceParam. We do that by cut/pasting from both the mangled and demangled versions of the address.
 
-        EndpointAddress demangledAddress = demangleAddress(dstAddress);
+        EndpointAddress demangledAddress = demangleAddress(destinationAddress);
         String decodedServiceName = demangledAddress.getServiceName();
         String decodedServiceParam = demangledAddress.getServiceParameter();
 
         if ((null == decodedServiceName) || (0 == decodedServiceName.length())) {
 
-            Logging.logCheckedWarning(LOG, "dest serviceName must not be null, discarding message ", msg);
+            Logging.logCheckedWarning(LOG, "dest serviceName must not be null, discarding message ", message);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.invalidIncomingMessage();
@@ -964,10 +963,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // Do filters for this message:
         // FIXME - jice 20040417 : filters are likely broken, now. They do not see messages
         // from xports in parent groups.  For those messages that are seen, demangled address seems to be the useful one.
-        msg = processFilters(msg, srcAddress, demangledAddress, true);
+        message = processFilters(message, sourceAddress, demangledAddress, true);
 
         // If processFilters retuns null, the message is to be discarded.
-        if (msg == null) {
+        if (message == null) {
 
             Logging.logCheckedDebug(LOG, "Message discarded during filter processing");
 
@@ -979,8 +978,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         // Now that we know the original service name is valid, finish building the decoded version.
-        if (demangledAddress != dstAddress) {
-            decodedServiceName = dstAddress.getServiceName() + "/" + decodedServiceName;
+        if (demangledAddress != destinationAddress) {
+            decodedServiceName = destinationAddress.getServiceName() + "/" + decodedServiceName;
         }
 
         // Look up the listener
@@ -990,8 +989,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (listener == null) {
 
-            Logging.logCheckedWarning(LOG, "No listener for \'" + dstAddress + "\' in group ",
-                        group, "\n\tdecodedServiceName :",
+            Logging.logCheckedWarning(LOG, "No listener for \'" + destinationAddress + "\' in group ",
+                        peerGroup, "\n\tdecodedServiceName :",
                         decodedServiceName, "\tdecodedServiceParam :",
                         decodedServiceParam);
 
@@ -1007,12 +1006,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         try {
 
             if (null != decodedServiceParam) {
-                Logging.logCheckedDebug(LOG, "Calling listener for \'", decodedServiceName, "/", decodedServiceParam, "\' with ", msg);
+                Logging.logCheckedDebug(LOG, "Calling listener for \'", decodedServiceName, "/", decodedServiceParam, "\' with ", message);
             } else {
-                Logging.logCheckedDebug(LOG, "Calling listener for \'", decodedServiceName, "\' with ", msg);
+                Logging.logCheckedDebug(LOG, "Calling listener for \'", decodedServiceName, "\' with ", message);
             }
 
-            listener.processIncomingMessage(msg, srcAddress, demangledAddress);
+            listener.processIncomingMessage(message, sourceAddress, demangledAddress);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.incomingMessageSentToEndpointListener();
@@ -1024,18 +1023,18 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         } catch (Throwable all) {
 
-            Logging.logCheckedError(LOG, "Uncaught throwable from listener for ", dstAddress, all);
+            Logging.logCheckedError(LOG, "Uncaught throwable from listener for ", destinationAddress, all);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.errorProcessingIncomingMessage();
             }
-
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void processIncomingMessage(Message msg) {
 
         // Get the message destination
@@ -1080,16 +1079,18 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
+     * @param messageTransport
      */
-    public MessengerEventListener addMessageTransport(MessageTransport transpt) {
+    @Override
+    public MessengerEventListener addMessageTransport(MessageTransport messageTransport) {
 
         synchronized (messageTransports) {
             // check if it is already installed.
-            if (!messageTransports.contains(transpt)) {
+            if (!messageTransports.contains(messageTransport)) {
 
-                clearProtoFromAdv(transpt); // just to be safe
-                messageTransports.add(transpt);
-                addProtoToAdv(transpt);
+                clearTransportFromAdvertisement(messageTransport); // just to be safe
+                messageTransports.add(messageTransport);
+                addTransportToAdvertisement(messageTransport);
 
                 // FIXME: For now, we return this. Later we might return something else, so that we can take
                 // advantage of the fact that we know that the event is from a local transport.
@@ -1104,6 +1105,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeMessageTransport(MessageTransport transpt) {
 
         boolean removed;
@@ -1113,15 +1115,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         if (removed) {
-            clearProtoFromAdv(transpt);
+            clearTransportFromAdvertisement(transpt);
         }
 
-        return removed;
+        return removed;                
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterator<MessageTransport> getAllMessageTransports() {
         if (null != parentEndpoint) {
             return new SequenceIterator(getAllLocalTransports(), parentEndpoint.getAllMessageTransports());
@@ -1133,6 +1136,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public MessageTransport getMessageTransport(String name) {
         Iterator<MessageTransport> allTransports = getAllMessageTransports();
 
@@ -1147,7 +1151,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         return null;
     }
 
-    private void addProtoToAdv(MessageTransport proto) {
+    private void addTransportToAdvertisement(MessageTransport proto) {
 
         boolean relay = false;
 
@@ -1159,14 +1163,14 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             // no value to publish for the router endpoint address
             if (proto instanceof EndpointRouter) {
                 // register the corresponding group to relay connection events
-                addActiveRelayListener(group);
+                addActiveRelayListener(peerGroup);
                 return;
             }
 
             // register this group to Relay connection events
             if (proto instanceof RelayClient) {
                 relay = true;
-                ((RelayClient) proto).addActiveRelayListener(group);
+                ((RelayClient) proto).addActiveRelayListener(peerGroup);
             }
 
             // get the list of addresses
@@ -1181,7 +1185,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             }
 
-            PeerAdvertisement padv = group.getPeerAdvertisement();
+            PeerAdvertisement padv = peerGroup.getPeerAdvertisement();
             StructuredDocument myParam = padv.getServiceParam(assignedID);
 
             RouteAdvertisement route = null;
@@ -1199,7 +1203,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     }
                     if (relay) {
                         // need to add the relay info if we have some
-                        Vector<AccessPointAdvertisement> hops = ((RelayClient) proto).getActiveRelays(group);
+                        Vector<AccessPointAdvertisement> hops = ((RelayClient) proto).getActiveRelays(peerGroup);
 
                         if (!hops.isEmpty()) {
                             route.setHops(hops);
@@ -1218,7 +1222,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 AccessPointAdvertisement destAP = (AccessPointAdvertisement) AdvertisementFactory.newAdvertisement(
                         AccessPointAdvertisement.getAdvertisementType());
 
-                destAP.setPeerID(group.getPeerID());
+                destAP.setPeerID(peerGroup.getPeerID());
                 destAP.setEndpointAddresses(ea);
 
                 // create the route advertisement
@@ -1227,7 +1231,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 if (relay) {
                     // need to add the relay info if we have some
-                    Vector<AccessPointAdvertisement> hops = ((RelayClient) proto).getActiveRelays(group);
+                    Vector<AccessPointAdvertisement> hops = ((RelayClient) proto).getActiveRelays(peerGroup);
 
                     if (!hops.isEmpty()) {
                         route.setHops(hops);
@@ -1244,18 +1248,18 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             padv.putServiceParam(assignedID, newParam);
 
             // publish the new advertisement
-            DiscoveryService discovery = group.getDiscoveryService();
+            DiscoveryService discovery = peerGroup.getDiscoveryService();
 
-            if (discovery != null) discovery.publish(padv, DiscoveryService.INFINITE_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
+            if (discovery != null) {
+                discovery.publish(padv, DiscoveryService.INFINITE_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
+            }
 
         } catch (Exception ex) {
-
             Logging.logCheckedError(LOG, "Exception adding message transport \n", ex);
-
         }
     }
 
-    private void clearProtoFromAdv(MessageTransport transpt) {
+    private void clearTransportFromAdvertisement(MessageTransport transpt) {
 
         try {
             if (!(transpt instanceof MessageReceiver)) {
@@ -1265,13 +1269,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             // no value to publish the router endpoint address
             if (transpt instanceof EndpointRouter) {
                 // register the corresponding group in the relay
-                removeActiveRelayListener(group);
+                removeActiveRelayListener(peerGroup);
                 return;
             }
 
             // register this group to Relay connection events
             if (transpt instanceof RelayClient) {
-                ((RelayClient) transpt).removeActiveRelayListener(group);
+                ((RelayClient) transpt).removeActiveRelayListener(peerGroup);
             }
 
             Iterator<EndpointAddress> allAddresses = ((MessageReceiver) transpt).getPublicAddresses();
@@ -1282,10 +1286,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 EndpointAddress anEndpointAddress = allAddresses.next();
                 Logging.logCheckedDebug(LOG, "Removing endpoint address from route advertisement : ", anEndpointAddress);
                 ea.add(anEndpointAddress.toString());
-
             }
 
-            PeerAdvertisement padv = group.getPeerAdvertisement();
+            PeerAdvertisement padv = peerGroup.getPeerAdvertisement();
             XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
 
             if (myParam == null) {
@@ -1317,20 +1320,22 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             padv.putServiceParam(assignedID, newParam);
 
             // publish the new advertisement
-            DiscoveryService discovery = group.getDiscoveryService();
+            DiscoveryService discovery = peerGroup.getDiscoveryService();
 
-            if (discovery != null) discovery.publish(padv, DiscoveryService.INFINITE_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
+            if (discovery != null) {
+                discovery.publish(padv, DiscoveryService.INFINITE_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
+            }
 
         } catch (Exception ex) {
-
             Logging.logCheckedError(LOG, "Exception removing messsage transport \n", ex);
-
         }
     }
 
     /**
      * {@inheritDoc}
+     * @param prio
      */
+    @Override
     public boolean addMessengerEventListener(MessengerEventListener listener, int prio) {
         int priority = prio;
 
@@ -1347,7 +1352,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
+     * @param prio
      */
+    @Override
     public boolean removeMessengerEventListener(MessengerEventListener listener, int prio) {
         int priority = prio;
 
@@ -1364,6 +1371,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean addIncomingMessageListener(EndpointListener listener, String serviceName, String serviceParam) {
 
         if (null == listener) {
@@ -1416,6 +1424,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointListener getIncomingMessageListener(String serviceName, String serviceParam) {
 
         if (null == serviceName) {
@@ -1450,6 +1459,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointListener removeIncomingMessageListener(String serviceName, String serviceParam) {
         if (null == serviceName) {
             throw new IllegalArgumentException("serviceName must not be null");
@@ -1515,6 +1525,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * will automatically skip redirection if it is the same.
      */
 
+    @Override
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint) {
 
         // XXX: maybe we should enforce the stripping of the address here.
@@ -1522,7 +1533,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // service params. On the other hand that would cost useless cloning of endp addrs and prevent future
         // flexibility regarding QOS params, possibly. Be liberal for now.
 
-        if (addr == null) throw new IllegalArgumentException("null endpoint address not allowed.");
+        if (addr == null) {
+            throw new IllegalArgumentException("null endpoint address not allowed.");
+        }
 
         if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
 
@@ -1591,12 +1604,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * Return only the message transport registered locally.
+     * @return 
      */
     protected Iterator<MessageTransport> getAllLocalTransports() {
         List<MessageTransport> transportList;
 
         synchronized (messageTransports) {
-            transportList = new ArrayList<MessageTransport>(messageTransports);
+            transportList = new ArrayList<>(messageTransports);
         }
 
         return transportList.iterator();
@@ -1635,6 +1649,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void addIncomingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
         if (null == listener) {
             throw new IllegalArgumentException("listener must be non-null");
@@ -1648,6 +1663,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void addOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
         if (null == listener) {
             throw new IllegalArgumentException("listener must be non-null");
@@ -1661,6 +1677,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized MessageFilterListener removeIncomingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
         Iterator<FilterListenerAndMask> eachListener = incomingFilterListeners.iterator();
 
@@ -1679,6 +1696,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized MessageFilterListener removeOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
         Iterator<FilterListenerAndMask> eachListener = outgoingFilterListeners.iterator();
 
@@ -1701,6 +1719,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      *
      * <p/>Redistribute the event to those interested.
      */
+    @Override
     public boolean messengerReady(MessengerEvent event) {
 
         // FIXME - jice@jxta.org 20040413: now that we share messengers, we 
@@ -1777,7 +1796,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // mostly because it is difficult to get a hold on the only appropriate one: that of the endpoint
         // service interface of the listener's owner. So, incoming messengers will not support the listener-based send API.
         // Unless someone adds a watcher by hand.
-        messengerForHere = event.getMessenger().getChannelMessenger(group.getPeerGroupID(), null, null);
+        messengerForHere = event.getMessenger().getChannelMessenger(peerGroup.getPeerGroupID(), null, null);
 
         // Call the listener highest precedence first. The first one that claims
         // the messenger wins.
@@ -1791,7 +1810,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             // The side effect is that a listener can in theory be called after
             // remove returned. It is unlikely to be a problem for messenger
             // events, but if it is, then we'll have to add reader-writer synch.
-            Collection<MessengerEventListener> allML = new ArrayList<MessengerEventListener>(passiveMessengerListeners[prec]);
+            Collection<MessengerEventListener> allML = new ArrayList<>(passiveMessengerListeners[prec]);
 
             for (MessengerEventListener listener : allML) {
 
@@ -1831,7 +1850,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     // into the endpoint!
 
     private void addActiveRelayListener(PeerGroup listeningGroup) {
-        PeerGroup parentGroup = group.getParentGroup();
+        PeerGroup parentGroup = peerGroup.getParentGroup();
         while (parentGroup != null) {
             EndpointService parentEndpoint = parentGroup.getEndpointService();
 
@@ -1850,7 +1869,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     // try to find the relay service in our
     // hierachy of endpoints to unregister our listener group
     private void removeActiveRelayListener(PeerGroup listeningGroup) {
-        PeerGroup parentGroup = group.getParentGroup();
+        PeerGroup parentGroup = peerGroup.getParentGroup();
 
         while (parentGroup != null) {
             EndpointService parentEndpoint = parentGroup.getEndpointService();
@@ -1876,16 +1895,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * 
      * @return the endpoint router object.
      */
+    @Override
     public EndpointRoutingTransport getEndpointRouter() {
-
         // Preparing result
         return (EndpointRoutingTransport) this.getMessageTransport("jxta");
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isReachable(PeerID pid, boolean tryToConnect) {
 
         if (pid == null) {
@@ -1920,6 +1939,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * @deprecated legacy method.
      */
     @Deprecated
+    @Override
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
 
         Messenger messenger = getMessengerImmediate(addr, hint);
@@ -1942,6 +1962,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * <p/>
      * convenience method not supported here.
      */
+    @Override
     public Messenger getMessenger(EndpointAddress addr) {
         return getMessenger(addr, null);
     }
@@ -1951,6 +1972,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * <p/>
      * convenience method not supported here.
      */
+    @Override
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
         // Note: for now, the hint is not used for canonicalization (hint != QOS).
         synchronized (channelCache) {
@@ -2011,6 +2033,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * <p/>
      * convenience method not supported here.
      */
+    @Override
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
 
         // Get an unresolved messenger (that's immediate).
@@ -2045,60 +2068,58 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc }
      */
+    @Override
     public boolean isConnectedToRelayPeer() {
-
         Iterator<MessageTransport> it = this.getAllMessageTransports();
 
         while (it.hasNext()) {
-
-            MessageTransport mt =  it.next();
+            MessageTransport messageTransport =  it.next();
 
             // Not sure this test is necessary, but it is no harm
-            if (!mt.getEndpointService().getGroup().getPeerGroupID().equals(group.getPeerGroupID())) {
+            if (!messageTransport.getEndpointService().getGroup().getPeerGroupID().equals(peerGroup.getPeerGroupID())) {
                 // We only want relay services in this peer group.
                 continue;
             }
 
-            if (mt instanceof RelayClient) {
+            if (messageTransport instanceof RelayClient) {
 
-                RelayClient TempRC = (RelayClient) mt;
+                RelayClient relayClient = (RelayClient) messageTransport;
+                Map<PeerID, RouteAdvertisement> connectedRelays = relayClient.getConnectedRelays();
 
-                Map<PeerID, RouteAdvertisement> TempCR = TempRC.getConnectedRelays();
-
-                if ( TempCR.size() > 0 ) return true;
-
+                if ( connectedRelays.size() > 0 ) {
+                    return true;
+                }
             }
-
         }
 
         // No we are not
         return false;
-
     }
 
     /**
      * {@inheritDoc }
      */
+    @Override
     public Collection<PeerID> getConnectedRelayPeers() {
 
         // Preparing result
-        Collection<PeerID> Result = new ArrayList<PeerID>();
+        Collection<PeerID> Result = new ArrayList<>();
 
         Iterator<MessageTransport> it = this.getAllMessageTransports();
 
         while (it.hasNext()) {
 
-            MessageTransport mt =  it.next();
+            MessageTransport messageTransport =  it.next();
 
             // Not sure this test is necessary, but it is no harm
-            if (!mt.getEndpointService().getGroup().getPeerGroupID().equals(group.getPeerGroupID())) {
+            if (!messageTransport.getEndpointService().getGroup().getPeerGroupID().equals(peerGroup.getPeerGroupID())) {
                 // We only want relay services in this peer group.
                 continue;
             }
 
-            if (mt instanceof RelayClient) {
+            if (messageTransport instanceof RelayClient) {
 
-                RelayClient TempRC = (RelayClient) mt;
+                RelayClient TempRC = (RelayClient) messageTransport;
 
                 Map<PeerID, RouteAdvertisement> TempCR = TempRC.getConnectedRelays();
                 Iterator<PeerID> TheIter = TempCR.keySet().iterator();
@@ -2110,16 +2131,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     if ( !Result.contains(TempPID) ) {
                         Result.add(TempPID);
                     }
-
                 }
-
             }
-
         }
 
         // Returning result
         return Result;
-
     }
 
 //    /**
@@ -2134,5 +2151,4 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 //        super.finalize();
 //
 //    }
-
 }

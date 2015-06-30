@@ -389,7 +389,7 @@ public final class NetPeerGroupFactory {
         synchronized (globalRegistry) {
 
             PeerGroup result = globalRegistry.lookupInstance((PeerGroupID) id);
-            ModuleImplAdvertisement NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
+            ModuleImplAdvertisement netPeerGroupModuleImplementationAdvertisement = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
 
             if (null != result) {
                 throw new PeerGroupException("Only a single instance of a Net Peer Group may be instantiated at a single time.");
@@ -399,14 +399,13 @@ public final class NetPeerGroupFactory {
                         "\n\tParent : ", parentPeerGroup,
                         "\n\tID : ", id,
                         "\n\tName : ", name,
-                        "\n\timpl : ", NPGAdv);
+                        "\n\timpl : ", netPeerGroupModuleImplementationAdvertisement);
 
             try {
-
                 // Build the group
                 GenericPeerGroup.setGroupConfigAdvertisement(id,config);
 
-                result = (PeerGroup) parentPeerGroup.loadModule(id, NPGAdv);
+                result = (PeerGroup) parentPeerGroup.loadModule(id, netPeerGroupModuleImplementationAdvertisement);
 
                 // Set the name and description
                 // FIXME 20060217 bondolo How sad, we can't use our XML description.
