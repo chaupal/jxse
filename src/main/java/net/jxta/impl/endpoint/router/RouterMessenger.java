@@ -165,7 +165,9 @@ class RouterMessenger extends BlockingMessenger {
 
                 sendTo = router.addressMessage(message, dest);
 
-                if (null == sendTo) break;
+                if (null == sendTo) {
+                    break;
+                }
 
                 Logging.logCheckedDebug(LOG, "Sending ", message, " to ", sendTo);
                 router.sendOnLocalRoute(sendTo, message);
@@ -186,14 +188,11 @@ class RouterMessenger extends BlockingMessenger {
                 break;
 
             } catch (Throwable theMatter) {
-
                 if (sendTo == null) {
-
                     // This is bad: address message was not able to
                     // do anything. Stop the loop.
                     Logging.logCheckedWarning(LOG, "Unknown failure while routing ", message, "\n", theMatter);
                     break;
-
                 }
 
                 // Everything else is treated like a bad route.
@@ -241,9 +240,7 @@ class RouterMessenger extends BlockingMessenger {
         } else if (lastFailure instanceof Error) {
             throw (Error) lastFailure;
         } else {
-            IOException failure = new IOException("Failed sending " + message);
-            failure.initCause(lastFailure);
-            throw failure;
+            throw new IOException("Failed sending " + message, lastFailure);
         }
     }
 }

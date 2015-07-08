@@ -221,15 +221,11 @@ public class ResolverServiceImpl implements ResolverService {
                     if (null != cred) {
 
                         try {
-
                             credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
-
                         } catch (Exception all) {
-
                             Logging.logCheckedWarning(LOG, "Could not generate credential document\n", all);
                             currentCredential = null;
-
                         }
                     } else {
                         currentCredential = null;
@@ -315,19 +311,15 @@ public class ResolverServiceImpl implements ResolverService {
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return Module.START_AGAIN_STALLED;
-
         }
 
         membership = group.getMembershipService();
 
         if (null == membership) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return Module.START_AGAIN_STALLED;
-
         }
 
         // Register Listeners
@@ -353,12 +345,9 @@ public class ResolverServiceImpl implements ResolverService {
             if (!endpoint.addIncomingMessageListener(srdiListener, handlerName, srdiQueName)) {
                 Logging.logCheckedError(LOG, "Cannot register listener (already registered)");
             }
-
         } catch (Exception e) {
-
             Logging.logCheckedError(LOG, "failed to add listeners\n", e);
             return -1;
-
         }
 
         synchronized (this) {
@@ -374,11 +363,8 @@ public class ResolverServiceImpl implements ResolverService {
                     credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
                     currentCredential = new CurrentCredential(credential, credentialDoc);
                 }
-
             } catch (Exception all) {
-
                 Logging.logCheckedWarning(LOG, "could not get default credential\n", all);
-
             }
         }
         return Module.START_OK;
@@ -472,6 +458,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public SrdiHandler unregisterSrdiHandler(String name) {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.unregisterSrdiHandlerMeter(name);
@@ -492,6 +479,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sendQuery(String destPeer, ResolverQueryMsg query) {
 
         Logging.logCheckedDebug(LOG, "sending query to resolver handler: ", query.getHandlerName());
@@ -585,6 +573,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sendResponse(String destPeer, ResolverResponseMsg response) {
 
         if (destPeer == null) {
@@ -608,15 +597,12 @@ public class ResolverServiceImpl implements ResolverService {
                         queryHandlerMeter.responseSendError();
                     }
                 }
-
             } catch (Exception e) {
-
                 Logging.logCheckedWarning(LOG, "Error in sending response\n", e);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.responseSendError();
                 }
-
             }
         }
     }
@@ -624,6 +610,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sendSrdi(String destPeer, ResolverSrdiMsg srdi) {
         String srdiHandlerName = srdi.getHandlerName();
         SrdiHandlerMeter srdiHandlerMeter = null;
@@ -901,7 +888,6 @@ public class ResolverServiceImpl implements ResolverService {
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.errorWhileProcessingResponse(srcAddr);
             }
-
         }
     }
 
@@ -1000,11 +986,8 @@ public class ResolverServiceImpl implements ResolverService {
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorWhileProcessing(srcAddr);
                 }
-
             }
-
         } else {
-
             if (Logging.SHOW_WARNING && LOG.isWarnEnabled() && group.isRendezvous()) {
                 LOG.warn("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
             } else {
@@ -1014,7 +997,6 @@ public class ResolverServiceImpl implements ResolverService {
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForSrdiMessage(srcAddr, handlerName);
             }
-
         }
     }
 

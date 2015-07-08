@@ -76,6 +76,7 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.MessageTransport;
@@ -110,6 +111,7 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.rendezvous.RendezvousEvent;
+import net.jxta.resolver.ResolverService;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -291,6 +293,13 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
     @Override
     protected int startApp(String[] arg) {
 
+        EndpointService endpointService = peerGroup.getEndpointService();
+
+        if (null == endpointService) {
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
+            return Module.START_AGAIN_STALLED;
+        }                
+        
         super.startApp(arg, new EdgePeerRendezvousServiceClientMessageListener());
 
         // The other services may not be fully functional but they're there
@@ -739,7 +748,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                 try {
                     XMLDocument rendezvousPeerAdvertisementElementDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(rendezvousPeerAdvertisementElement);
                     peerAdvertisement = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(rendezvousPeerAdvertisementElementDocument);
-                } catch (Exception failed) {
+                } catch (Exception exception) {
                     Logging.logCheckedWarning(LOG, "Failed processing peer advertisement");
                 }
 
@@ -779,7 +788,7 @@ public class EdgePeerRendezvousServiceClient extends RendezVousService {
                 Logging.logCheckedDebug(LOG, "Ignoring lease offer from ", peerId);
                 // XXX bondolo 20040423 perhaps we should send a disconnect here.
             }
-        }
+        }             
     }
 
     /**

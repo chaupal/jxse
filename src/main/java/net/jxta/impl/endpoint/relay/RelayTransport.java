@@ -226,35 +226,30 @@ public final class RelayTransport implements EndpointListener, Module {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int startApp(String[] args) {
 
         EndpointService endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
-
         }
 
         // XXX bondolo 20041025 Server depends upon discovery and its non-optional.
         DiscoveryService discovery = group.getDiscoveryService();
 
         if (null == discovery) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a discovery service");
             return START_AGAIN_STALLED;
-
         }
 
         // XXX bondolo 20041025 Server depends upon pipes and its non-optional.
         PipeService pipeService = group.getPipeService();
 
         if (null == pipeService) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a pipe service");
             return START_AGAIN_STALLED;
-
         }
 
         endpoint.addIncomingMessageListener(this, serviceName, null);
@@ -281,33 +276,33 @@ public final class RelayTransport implements EndpointListener, Module {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopApp() {
-
-        // remove listener
+        // Remove listener
         EndpointService endpoint = group.getEndpointService();
 
         if (endpoint == null) {
-
             Logging.logCheckedWarning(LOG, "could not get EndpointService");
-
         } else {
-
             endpoint.removeIncomingMessageListener(serviceName, null);
             Logging.logCheckedDebug(LOG, "Message Listener removed ", serviceName);
-
         }
 
-        if (relayServer != null) relayServer.stopServer();
+        if (relayServer != null) {
+            relayServer.stopServer();
+        }
 
-        if (relayClient != null) relayClient.stopClient();
+        if (relayClient != null) {
+            relayClient.stopClient();
+        }
 
         Logging.logCheckedInfo(LOG, "Relay Message Transport stopped");
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
         Logging.logCheckedDebug(LOG, "Started for ", message, "\tsrc=", srcAddr);

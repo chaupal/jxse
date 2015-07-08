@@ -349,8 +349,16 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     @Override
     public void stopApp() {
+        
+        //!!!!!!!!!!!!!!!!!!!!!!!!
+        //Experimental!!!
+        //In order to prevent RouterService from shutting down before RendezvousService
+        //order of modules and transports loading is not reversed.
+        //So far it solves the problem but further testing reequired.                
+        //!!!!!!!!!!!!!!!!!!!!!!!!
+        
         // Shut down the group services and message transports.
-        Collections.reverse(moduleStartOrder);
+        //Collections.reverse(moduleStartOrder);
 
         for (ModuleClassID moduleClassId : moduleStartOrder) {
             try {

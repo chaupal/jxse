@@ -120,7 +120,10 @@ public class SystemTestUtils {
         Thread.sleep(5000);
         JxtaBiDiPipe bobPipe = connectNonBlocking(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
 
-        assertTrue("Failed to establish pipe", pipeEstablished.await(10, TimeUnit.SECONDS));
+        //Increased to 15 seconds due to changes in StdPeerGroup services shutdown order (not reversed)
+        //Check StdPeerGroup.stopApp for more details
+        //assertTrue("Failed to establish pipe", pipeEstablished.await(10, TimeUnit.SECONDS));        
+        assertTrue("Failed to establish pipe", pipeEstablished.await(15, TimeUnit.SECONDS));
         aliceAcceptedPipe.get().setMessageListener(aliceListener);
 
         bobPipe.sendMessage(SystemTestUtils.createMessage("hello alice"));

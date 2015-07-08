@@ -1107,7 +1107,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     @Override
     public boolean removeMessageTransport(MessageTransport transpt) {
-
         boolean removed;
 
         synchronized (messageTransports) {
