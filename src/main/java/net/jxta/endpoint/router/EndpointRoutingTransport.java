@@ -68,6 +68,7 @@ public interface EndpointRoutingTransport extends MessageSender, MessageReceiver
 
     /**
      * Provides the route controller attached to this endpoint routing object.
+     * @return 
      */
     public RouteController getRouteController();
 
