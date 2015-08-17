@@ -11,8 +11,8 @@ public class MessengerStateBarrier implements MessengerStateListener {
 
     private final CountDownLatch latch;
     private final int awaitedState;
-    private AtomicInteger matchingState;
-    private AtomicBoolean expired;
+    private final AtomicInteger matchingState;
+    private final AtomicBoolean expired;
 
     public MessengerStateBarrier(int awaitedState) {
         this.latch = new CountDownLatch(1);
@@ -21,6 +21,7 @@ public class MessengerStateBarrier implements MessengerStateListener {
         this.expired = new AtomicBoolean(false);
     }
 
+    @Override
     public boolean messengerStateChanged(int newState) {
         if(expired.get()) {
             return false;

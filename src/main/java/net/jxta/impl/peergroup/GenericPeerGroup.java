@@ -1288,6 +1288,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @throws java.io.IOException
      */
     @Override
     public void publishGroup(String name, String description) throws IOException {
@@ -1314,6 +1315,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     public PeerGroup newGroup(PeerGroupAdvertisement peerGroupAdvertisement) throws PeerGroupException {        
@@ -1352,6 +1354,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     public PeerGroup newGroup(PeerGroupID peerGroupId, ModuleImplAdvertisement moduleImplementationAdvertisement, String name, String description, boolean publish) throws PeerGroupException {
@@ -1384,6 +1387,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * {@inheritDoc}
+     * @throws net.jxta.exception.PeerGroupException
      */
     @Override
     public PeerGroup newGroup(PeerGroupID peerGroupId) throws PeerGroupException {

@@ -161,12 +161,8 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected volatile boolean direct = false;
     protected volatile OutgoingMsgrAdaptor outgoing = null;
     protected volatile StructuredDocument credentialDoc = null;
-    protected final Properties connectionProperties;
-
-    /**
-     * Pipe close Event
-     */
-    public static final int PIPE_CLOSED_EVENT = 1;
+    protected final Properties connectionProperties;    
+    
     private PeerID peerid;
 
     /**
@@ -344,9 +340,12 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     {
         this.peerid = peerid;
         this.pipeAdv = pipeAd;
-        this.group = group;
-        this.msgListener = msgListener;
+        this.group = group;        
         this.isReliable = reliable;
+        
+        if (msgListener != null) {
+            setMessageListener(msgListener);
+        }
 
         if (isBound())
         {
@@ -367,11 +366,8 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         {
             throw new IllegalArgumentException("Invalid timeout :" + timeout);
         }
-        waiting = true;
-        if (msgListener == null)
-        {
-            throw new IllegalArgumentException("Must use with a message listener");
-        }
+        
+        waiting = true;               
 
         pipeSvc = this.group.getPipeService();
         this.timeout = (timeout == 0) ? Integer.MAX_VALUE : timeout;
@@ -381,7 +377,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             this.inputPipe = pipeSvc.createInputPipe(myPipeAdv, pipeMsgListener);
         }
         new RetryingOutputPipeConnect(this);
-
     }
 
     private void initDeferredMessenger(PipeAdvertisement pipeAd)
@@ -853,7 +848,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Pipe close complete");
         }
-        notifyListeners(PIPE_CLOSED_EVENT);
+        notifyListeners(PipeStateListener.PIPE_CLOSED_EVENT);
     }
 
     private void notifyListeners(int event) {
@@ -1116,6 +1111,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      *
      * @param message Incoming message
      */
+    @Override
     public void processIncomingMessage(Message message) {
         if (!hasClose(message)) {
             PipeMsgEvent event = new PipeMsgEvent(this, message, (PipeID) this.pipeAdv.getID());
@@ -1135,10 +1131,10 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             queued = msg_queue.offer(event);
         }
 
-        PipeMsgListener msg_event_listener = msgListener;
+        PipeMsgListener pipeMessageEventListener = msgListener;
 
-        if (!queued && (null != msg_event_listener)) {
-            msg_event_listener.pipeMsgEvent(event);
+        if (!queued && (null != pipeMessageEventListener)) {
+            pipeMessageEventListener.pipeMsgEvent(event);
         }
     }
 
