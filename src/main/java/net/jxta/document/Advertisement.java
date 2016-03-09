@@ -56,6 +56,7 @@
 
 package net.jxta.document;
 
+import java.io.Serializable;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 
@@ -90,10 +91,12 @@ import java.lang.reflect.UndeclaredThrowableException;
  *  @see net.jxta.document.Document
  *  @see net.jxta.document.MimeMediaType
  */
-public abstract class Advertisement {
+public abstract class Advertisement implements Serializable {
 
     /**
      * {@inheritDoc}
+     * @return Cloned advertisement
+     * @throws java.lang.CloneNotSupportedException
      */
     @Override
     public Advertisement clone() throws CloneNotSupportedException {

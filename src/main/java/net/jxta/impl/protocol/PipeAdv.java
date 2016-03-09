@@ -112,6 +112,7 @@ public class PipeAdv extends PipeAdvertisement {
         /**
          *  {@inheritDoc}
          */
+        @Override
         public String getAdvertisementType() {
             return PipeAdv.getAdvertisementType();
         }
@@ -119,6 +120,7 @@ public class PipeAdv extends PipeAdvertisement {
         /**
          *  {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance() {
             return new PipeAdv();
         }
@@ -126,6 +128,7 @@ public class PipeAdv extends PipeAdvertisement {
         /**
          *  {@inheritDoc}
          */
+        @Override
         public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
@@ -184,6 +187,7 @@ public class PipeAdv extends PipeAdvertisement {
 
     /**
      * {@inheritDoc}
+     * @return 
      */
     @Override
     public String getAdvType() {
@@ -192,6 +196,8 @@ public class PipeAdv extends PipeAdvertisement {
 
     /**
      *  {@inheritDoc}
+     * @param raw
+     * @return 
      */
     @Override
     protected boolean handleElement(Element raw) {
@@ -243,6 +249,8 @@ public class PipeAdv extends PipeAdvertisement {
 
     /**
      *  {@inheritDoc}
+     * @param encodeAs
+     * @return 
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
@@ -288,6 +296,7 @@ public class PipeAdv extends PipeAdvertisement {
 
     /**
      *  {@inheritDoc}
+     * @return 
      */
     @Override
     public String[] getIndexFields() {

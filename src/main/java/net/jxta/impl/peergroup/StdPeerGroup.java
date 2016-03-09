@@ -72,6 +72,7 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
+import net.jxta.exception.PeerGroupAuthenticationException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
@@ -714,8 +715,14 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 default:
                                     authenticationStrategy = new StringAuthenticationStrategy(this, membershipPassword, this.getPeerID().toString(), membershipPassword);
                                     break;
-                            }                            
-                            authenticationStrategy.authenticate();
+                            }     
+                            
+                            try {
+                                authenticationStrategy.authenticate();
+                            } catch (PeerGroupAuthenticationException exception) {
+                                stopApp();
+                                throw exception;
+                            }
                             
                             //The default credentials for nep peer group should be established.
                             //From now on, all the advertisements will be signed by this credential.

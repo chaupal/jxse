@@ -56,6 +56,7 @@
 
 package net.jxta.impl.protocol;
 
+import java.io.Serializable;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;

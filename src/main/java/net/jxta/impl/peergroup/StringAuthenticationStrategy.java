@@ -32,7 +32,7 @@ class StringAuthenticationStrategy extends AuthenticationStrategy {
     }
     
     @Override
-    void authenticate() throws PeerGroupException {        
+    void authenticate() throws PeerGroupException, PeerGroupAuthenticationException {        
         MembershipService membershipService = peerGroup.getMembershipService();        
         
         StringAuthenticator stringAuthenticator = (StringAuthenticator) getAuthenticator(AuthenticationType.StringAuthentication);                                       
