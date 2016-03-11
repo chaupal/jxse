@@ -135,7 +135,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             throw new IOException(CLOSED_MESSAGE);
         }
 
-        TransportUtils.retargetMessage(msg, service, serviceParam, getLocalAddress(), dstAddress);
+        TransportUtils.retargetMessage(msg, service, serviceParam, getLocalAddress(), destinationEndpointAddress);
         AsynchronousMessageWriteListener listener = new AsynchronousMessageWriteListener(msg);
 
         try {
@@ -174,7 +174,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             return false;
         }
 
-        TransportUtils.retargetMessage(msg, service, serviceParam, getLocalAddress(), dstAddress);
+        TransportUtils.retargetMessage(msg, service, serviceParam, getLocalAddress(), destinationEndpointAddress);
 
         if(sendQueue.offer(new QueuedMessage(msg, new AsynchronousMessageWriteListener(msg)))) {
             msgsEvent();

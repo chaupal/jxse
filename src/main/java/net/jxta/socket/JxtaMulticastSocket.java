@@ -267,6 +267,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
     /**
      * {@inheritDoc}
      */
+    @Override
     public void pipeMsgEvent(PipeMsgEvent event) {
 
         Message message = event.getMessage();
@@ -286,17 +287,14 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
             Logging.logCheckedDebug(LOG, "Pushing a message onto queue");
 
-            if(!queue.offer(message, -1, TimeUnit.MILLISECONDS))
+            if(!queue.offer(message, -1, TimeUnit.MILLISECONDS)) {
             	LOG.debug("Failed to push the message onto queue due to no available space");
+            }
 
         } catch (InterruptedException e) {
-
             Logging.logCheckedDebug(LOG, "Interrupted\n" + e);
-
         } catch (IllegalArgumentException e){
-
             Logging.logCheckedDebug(LOG, "Failed to push the message onto queue\n", e);
-
         }
     }
 
@@ -316,6 +314,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
      * timeout is set to 0
      *
      * @param timeout The new soTimeout value
+     * @throws java.net.SocketException
      */
     @Override
     public synchronized void setSoTimeout(int timeout) throws SocketException {

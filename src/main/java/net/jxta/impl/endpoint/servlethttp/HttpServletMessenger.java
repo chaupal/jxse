@@ -256,7 +256,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
 
-        Logging.logCheckedDebug(LOG, "Send ", message, " to ", dstAddress, "\n\t", this);
+        Logging.logCheckedDebug(LOG, "Send ", message, " to ", destinationEndpointAddress, "\n\t", this);
 
         if (isClosed()) {
 

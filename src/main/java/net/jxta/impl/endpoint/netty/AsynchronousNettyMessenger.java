@@ -33,12 +33,12 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
     private static final Logger LOG = Logger.getLogger(NettyMessenger.class.getName());
     private static final int QUEUE_SIZE = Integer.getInteger("net.jxta.impl.endpoint.async.queuesize", 100);
 
-    private Channel channel;
-    private EndpointAddress logicalDestinationAddr;
-    private EndpointService endpointService;
-    private PeerID localPeerId;
+    private final Channel channel;
+    private final EndpointAddress logicalDestinationAddr;
+    private final EndpointService endpointService;
+    private final PeerID localPeerId;
 
-    private EndpointAddress localAddress;
+    private final EndpointAddress localAddress;
 
     public AsynchronousNettyMessenger(Channel channel, PeerGroupID homeGroupID, PeerID localPeerID, EndpointAddress localAddress, EndpointAddress logicalDestinationAddress, EndpointService endpointService) {
         super(homeGroupID, localAddress, QUEUE_SIZE);
@@ -59,6 +59,7 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
     @Override
     protected void requestClose() {
         LOG.log(Level.FINE, "Closing netty channel for messenger to {0}", logicalDestinationAddr);
+        
         if(channel.isOpen()) {
             channel.close();
         }
@@ -91,16 +92,15 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
     private void writeMessage(final QueuedMessage message) {
         ChannelFuture future = channel.write(message.getMessage());
         message.getWriteListener().writeSubmitted();
-        final ChannelFutureListener channelFutureListener = new ChannelFutureListener()
-        {
+        
+        final ChannelFutureListener channelFutureListener = new ChannelFutureListener() {
+            @Override
             public void operationComplete(ChannelFuture future) throws Exception
             {
-                if (!future.isSuccess())
-                {
+                if (!future.isSuccess()) {
                     message.getWriteListener().writeFailure(future.getCause());
                 }
-                else
-                {
+                else {
                     message.getWriteListener().writeSuccess();
                 }
             }
@@ -108,19 +108,11 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
         future.addListener(channelFutureListener);
     }
 
+    @Override
     public void messageArrived(final Message msg) {
         // Extract the source and destination
-        final EndpointAddress srcAddr 
-            = extractEndpointAddress(msg, 
-                                     EndpointServiceImpl.MESSAGE_SOURCE_NS, 
-                                     EndpointServiceImpl.MESSAGE_SOURCE_NAME,
-                                     "source");
-
-        final EndpointAddress dstAddr 
-            = extractEndpointAddress(msg,
-                                     EndpointServiceImpl.MESSAGE_DESTINATION_NS, 
-                                     EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
-                                     "destination");
+        final EndpointAddress srcAddr = extractEndpointAddress(msg, EndpointServiceImpl.MESSAGE_SOURCE_NS, EndpointServiceImpl.MESSAGE_SOURCE_NAME, "source");
+        final EndpointAddress dstAddr = extractEndpointAddress(msg, EndpointServiceImpl.MESSAGE_DESTINATION_NS, EndpointServiceImpl.MESSAGE_DESTINATION_NAME, "destination");
 
         if(srcAddr == null || isLoopback(srcAddr) || dstAddr == null) {
             return;
@@ -184,6 +176,5 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
             msg.removeMessageElement(element);
             return new EndpointAddress(element.toString());
         }
-
     }
 }

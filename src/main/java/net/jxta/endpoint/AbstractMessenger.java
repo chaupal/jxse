@@ -82,23 +82,23 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * The destination address of messages sent on this messenger.
      */
-    protected final EndpointAddress dstAddress;
-
+    protected final EndpointAddress destinationEndpointAddress;
     private final MessengerStateListenerSet listeners = new MessengerStateListenerSet();
+    
     protected final MessengerStateListener distributingListener = new MessengerStateListener() {
         @Override
         public boolean messengerStateChanged(int newState) {
-        	listeners.notifyNewState(newState);
+            listeners.notifyNewState(newState);
             return true;
         }
     };
 
     /**
      * Create a new abstract messenger.
-     * @param dest who messages should be addressed to
+     * @param destinationEndpointAddress who messages should be addressed to
      */
-    public AbstractMessenger(EndpointAddress dest) {
-        dstAddress = dest;
+    public AbstractMessenger(EndpointAddress destinationEndpointAddress) {
+        this.destinationEndpointAddress = destinationEndpointAddress;
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      */
     @Override
     public String toString() {
-        return super.toString() + " {" + dstAddress + "}";
+        return super.toString() + " {" + destinationEndpointAddress + "}";
     }
 
     /**
@@ -116,7 +116,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      */
     @Override
     public final EndpointAddress getDestinationAddress() {
-        return dstAddress;
+        return destinationEndpointAddress;
     }
 
     /**
@@ -247,8 +247,8 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     	
     	int currentState = getState();
     	if((currentState & wantedStates) != 0) {
-    		barrier.expire();
-    		return currentState;
+            barrier.expire();
+            return currentState;
     	}
     	
     	// we are not currently in any of the states we want, so wait until we are

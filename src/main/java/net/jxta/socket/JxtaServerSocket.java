@@ -174,8 +174,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     protected volatile boolean closed = false;
     private CredentialValidator credValidator = null;
 
-    private volatile Throwable creatorTrace =
-            new Throwable("Instance construction stack trace");
+    private volatile Throwable creatorTrace = new Throwable("Instance construction stack trace");
     private PeerGroup netPeerGroup;
 
     /**

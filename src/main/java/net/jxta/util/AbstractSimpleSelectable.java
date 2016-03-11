@@ -100,7 +100,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
      * <p/>
      * We use a weakHashMap as a Set. The values are never used.
      */
-    private final Map<SimpleSelectable, Object> myListeners = new WeakHashMap<SimpleSelectable, Object>(2);
+    private final Map<SimpleSelectable, Object> myListeners = new WeakHashMap<>(2);
 
     /**
      * Standard constructor for cases where the selectable object is this
@@ -123,6 +123,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IdentityReference getIdentityReference() {
         return identityReference;
     }
@@ -166,6 +167,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void register(SimpleSelector simpleSelector) {
         registerListener(simpleSelector);
         simpleSelector.itemChanged(this);
@@ -174,6 +176,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void unregister(SimpleSelector simpleSelector) {
         unregisterListener(simpleSelector);
     }
@@ -196,7 +199,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
         Collection<SimpleSelectable> listeners;
 
         synchronized(myListeners) {
-            listeners = new ArrayList<SimpleSelectable>(myListeners.keySet());
+            listeners = new ArrayList<>(myListeners.keySet());
         }
 
         for (SimpleSelectable listener : listeners) {

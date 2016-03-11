@@ -98,25 +98,19 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
     public void beginStop() {
         
         if(!started.get()) {
-
             Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
-
         }
 
         closeChannelsFuture = channels.close();
         stopping.set(true);
-
     }
     
     @Override
     public void stop() {
-
         if(!stopping.get()) {
-
             Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
-
         }
 
         closeChannelsFuture.awaitUninterruptibly();
@@ -154,7 +148,6 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         ChannelFuture connectFuture = bootstrap.connect(addrTranslator.toSocketAddress(dest));
         
         try {
-
             if(!connectFuture.await(5000L, TimeUnit.MILLISECONDS)) {
                 if(Logging.SHOW_INFO && LOG.isInfoEnabled()) {
                     LOG.infoParams("Netty transport for protocol {} failed to connect to {} within acceptable time", 
@@ -185,21 +178,15 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         boolean established = false;
 
         try {
-
             established = clientRegistry.latch.await(15L, TimeUnit.SECONDS);
-
         } catch(InterruptedException e) {
-
-            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection handover\n", e);
-            
+            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection handover\n", e);            
         }
         
         if(!established) {
-
             Logging.logCheckedWarning(LOG, "Connection handover timed out - either remote host was not a valid JXTA peer or did not respond on time");
             connectFuture.getChannel().close();
             return null;
-
         }
         
         if(Logging.SHOW_INFO && LOG.isInfoEnabled()) {

@@ -147,7 +147,7 @@ public class TlsMessenger extends BlockingMessenger {
      */
     @Override
     public EndpointAddress getLogicalDestinationImpl() {
-        return new EndpointAddress("jxta", dstAddress.getProtocolAddress(), null, null);
+        return new EndpointAddress("jxta", destinationEndpointAddress.getProtocolAddress(), null, null);
     }
 
     /**
@@ -194,12 +194,12 @@ public class TlsMessenger extends BlockingMessenger {
         } catch (IOException caught) {
 
             close();
-            Logging.logCheckedError(LOG, "Message send to \'", dstAddress, "\' failed for ", message, "\n", caught);
+            Logging.logCheckedError(LOG, "Message send to \'", destinationEndpointAddress, "\' failed for ", message, "\n", caught);
             throw caught;
 
         }
 
-        Logging.logCheckedDebug(LOG, "Message send to \'", dstAddress, "\' succeeded for ", message);
+        Logging.logCheckedDebug(LOG, "Message send to \'", destinationEndpointAddress, "\' succeeded for ", message);
 
     } 
 }
