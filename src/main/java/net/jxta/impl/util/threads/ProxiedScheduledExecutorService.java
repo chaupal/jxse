@@ -133,6 +133,7 @@ public class ProxiedScheduledExecutorService
      * 
      * @param <V> return type of the function
      */
+    @Override
     public <V> ScheduledFuture<V> schedule(
             final Callable<V> callable,
             final long delay,
@@ -152,6 +153,7 @@ public class ProxiedScheduledExecutorService
      * then forwards the execution on to the target executor service instance
      * for execution.
      */
+    @Override
     public ScheduledFuture<?> scheduleAtFixedRate(
             final Runnable command,
             final long initialDelay,

@@ -136,7 +136,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * The Query ID which will be associated with remote publish operations.
      */
     private final static int REMOTE_PUBLISH_QUERYID = 0;
-    private final static String srdiIndexerFileName = "discoverySrdi";
+    private final static String SRDI_INDEXER_FILE_NAME = "discoverySrdi";
 
     /**
      * The current discovery query ID. static to make debugging easier.
@@ -189,7 +189,6 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * Encapsulates current Membership Service credential.
      */
     final static class CurrentCredential {
-
         /**
          * The current default credential
          */
@@ -287,13 +286,13 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         int myQueryID = qid.incrementAndGet();
 
         if (localonly || stopped) {
-            Logging.logCheckedDebug(LOG, "localonly, no network operations performed");
+            Logging.logCheckedDebug(LOG, "Local only, no network operations performed");
             return myQueryID;
         }
 
         if (resolver == null) {
             // warn about calling the service before it started
-            Logging.logCheckedWarning(LOG, "resolver has not started yet, query discarded.");
+            Logging.logCheckedWarning(LOG, "Resolver has not been started yet, query discarded.");
             return myQueryID;
         }
 
@@ -311,12 +310,12 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         long t0 = System.currentTimeMillis();
 
-        DiscoveryQueryMsg dquery = new DiscoveryQuery();
+        DiscoveryQueryMsg discoveryQueryMessage = new DiscoveryQuery();
 
-        dquery.setDiscoveryType(type);
-        dquery.setAttr(attribute);
-        dquery.setValue(value);
-        dquery.setThreshold(threshold);
+        discoveryQueryMessage.setDiscoveryType(type);
+        discoveryQueryMessage.setAttr(attribute);
+        discoveryQueryMessage.setValue(value);
+        discoveryQueryMessage.setThreshold(threshold);
 
         if (listener != null) {
             synchronized (queryListeners) {
@@ -332,7 +331,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             query.setCredential(current.credentialDoc);
         }
         query.setSrcPeer(localPeerId);
-        query.setQuery(dquery.getDocument(MimeMediaType.XMLUTF8).toString());
+        query.setQuery(discoveryQueryMessage.getDocument(MimeMediaType.XMLUTF8).toString());
         query.setQueryId(myQueryID);
 
         // check srdiManager
@@ -340,7 +339,6 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             List<PeerID> res = srdiIndex.query(dirname[type], attribute, value, threshold);
 
             if (!res.isEmpty()) {
-
                 srdiManager.forwardQuery(res, query, threshold);
                 Logging.logCheckedDebug(LOG, "Srdi forward a query #", myQueryID, " in ", (System.currentTimeMillis() - t0), "ms.");
                 return myQueryID;
@@ -1531,7 +1529,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         if (srdiIndex == null) {
 
-            srdiIndex = new Srdi(peerGroup, srdiIndexerFileName);
+            srdiIndex = new Srdi(peerGroup, SRDI_INDEXER_FILE_NAME);
             Logging.logCheckedDebug(LOG, "srdiIndex created");
 
         }

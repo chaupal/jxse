@@ -68,5 +68,4 @@ public interface EndpointMeterBuildSettings extends MeterBuildSettings {
      * This boolean controls the inclusion of the {@code ENDPOINT_METERING} code.
      */
     public static final boolean ENDPOINT_METERING = ConditionalEndpointMeterBuildSettings.isRuntimeMetering();
-
 }

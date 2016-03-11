@@ -99,5 +99,4 @@ public interface SocketFactory {
      * @throws java.io.IOException if an io error occurs
      */
     public Socket createConnection(InetAddress inetAddress, int port, InetAddress usingInterface, int localPort, int timeout) throws IOException;
-
 }

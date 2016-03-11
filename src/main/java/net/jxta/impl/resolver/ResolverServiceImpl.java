@@ -245,7 +245,7 @@ public class ResolverServiceImpl implements ResolverService {
      * @param parm     the service param (if any)
      * @return endpointAddress for this peer id.
      */
-    private static EndpointAddress mkAddress(ID destPeer, String serv, String parm) {
+    private static EndpointAddress makeAddress(ID destPeer, String serv, String parm) {
         return new EndpointAddress("jxta", destPeer.getUniqueValue().toString(), serv, parm);
     }
 
@@ -298,7 +298,6 @@ public class ResolverServiceImpl implements ResolverService {
             LOG.config(configInfo.toString());
 
         }
-
     }
 
     /**
@@ -1028,7 +1027,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         }
 
-        EndpointAddress destAddress = mkAddress(dest, pName, pParam);
+        EndpointAddress destAddress = makeAddress(dest, pName, pParam);
 
         // FIXME add route to responses as well
         Messenger messenger = null;

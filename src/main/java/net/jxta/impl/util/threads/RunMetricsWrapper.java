@@ -39,6 +39,7 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
     	this.wrappedType = wrapped.getClass().getName();
     }
 
+    @Override
     public T call() throws Exception {
         executorThread = Thread.currentThread();
         ScheduledFuture<?> future = longTaskMonitor.scheduleAtFixedRate(new LongTaskDetector(this), 
@@ -88,11 +89,11 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
         return wrappedRunnable.hashCode();
     }
 
+    @Override
     public void run() {
     	try {
-			call();
-		} catch (Exception e) {
-			
-		}
+            call();
+        } catch (Exception e) {			
+        }
     }
 }

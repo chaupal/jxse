@@ -19,57 +19,51 @@ import java.util.logging.Logger;
  * 
  * @author iain.mcginniss@onedrum.com
  */
-public class SharedThreadPoolExecutor extends ThreadPoolExecutor {
-    
+public class SharedThreadPoolExecutor extends ThreadPoolExecutor {    
     static final Logger LOG = Logger.getLogger(SharedThreadPoolExecutor.class.getName());
     
     ScheduledExecutorService longTaskMonitorService;
 
-	public SharedThreadPoolExecutor(ScheduledExecutorService monitoringExecutor,
-                        	        int corePoolSize,
-                                    int maximumPoolSize,
-                                    long keepAliveTime,
-                                    TimeUnit unit,
-                                    BlockingQueue<Runnable> workQueue,
-                                    ThreadFactory threadFactory) {
-	    super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+    public SharedThreadPoolExecutor(ScheduledExecutorService monitoringExecutor, int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
         this.longTaskMonitorService = monitoringExecutor;
     }
 
     @Override
-	public void shutdown() {
-		throw new IllegalStateException("shutdown cannot be called on a shared thread pool executor");
-	}
+    public void shutdown() {
+        throw new IllegalStateException("shutdown cannot be called on a shared thread pool executor");
+    }
+
+    public void shutdownShared() {
+        super.shutdown();
+    }
+
+    @Override
+    public List<Runnable> shutdownNow() {
+        throw new IllegalStateException("shutdown cannot be called on a shared thread pool executor");
+    }
+
+    public void shutdownNowShared() {
+        super.shutdownNow();
+    }
+
+    @Override
+    public void execute(Runnable command) {
+        super.execute(new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, command));
+    }
+
+    @Override
+    public <T> Future<T> submit(Callable<T> task) {
+        return super.submit((Callable<T>)new QueueTimeRunMetricsWrapper<>(longTaskMonitorService, task));
+    }
+
+    @Override
+    public Future<?> submit(Runnable task) {
+        return super.submit((Runnable)new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, task));
+    }
 	
-	public void shutdownShared() {
-		super.shutdown();
-	}
-	
-	@Override
-	public List<Runnable> shutdownNow() {
-		throw new IllegalStateException("shutdown cannot be called on a shared thread pool executor");
-	}
-	
-	public void shutdownNowShared() {
-		super.shutdownNow();
-	}
-	
-	@Override
-	public void execute(Runnable command) {
-	    super.execute(new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, command));
-	}
-	
-	@Override
-	public <T> Future<T> submit(Callable<T> task) {
-	    return super.submit((Callable<T>)new QueueTimeRunMetricsWrapper<T>(longTaskMonitorService, task));
-	}
-	
-	@Override
-	public Future<?> submit(Runnable task) {
-	    return super.submit((Runnable)new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, task));
-	}
-	
-	public <T extends Object> java.util.concurrent.Future<T> submit(Runnable task, T result) {
-	    return super.submit((Runnable)new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, task), result);
-	};
+    @Override
+    public <T extends Object> java.util.concurrent.Future<T> submit(Runnable task, T result) {
+        return super.submit((Runnable)new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, task), result);
+    };
 }

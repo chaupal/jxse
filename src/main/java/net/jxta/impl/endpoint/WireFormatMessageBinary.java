@@ -159,6 +159,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         /**
          * {@inheritDoc}
          */
+        @Override
         public MimeMediaType[] getSupportedMimeTypes() {
             return myTypes;
         }
@@ -166,6 +167,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         /**
          * {@inheritDoc}
          */
+        @Override
         public MimeMediaType[] getSupportedContentEncodings() {
             return myContentEncodings;
         }
@@ -173,10 +175,12 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         /**
          * {@inheritDoc}
          */
+        @Override
         public Message fromWire(InputStream is, MimeMediaType type, MimeMediaType contentEncoding) throws IOException {
             return fromWireExternal(is, type, contentEncoding, WireFormatMessageFactory.CBJX_DISABLE, null, false);
         }
 
+        @Override
         public Message fromBuffer(ByteBuffer buffer, MimeMediaType type, MimeMediaType contentEncoding) throws IOException {
             return fromBufferExternal(buffer, type, contentEncoding, WireFormatMessageFactory.CBJX_DISABLE, null, false);
         }
@@ -184,6 +188,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         /**
          * {@inheritDoc}
          */
+        @Override
         public WireFormatMessage toWire(Message msg, MimeMediaType type, MimeMediaType[] preferedContentEncoding) {
             try {
                 return new WireFormatMessageBinary(msg, type, preferedContentEncoding);

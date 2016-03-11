@@ -58,6 +58,7 @@ public class ProxiedCallable<V>
      * 
      * @throws Exception if the callable throws an exception during execution
      */
+    @Override
     public V call() throws Exception {
         Future<V> future = executor.submit(callable);
         synchronized(this) {
@@ -85,11 +86,9 @@ public class ProxiedCallable<V>
             if (futureProxy == null) {
                 futureProxy = proxy;
             } else {
-                throw(new IllegalStateException(
-                        "Proxy instance already set"));
+                throw(new IllegalStateException("Proxy instance already set"));
             }
             notifyAll();
         }
-    }
-    
+    }    
 }

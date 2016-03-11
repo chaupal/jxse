@@ -40,8 +40,8 @@ public class ProxiedRunnable
      * <code>targetExecutor.execute(targetRunnable)</code> when this method
      * is called.
      */
+    @Override
     public void run() {
         executor.execute(runnable);
     }
-
 }

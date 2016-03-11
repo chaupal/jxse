@@ -18,10 +18,10 @@ import net.jxta.endpoint.Message;
 public class AsynchronousMessageWriteListener implements MessageWriteListener {
 
     CountDownLatch completionLatch = new CountDownLatch(1);
-    private AtomicBoolean complete = new AtomicBoolean(false);
-    private AtomicBoolean presentedForwrite = new AtomicBoolean(false);
-    private AtomicReference<Throwable> failureCause = new AtomicReference<Throwable>(null);
-    private Message message;
+    private final AtomicBoolean complete = new AtomicBoolean(false);
+    private final AtomicBoolean presentedForwrite = new AtomicBoolean(false);
+    private final AtomicReference<Throwable> failureCause = new AtomicReference<>(null);
+    private final Message message;
 
     public AsynchronousMessageWriteListener(Message message) {
         this.message = message;
@@ -41,6 +41,8 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
      * If the method returns true, {@link #wasSuccessful()} can be called.
      * Otherwise, the wait timed out and it is not yet known if the message
      * has been sent successfully.
+     * @param timeout
+     * @param unit
      * @return whether or not the wait operation timed out.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
@@ -80,7 +82,9 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
 
     /**
      * Used to notify that the message failed to send, for the provided reason.
+     * @param cause
      */
+    @Override
     public void writeFailure(Throwable cause) {
         failureCause.set(cause);
         TransportUtils.markMessageWithSendFailure(message, cause);
@@ -88,19 +92,19 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
         completionLatch.countDown();
     }
 
-    public boolean isWriteSubmitted()
-    {
+    public boolean isWriteSubmitted() {
         return presentedForwrite.get();
     }
 
-    public void writeSubmitted()
-    {
+    @Override
+    public void writeSubmitted() {
         presentedForwrite.set(true);
     }
 
     /**
      * Used to notify that the message successfully sent.
      */
+    @Override
     public void writeSuccess() {
         failureCause.set(null);
         TransportUtils.markMessageWithSendSuccess(message);

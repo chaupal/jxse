@@ -188,17 +188,13 @@ public class LoopbackMessenger extends BlockingMessenger {
         try {
             // Process the message with the appropriate src and dest address
             group.getTaskManager().getExecutorService().execute( new Runnable() {
+                @Override
                 public void run() {
-
                     try {
                         message.setMessageProperty(EndpointServiceImpl.MESSAGE_LOOPBACK, true);
-
                         endpoint.processIncomingMessage(message, srcAddress, getDestAddressToUse(service, serviceParam));
-
                     } catch(Throwable uncaught) {
-
                         Logging.logCheckedWarning(LOG, "Uncaught Throwable in Loopback Messenger\n", uncaught);
-
                     }
                 }
             });

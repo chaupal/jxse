@@ -8,9 +8,8 @@ import net.jxta.endpoint.Message;
  * @author Iain McGinniss (iain.mcginniss@onedrum.com)
  */
 public class QueuedMessage {
-
-    private Message message;
-    private MessageWriteListener writeListener;
+    private final Message message;
+    private final MessageWriteListener writeListener;
 
     public QueuedMessage(Message msg, MessageWriteListener writeListener) {
         this.message = msg;

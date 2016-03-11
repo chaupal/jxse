@@ -128,12 +128,14 @@ public class EndpointMetric implements DocumentSerializable {
         this.endpointUpTime = endpointUpTime;
     }
 
-    /** Get the time this Endpoint was created, essentially the boot time of the PeerGroup **/
+    /** Get the time this Endpoint was created, essentially the boot time of the PeerGroup
+     * @return  **/
     public long getEndpointStartTime() {
         return endpointStartTime;
     }
 
-    /** Get the time this Endpoint has been up **/
+    /** Get the time this Endpoint has been up
+     * @return  **/
     public long getEndpointUpTime() {
         return endpointUpTime;
     }

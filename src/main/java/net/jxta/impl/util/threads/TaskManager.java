@@ -91,8 +91,8 @@ public class TaskManager {
      * tasks.
      */
     public TaskManager(Integer coreWorkerPoolSize, Integer maxWorkerPoolSize, Integer idleThreadTimeoutSecs, Integer scheduledPoolSize) {
-        NamedThreadFactory NTF = new NamedThreadFactory("JxtaTaskMonitor");
-        monitoringExecutor = Executors.newSingleThreadScheduledExecutor(NTF);
+        NamedThreadFactory tasksNamedThreadFactory = new NamedThreadFactory("JxtaTaskMonitor");
+        monitoringExecutor = Executors.newSingleThreadScheduledExecutor(tasksNamedThreadFactory);
         int corePoolSize = getCorePoolSize(coreWorkerPoolSize);
         normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor,
                                                       corePoolSize,
@@ -100,18 +100,19 @@ public class TaskManager {
                                                       getIdleThreadTimeout(idleThreadTimeoutSecs),
                                                       TimeUnit.SECONDS,
                                                       new SynchronousQueue<Runnable>(),
-                                                      new NamedThreadFactory("JxtaWorker"));
+                                                      new NamedThreadFactory("JxtaWorkerThread"));
         
         scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(scheduledPoolSize), new NamedThreadFactory("JxtaScheduledWorker"));
-        cachedExecutor = new CachedThreadExecutorService(NTF);
+        cachedExecutor = new CachedThreadExecutorService(tasksNamedThreadFactory);
         proxiedExecutors = Collections.synchronizedMap(new HashMap<String, ProxiedScheduledExecutorService>());
-        started=true;
+        started = true;
     }
 
     /**
      * Provides a potentially shared executor service.
      * Note that since this instance could be shared, it is illegal to attempt to shut down the
      * provided instance (an IllegalStateException will be thrown).
+     * @return 
      */
     public ExecutorService getExecutorService() {
         return normalExecutor;
@@ -121,6 +122,7 @@ public class TaskManager {
      * Provides a cached thread executor service.
      * Note that since this instance could be shared, it is illegal to attempt to shut down the
      * provided instance (an IllegalStateException will be thrown).
+     * @return 
      */
     public ExecutorService getCachedExecutorService() {
         return cachedExecutor;
@@ -130,6 +132,7 @@ public class TaskManager {
      * Provides a shared scheduled executor service.
      * Note that since this instance could be shared, it is illegal to attempt to shut down the
      * provided instance (an IllegalStateException will be thrown).
+     * @return 
      */
     public ScheduledExecutorService getScheduledExecutorService() {
         return scheduledExecutor;
@@ -142,6 +145,8 @@ public class TaskManager {
      * NOTE: the current implementation of local scheduled executors incurs a cost of an additional
      * thread per service. Please refrain from this unless you genuinely require your own
      * executor service.
+     * @param serviceName
+     * @return 
      */
     public ScheduledExecutorService getLocalScheduledExecutorService(String serviceName) {
         synchronized(proxiedExecutors) {
@@ -159,6 +164,7 @@ public class TaskManager {
         if(!started) {
             throw new IllegalStateException("Task manager is already shut down");
         }
+        
         normalExecutor.shutdownShared();
         scheduledExecutor.shutdownShared();
         monitoringExecutor.shutdownNow();

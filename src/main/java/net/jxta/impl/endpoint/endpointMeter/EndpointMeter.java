@@ -59,9 +59,8 @@ package net.jxta.impl.endpoint.endpointMeter;
 /**
  *    Aggregate Meter for Endpoint Monitoring
  **/
-public class EndpointMeter {
-	
-    private EndpointMetric total;
+public class EndpointMeter {	
+    private final EndpointMetric total;
     private EndpointMetric delta;
 
     public EndpointMeter() {
@@ -174,5 +173,4 @@ public class EndpointMeter {
     public String toString() {
         return "EndpointMeter()";
     }
-
 }

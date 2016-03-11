@@ -9,46 +9,46 @@ import java.util.concurrent.ScheduledFuture;
  */
 public abstract class SelfCancellingTask implements Runnable {
 
-	private boolean cancelled;
-	private ScheduledFuture<?> handle;
-	private int runCount = 0;
-	
-	/**
-	 * Checks whether the task is already cancelled, and if not invokes
-	 * {@link #execute()}.
-	 */
-	public final void run() {
-		if(cancelled) {
-			cancelViaHandle();
-			return;
-		}
-		
-		runCount++;
-		execute();
-	}
-	
-	/**
-	 * Analogous to {@link java.util.TimerTask#run()}.
-	 */
-	protected abstract void execute();
+    private boolean cancelled;
+    private ScheduledFuture<?> handle;
+    private int runCount = 0;
 
-	public void cancel() {
-		this.cancelled = true;
-		cancelViaHandle();
-	}
-	
-	private void cancelViaHandle() {
-		if(handle != null) {
-			handle.cancel(false);
-		}
-	}
-	
-	public void setHandle(ScheduledFuture<?> handle) {
-		this.handle = handle;
-	}
-	
-	public int getRunCount() {
-		return runCount;
-	}
+    /**
+     * Checks whether the task is already cancelled, and if not invokes
+     * {@link #execute()}.
+     */
+    @Override
+    public final void run() {
+        if(cancelled) {
+            cancelViaHandle();
+            return;
+        }
 
+        runCount++;
+        execute();
+    }
+
+    /**
+     * Analogous to {@link java.util.TimerTask#run()}.
+     */
+    protected abstract void execute();
+
+    public void cancel() {
+        this.cancelled = true;
+        cancelViaHandle();
+    }
+
+    private void cancelViaHandle() {
+        if(handle != null) {
+            handle.cancel(false);
+        }
+    }
+
+    public void setHandle(ScheduledFuture<?> handle) {
+        this.handle = handle;
+    }
+
+    public int getRunCount() {
+        return runCount;
+    }
 }

@@ -49,6 +49,7 @@ public class ProxiedScheduledFuture<V>
      * This instance is equivalent to calling
      * <code>proxyFuture.getDelay()</code>.
      */
+    @Override
     public long getDelay(final TimeUnit unit) {
         return pFuture.getDelay(unit);
     }
@@ -59,6 +60,7 @@ public class ProxiedScheduledFuture<V>
      * This instance is equivalent to calling
      * <code>proxyFuture.compareTo()</code>.
      */
+    @Override
     public int compareTo(final Delayed o) {
         return pFuture.compareTo(o);
     }
@@ -71,6 +73,7 @@ public class ProxiedScheduledFuture<V>
      * the alternate executor service, and is equivalent to
      * <code>future.cancel()</code> thereafter.
      */
+    @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
         synchronized(this) {
             if (future == null) {
@@ -89,6 +92,7 @@ public class ProxiedScheduledFuture<V>
      * the alternate executor service, and is equivalent to
      * <code>future.isCancelled()</code> thereafter.
      */
+    @Override
     public boolean isCancelled() {
         synchronized(this) {
             if (future == null) {
@@ -107,6 +111,7 @@ public class ProxiedScheduledFuture<V>
      * the alternate executor service, and is equivalent to
      * <code>future.isDone()</code> thereafter.
      */
+    @Override
     public boolean isDone() {
         synchronized(this) {
             if (future == null) {
@@ -123,6 +128,7 @@ public class ProxiedScheduledFuture<V>
      * @throws InterruptedException if the current thread was interrupted
      *  while waiting
      */
+    @Override
     public V get() throws InterruptedException, ExecutionException {
         synchronized(this) {
             while(future == null) {
@@ -138,6 +144,7 @@ public class ProxiedScheduledFuture<V>
      * @throws InterruptedException if the current thread was interrupted
      *  while waiting
      */
+    @Override
     public V get(
             final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {

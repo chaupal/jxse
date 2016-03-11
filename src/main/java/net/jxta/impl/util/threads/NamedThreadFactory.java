@@ -10,17 +10,21 @@ public class NamedThreadFactory implements ThreadFactory {
 
     public NamedThreadFactory(String poolName) {
         SecurityManager s = System.getSecurityManager();
-        group = (s != null)? s.getThreadGroup() :
-                             Thread.currentThread().getThreadGroup();
+        group = (s != null)? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
         namePrefix = poolName + "-";
     }
 
+    @Override
     public Thread newThread(Runnable r) {
         Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement());
-        if (t.isDaemon())
+        if (t.isDaemon()) {
             t.setDaemon(false);
-        if (t.getPriority() != Thread.NORM_PRIORITY)
+        }
+        
+        if (t.getPriority() != Thread.NORM_PRIORITY) {
             t.setPriority(Thread.NORM_PRIORITY);
+        }
+        
         return t;
     }
 }
