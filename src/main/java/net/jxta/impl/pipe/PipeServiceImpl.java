@@ -181,28 +181,29 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * A listener useful for implementing synchronous behaviour.
 	 */
-	private static class syncListener implements OutputPipeListener {
+	private static class SyncListener implements OutputPipeListener {
 
-		volatile OutputPipeEvent event = null;
+            volatile OutputPipeEvent event = null;
 
-		syncListener() {
-		}
+            SyncListener() {
+            }
 
-		/**
-		 * Called when a input pipe has been located for a previously registered
-		 * pipe. The event contains an {@link net.jxta.pipe.OutputPipe} which
-		 * can be used to communicate with the remote peer.
-		 * 
-		 * @param event
-		 *            <code>net.jxta.pipe.outputPipeEvent</code> event
-		 */
-		public synchronized void outputPipeEvent(OutputPipeEvent event) {
-			// we only accept the first event.
-			if (null == this.event) {
-				this.event = event;
-				notifyAll();
-			}
-		}
+            /**
+             * Called when a input pipe has been located for a previously registered
+             * pipe. The event contains an {@link net.jxta.pipe.OutputPipe} which
+             * can be used to communicate with the remote peer.
+             * 
+             * @param event
+             *            <code>net.jxta.pipe.outputPipeEvent</code> event
+             */
+            @Override
+            public synchronized void outputPipeEvent(OutputPipeEvent event) {
+                // we only accept the first event.
+                if (null == this.event) {
+                        this.event = event;
+                        notifyAll();
+                }
+            }
 	}
 
 	/**
@@ -370,256 +371,211 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 */
         @Override
 	public InputPipe createInputPipe(PipeAdvertisement adv) throws IOException {
-		return createInputPipe(adv, null);
+            return createInputPipe(adv, null);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
         @Override
-	public InputPipe createInputPipe(PipeAdvertisement adv,
-			PipeMsgListener listener) throws IOException {
+	public InputPipe createInputPipe(PipeAdvertisement adv,	PipeMsgListener listener) throws IOException {
+            if (!started) {
+                throw new IllegalStateException("Pipe Service has not been started or has been stopped");
+            }
 
-		if (!started) {
-			throw new IllegalStateException(
-					"Pipe Service has not been started or has been stopped");
-		}
+            String type = adv.getType();
 
-		String type = adv.getType();
+            if (type == null) {
+                throw new IllegalArgumentException("PipeAdvertisement type may not be null");
+            }
 
-		if (type == null) {
-			throw new IllegalArgumentException(
-					"PipeAdvertisement type may not be null");
-		}
+            PipeID pipeId = (PipeID) adv.getPipeID();
 
-		PipeID pipeId = (PipeID) adv.getPipeID();
+            if (pipeId == null) {
+                    throw new IllegalArgumentException(
+                                    "PipeAdvertisement PipeID may not be null");
+            }
 
-		if (pipeId == null) {
-			throw new IllegalArgumentException(
-					"PipeAdvertisement PipeID may not be null");
-		}
+            Logging.logCheckedDebug(LOG, "Create ", type, " InputPipe for ", pipeId);
 
-		Logging.logCheckedDebug(LOG, "Create ", type, " InputPipe for ", pipeId);
+            InputPipe inputPipe;
+            // create an InputPipe.
+            if (type.equals(PipeService.UnicastType)) {
+                    inputPipe = new InputPipeImpl(pipeResolver, adv, listener);
+            } else if (type.equals(PipeService.UnicastSecureType)) {
+                    inputPipe = new SecureInputPipeImpl(pipeResolver, adv, listener);
+            } else if (type.equals(PipeService.PropagateType)) {
+                if (wirePipe != null) {
+                        inputPipe = wirePipe.createInputPipe(adv, listener);
+                } else {
+                        throw new IOException("No propagated pipe servive available");
+                }
 
-		InputPipe inputPipe;
-		// create an InputPipe.
-		if (type.equals(PipeService.UnicastType)) {
-			inputPipe = new InputPipeImpl(pipeResolver, adv, listener);
-		} else if (type.equals(PipeService.UnicastSecureType)) {
-			inputPipe = new SecureInputPipeImpl(pipeResolver, adv, listener);
-		} else if (type.equals(PipeService.PropagateType)) {
-			if (wirePipe != null) {
-				inputPipe = wirePipe.createInputPipe(adv, listener);
-			} else {
-				throw new IOException("No propagated pipe servive available");
-			}
+            } else {
+                // Unknown type
+                Logging.logCheckedError(LOG, "Cannot create pipe for unknown type : ", type);
+                throw new IOException("Cannot create pipe for unknown type : " + type);
+            }
 
-		} else {
-
-			// Unknown type
-                        Logging.logCheckedError(LOG, "Cannot create pipe for unknown type : ", type);
-			throw new IOException("Cannot create pipe for unknown type : " + type);
-
-		}
-
-		return inputPipe;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public OutputPipe createOutputPipe(PipeAdvertisement pipeAdv, long timeout)
-			throws IOException {
-		return createOutputPipe(pipeAdv, Collections.<ID> emptySet(), timeout);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public OutputPipe createOutputPipe(PipeAdvertisement adv,
-			Set<? extends ID> resolvablePeers, long timeout) throws IOException {
-                // convert zero to max value.
-		if (0 == timeout) {
-			timeout = Long.MAX_VALUE;
-		}
-
-		long absoluteTimeOut = TimeUtils.toAbsoluteTimeMillis(timeout);
-
-		// Make a listener, start async resolution and then wait until the
-		// timeout expires.
-		syncListener localListener = new syncListener();
-
-		int queryid = PipeResolver.getNextQueryID();
-
-		createOutputPipe(adv, resolvablePeers, localListener, queryid);
-
-		Logging.logCheckedDebug(LOG, "Waiting synchronously for ", timeout,
-                    "ms to resolve OutputPipe for ", adv.getPipeID());
-
-		try {
-			synchronized (localListener) {
-				while ((null == localListener.event)
-						&& (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(),
-								absoluteTimeOut) < 0)) {
-					try {
-						localListener.wait(TimeUtils.ASECOND);
-					} catch (InterruptedException woken) {
-						Thread.interrupted();
-					}
-				}
-			}
-		} finally {
-			// remove the listener we installed.
-			removeOutputPipeListener(adv.getPipeID().toString(), queryid);
-		}
-
-		if (null != localListener.event) {
-			return localListener.event.getOutputPipe();
-		} else {
-			throw new IOException("Output Pipe could not be resolved after "
-					+ timeout + "ms.");
-		}
+            return inputPipe;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
         @Override
-	public void createOutputPipe(PipeAdvertisement pipeAdv,
-			OutputPipeListener listener) throws IOException {
-		createOutputPipe(pipeAdv, Collections.<ID> emptySet(), listener);
+	public OutputPipe createOutputPipe(PipeAdvertisement pipeAdv, long timeout) throws IOException {
+            return createOutputPipe(pipeAdv, Collections.<ID> emptySet(), timeout);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
         @Override
-	public void createOutputPipe(PipeAdvertisement pipeAdv,
-			Set<? extends ID> resolvablePeers, OutputPipeListener listener)
-			throws IOException {
-		createOutputPipe(pipeAdv, resolvablePeers, listener, PipeResolver
-				.getNextQueryID());
+	public OutputPipe createOutputPipe(PipeAdvertisement adv, Set<? extends ID> resolvablePeers, long timeout) throws IOException {
+            // convert zero to max value.
+            if (0 == timeout) {
+                timeout = Long.MAX_VALUE;
+            }
+
+            long absoluteTimeOut = TimeUtils.toAbsoluteTimeMillis(timeout);
+
+            // Make a listener, start async resolution and then wait until the
+            // timeout expires.
+            SyncListener localListener = new SyncListener();
+
+            int queryid = PipeResolver.getNextQueryID();
+
+            createOutputPipe(adv, resolvablePeers, localListener, queryid);
+
+            Logging.logCheckedDebug(LOG, "Waiting synchronously for ", timeout,
+                "ms to resolve OutputPipe for ", adv.getPipeID());
+
+            try {
+                synchronized (localListener) {
+                    while ((null == localListener.event) && (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), absoluteTimeOut) < 0)) {
+                        try {
+                            localListener.wait(TimeUtils.ASECOND);
+                        } catch (InterruptedException woken) {
+                            Thread.interrupted();
+                        }
+                    }
+                }
+            } finally {
+                // remove the listener we installed.
+                removeOutputPipeListener(adv.getPipeID().toString(), queryid);
+            }
+
+            if (null != localListener.event) {
+                return localListener.event.getOutputPipe();
+            } else {
+                throw new IOException("Output Pipe could not be resolved after " + timeout + "ms.");
+            }
 	}
 
-	private void createOutputPipe(PipeAdvertisement pipeAdv,
-			Set<? extends ID> resolvablePeers, OutputPipeListener listener,
-			int queryid) throws IOException {
+	/**
+	 * {@inheritDoc}
+	 */
+        @Override
+	public void createOutputPipe(PipeAdvertisement pipeAdv, OutputPipeListener listener) throws IOException {
+            createOutputPipe(pipeAdv, Collections.<ID> emptySet(), listener);
+	}
 
-		if (!started) {
-			throw new IOException(
-					"Pipe Service has not been started or has been stopped");
-		}
+	/**
+	 * {@inheritDoc}
+	 */
+        @Override
+	public void createOutputPipe(PipeAdvertisement pipeAdv,	Set<? extends ID> resolvablePeers, OutputPipeListener listener) throws IOException {
+            createOutputPipe(pipeAdv, resolvablePeers, listener, PipeResolver.getNextQueryID());
+	}
 
-		// Recover the PipeId from the PipeServiceImpl Advertisement
-		PipeID pipeId = (PipeID) pipeAdv.getPipeID();
-		String type = pipeAdv.getType();
+	private void createOutputPipe(PipeAdvertisement pipeAdv, Set<? extends ID> resolvablePeers, OutputPipeListener listener, int queryid) throws IOException {
+            if (!started) {
+                throw new IOException("Pipe Service has not been started or has been stopped");
+            }
 
-		if (null == type) {
+            // Recover the PipeId from the PipeServiceImpl Advertisement
+            PipeID pipeId = (PipeID) pipeAdv.getPipeID();
+            String type = pipeAdv.getType();
 
-			IllegalArgumentException failed
-                            = new IllegalArgumentException("Pipe type was not set");
-                        Logging.logCheckedError(LOG, failed);
-			throw failed;
+            if (null == type) {
+                IllegalArgumentException failed = new IllegalArgumentException("Pipe type was not set");
+                Logging.logCheckedError(LOG, failed);
+                throw failed;
+            }
 
-		}
+            Logging.logCheckedDebug(LOG, "Create ", type, " OutputPipe for ", pipeId);
 
-		Logging.logCheckedDebug(LOG, "Create ", type, " OutputPipe for ", pipeId);
+            if (PipeService.PropagateType.equals(type)) {
+                OutputPipe op;
 
-		if (PipeService.PropagateType.equals(type)) {
-			OutputPipe op;
+                if (resolvablePeers.size() == 1) {
+                    op = new BlockingWireOutputPipe(group, pipeAdv, (PeerID) resolvablePeers.iterator().next());
+                } else {
+                    if (wirePipe != null) {
+                        op = wirePipe.createOutputPipe(pipeAdv, resolvablePeers);
+                    } else {
+                        throw new IOException("No propagated pipe service available");
+                    }
+                }
 
-			if (resolvablePeers.size() == 1) {
-				op = new BlockingWireOutputPipe(group, pipeAdv,
-						(PeerID) resolvablePeers.iterator().next());
-			} else {
-				if (wirePipe != null) {
-					op = wirePipe.createOutputPipe(pipeAdv, resolvablePeers);
-				} else {
-					throw new IOException(
-							"No propagated pipe service available");
-				}
-			}
+                if (null != op) {
+//                  OutputPipeEvent newevent = new OutputPipeEvent(this.getInterface(), op, pipeId.toString(), PipeResolver.ANYQUERY);
+                    OutputPipeEvent newevent = new OutputPipeEvent(this, op, pipeId.toString(), PipeResolver.ANYQUERY);
+                    
+                    try {
+                        listener.outputPipeEvent(newevent);
+                    } catch (Throwable ignored) {
+                        Logging.logCheckedError(LOG, "Uncaught Throwable in listener for ", pipeId, " (", listener.getClass().getName(), ")", ignored);
+                    }
+                }
+            } else if (PipeService.UnicastType.equals(type) || PipeService.UnicastSecureType.equals(type)) {
+                addOutputPipeListener(pipeId, new OutputPipeHolder(pipeAdv, resolvablePeers, listener, queryid));
+                pipeResolver.addListener(pipeId, this, queryid);
+                pipeResolver.sendPipeQuery(pipeAdv, resolvablePeers, queryid);
 
-			if (null != op) {
-//				OutputPipeEvent newevent = new OutputPipeEvent(this
-//						.getInterface(), op, pipeId.toString(),
-//						PipeResolver.ANYQUERY);
-				OutputPipeEvent newevent = new OutputPipeEvent(this
-						, op, pipeId.toString(),
-						PipeResolver.ANYQUERY);
-				try {
+                // look locally for the pipe
+                if (resolvablePeers.isEmpty() || resolvablePeers.contains(group.getPeerID())) {
+                    InputPipe local = pipeResolver.findLocal(pipeId);
 
-				    listener.outputPipeEvent(newevent);
+                    // if we have a local instance, make sure the local instance is
+                    // of the same type.
+                    if (null != local) {
+                        if (local.getType().equals(pipeAdv.getType())) {
+                            pipeResolver.callListener(queryid, pipeId, local.getType(), group.getPeerID(), false);
+                        } else {
+                            Logging.logCheckedWarning(LOG, MessageFormat.format("Rejecting local pipe ({0}) because type is not ({1})", local.getType(), pipeAdv.getType()));
+                        }
+                    }
+                }
 
-				} catch (Throwable ignored) {
-
-					Logging.logCheckedError(LOG, "Uncaught Throwable in listener for ", pipeId,
-					    " (", listener.getClass().getName(), ")", ignored);
-					
-				}
-			}
-		} else if (PipeService.UnicastType.equals(type)
-				|| PipeService.UnicastSecureType.equals(type)) {
-
-			addOutputPipeListener(pipeId, new OutputPipeHolder(pipeAdv,
-					resolvablePeers, listener, queryid));
-			pipeResolver.addListener(pipeId, this, queryid);
-			pipeResolver.sendPipeQuery(pipeAdv, resolvablePeers, queryid);
-
-			// look locally for the pipe
-			if (resolvablePeers.isEmpty()
-					|| resolvablePeers.contains(group.getPeerID())) {
-				InputPipe local = pipeResolver.findLocal(pipeId);
-
-				// if we have a local instance, make sure the local instance is
-				// of the same type.
-				if (null != local) {
-					if (local.getType().equals(pipeAdv.getType())) {
-						pipeResolver.callListener(queryid, pipeId, local
-								.getType(), group.getPeerID(), false);
-					} else {
-
-                                            Logging.logCheckedWarning(LOG,
-                                                MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})",
-                                                    local.getType(), pipeAdv.getType()));
-						
-					}
-				}
-			}
-
-		} else {
-
-			// Unknown type
-			Logging.logCheckedError(LOG, "createOutputPipe: cannot create pipe for unknown type : ", type);
-			throw new IOException("cannot create pipe for unknown type : " + type);
-
-		}
+            } else {
+                // Unknown type
+                Logging.logCheckedError(LOG, "createOutputPipe: cannot create pipe for unknown type : ", type);
+                throw new IOException("Cannot create pipe for unknown type : " + type);
+            }
 	}
 
 	/*
 	 * Add an output listener for the given pipeId.
 	 */
-	private void addOutputPipeListener(PipeID pipeId,
-			OutputPipeHolder pipeHolder) {
-		synchronized (outputPipeListeners) {
-			Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners
-					.get(pipeId);
+	private void addOutputPipeListener(PipeID pipeId, OutputPipeHolder pipeHolder) {
+            synchronized (outputPipeListeners) {
+                Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners.get(pipeId);
 
-			if (perpipelisteners == null) {
-				perpipelisteners = new HashMap<Integer, OutputPipeHolder>();
-				outputPipeListeners.put(pipeId, perpipelisteners);
-			}
+                if (perpipelisteners == null) {
+                    perpipelisteners = new HashMap<>();
+                    outputPipeListeners.put(pipeId, perpipelisteners);
+                }
 
-			if (perpipelisteners.get(pipeHolder.queryid) != null) {
-				LOG.warn("Clobbering output pipe listener for query "
-						+ pipeHolder.queryid);
-			}
+                if (perpipelisteners.get(pipeHolder.queryid) != null) {
+                    LOG.warn("Clobbering output pipe listener for query " + pipeHolder.queryid);
+                }
 
-			Logging.logCheckedDebug(LOG, "Adding pipe listener for pipe ", pipeId,
-		            " and query ", pipeHolder.queryid);
+                Logging.logCheckedDebug(LOG, "Adding pipe listener for pipe ", pipeId, " and query ", pipeHolder.queryid);
 
-			perpipelisteners.put(pipeHolder.queryid, pipeHolder);
-		}
+                perpipelisteners.put(pipeHolder.queryid, pipeHolder);
+            }
 	}
 
 	/**
