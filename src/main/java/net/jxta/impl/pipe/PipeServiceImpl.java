@@ -228,6 +228,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public ModuleImplAdvertisement getImplAdvertisement() {
 		return implAdvertisement;
 	}
@@ -235,8 +236,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
-	public synchronized void init(PeerGroup group, ID assignedID,
-			Advertisement impl) {
+        @Override
+	public synchronized void init(PeerGroup group, ID assignedID, Advertisement impl) {
 
 		this.group = group;
 		implAdvertisement = (ModuleImplAdvertisement) impl;
@@ -273,6 +274,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 * <p/>
 	 * Currently this service does not expect arguments.
 	 */
+        @Override
 	public synchronized int startApp(String[] args) {
 
 		Service needed = group.getEndpointService();
@@ -325,6 +327,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public synchronized void stopApp() {
 		started = false;
 
@@ -365,6 +368,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public InputPipe createInputPipe(PipeAdvertisement adv) throws IOException {
 		return createInputPipe(adv, null);
 	}
@@ -372,6 +376,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public InputPipe createInputPipe(PipeAdvertisement adv,
 			PipeMsgListener listener) throws IOException {
 
@@ -479,6 +484,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public void createOutputPipe(PipeAdvertisement pipeAdv,
 			OutputPipeListener listener) throws IOException {
 		createOutputPipe(pipeAdv, Collections.<ID> emptySet(), listener);
@@ -487,6 +493,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public void createOutputPipe(PipeAdvertisement pipeAdv,
 			Set<? extends ID> resolvablePeers, OutputPipeListener listener)
 			throws IOException {
@@ -618,6 +625,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public OutputPipeListener removeOutputPipeListener(ID pipeID,
 			OutputPipeListener listener) {
 
@@ -701,6 +709,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public boolean pipeResolveEvent(PipeResolver.Event event) {
 
             try {
@@ -797,7 +806,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 * <p/>
 	 * We don't do anything with NAKs (yet)
 	 */
+        @Override
 	public boolean pipeNAKEvent(PipeResolver.Event event) {
-		return false;
+            return false;
 	}
 }
