@@ -186,6 +186,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         // if we are closed, ignore any additional messages
         if (closed) {
