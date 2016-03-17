@@ -417,7 +417,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         if (null != srcAddr) {
             if ("jxta".equals(srcAddr.getProtocolName())) {
-                queryFrom = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
+                queryFrom = ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":" + srcAddr.getProtocolAddress();
             } else {
                 // we don't know who routed us the query. Assume it came from the source.
                 queryFrom = query.getSrcPeer().toString();

@@ -210,7 +210,7 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
     @Override
     public Object getUniqueValue() {
         if (null == id) { 
-            return ID.nullID.getUniqueValue();
+            return ID.NULL_ID.getUniqueValue();
         }
 
         return getIDFormat() + "-" + id;
@@ -223,7 +223,7 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
     public net.jxta.id.ID getPeerGroupID() {
         try {
             if (id == null) {
-                return net.jxta.id.ID.nullID;
+                return net.jxta.id.ID.NULL_ID;
             }
             String idd = id;
             int parentStart = idd.indexOf('.');

@@ -128,7 +128,7 @@ public class EndpointAddress {
     /**
      * The default protocol value for Endpoint Addresses based upon JXTA IDs.
      */
-    private final static String JXTA_ID_PROTOCOL = ID.URIEncodingName + ":" + ID.URNNamespace;
+    private final static String JXTA_ID_PROTOCOL = ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE;
 
     /**
      * if true then the address is a url, otherwise its a uri (likely a urn).

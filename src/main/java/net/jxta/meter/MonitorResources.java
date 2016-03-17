@@ -99,7 +99,7 @@ public class MonitorResources {
     /**
      *  Prefix string for all of the Well Known IDs declared in this interface.
      **/
-    private static final String WK_ID_PREFIX = ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-DeadBeefDeafBabaFeedBabe";
+    private static final String WK_ID_PREFIX = ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":uuid-DeadBeefDeafBabaFeedBabe";
 
     /**
      * Well known classes for the basic service Monitors.

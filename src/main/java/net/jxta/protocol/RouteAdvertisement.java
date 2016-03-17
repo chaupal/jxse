@@ -319,7 +319,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
                 hashID = IDFactory.newCodatID((PeerGroupID) dest.getPeerID().getPeerGroupID(), seed, in);
             } catch (Exception ez) {
-                return ID.nullID;
+                return ID.NULL_ID;
             }
         }
         return hashID;

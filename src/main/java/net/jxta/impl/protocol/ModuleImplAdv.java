@@ -186,7 +186,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
 
         ID moduleID = getModuleSpecID();
 
-        if ((null == moduleID) || (moduleID.equals(ID.nullID))) {
+        if ((null == moduleID) || (moduleID.equals(ID.NULL_ID))) {
             throw new IllegalArgumentException("Module Spec ID was not initialized by advertisement");
         }
 
@@ -282,7 +282,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
 
         ID moduleID = getModuleSpecID();
 
-        if ((null == moduleID) || (moduleID.equals(ID.nullID))) {
+        if ((null == moduleID) || (moduleID.equals(ID.NULL_ID))) {
             throw new IllegalStateException("Module Spec ID is not initialized.");
         }
 

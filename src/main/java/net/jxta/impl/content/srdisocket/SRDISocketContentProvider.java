@@ -233,17 +233,14 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
-
         Logging.logCheckedDebug(LOG, "initProvider(): group=", group);
 
         peerGroup = group;
-        executor = Executors.newScheduledThreadPool(
-                5, new ThreadFactoryImpl(group));
+        executor = Executors.newScheduledThreadPool(5, new ThreadFactoryImpl(group));
 
-        pipeAdv =
-                (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
-                        PipeAdvertisement.getAdvertisementType());
+        pipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
         pipeAdv.setType(PipeService.UnicastType);
 
         PipeID pipeID = IDFactory.newPipeID(peerGroup.getPeerGroupID());
@@ -253,23 +250,25 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public synchronized int startApp(String[] args) {
 
         Logging.logCheckedDebug(LOG, "startApp()");
 
-        if (running) return Module.START_OK;
+        if (running) {
+            return Module.START_OK;
+        }
 
         if (peerGroup.getPipeService() == null) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is a PipeService");
             return Module.START_AGAIN_STALLED;
-
         }
 
         running = true;
 
         // Start the accept loop
         executor.execute(new Runnable() {
+            @Override
             public void run() {
                 acceptExecution();
             }
@@ -281,11 +280,14 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public synchronized void stopApp() {
 
         Logging.logCheckedDebug(LOG, "stopApp()");
 
-        if (!running) return;
+        if (!running) {
+            return;
+        }
 
         /*
          * XXX 20070911 mcumings: We really need to be able to abort all
@@ -300,7 +302,6 @@ public class SRDISocketContentProvider
 
         running = false;
         notifyAll();
-
     }
 
 //    /**
@@ -315,16 +316,15 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+    @Override
     public Advertisement getImplAdvertisement() {
-        ModuleImplAdvertisement adv =
-                (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(
-                        ModuleImplAdvertisement.getAdvertisementType());
-        adv.setModuleSpecID(specID);
-        adv.setCode(getClass().getName());
-        adv.setProvider("https://jxta.dev.java.net/");
-        adv.setDescription("ContentProvider implementation using JxtaSockets");
+        ModuleImplAdvertisement moduleImplAdvertisement = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+        moduleImplAdvertisement.setModuleSpecID(specID);
+        moduleImplAdvertisement.setCode(getClass().getName());
+        moduleImplAdvertisement.setProvider("https://jxta.dev.java.net/");
+        moduleImplAdvertisement.setDescription("ContentProvider implementation using JxtaSockets");
 
-        return adv;
+        return moduleImplAdvertisement;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -333,6 +333,7 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public void addContentProviderListener(ContentProviderListener listener) {
         listeners.add(listener);
     }
@@ -340,6 +341,7 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public void removeContentProviderListener(ContentProviderListener listener) {
         listeners.remove(listener);
     }
@@ -347,6 +349,7 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public ContentTransfer retrieveContent(ContentID contentID) {
 
         Logging.logCheckedDebug(LOG, "retrieveContent(" + contentID + ")");
@@ -364,13 +367,13 @@ public class SRDISocketContentProvider
             }
         }
 
-        return new SRDISocketContentTransfer(
-                this, executor, peerGroup, contentID);
+        return new SRDISocketContentTransfer(this, executor, peerGroup, contentID);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
 
         Logging.logCheckedDebug(LOG, "retrieveContent(ContentShareAdvertisement)");
@@ -393,32 +396,33 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<ContentShare> shareContent(Content content) {
 
         Logging.logCheckedDebug(LOG, "shareContent(): Content=", content);
 
-        PipeAdvertisement pAdv;
+        PipeAdvertisement pipeAdvertisement;
         synchronized (this) {
             if (pipeAdv == null) {
                 Logging.logCheckedDebug(LOG, "Cannot create share before initialization");
                 return null;
             }
-            pAdv = pipeAdv;
+            pipeAdvertisement = pipeAdv;
         }
 
-        List<ContentShare> result = new ArrayList<ContentShare>(1);
+        List<ContentShare> result = new ArrayList<>(1);
         ID id = content.getContentID();
         SRDIContentShare share;
         synchronized (shares) {
             share = getShare(id);
             if (share == null) {
-                share = new SRDIContentShare(this, content, pAdv);
+                share = new SRDIContentShare(this, content, pipeAdvertisement);
                 shares.put(id, share);
                 result.add(share);
             }
         }
 
-        if (result.size() == 0) {
+        if (result.isEmpty()) {
             /*
              * This content was already shared.  We'll skip notifying our
              * listeners but will return it in the results.
@@ -433,6 +437,7 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean unshareContent(ContentID contentID) {
 
         Logging.logCheckedDebug(LOG, "unhareContent(): ContentID=", contentID);
@@ -452,11 +457,12 @@ public class SRDISocketContentProvider
     /**
      * {@inheritDoc}
      */
+        @Override
     public void findContentShares(int maxNum, ContentProviderListener listener) {
         List<ContentShare> shareList;
 
         synchronized (shares) {
-            shareList = new ArrayList<ContentShare>(Math.min(maxNum, shares.size()));
+            shareList = new ArrayList<>(Math.min(maxNum, shares.size()));
             for (ContentShare share : shares.values()) {
                 if (shareList.size() >= maxNum) {
                     break;
@@ -675,8 +681,7 @@ public class SRDISocketContentProvider
         ContentProviderEvent event = null;
         for (ContentProviderListener listener : listeners) {
             if (event == null) {
-                event = new ContentProviderEvent.Builder(this, contentID)
-                        .build();
+                event = new ContentProviderEvent.Builder(this, contentID).build();
             }
             listener.contentUnshared(event);
         }

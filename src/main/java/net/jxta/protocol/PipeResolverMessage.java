@@ -85,7 +85,7 @@ public abstract class PipeResolverMessage {
     /**
      * The pipe which is the subject of this message.
      */
-    private ID pipeid = ID.nullID;
+    private ID pipeid = ID.NULL_ID;
 
     /**
      * The type of the pipe which is the subject of this message.

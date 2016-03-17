@@ -2497,7 +2497,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         try {
 
-            asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
+            asURI = new URI(ID.URI_ENCODING_NAME, ID.URN_NAMESPACE + ":" + addr.getProtocolAddress(), null);
             return (PeerID) IDFactory.fromURI(asURI);
 
         } catch (URISyntaxException ex) {

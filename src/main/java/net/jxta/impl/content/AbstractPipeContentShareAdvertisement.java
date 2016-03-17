@@ -56,6 +56,8 @@
 
 package net.jxta.impl.content;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
 import net.jxta.document.Element;
@@ -82,7 +84,7 @@ public abstract class AbstractPipeContentShareAdvertisement
     /**
      * PipeAdvertisement used to contact possessor.
      */
-    private PipeAdvertisement pipeAdv;
+    private PipeAdvertisement pipeAdvertisement;
 
     /**
      *  Construct a new AbstractPipeContentShareAdvertisement.
@@ -105,7 +107,13 @@ public abstract class AbstractPipeContentShareAdvertisement
      * @return pipe advertisement
      */
     public PipeAdvertisement getPipeAdvertisement() {
-        return (pipeAdv == null ? null : pipeAdv.clone());
+        try {
+            return (pipeAdvertisement == null ? null : pipeAdvertisement.clone());
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(AbstractPipeContentShareAdvertisement.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
 
     /**
@@ -114,7 +122,7 @@ public abstract class AbstractPipeContentShareAdvertisement
      * @param pipeAdvertisement pipe advertisement
      */
     public void setPipeAdvertisement(PipeAdvertisement pipeAdvertisement) {
-        pipeAdv = pipeAdvertisement;
+        this.pipeAdvertisement = pipeAdvertisement;
     }
 
     /**

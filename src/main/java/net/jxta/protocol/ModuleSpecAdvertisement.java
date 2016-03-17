@@ -56,6 +56,8 @@
 
 package net.jxta.protocol;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.jxta.document.Element;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.document.MimeMediaType;
@@ -111,7 +113,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     private String version = null;
     
     @Deprecated
-    private PipeAdvertisement pipeAdv = null;
+    private PipeAdvertisement pipeAdvertisement = null;
     
     private ModuleSpecID proxySpecID = null;
     private ModuleSpecID authSpecID = null;
@@ -362,7 +364,13 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     */     
     @Deprecated
     public PipeAdvertisement getPipeAdvertisement() {
-        return (pipeAdv == null ? null : pipeAdv.clone());
+        try {
+            return (pipeAdvertisement == null ? null : pipeAdvertisement.clone());
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(ModuleSpecAdvertisement.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
 
     /**
@@ -379,7 +387,11 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     **/
     @Deprecated
     public void setPipeAdvertisement(PipeAdvertisement pipeAdv) {
-        this.pipeAdv = (pipeAdv == null ? null : pipeAdv.clone());
+        try {
+            this.pipeAdvertisement = (pipeAdv == null ? null : pipeAdv.clone());
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(ModuleSpecAdvertisement.class.getName()).log(Level.SEVERE, null, ex);
+        }        
     }
 
     /**

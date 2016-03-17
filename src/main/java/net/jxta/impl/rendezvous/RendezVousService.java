@@ -169,7 +169,7 @@ public abstract class RendezVousService extends RendezVousServiceProvider {
     @Override
     public void processReceivedMessage(Message message, RendezVousPropagateMessage propHdr, EndpointAddress sourceAddress, EndpointAddress destinationAddress) {
         if (sourceAddress.getProtocolName().equalsIgnoreCase("jxta")) {
-            String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + sourceAddress.getProtocolAddress();
+            String idstr = ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":" + sourceAddress.getProtocolAddress();
 
             ID peerId;
 

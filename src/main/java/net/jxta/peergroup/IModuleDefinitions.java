@@ -109,7 +109,7 @@ public interface IModuleDefinitions{
     /**
      * Prefix string for all of the Well Known IDs declared in this interface.
      */
-    static final String WK_ID_PREFIX = ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-DeadBeefDeafBabaFeedBabe";
+    static final String WK_ID_PREFIX = ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":uuid-DeadBeefDeafBabaFeedBabe";
 
     public enum DefaultModules{
     	PEERGROUP,
@@ -324,7 +324,7 @@ public interface IModuleDefinitions{
      * Well known module class identifier: http2 (netty http tunnel) protocol
      */
     public final static ModuleClassID http2ProtoClassID =
-    		ModuleClassID.create(URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-E549DB3BCBCF4789A392B6100B78CC5505"));
+    		ModuleClassID.create(URI.create(ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":uuid-E549DB3BCBCF4789A392B6100B78CC5505"));
 
     /**
      * Well known module class identifier: router protocol
@@ -444,7 +444,7 @@ public interface IModuleDefinitions{
      * http2 endpoint protocol (netty http tunnel based)
      */
     public final static ModuleSpecID refHttp2ProtoSpecID =
-    		ModuleSpecID.create(URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-E549DB3BCBCF4789A392B6100B78CC55F127AD1AADF0443ABF6FBDFD7909876906"));                
+    		ModuleSpecID.create(URI.create(ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":uuid-E549DB3BCBCF4789A392B6100B78CC55F127AD1AADF0443ABF6FBDFD7909876906"));                
 
     /**
      * Well known endpoint protocol specification identifier: the standard

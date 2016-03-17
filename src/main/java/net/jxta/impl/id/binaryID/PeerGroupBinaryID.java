@@ -180,7 +180,7 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
     @Override
     public Object getUniqueValue() {
         if (null == id) { 
-            return ID.nullID.getUniqueValue();
+            return ID.NULL_ID.getUniqueValue();
         }
 
         return getIDFormat() + "-" + id;
@@ -210,7 +210,7 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
             int parentStart = -1;
 
             if (id == null) {
-                result = (net.jxta.peergroup.PeerGroupID) net.jxta.id.ID.nullID;
+                result = (net.jxta.peergroup.PeerGroupID) net.jxta.id.ID.NULL_ID;
             } else {
                 parentStart = id.indexOf('.');
             }

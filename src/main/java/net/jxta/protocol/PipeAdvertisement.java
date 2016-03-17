@@ -63,6 +63,8 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.ID;
+import net.jxta.id.NullPipeID;
+import net.jxta.pipe.PipeID;
 
 /**
  *  Describes a JXTA Pipe. A pipe is described by a pipe id and by a pipe type.
@@ -93,7 +95,8 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      */
     public static final String descTag = "Desc";
 
-    private transient ID pipeId = ID.nullID;
+    private transient PipeID pipeId;
+    
     private String type = null;
     private String name = null;
 
@@ -111,20 +114,24 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
         return "jxta:PipeAdvertisement";
     }
 
+    public PipeAdvertisement() {
+        this.pipeId = (PipeID) (NullPipeID.NULL_ID);
+    }
+
     /**
      *  {@inheritDoc}
      */
     @Override
-    public PipeAdvertisement clone() {
+    public PipeAdvertisement clone() throws CloneNotSupportedException {
         try {
-            PipeAdvertisement likeMe = (PipeAdvertisement) super.clone();
+            PipeAdvertisement cloned = (PipeAdvertisement) super.clone();
 
-            likeMe.setPipeID(getPipeID());
-            likeMe.setType(getType());
-            likeMe.setName(getName());
-            likeMe.setDesc(getDesc());
+            cloned.setPipeID(getPipeID());
+            cloned.setType(getType());
+            cloned.setName(getName());
+            cloned.setDesc(getDesc());
 
-            return likeMe;
+            return cloned;
         } catch (CloneNotSupportedException impossible) {
             throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
         }
@@ -135,7 +142,6 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      */
     @Override
     public boolean equals(Object obj) {
-
         if (this == obj) {
             return true;
         }
@@ -201,11 +207,11 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      *  <p/>The PipeID uniquely identifies this ADV.
      */
     @Override
-    public ID getID() {
-        ID result = getPipeID();
+    public PipeID getID() {
+        PipeID result = getPipeID();
 
         if (null == result) {
-            result = ID.nullID;
+            result = PipeID.NULL_ID;
         }
         return result;
     }
@@ -215,7 +221,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      *
      *  @return The pipe ID for the pipe described by this advertisement.
      */
-    public ID getPipeID() {
+    public PipeID getPipeID() {
         return pipeId;
     }
 
@@ -224,7 +230,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      *
      *  @param pipeId The pipe ID for the pipe described by this advertisement.
      */
-    public void setPipeID(ID pipeId) {
+    public void setPipeID(PipeID pipeId) {
         this.pipeId = pipeId;
     }
 
@@ -282,7 +288,6 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      * @param description The description meta-data for the pipe described by this advertisement.
      */
     public void setDescription(String description) {
-
         if (null != description) {
             StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
 
@@ -312,7 +317,6 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
      *  @param desc The description meta-data for the pipe described by this advertisement.
      */
     public void setDesc(Element desc) {
-
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
         } else {

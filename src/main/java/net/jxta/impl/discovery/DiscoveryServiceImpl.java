@@ -620,7 +620,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         ID id = adv.getID();
         String advName;
 
-        if (id != null && !id.equals(ID.nullID)) {
+        if (id != null && !id.equals(ID.NULL_ID)) {
 
             advName = id.getUniqueValue().toString();
             Logging.logCheckedDebug(LOG, "Flushing adv ", advName, " of type ", dirname[type]);
@@ -678,7 +678,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         advID = adv.getID();
 
         // if we dont have a unique id for the adv, use the hash method
-        if ((null == advID) || advID.equals(ID.nullID)) {
+        if ((null == advID) || advID.equals(ID.NULL_ID)) {
             XMLDocument doc;
 
             try {
@@ -1218,7 +1218,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         String advName;
 
-        if (id != null && !id.equals(ID.nullID)) {
+        if (id != null && !id.equals(ID.NULL_ID)) {
             advName = id.getUniqueValue().toString();
             Logging.logCheckedDebug(LOG, "Getting expiration time of ", advName, " of type ", dirname[type]);
         } else {
@@ -1235,7 +1235,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     @Override
     public long getAdvLifeTime(ID id, int type) {
 
-        if (id == null || id.equals(ID.nullID) || stopped) {
+        if (id == null || id.equals(ID.NULL_ID) || stopped) {
 
             Logging.logCheckedWarning(LOG, "invalid attempt to get advertisement lifetime of a NullID");
             return -1;
@@ -1270,7 +1270,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         String advName;
         ID id = adv.getID();
 
-        if (id != null && !id.equals(ID.nullID)) {
+        if (id != null && !id.equals(ID.NULL_ID)) {
 
             advName = id.getUniqueValue().toString();
             Logging.logCheckedDebug(LOG, "attempting to getAdvExpirationTime on ", advName, " of type ", dirname[type]);
@@ -1317,7 +1317,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         ID id = adv.getID();
         String advName;
 
-        if (id != null && !id.equals(ID.nullID)) {
+        if (id != null && !id.equals(ID.NULL_ID)) {
 
             advName = id.getUniqueValue().toString();
             Logging.logCheckedDebug(LOG, "attempting to getAdvLifeTime ", advName, " of type ", dirname[type]);

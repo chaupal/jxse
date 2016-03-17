@@ -61,6 +61,7 @@ import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.net.URI;
+import net.jxta.peergroup.PeerGroupID;
 
 /**
  * This class implements a Pipe ID. Each pipe is assigned a unique id.
@@ -159,7 +160,7 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
     @Override
     public Object getUniqueValue() {
         if (null == id) { 
-            return ID.nullID.getUniqueValue();
+            return ID.NULL_ID.getUniqueValue();
         }
 
         return new StringBuilder().append(getIDFormat()).append("-").append(id).toString();
@@ -169,10 +170,10 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
      * {@inheritDoc}
      */
     @Override
-    public net.jxta.id.ID getPeerGroupID() {
+    public PeerGroupID getPeerGroupID() {
         try {
             if (id == null) {
-                return net.jxta.id.ID.nullID;
+                return (PeerGroupID) net.jxta.id.ID.NULL_ID;
             }
             String idd = id;
             int parentStart = idd.indexOf('.');
@@ -189,10 +190,8 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
             return peerGroupID;
 
         } catch (Exception e) {
-
             Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = ", id, "\n", e);
             return null;
-
         }
     }
 

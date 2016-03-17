@@ -162,7 +162,7 @@ public class SRDIContentShare extends AbstractPipeContentShare<
         // Name the remote peer by it's pipe ID
         if (session instanceof JxtaSocketAddress) {
             JxtaSocketAddress jxtaAddr = (JxtaSocketAddress) session;
-            PipeAdvertisement pipeAdv = jxtaAddr.getPipeAdv();
+            PipeAdvertisement pipeAdv = jxtaAddr.getPipeAdvertisement();
             ID pipeID = pipeAdv.getPipeID();
             result.remoteName(pipeID.toString());
         }

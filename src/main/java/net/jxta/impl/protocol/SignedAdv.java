@@ -204,7 +204,7 @@ public class SignedAdv extends SignedAdvertisement {
     @Override
     public net.jxta.id.ID getID() {
         // FIXME bondolo Needs real implementation.
-        return ID.nullID;
+        return ID.NULL_ID;
     }
 
     /**

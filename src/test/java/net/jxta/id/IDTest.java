@@ -80,8 +80,8 @@ public final class IDTest extends TestCase {
 
     public void testID() {
         try {
-            ID first = ID.nullID;
-            ID second = ID.nullID;
+            ID first = ID.NULL_ID;
+            ID second = ID.NULL_ID;
             ID third;
             String  asString;
             URI     asURI;
@@ -112,7 +112,7 @@ public final class IDTest extends TestCase {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
 
-            oos.writeObject(ID.nullID);
+            oos.writeObject(ID.NULL_ID);
             oos.writeObject(PeerGroupID.WORLD_PEER_GROUP_ID);
             oos.writeObject(PeerGroupID.NET_PEER_GROUP_ID);
 
@@ -125,7 +125,7 @@ public final class IDTest extends TestCase {
             ID fakeworld = (ID) ois.readObject();
             ID fakenet = (ID) ois.readObject();
 
-            assertTrue("null id != read in null id", ID.nullID == fakenull);
+            assertTrue("null id != read in null id", ID.NULL_ID == fakenull);
             assertTrue("world id != read in world id", PeerGroupID.WORLD_PEER_GROUP_ID == fakeworld);
             assertTrue("net id != read in net id", PeerGroupID.NET_PEER_GROUP_ID == fakenet);
         } catch (Exception everything) {
@@ -168,7 +168,7 @@ public final class IDTest extends TestCase {
 
     public void testJXTAIDFormatURI() {
         try {
-            URI nulluri = ID.nullID.toURI();
+            URI nulluri = ID.NULL_ID.toURI();
             URI worlduri = PeerGroupID.WORLD_PEER_GROUP_ID.toURI();
             URI neturi = PeerGroupID.NET_PEER_GROUP_ID.toURI();
 
@@ -176,7 +176,7 @@ public final class IDTest extends TestCase {
             ID worldid = IDFactory.fromURI(worlduri);
             ID netid = IDFactory.fromURI(neturi);
 
-            assertEquals(nullid, ID.nullID);
+            assertEquals(nullid, ID.NULL_ID);
             assertEquals(worldid, PeerGroupID.WORLD_PEER_GROUP_ID);
             assertEquals(netid, PeerGroupID.NET_PEER_GROUP_ID);
         } catch (Exception everything) {

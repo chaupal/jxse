@@ -72,6 +72,7 @@ import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
+import net.jxta.pipe.PipeID;
 
 /**
  * Created when a call to {@code PipeService.createOutputPipe(propgateAdv)} with
@@ -93,7 +94,7 @@ public class BlockingWireOutputPipe implements OutputPipe {
     /**
      * The advertisement we were created from.
      */
-    private final PipeAdvertisement pAdv;
+    private final PipeAdvertisement pipeAdvertisement;
 
     /**
      * The Peer Group in which this pipe is being used.
@@ -123,51 +124,51 @@ public class BlockingWireOutputPipe implements OutputPipe {
      * Create a new blocking output pipe
      *
      * @param group  The peergroup context.
-     * @param pAdv   advertisement for the pipe we are supporting.
+     * @param pipeAdvertisement   advertisement for the pipe we are supporting.
      * @param peerID the destination <code>PeerID</code>.
      * @throws IOException for failures creating a pipe to the destination peer.
      */
-    public BlockingWireOutputPipe(PeerGroup group, PipeAdvertisement pAdv, PeerID peerID) throws IOException {
-        this(group, pAdv, peerID, null);
+    public BlockingWireOutputPipe(PeerGroup group, PipeAdvertisement pipeAdvertisement, PeerID peerID) throws IOException {
+        this(group, pipeAdvertisement, peerID, null);
     }
 
     /**
      * Create a new blocking output pipe
      *
      * @param group  The peergroup context.
-     * @param pAdv   advertisement for the pipe we are supporting.
+     * @param pipeAdvertisement   advertisement for the pipe we are supporting.
      * @param peerID the destination <code>PeerID</code>.
      * @param route  the destination route.
      * @throws IOException for failures creating a pipe to the destination peer.
      */
-    public BlockingWireOutputPipe(PeerGroup group, PipeAdvertisement pAdv, PeerID peerID, RouteAdvertisement route) throws IOException {
-
-        this.pAdv = pAdv;
+    public BlockingWireOutputPipe(PeerGroup group, PipeAdvertisement pipeAdvertisement, PeerID peerID, RouteAdvertisement route) throws IOException {
+        this.pipeAdvertisement = pipeAdvertisement;
         this.group = group;
         this.endpoint = group.getEndpointService();
-        destination = new EndpointAddress("jxta", peerID.getUniqueValue().toString(), "PipeService", pAdv.getID().toString());
+        destination = new EndpointAddress("jxta", peerID.getUniqueValue().toString(), "PipeService", pipeAdvertisement.getID().toString());
         this.route = route;
 
         checkMessenger();
         Logging.logCheckedInfo(LOG, "Created output pipe for ", getPipeID());
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void close() {
-
-        if (closed) return;
+        if (closed) {
+            return;
+        }
 
         Logging.logCheckedInfo(LOG, "Closing ", getPipeID());
-
         closed = true;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClosed() {
         return closed;
     }
@@ -175,29 +176,33 @@ public class BlockingWireOutputPipe implements OutputPipe {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getType() {
-        return pAdv.getType();
+        return pipeAdvertisement.getType();
     }
 
     /**
      * {@inheritDoc}
      */
-    public final ID getPipeID() {
-        return pAdv.getPipeID();
+    @Override
+    public final PipeID getPipeID() {
+        return pipeAdvertisement.getPipeID();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getName() {
-        return pAdv.getName();
+        return pipeAdvertisement.getName();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final PipeAdvertisement getAdvertisement() {
-        return pAdv;
+        return pipeAdvertisement;
     }
 
     /**
@@ -236,6 +241,7 @@ public class BlockingWireOutputPipe implements OutputPipe {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean send(Message message) throws IOException {
         if (closed) {
             throw new IOException("Pipe closed");
@@ -261,6 +267,5 @@ public class BlockingWireOutputPipe implements OutputPipe {
             destMessenger.sendMessageB(msg, null, null);
         }
         return true;
-
     }
 }

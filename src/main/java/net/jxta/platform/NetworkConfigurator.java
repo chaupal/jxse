@@ -807,7 +807,7 @@ public final class NetworkConfigurator {
      * @see net.jxta.peergroup.PeerGroupFactory#setNetPGID
      */
     public void setInfrastructureID(ID id) {
-        if (id == null || id.equals(ID.nullID)) {
+        if (id == null || id.equals(ID.NULL_ID)) {
             throw new IllegalArgumentException("PeerGroupID can not be null");
         }
         infraPeerGroupConfig.setPeerGroupID(id);
@@ -2116,7 +2116,7 @@ public final class NetworkConfigurator {
         advertisement.setPeerID(peerid);
 
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
-                && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
+                && (ID.NULL_ID != infraPeerGroupConfig.getPeerGroupID())
                 && (PeerGroupID.NET_PEER_GROUP_ID != infraPeerGroupConfig.getPeerGroupID())) {
             advertisement.setSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID, infraPeerGroupConfig);
         }

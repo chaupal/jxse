@@ -101,7 +101,7 @@ public class NoneMembershipService implements MembershipService {
      * Well known service specification identifier: pse membership
      */
     public final static ModuleSpecID noneMembershipSpecID = (ModuleSpecID) ID.create(
-            URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-DeadBeefDeafBabaFeedBabe000000050106"));
+            URI.create(ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":uuid-DeadBeefDeafBabaFeedBabe000000050106"));
 
     /**
      *  Credential format for the None Membership service.

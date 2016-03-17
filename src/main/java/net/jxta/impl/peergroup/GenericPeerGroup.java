@@ -938,7 +938,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 // Normally there will be a peer ID and a peer name in the config.
                 PeerID configPID = platformConfig.getPeerID();
 
-                if ((null == configPID) || (ID.nullID == configPID)) {
+                if ((null == configPID) || (ID.NULL_ID == configPID)) {
                     if ("cbid".equals(IDFactory.getDefaultIDFormat())) {
                         // Get our peer-defined parameters in the configAdv
                         XMLElement param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.membershipClassID);
@@ -1321,7 +1321,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     public PeerGroup newGroup(PeerGroupAdvertisement peerGroupAdvertisement) throws PeerGroupException {        
         PeerGroupID gid = peerGroupAdvertisement.getPeerGroupID();
 
-        if ((gid == null) || ID.nullID.equals(gid)) {
+        if ((gid == null) || ID.NULL_ID.equals(gid)) {
             throw new IllegalArgumentException("Advertisement did not contain a peer group ID");
         }
 
@@ -1391,7 +1391,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     @Override
     public PeerGroup newGroup(PeerGroupID peerGroupId) throws PeerGroupException {
-        if ((peerGroupId == null) || ID.nullID.equals(peerGroupId)) {
+        if ((peerGroupId == null) || ID.NULL_ID.equals(peerGroupId)) {
             throw new IllegalArgumentException("Invalid peer group ID");
         }
 

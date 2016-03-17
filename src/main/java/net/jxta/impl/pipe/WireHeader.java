@@ -71,11 +71,12 @@ import net.jxta.logging.Logging;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import net.jxta.pipe.PipeID;
 
 /**
  * This class implements a JXTA-WIRE header.
  */
-public class WireHeader {
+public final class WireHeader {
 
     private final static Logger LOG = Logging.getLogger(WireHeader.class.getName());
 
@@ -86,8 +87,8 @@ public class WireHeader {
     private static final String TTLTag = "TTL";
     private static final String PeerTag = "VisitedPeer";
 
-    private ID srcPeer = ID.nullID;
-    private ID pipeID = ID.nullID;
+    private ID srcPeer = ID.NULL_ID;
+    private PipeID pipeId = (PipeID) ID.NULL_ID;
     private String msgId = null;
     private int TTL = Integer.MIN_VALUE;
 
@@ -121,12 +122,12 @@ public class WireHeader {
         this.msgId = id;
     }
 
-    public ID getPipeID() {
-        return pipeID;
+    public PipeID getPipeID() {
+        return pipeId;
     }
 
-    public void setPipeID(ID id) {
-        this.pipeID = id;
+    public void setPipeID(PipeID pipeId) {
+        this.pipeId = pipeId;
     }
 
     /**
@@ -154,7 +155,7 @@ public class WireHeader {
         if (elem.getName().equals(PipeIdTag)) {
             try {
                 URI pipeID = new URI(elem.getTextValue());
-                setPipeID(IDFactory.fromURI(pipeID));
+                setPipeID((PipeID) IDFactory.fromURI(pipeID));
             } catch (URISyntaxException badID) {
                 throw new IllegalArgumentException("Bad pipe ID in header");
             }
@@ -211,7 +212,7 @@ public class WireHeader {
             throw new IllegalArgumentException("Header does not contain a message id");
         }
 
-        if (ID.nullID == getPipeID()) {
+        if (ID.NULL_ID == getPipeID()) {
             throw new IllegalArgumentException("Header does not contain a pipe id");
         }
 
@@ -238,7 +239,7 @@ public class WireHeader {
             throw new IllegalStateException("Message id is not initialized");
         }
 
-        if (ID.nullID == getPipeID()) {
+        if (ID.NULL_ID == getPipeID()) {
             throw new IllegalStateException("PipeID is not initialized");
         }
 
@@ -247,7 +248,7 @@ public class WireHeader {
         }
 
         Element e;
-        if ((srcPeer != null) && (srcPeer != ID.nullID)) {
+        if ((srcPeer != null) && (srcPeer != ID.NULL_ID)) {
             e = doc.createElement(SrcTag, srcPeer.toString());
             doc.appendChild(e);
         }

@@ -74,8 +74,7 @@ public class PipeAdvertisementTest extends TestCase {
     private static final String TestName = "Testing J2SE JXTA Pipe (����)";
     private static final String TestType = "SuperPipe";
     private static final String TestDescription = "Testing J2SE JXTA Pipe desc (����)";
-    private static final PipeID TestPipeID = (PipeID) ID.create(
-            URI.create("urn:jxta:uuid-59616261646162614A787461503250336ACC981CFAF047CFADA8A31FC6D0B88C04"));
+    private static final PipeID TestPipeID = (PipeID) ID.create(URI.create("urn:jxta:uuid-59616261646162614A787461503250336ACC981CFAF047CFADA8A31FC6D0B88C04"));
 
     /**
      * Constructor for PipeAdvertisementTest.
@@ -136,13 +135,16 @@ public class PipeAdvertisementTest extends TestCase {
 
     public void testClone() {
         PipeAdvertisement pipe1 = buildPipe();
-        PipeAdvertisement pipe2 = pipe1.clone();
-
-        assertEquals("Name is corrupted", pipe1.getName(), pipe2.getName());
-        assertEquals("Desc is corrupted", pipe1.getDesc().toString(), pipe2.getDesc().toString());
-        assertEquals("PipeID is corrupted", pipe1.getPipeID(), pipe2.getPipeID());
-        assertEquals("Pipe type is corrupted", pipe1.getType(), pipe2.getType());
-
+        PipeAdvertisement pipe2;
+        try {
+            pipe2 = pipe1.clone();
+            assertEquals("Name is corrupted", pipe1.getName(), pipe2.getName());
+            assertEquals("Desc is corrupted", pipe1.getDesc().toString(), pipe2.getDesc().toString());
+            assertEquals("PipeID is corrupted", pipe1.getPipeID(), pipe2.getPipeID());
+            assertEquals("Pipe type is corrupted", pipe1.getType(), pipe2.getType());
+        } catch (CloneNotSupportedException cloneNotSupportedException) {
+            fail(cloneNotSupportedException.getMessage());
+        }        
         // FIXME: test services
     }
 

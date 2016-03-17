@@ -296,7 +296,7 @@ public class PeerAdv extends PeerAdvertisement {
 
         PeerID peerID = getPeerID();
 
-        if ((null == peerID) || ID.nullID.equals(peerID)) {
+        if ((null == peerID) || ID.NULL_ID.equals(peerID)) {
             throw new IllegalStateException("Cannot generate Peer Advertisement with no Peer ID!");
         }
         Element e = adv.createElement(pidTag, peerID.toString());
@@ -305,7 +305,7 @@ public class PeerAdv extends PeerAdvertisement {
 
         PeerGroupID groupID = getPeerGroupID();
 
-        if ((null == groupID) || ID.nullID.equals(groupID)) {
+        if ((null == groupID) || ID.NULL_ID.equals(groupID)) {
             throw new IllegalStateException("Cannot generate Peer Advertisement with no group ID!");
         } else {
             e = adv.createElement(gidTag, groupID.toString());

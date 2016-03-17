@@ -56,10 +56,13 @@
 
 package net.jxta.id;
 
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.pipe.PipeID;
+
 /**
  * The NullID is often used as a placeholder in fields which are uninitialized.
  */
-public final class NullID extends ID {
+public final class NullPipeID extends PipeID {
 
     final static String JXTA_FORMAT = "jxta";
 
@@ -69,7 +72,7 @@ public final class NullID extends ID {
      *  NullID is not intended to be constructed. You should use the
      *  {@link #NULL_ID} constant instead.
      */
-    NullID() {
+    public NullPipeID() {
     }
 
     /**
@@ -101,6 +104,11 @@ public final class NullID extends ID {
     @Override
     public Object getUniqueValue() {
         return getIDFormat() + "-" + UNIQUE_VALUE;
+    }
+
+    @Override
+    public PeerGroupID getPeerGroupID() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
 

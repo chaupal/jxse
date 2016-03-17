@@ -191,6 +191,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.content.ContentID newContentID(
             net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
             InputStream indexSeed, InputStream variant )
@@ -203,6 +204,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.peergroup.PeerGroupID newPeerGroupID() {
         return new PeerGroupID();
     }
@@ -210,6 +212,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.peergroup.PeerGroupID newPeerGroupID(byte[] seed) {
         return new PeerGroupID(seed);
     }
@@ -217,6 +220,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.peergroup.PeerGroupID newPeerGroupID(net.jxta.peergroup.PeerGroupID parent) {
         PeerGroupID  parentGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(parent);
 
@@ -226,6 +230,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.peergroup.PeerGroupID newPeerGroupID(net.jxta.peergroup.PeerGroupID parent, byte[] seed) {
         PeerGroupID  parentGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(parent);
 
@@ -235,6 +240,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID) {
         PeerGroupID  peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
 
@@ -244,6 +250,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID, byte[] seed) {
         PeerGroupID  peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
 
@@ -253,6 +260,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.pipe.PipeID newPipeID(net.jxta.peergroup.PeerGroupID groupID) {
         PeerGroupID  peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
 
@@ -262,6 +270,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public net.jxta.pipe.PipeID newPipeID(net.jxta.peergroup.PeerGroupID groupID, byte[] seed) {
         PeerGroupID  peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
 
@@ -295,7 +304,7 @@ public class Instantiator implements IDFactory.Instantiator {
     public net.jxta.id.ID fromURI(URI source) throws URISyntaxException {
 
         // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
+        if (!net.jxta.id.ID.URI_ENCODING_NAME.equalsIgnoreCase(source.getScheme())) {
             throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
         }
 
@@ -309,10 +318,10 @@ public class Instantiator implements IDFactory.Instantiator {
         }
 
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
+        if (!net.jxta.id.ID.URN_NAMESPACE.equalsIgnoreCase(decoded.substring(0, colonAt))) {
             throw new URISyntaxException(source.toString()
                     ,
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
+                    "URN namespace was not as expected. (" + net.jxta.id.ID.URN_NAMESPACE + "!=" + decoded.substring(0, colonAt)
                     + ")");
         }
 

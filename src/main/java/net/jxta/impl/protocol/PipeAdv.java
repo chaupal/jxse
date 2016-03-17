@@ -75,6 +75,7 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import net.jxta.pipe.PipeID;
 
 /**
  * This class implements the Pipe Advertisement according to the schema used by
@@ -141,7 +142,8 @@ public class PipeAdv extends PipeAdvertisement {
     /**
      *  Private constructor for new instances. Use the instantiator.
      */
-    private PipeAdv() {}
+    private PipeAdv() {
+    }
 
     /**
      *  Private constructor for xml serialized instances. Use the instantiator.
@@ -176,7 +178,7 @@ public class PipeAdv extends PipeAdvertisement {
         }
 
         // Sanity Check!!!
-        if ((null == getPipeID()) || getPipeID().equals(ID.nullID)) {
+        if ((null == getPipeID()) || getPipeID().equals(ID.NULL_ID)) {
             throw new IllegalArgumentException("Bad pipe ID in advertisement");
         }
 
@@ -225,7 +227,7 @@ public class PipeAdv extends PipeAdvertisement {
             try {
                 URI pipeID = new URI(value);
 
-                setPipeID(IDFactory.fromURI(pipeID));
+                setPipeID((PipeID) IDFactory.fromURI(pipeID));
             } catch (URISyntaxException badID) {
                 throw new IllegalArgumentException("Bad pipe ID in advertisement");
             } catch (ClassCastException badID) {
@@ -258,7 +260,7 @@ public class PipeAdv extends PipeAdvertisement {
 
         ID itsID = getPipeID();
 
-        if ((null == itsID) || itsID.equals(ID.nullID)) {
+        if ((null == itsID) || itsID.equals(ID.NULL_ID)) {
             throw new IllegalStateException("Pipe has no assigned ID");
         }
 

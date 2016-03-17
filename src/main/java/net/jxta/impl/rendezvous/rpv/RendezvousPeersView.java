@@ -628,7 +628,7 @@ public final class RendezvousPeersView implements EndpointListener, RendezvousLi
 
                 try {
 
-                    String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
+                    String idstr = ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":" + srcAddr.getProtocolAddress();
                     ID asID = IDFactory.fromURI(new URI(idstr));
                     PeerViewElement pve = getPeerViewElement(asID);
 

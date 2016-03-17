@@ -109,18 +109,21 @@ public class PipeID extends net.jxta.pipe.PipeID {
 
     /**
      *  See {@link net.jxta.id.IDFactory.Instantiator#newPipeID(net.jxta.peergroup.PeerGroupID)}.
+     * @param peerGroupId
      */
-    public PipeID(PeerGroupID groupID) {
-        this(groupID.getUUID(), UUIDFactory.newUUID());
+    public PipeID(PeerGroupID peerGroupId) {
+        this(peerGroupId.getUUID(), UUIDFactory.newUUID());
     }
 
     /**
      *  See {@link net.jxta.id.IDFactory.Instantiator#newPipeID(net.jxta.peergroup.PeerGroupID,byte[])}.
+     * @param peerGroupId
+     * @param seed
      */
-    public PipeID(PeerGroupID groupID, byte[] seed) {
+    public PipeID(PeerGroupID peerGroupId, byte[] seed) {
         this();
 
-        UUID groupUUID = groupID.getUUID();
+        UUID groupUUID = peerGroupId.getUUID();
 
         id.longIntoBytes(PipeID.groupIdOffset, groupUUID.getMostSignificantBits());
         id.longIntoBytes(PipeID.groupIdOffset + 8, groupUUID.getLeastSignificantBits());
@@ -184,12 +187,12 @@ public class PipeID extends net.jxta.pipe.PipeID {
      *  {@inheritDoc}
      */
     @Override
-    public net.jxta.id.ID getPeerGroupID() {
+    public PeerGroupID getPeerGroupID() {
         UUID groupUUID = new UUID(id.bytesIntoLong(PipeID.groupIdOffset), id.bytesIntoLong(PipeID.groupIdOffset + 8));
 
         PeerGroupID groupID = new PeerGroupID(groupUUID);
 
         // convert to the generic world PGID as necessary
-        return IDFormat.translateToWellKnown(groupID);
+        return (PeerGroupID) IDFormat.translateToWellKnown(groupID);
     }
 }

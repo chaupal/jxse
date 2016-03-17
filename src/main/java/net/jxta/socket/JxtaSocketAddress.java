@@ -63,6 +63,8 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.net.SocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class implements a JxtaSocket address (PeerGroup ID + Pipe Advertisement
@@ -92,33 +94,35 @@ public class JxtaSocketAddress extends SocketAddress {
      *
      * @param peerGroup peer group within which this socket exists
      * @param pipeAdv   the advertisement of a pipe for the socket to listen on
+     * @throws java.lang.CloneNotSupportedException
      */
-    public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdv) {
+    public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdv) throws CloneNotSupportedException {
     	this.pipeAdv = pipeAdv.clone();
-		this.peerGroupId = peerGroup.getPeerGroupID();
-		this.peerId = null;
-		this.peerAdv = null;
+        this.peerGroupId = peerGroup.getPeerGroupID();
+        this.peerId = null;
+        this.peerAdv = null;
     }
 
     /**
      * Creates a new instance of JxtaSocketAddress.
      *
      * @param peerGroup peer group within which this socket exists
-     * @param pipeAdv   the advertisement of a pipe for the socket to listen on
+     * @param pipeAdvertisement   the advertisement of a pipe for the socket to listen on
      * @param peerAdv   the PeerAdvertisement (may not be null)
+     * @throws java.lang.CloneNotSupportedException
      */
-    public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdv, PeerAdvertisement peerAdv) {
+    public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdvertisement, PeerAdvertisement peerAdv) throws CloneNotSupportedException {
         if (peerGroup == null) {
             throw new IllegalArgumentException("peerGroupId is required.");
         }
-        if (pipeAdv == null) {
+        if (pipeAdvertisement == null) {
             throw new IllegalArgumentException("pipeAdv is required.");
         }
         if (peerAdv == null) {
             throw new IllegalArgumentException("pipeAdv is required.");
         }
 
-        this.pipeAdv = pipeAdv.clone();
+        this.pipeAdv = pipeAdvertisement.clone();
         this.peerGroupId = peerGroup.getPeerGroupID();
         this.peerId = peerAdv.getPeerID();
         this.peerAdv = peerAdv.clone();
@@ -138,9 +142,15 @@ public class JxtaSocketAddress extends SocketAddress {
      *
      * @return the PipeAdvertisement
      */
-    public PipeAdvertisement getPipeAdv() {
-        // preserve immutability
-        return pipeAdv.clone();
+    public PipeAdvertisement getPipeAdvertisement() {
+        try {
+            // preserve immutability
+            return pipeAdv.clone();
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(JxtaSocketAddress.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
 
     /**
@@ -174,7 +184,7 @@ public class JxtaSocketAddress extends SocketAddress {
             if (!peerGroupId.equals(addr.getPeerGroupId())) {
                 return false;
             }
-            if (!pipeAdv.equals(addr.getPipeAdv())) {
+            if (!pipeAdv.equals(addr.getPipeAdvertisement())) {
                 return false;
             }
             if (peerId != null) {

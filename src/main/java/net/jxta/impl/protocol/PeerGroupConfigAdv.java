@@ -318,7 +318,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
      */
     @Override
     public ID getID() {
-        return ID.nullID;
+        return ID.NULL_ID;
     }
 
     /**

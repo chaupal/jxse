@@ -235,7 +235,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
 
         ID pipeID = getPipeID();
 
-        if ((null == pipeID) || ID.nullID.equals(pipeID) || !(pipeID instanceof PipeID)) {
+        if ((null == pipeID) || ID.NULL_ID.equals(pipeID) || !(pipeID instanceof PipeID)) {
             throw new IllegalArgumentException("Input Pipe ID not set or invalid");
         }
 
@@ -274,7 +274,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
 
         ID pipeID = getPipeID();
 
-        if ((null == pipeID) || ID.nullID.equals(pipeID) || !(pipeID instanceof PipeID)) {
+        if ((null == pipeID) || ID.NULL_ID.equals(pipeID) || !(pipeID instanceof PipeID)) {
             throw new IllegalStateException("Pipe ID not set or invalid.");
         }
 

@@ -235,7 +235,7 @@ public class CmXIndiceImplTest {
             PipeAdvertisement adv = generatePipeAdv(i);
 
             advID = adv.getID();
-            if (advID == null || advID.equals(ID.nullID)) {
+            if (advID == null || advID.equals(ID.NULL_ID)) {
                 advName = CacheManager.createTmpName(doc);
             } else {
                 advName = advID.getUniqueValue().toString();

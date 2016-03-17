@@ -472,11 +472,11 @@ public final class NetPeerGroupFactory {
             try {
                 String idTmpStr = rsrcs.getString("NetPeerGroupID").trim();
 
-                if (idTmpStr.startsWith(ID.URNNamespace + ":")) {
+                if (idTmpStr.startsWith(ID.URN_NAMESPACE + ":")) {
                     idTmpStr = idTmpStr.substring(5);
                 }
                 
-                idTmp = IDFactory.fromURI(new URI(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + idTmpStr));
+                idTmp = IDFactory.fromURI(new URI(ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":" + idTmpStr));
                 nameTmp = rsrcs.getString("NetPeerGroupName").trim();
                 descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", rsrcs.getString("NetPeerGroupDesc").trim());
             } catch (Exception failed) {

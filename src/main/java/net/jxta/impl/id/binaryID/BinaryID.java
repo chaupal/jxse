@@ -277,7 +277,7 @@ public class BinaryID implements Serializable {
         } else if (target instanceof BinaryID) {
             result = encodedValue().equals(((BinaryID) target).encodedValue());
             LOG.fine("((BinaryID)target).encodedValue():" + ((BinaryID) target).encodedValue());
-        } else if (target instanceof net.jxta.id.ID && ((net.jxta.id.ID) target) == net.jxta.id.ID.nullID
+        } else if (target instanceof net.jxta.id.ID && ((net.jxta.id.ID) target) == net.jxta.id.ID.NULL_ID
                 && nullBinaryID.encodedValue().equals(encodedValue())) {
             result = true;
         }

@@ -85,7 +85,7 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * singleton classes which match those textual names.
      */
     final static Object[][] wellKnownIDs = {
-        { net.jxta.id.ID.nullID.getUniqueValue(), net.jxta.id.ID.nullID},
+        { net.jxta.id.ID.NULL_ID.getUniqueValue(), net.jxta.id.ID.NULL_ID},
         { net.jxta.peergroup.PeerGroupID.WORLD_PEER_GROUP_ID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.WORLD_PEER_GROUP_ID},
         { net.jxta.peergroup.PeerGroupID.NET_PEER_GROUP_ID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.NET_PEER_GROUP_ID}
     };
@@ -274,7 +274,7 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
     public ID fromURI(URI source) throws URISyntaxException {
 
         // check the protocol
-        if (!ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
+        if (!ID.URI_ENCODING_NAME.equalsIgnoreCase(source.getScheme())) {
             throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
         }
 
@@ -288,10 +288,10 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
         }
 
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
+        if (!net.jxta.id.ID.URN_NAMESPACE.equalsIgnoreCase(decoded.substring(0, colonAt))) {
             throw new URISyntaxException(source.toString()
                     ,
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
+                    "URN namespace was not as expected. (" + net.jxta.id.ID.URN_NAMESPACE + "!=" + decoded.substring(0, colonAt)
                     + ")");
         }
 

@@ -59,6 +59,8 @@ package net.jxta.pipe;
 import net.jxta.id.ID;
 
 import java.net.URI;
+import net.jxta.id.NullPipeID;
+import net.jxta.peergroup.PeerGroupID;
 
 /**
  * This class implements a Pipe ID. Each pipe is assigned a unique id.
@@ -69,8 +71,16 @@ import java.net.URI;
  * @see net.jxta.pipe.PipeService
  * @see net.jxta.protocol.PipeAdvertisement
  */
-public abstract class PipeID extends ID {
-
+public abstract class PipeID extends ID {        
+    
+    /**
+     *	The null ID. The NullID is often used as a placeholder in fields which
+     *  are uninitialized.
+     *
+     *  <p/>This is a singleton within the scope of a VM.
+     */
+    public static final PipeID NULL_ID = (new NullPipeID()).intern();
+    
     /**
      * Creates an ID by parsing the given URI.
      *
@@ -100,6 +110,7 @@ public abstract class PipeID extends ID {
     /**
      *  {@inheritDoc}
      */
+    @Override
     public PipeID intern() {
         return (PipeID) super.intern();
     }
@@ -109,5 +120,5 @@ public abstract class PipeID extends ID {
      *
      * @return The PeerGroupID of the Peer Group to which this Pipe ID belongs.
      */
-    public abstract ID getPeerGroupID();
+    public abstract PeerGroupID getPeerGroupID();            
 }

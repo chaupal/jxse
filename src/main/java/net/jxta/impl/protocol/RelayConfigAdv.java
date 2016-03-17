@@ -444,7 +444,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
      */
     @Override
     public ID getID() {
-        return ID.nullID;
+        return ID.NULL_ID;
     }
 
     /**

@@ -70,6 +70,7 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import net.jxta.pipe.PipeID;
 
 /**
  * An implementation of Output Pipe which sends messages on the pipe
@@ -98,7 +99,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
     /**
      * The advertisement we were created from.
      */
-    private final PipeAdvertisement pAdv;
+    private final PipeAdvertisement pipeAdvertisement;
 
     /**
      * The set of peers to which messages on this pipe are sent. If empty then
@@ -115,14 +116,12 @@ class NonBlockingWireOutputPipe implements OutputPipe {
      * @param peers the set of peers we allow this pipe to be bound to.
      */
     public NonBlockingWireOutputPipe(PeerGroup group, WirePipe wire, PipeAdvertisement pAdv, Set<? extends ID> peers) {
-
         peerGroup = group;
         this.wire = wire;
-        this.destPeers = new HashSet<ID>(peers);
-        this.pAdv = pAdv;
+        this.destPeers = new HashSet<>(peers);
+        this.pipeAdvertisement = pAdv;
 
         Logging.logCheckedInfo(LOG, "Constructing for ", getPipeID());
-
     }
 
     /**
@@ -141,6 +140,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClosed() {
         return closed;
     }
@@ -148,34 +148,39 @@ class NonBlockingWireOutputPipe implements OutputPipe {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getType() {
-        return pAdv.getType();
+        return pipeAdvertisement.getType();
     }
 
     /**
      * {@inheritDoc}
      */
-    public final ID getPipeID() {
-        return pAdv.getPipeID();
+    @Override
+    public final PipeID getPipeID() {
+        return pipeAdvertisement.getPipeID();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getName() {
-        return pAdv.getName();
+        return pipeAdvertisement.getName();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final PipeAdvertisement getAdvertisement() {
-        return pAdv;
+        return pipeAdvertisement;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean send(Message message) throws IOException {
         if (closed) {
             // also throw it here to void the extra operations

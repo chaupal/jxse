@@ -754,7 +754,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         ID result = null;
 
         // check the protocol
-        if (!ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
+        if (!ID.URI_ENCODING_NAME.equalsIgnoreCase(source.getScheme())) {
             throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
         }
 
@@ -768,10 +768,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         }
 
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
+        if (!net.jxta.id.ID.URN_NAMESPACE.equalsIgnoreCase(decoded.substring(0, colonAt))) {
             throw new URISyntaxException(source.toString(),
                     "URN namespace was not as expected. (" +
-                    net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt) + ")");
+                    net.jxta.id.ID.URN_NAMESPACE + "!=" + decoded.substring(0, colonAt) + ")");
         }
 
         // skip the namespace portion and the colon

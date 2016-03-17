@@ -525,7 +525,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         }
 
         // Create a Peer EndpointAddress
-        EndpointAddress dstPAddr = mkAddress(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + addr.getProtocolAddress(),
+        EndpointAddress dstPAddr = mkAddress(ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":" + addr.getProtocolAddress(),
                 null,
                 null);
 

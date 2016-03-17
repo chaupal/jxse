@@ -88,7 +88,7 @@ public class MetricUtilities {
         try {
             peerId = (PeerID) IDFactory.fromURI(
                     new URI(
-                            ID.URIEncodingName + ":" + endpointAddress.getProtocolName() + ":"
+                            ID.URI_ENCODING_NAME + ":" + endpointAddress.getProtocolName() + ":"
                             + endpointAddress.getProtocolAddress()));
         } catch (URISyntaxException e) {
             peerId = BAD_PEERID;

@@ -387,7 +387,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
         // peer ID is optional. (at least for the PlatformConfig it is)
         PeerID peerID = getPeerID();
 
-        if ((null != peerID) && !ID.nullID.equals(peerID)) {
+        if ((null != peerID) && !ID.NULL_ID.equals(peerID)) {
             e = adv.createElement(PID_TAG, peerID.toString());
             adv.appendChild(e);
         }

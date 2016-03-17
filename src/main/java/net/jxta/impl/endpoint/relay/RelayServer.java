@@ -111,6 +111,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import net.jxta.pipe.PipeID;
 
 /**
  * Relay server that maintains outgoing message queues, leases, etc.
@@ -169,6 +170,9 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
     /**
      * constructor
+     * @param group
+     * @param serviceName
+     * @param relayConfigAdv
      */
     public RelayServer(PeerGroup group, String serviceName, RelayConfigAdv relayConfigAdv) {
 
@@ -233,6 +237,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
     /**
      * Debug routine: returns the list of relayedClients with details.
+     * @return 
      */
     public List<String> getRelayedClients() {
         List<String> res = new ArrayList<String>();
@@ -256,20 +261,14 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         selectorThread.start();
 
         if ((messengerEventListener = endpointService.addMessageTransport(this)) == null) {
-
             Logging.logCheckedError(LOG, "Transport registration refused");
             return false;
-
         }
 
         try {
-
             discoveryService.publish(createRdvAdvertisement(group.getPeerAdvertisement(), serviceName));
-
         } catch (IOException e) {
-
             Logging.logCheckedWarning(LOG, "Could not publish Relay RdvAdvertisement\n", e);
-
         }
 
         // start cache relay servers
@@ -298,8 +297,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             try {
                 aClient.close();
             } catch (IOException ignored) {
-
-        }
+            }
         }
 
         relayedClients.clear();
@@ -320,6 +318,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getProtocolName() {
         return RelayTransport.protocolName;
     }
@@ -327,6 +326,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointService getEndpointService() {
         return endpointService;
     }
@@ -334,6 +334,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointAddress getPublicAddress() {
         return publicAddress;
     }
@@ -341,6 +342,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isConnectionOriented() {
         return true;
     }
@@ -348,6 +350,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean allowsRouting() {
         return true;
     }
@@ -355,6 +358,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public Messenger getMessenger(EndpointAddress destAddr) {
 //    public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
         Messenger messenger = null;
@@ -379,6 +383,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean messengerReady(MessengerEvent event) {
 
         Logging.logCheckedDebug(LOG, "messengerReady");
@@ -460,23 +465,18 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         EndpointAddress clientAddr = messenger.getLogicalDestinationAddress();
 
         if (clientAddr == null || !"jxta".equals(clientAddr.getProtocolName())) {
-
             Logging.logCheckedWarning(LOG, "LogicalDestinationAddress is not a \"jxta\" protocol");
             return;
-
         }
 
         PeerID clientPeerID = RelayTransport.addr2pid(clientAddr);
 
         if (null == clientPeerID) {
-
             Logging.logCheckedWarning(LOG, "Bad client address : ", clientAddr);
             return;
-
         }
 
         handleRequest(request, clientPeerID, messenger);
-
     }
 
     protected void handleRequest(Message message, EndpointAddress dstAddr) {
@@ -491,20 +491,15 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         if (dstAddr.getServiceParameter().equals("unknown-unknown")) {
             if (!request.startsWith(RelayTransport.PID_REQUEST)) {
                 return;
-    }
+            }
 
             clientPeerID = null;
         } else {
-
             try {
-
-                clientPeerID = PeerID.create(new URI(ID.URIEncodingName, ID.URNNamespace + ":" + dstAddr.getServiceParameter(), null));
-
+                clientPeerID = PeerID.create(new URI(ID.URI_ENCODING_NAME, ID.URN_NAMESPACE + ":" + dstAddr.getServiceParameter(), null));
             } catch (URISyntaxException badURI) {
-
                 Logging.logCheckedWarning(LOG, "Bad client address : ", dstAddr.getServiceParameter());
                 return;
-
             }
         }
 
@@ -984,14 +979,13 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
     private static class RelayServerCache implements PipeMsgListener, Runnable {
 
-        final static ID pipeID = ID.create(
-                URI.create("urn:jxta:uuid-59616261646162614E50472050325033DEADBEEFDEAFBABAFEEDBABE0000000F04"));
+        final static PipeID pipeID = (PipeID) ID.create(URI.create("urn:jxta:uuid-59616261646162614E50472050325033DEADBEEFDEAFBABAFEEDBABE0000000F04"));
         final RelayServer server;
         final PipeAdvertisement pipeAdv;
         InputPipe inputPipe = null;
         volatile boolean doRun = false;
         Thread cacheThread = null;
-        final Map<String, RdvAdvertisement> relayAdvCache = new HashMap<String, RdvAdvertisement>();
+        final Map<String, RdvAdvertisement> relayAdvCache = new HashMap<>();
         final Random rand = new Random();
 
         protected RelayServerCache(RelayServer server) {
@@ -1144,7 +1138,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                     try {
 
-                        otherPid = (PeerID) IDFactory.fromURI(new URI(ID.URIEncodingName, ID.URNNamespace + ":" + peerId, null));
+                        otherPid = (PeerID) IDFactory.fromURI(new URI(ID.URI_ENCODING_NAME, ID.URN_NAMESPACE + ":" + peerId, null));
 
                     } catch (Exception ex) {
 

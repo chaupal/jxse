@@ -153,13 +153,13 @@ public class PipeID extends net.jxta.impl.id.UUID.PipeID {
      * {@inheritDoc}
      */
     @Override
-    public net.jxta.id.ID getPeerGroupID() {
+    public PeerGroupID getPeerGroupID() {
         UUID groupCBID = new UUID(id.bytesIntoLong(PipeID.groupIdOffset), id.bytesIntoLong(PipeID.groupIdOffset + 8));
 
         PeerGroupID groupID = new PeerGroupID(groupCBID);
 
         // convert to the generic world PGID as necessary
-        return IDFormat.translateToWellKnown(groupID);
+        return (PeerGroupID) IDFormat.translateToWellKnown(groupID);
     }
 
     /**

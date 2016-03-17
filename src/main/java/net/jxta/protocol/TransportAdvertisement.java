@@ -116,7 +116,7 @@ public abstract class TransportAdvertisement extends ExtendableAdvertisement {
      */
     @Override
     public ID getID() {
-        return ID.nullID;
+        return ID.NULL_ID;
     }
 
     /**

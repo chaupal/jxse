@@ -246,9 +246,9 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
 
         Instantiator instantiator = factory.getInstantiator(advertisementType);
 
-        Advertisement a = instantiator.newInstance();
+        Advertisement advertisement = instantiator.newInstance();
 
-        return a;
+        return advertisement;
     }
 
     /**

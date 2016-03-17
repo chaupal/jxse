@@ -85,6 +85,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * JxtaServerSocket is a bi-directional Pipe that behaves very much like
@@ -528,7 +529,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                         + ". No running instance of the group is registered.");
             }
 //            bind(pg.getWeakInterface(), socketAddress.getPipeAdv(), backlog);
-            bind(pg, socketAddress.getPipeAdv(), backlog);
+            bind(pg, socketAddress.getPipeAdvertisement(), backlog);
 //            pg.unref();
         } else {
             throw new IllegalArgumentException("Unsupported subclass of SocketAddress; " + "use JxtaSocketAddress instead.");
@@ -576,7 +577,13 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     @Override
     public SocketAddress getLocalSocketAddress() {
-        return new JxtaSocketAddress(getGroup(), getPipeAdv());
+        try {
+            return new JxtaSocketAddress(getGroup(), getPipeAdv());
+        } catch (CloneNotSupportedException ex) {
+            java.util.logging.Logger.getLogger(JxtaServerSocket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
 
     /**

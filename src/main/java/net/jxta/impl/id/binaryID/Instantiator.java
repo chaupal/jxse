@@ -103,7 +103,7 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
     public net.jxta.id.ID fromURI(URI source) throws URISyntaxException {
 
         // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
+        if (!net.jxta.id.ID.URI_ENCODING_NAME.equalsIgnoreCase(source.getScheme())) {
             throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
         }
 
@@ -117,10 +117,10 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
         }
 
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
+        if (!net.jxta.id.ID.URN_NAMESPACE.equalsIgnoreCase(decoded.substring(0, colonAt))) {
             throw new URISyntaxException(source.toString()
                     ,
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
+                    "URN namespace was not as expected. (" + net.jxta.id.ID.URN_NAMESPACE + "!=" + decoded.substring(0, colonAt)
                     + ")");
         }
 

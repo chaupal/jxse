@@ -80,6 +80,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import net.jxta.pipe.PipeID;
 
 /**
  * The Wire (Propagated) Pipe Service.
@@ -264,7 +265,7 @@ public class WirePipeImpl implements EndpointListener {
      * @param create if true create one if one does not exist
      * @return the wire pipe
      */
-    private WirePipe getWirePipe(ID pipeID, boolean create) {
+    private WirePipe getWirePipe(PipeID pipeID, boolean create) {
         WirePipe wirePipe;
 
         synchronized (wirePipes) {

@@ -129,6 +129,6 @@ public final class ID extends net.jxta.id.ID {
      **/
     @Override
     public URI toURI() {
-        return URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + getUniqueValue());
+        return URI.create(ID.URI_ENCODING_NAME + ":" + ID.URN_NAMESPACE + ":" + getUniqueValue());
     }
 }

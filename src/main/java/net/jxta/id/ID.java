@@ -88,7 +88,7 @@ public abstract class ID implements java.io.Serializable {
      * Collection of interned IDs. All IDs visible within in the VM are
      * contained within this table.
      */
-    private static final Map<ID, WeakReference<ID>> interned = new WeakHashMap<ID, WeakReference<ID>>(1000);
+    private static final Map<ID, WeakReference<ID>> interned = new WeakHashMap<>(1000);
 
     /**
      * This defines the URI scheme that we will be using to present JXTA IDs.
@@ -98,14 +98,14 @@ public abstract class ID implements java.io.Serializable {
      * {@link <a href="http://www.ietf.org/rfc/rfc2141.txt">IETF RFC 2141 Uniform Resource Names (URN) Syntax</a>}
      * ).
      */
-    public static final String URIEncodingName = "urn";
+    public static final String URI_ENCODING_NAME = "urn";
 
     /**
      *  This defines the URN Namespace that we will be using to present JXTA IDs.
      *  The namespace allows URN resolvers to determine which sub-resolver to use
      *  to resolve URN references. All JXTA IDs are presented in this namespace.
      */
-    public static final String URNNamespace = "jxta";
+    public static final String URN_NAMESPACE = "jxta";
 
     /**
      *	The null ID. The NullID is often used as a placeholder in fields which
@@ -113,7 +113,7 @@ public abstract class ID implements java.io.Serializable {
      *
      *  <p/>This is a singleton within the scope of a VM.
      */
-    public static final ID nullID = (new NullID()).intern();
+    public static final ID NULL_ID = (new NullID()).intern();
 
     /**
      *
@@ -143,10 +143,7 @@ public abstract class ID implements java.io.Serializable {
         try {
             return IDFactory.fromURI(fromURI);
         } catch (URISyntaxException badid) {
-            IllegalArgumentException failure = new IllegalArgumentException();
-
-            failure.initCause(badid);
-            throw failure;
+            throw new IllegalArgumentException(badid);
         }
     }
 
@@ -155,7 +152,8 @@ public abstract class ID implements java.io.Serializable {
      *  {@link #create(URI)}.
      *
      */
-    protected ID() {}
+    protected ID() {
+    }
 
     /**
      *  Returns a string representation of the ID. This representation should be
@@ -229,7 +227,7 @@ public abstract class ID implements java.io.Serializable {
             }
 
             if (null == result) {
-                interned.put(this, new WeakReference<ID>(this));
+                interned.put(this, new WeakReference<>(this));
                 result = this;
             }
 
@@ -248,6 +246,6 @@ public abstract class ID implements java.io.Serializable {
      *  @return	URI Object containing the URI
      */
     public URI toURI() {
-        return URI.create(URIEncodingName + ":" + URNNamespace + ":" + getUniqueValue());
-    }
+        return URI.create(URI_ENCODING_NAME + ":" + URN_NAMESPACE + ":" + getUniqueValue());
+    }         
 }

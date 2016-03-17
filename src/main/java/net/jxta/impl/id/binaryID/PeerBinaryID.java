@@ -159,7 +159,7 @@ public final class PeerBinaryID extends net.jxta.peer.PeerID {
     @Override
     public Object getUniqueValue() {
         if (null == id) { 
-            return ID.nullID.getUniqueValue();
+            return ID.NULL_ID.getUniqueValue();
         }
 
         return new StringBuilder().append(getIDFormat()).append("-").append(id).toString();
@@ -172,7 +172,7 @@ public final class PeerBinaryID extends net.jxta.peer.PeerID {
     public net.jxta.id.ID getPeerGroupID() {
         try {
             if (id == null) {
-                return net.jxta.id.ID.nullID;
+                return net.jxta.id.ID.NULL_ID;
             }
             String idd = id;
             int parentStart = idd.indexOf('.');

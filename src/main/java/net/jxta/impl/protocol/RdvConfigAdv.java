@@ -439,7 +439,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      */
     @Override
     public ID getID() {
-        return ID.nullID;
+        return ID.NULL_ID;
     }
 
     /**

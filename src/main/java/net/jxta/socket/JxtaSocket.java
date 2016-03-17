@@ -114,6 +114,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -620,7 +621,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     + ". No running instance of the group is registered.");
         }
 //        connect(pg.getWeakInterface(), socketAddress.getPeerId(), socketAddress.getPipeAdv(), timeout);
-        connect(pg, socketAddress.getPeerId(), socketAddress.getPipeAdv(), timeout);
+        connect(pg, socketAddress.getPeerId(), socketAddress.getPipeAdvertisement(), timeout);
 //        pg.unref();
     }
 
@@ -1897,10 +1898,16 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     @Override
     public SocketAddress getLocalSocketAddress() {
-        if (!isBound()) {
-            return null;
+        try {
+            if (!isBound()) {
+                return null;
+            }
+            return new JxtaSocketAddress(group, localEphemeralPipeAdv, group.getPeerAdvertisement());
+        } catch (CloneNotSupportedException ex) {
+            java.util.logging.Logger.getLogger(JxtaSocket.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return new JxtaSocketAddress(group, localEphemeralPipeAdv, group.getPeerAdvertisement());
+        
+        return null;
     }
 
     /**
@@ -1908,10 +1915,16 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     @Override
     public SocketAddress getRemoteSocketAddress() {
-        if (!isConnected()) {
-            return null;
+        try {
+            if (!isConnected()) {
+                return null;
+            }
+            return new JxtaSocketAddress(group, remoteEphemeralPipeAdv, remotePeerAdv);
+        } catch (CloneNotSupportedException ex) {
+            java.util.logging.Logger.getLogger(JxtaSocket.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return new JxtaSocketAddress(group, remoteEphemeralPipeAdv, remotePeerAdv);
+        
+        return null;
     }
 
     /**
