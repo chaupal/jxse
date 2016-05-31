@@ -137,16 +137,15 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
         for (AccessPointAdvertisement apa : hops) {
             if (null == apa) {
-                throw new IllegalArgumentException("Bad route. null APA.");
+                throw new IllegalArgumentException("Bad route. AccessPointAdvertisement is null");
             }
 
             if (apa.getPeerID() == null) {
-                throw new IllegalArgumentException("Bad route. Incomplete APA.");
+                throw new IllegalArgumentException("Bad route. Incomplete AccessPointAdvertisement");
             }
         }
 
-        RouteAdvertisement route = (RouteAdvertisement)
-                AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
+        RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
 
         route.setDestPeerID(destPid);
 
