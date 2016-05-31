@@ -93,6 +93,7 @@ public class Cache {
         /**
          *  {@inheritDoc}
          **/
+        @Override
         public Object getKey() {
             return key;
         }
@@ -100,6 +101,7 @@ public class Cache {
         /**
          *  {@inheritDoc}
          **/
+        @Override
         public Object getValue() {
             return value;
         }
@@ -146,6 +148,7 @@ public class Cache {
     /**
      * Purges some of the cache.
      * The entries are cleaned-up properly.
+     * @param fraction
      */
     public void purge(int fraction) {
         if (size == 0) {

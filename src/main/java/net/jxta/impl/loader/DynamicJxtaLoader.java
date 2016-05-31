@@ -19,6 +19,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
      * Default compatibility equater instance.
      */
     private static final CompatibilityEquater COMP_EQ = new CompatibilityEquater() {
+        @Override
         public boolean compatible(Element<?> test) {
             return CompatibilityUtils.isCompatible(test);
         }
@@ -51,55 +52,72 @@ public class DynamicJxtaLoader implements IJxtaLoader {
         moduleLoader.removeModuleService( service );
     }
 
+    @Override
     public void addURL(URL url) {
         ref.addURL(url);
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         return (ClassLoader) ref;
     }
 
+    @Override
     public Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException {
-        for( IJxtaLoader loader: loaders ){
-                Class<? extends Module> clss = loader.findClass(spec);
-                if( clss != null )
-                        return clss;
+        for(IJxtaLoader loader: loaders) {
+            Class<? extends Module> clss = loader.findClass(spec);
+            
+            if(clss != null) {
+                return clss;
+            }
         }
         return null;
     }
 
+    @Override
     public Class<? extends Module> loadClass(ModuleSpecID spec) throws ClassNotFoundException {
-        for( IJxtaLoader loader: loaders ){
-                Class<? extends Module> clss = loader.loadClass(spec);
-                if( clss != null )
-                        return clss;
+        for (IJxtaLoader loader: loaders) {
+            Class<? extends Module> clss = loader.loadClass(spec);
+            
+            if(clss != null) {
+                return clss;
+            }
         }
         return null;
     }
 
+    @Override
     public Class<? extends Module> defineClass(ModuleImplAdvertisement impl) {
-        for( IJxtaLoader loader: loaders ){
-                Class<? extends Module> clss = loader.defineClass(impl);
-                if( clss != null )
-                        return clss;
+        for (IJxtaLoader loader: loaders) {
+            Class<? extends Module> clss = loader.defineClass(impl);
+            
+            if(clss != null) {
+                return clss;
+            }
         }
         return null;
     }
 
+    @Override
     public ModuleImplAdvertisement findModuleImplAdvertisement(Class<? extends Module> clazz) {
-        for( IJxtaLoader loader: loaders ){
-                ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(clazz);
-                if( implAdv != null )
-                        return implAdv;
+        for (IJxtaLoader loader: loaders) {
+            ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(clazz);
+            
+            if( implAdv != null ) {
+                return implAdv;
+            }
         }
         return null;
     }
 
+    @Override
     public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
-        for( IJxtaLoader loader: loaders ){
-                ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement( msid );
-                if( implAdv != null )
-                        return implAdv;
+        for (IJxtaLoader loader: loaders) {
+            ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(msid);
+            
+            if(implAdv != null) {
+                return implAdv;
+            }
         }
         return null;
     }
@@ -112,6 +130,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
             services = new ArrayList<IJxtaModuleService<Module>>();
         }
 
+        @Override
         public Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException {
             for( IJxtaModuleService<Module> service: services ){
                     if( service.getModuleSpecID().equals( spec ))
@@ -120,6 +139,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
             return null;
         }
 
+        @Override
         public Class<? extends Module> loadClass(ModuleSpecID spec) throws ClassNotFoundException {
             return this.findClass(spec);
         }
@@ -132,35 +152,43 @@ public class DynamicJxtaLoader implements IJxtaLoader {
             this.services.remove( service );
         }
 
+        @Override
         public Class<? extends Module> defineClass(ModuleImplAdvertisement impl) {
-            for( IJxtaModuleService<Module> service: services ){
-                    if( service.getModuleImplAdvertisement().equals( impl ))
-                            return service.getModule().getClass();
+            for (IJxtaModuleService<Module> service: services) {
+                if( service.getModuleImplAdvertisement().equals(impl)) {
+                    return service.getModule().getClass();
+                }
             }
             return null;
         }
 
+        @Override
         public ModuleImplAdvertisement findModuleImplAdvertisement(Class<? extends Module> clazz) {
-            for( IJxtaModuleService<Module> service: services ){
-                    if( service.getRepresentedClassName().equals( clazz.getCanonicalName() ))
-                            return service.getModuleImplAdvertisement();
+            for (IJxtaModuleService<Module> service: services ) {
+                if( service.getRepresentedClassName().equals( clazz.getCanonicalName())) {
+                    return service.getModuleImplAdvertisement();
+                }
             }
             return null;
         }
 
+        @Override
         public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
-            for( IJxtaModuleService<Module> service: services ){
-                    if( service.getModuleSpecID().equals( msid ))
-                            return service.getModuleImplAdvertisement();
+            for (IJxtaModuleService<Module> service: services) {
+                if( service.getModuleSpecID().equals(msid)) {
+                    return service.getModuleImplAdvertisement();
+                }
             }
             return null;
         }
 
+        @Override
         public void addURL(URL url) {
         }
 
+        @Override
         public ClassLoader getClassLoader() {
-                return null;
+            return null;
         }		
     }
 }

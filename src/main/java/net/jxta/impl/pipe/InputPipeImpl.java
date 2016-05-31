@@ -130,16 +130,18 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      */
     @Override
     protected synchronized void finalize() throws Throwable {
-
-        if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        if (!closed) {
+            Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        }
+        
         close();
         super.finalize();
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Message waitForMessage() throws InterruptedException {
         return poll(0);
     }
@@ -147,24 +149,20 @@ class InputPipeImpl implements EndpointListener, InputPipe {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Message poll(int timeout) throws InterruptedException {
-
         if (listener == null) {
-
             return queue.poll(timeout, TimeUnit.SECONDS);
-
         } else {
-
             Logging.logCheckedWarning(LOG, "poll() has no effect in listener mode.");
             return null;
-
         }
-
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void close() {
         if (closed) {
             return;
@@ -180,7 +178,6 @@ class InputPipeImpl implements EndpointListener, InputPipe {
         registrar = null;
 
         Logging.logCheckedInfo(LOG, "Closed ", pipeID);
-
     }
 
     /**
@@ -207,13 +204,9 @@ class InputPipeImpl implements EndpointListener, InputPipe {
             PipeMsgEvent event = new PipeMsgEvent(this, msg, (PipeID) pipeID);
 
             try {
-
                 temp.pipeMsgEvent(event);
-
             } catch (Throwable ignored) {
-
                 Logging.logCheckedError(LOG, "Uncaught Throwable in listener for : ", pipeID, "(", temp.getClass().getName(), ")\n", ignored);
-
             }
 
         } else {
@@ -239,6 +232,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      *
      * @return The type
      */
+    @Override
     public String getType() {
         return pipeAdv.getType();
     }
@@ -248,6 +242,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      *
      * @return The type
      */
+    @Override
     public ID getPipeID() {
         return pipeID;
     }
@@ -257,6 +252,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      *
      * @return The name
      */
+    @Override
     public String getName() {
         return pipeAdv.getName();
     }
@@ -266,6 +262,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      *
      * @return The advertisement
      */
+    @Override
     public PipeAdvertisement getAdvertisement() {
         return pipeAdv;
     }

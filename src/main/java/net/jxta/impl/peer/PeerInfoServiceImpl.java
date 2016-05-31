@@ -142,6 +142,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
 
@@ -184,6 +185,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
      * {@inheritDoc}
      * @param arg
      */
+    @Override
     public int startApp(String[] arg) {
 
         resolver = group.getResolverService();
@@ -219,6 +221,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopApp() {
 
         peerInfoServices.remove(group);
@@ -238,6 +241,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Advertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -267,6 +271,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLocalMonitoringAvailable() {
         return MeterBuildSettings.METERING;
     }
@@ -274,6 +279,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLocalMonitoringAvailable(ModuleClassID moduleClassID) {
         return MeterBuildSettings.METERING && monitorManager.isLocalMonitoringAvailable(moduleClassID);
     }
@@ -281,6 +287,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long[] getSupportedReportRates() {
         return MonitorManager.getReportRates();
     }
@@ -288,6 +295,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isSupportedReportRate(long reportRate) {
         return monitorManager.isSupportedReportRate(reportRate);
     }
@@ -295,6 +303,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getBestReportRate(long desiredReportRate) {
         return monitorManager.getBestReportRate(desiredReportRate);
     }
@@ -302,6 +311,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public PeerMonitorInfo getPeerMonitorInfo() {
         if (monitorManager != null) {
             return monitorManager.getPeerMonitorInfo();
@@ -313,6 +323,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void getPeerMonitorInfo(final PeerID peerID, PeerMonitorInfoListener peerMonitorInfoListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.getPeerMonitorInfo(peerID, peerMonitorInfoListener, timeout, resolverServicePeerInfoMessenger);
     }
@@ -320,6 +331,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public MonitorReport getCumulativeMonitorReport(MonitorFilter monitorFilter) throws MonitorException {
         if (MeterBuildSettings.METERING) {
             throw new MonitorException(MonitorException.METERING_NOT_SUPPORTED, "Local Monitoring not Available");
@@ -331,6 +343,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void getCumulativeMonitorReport(PeerID peerID, MonitorFilter monitorFilter, MonitorListener monitorListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.getCumulativeMonitorReport(peerID, monitorFilter, monitorListener, timeout
                 ,
@@ -340,6 +353,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public long addMonitorListener(MonitorFilter monitorFilter, long reportRate, boolean includeCumulative, MonitorListener monitorListener) throws MonitorException {
         if (!MeterBuildSettings.METERING) {
             throw new MonitorException(MonitorException.METERING_NOT_SUPPORTED, "Local Monitoring not Available");
@@ -351,6 +365,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addRemoteMonitorListener(PeerID peerID, MonitorFilter monitorFilter, long reportRate, boolean includeCumulative, MonitorListener monitorListener, long lease, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.addRemoteMonitorListener(peerID, monitorFilter, reportRate, includeCumulative
                 ,
@@ -360,16 +375,16 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeMonitorListener(MonitorListener monitorListener) throws MonitorException {
-
         int numRemoved = monitorManager.removeMonitorListener(monitorListener);
-
         return numRemoved > 0;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeRemoteMonitorListener(PeerID peerID, MonitorListener monitorListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.removeRemoteMonitorListener(peerID, monitorListener, timeout, resolverServicePeerInfoMessenger);
     }
@@ -377,6 +392,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeRemoteMonitorListener(MonitorListener monitorListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.removeRemoteMonitorListener(monitorListener, timeout, resolverServicePeerInfoMessenger);
     }
@@ -386,6 +402,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public int processQuery(ResolverQueryMsg query) {
             int queryId = query.getQueryId();
             PeerID requestSourceID = null;
@@ -400,15 +417,10 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             XMLDocument doc = null;
 
             try {
-
-                doc = (XMLDocument)
-                        StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
-
+                doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
             } catch (Exception e) {
-
                 Logging.logCheckedWarning(LOG, "PeerInfoService.processQuery got a bad adv\n", e);
                 return ResolverService.OK;
-
             }
 
             PeerInfoQueryMessage pipquery = new PeerInfoQueryMsg(doc);
@@ -436,6 +448,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void processResponse(ResolverResponseMsg response) {
 
             int queryId = response.getQueryId();
@@ -443,16 +456,11 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             PeerInfoResponseMessage resp = null;
 
             try {
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(
-                        MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
-
+                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
                 resp = new PeerInfoResponseMsg(doc);
-
             } catch (Exception e) {
-
                 Logging.logCheckedDebug(LOG, "PeerInfoService.processResponse got a bad adv\n", e);
                 return;
-
             }
 
             Element responseElement = resp.getResponse();
@@ -478,6 +486,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void sendPeerInfoResponse(int queryId, PeerID destinationPeerID, String peerInfoHandler, DocumentSerializable response) {
             try {
                 PeerInfoResponseMessage peerInfoResponseMessage = new PeerInfoResponseMsg();
@@ -518,6 +527,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void sendPeerInfoRequest(int queryID, PeerID destinationPeerID, String peerInfoHandler, DocumentSerializable request) {
             try {
                 PeerInfoQueryMsg peerInfoQueryMsg = new PeerInfoQueryMsg();
