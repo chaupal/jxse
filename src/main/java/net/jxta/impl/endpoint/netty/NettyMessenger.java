@@ -81,11 +81,9 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
     protected void sendMessageBImpl(Message message, String service, String param) throws IOException {
         
         if (isClosed()) {
-
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
             Logging.logCheckedWarning(LOG, failure);
             throw failure;
-
         }
         
         ChannelFuture future = channel.write(retargetMessage(message, service, param));
@@ -99,13 +97,10 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
             	failure.initCause(future.getCause());
             }
             
-            Logging.logCheckedWarning(LOG, "Failed to send message to ", logicalDestinationAddr,
-                    "\n", failure);
-            
+            Logging.logCheckedWarning(LOG, "Failed to send message to ", logicalDestinationAddr, "\n", failure);            
             closeImpl();
             
             throw failure;
-
         }
     }
 
@@ -121,69 +116,63 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
         return message;
     }
 
-	public void messageArrived(final Message msg) {
+    @Override
+    public void messageArrived(final Message msg) {
 		// Extract the source and destination
-		final EndpointAddress srcAddr 
-			= extractEndpointAddress(msg, 
-									 EndpointServiceImpl.MESSAGE_SOURCE_NS, 
-									 EndpointServiceImpl.MESSAGE_SOURCE_NAME,
-									 "source");
-        
-		final EndpointAddress dstAddr 
-			= extractEndpointAddress(msg,
-									 EndpointServiceImpl.MESSAGE_DESTINATION_NS, 
-									 EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
-									 "destination");
+		final EndpointAddress sourceAddress = extractEndpointAddress(msg, EndpointServiceImpl.MESSAGE_SOURCE_NS, EndpointServiceImpl.MESSAGE_SOURCE_NAME, "source");        
+		final EndpointAddress destinationAddress = extractEndpointAddress(msg, EndpointServiceImpl.MESSAGE_DESTINATION_NS, EndpointServiceImpl.MESSAGE_DESTINATION_NAME, "destination");
 		
-		if(srcAddr == null || isLoopback(srcAddr) || dstAddr == null) {
-			return;
+		if(sourceAddress == null || isLoopback(sourceAddress) || destinationAddress == null) {
+                    return;
 		}
 		
 		ExecutorService executorService = taskManager.getExecutorService();
 		executorService.execute(new Runnable() {
+                    @Override
 		    public void run() {
-		        endpointService.processIncomingMessage(msg, srcAddr, dstAddr);
+		        endpointService.processIncomingMessage(msg, sourceAddress, destinationAddress);
 		    }
 		});
 	}
 	
-	public void connectionDied() {
-		LOG.infoParams("Underlying channel for messenger to {} has died - closing messenger", logicalDestinationAddr);
-	    close();
-	}
+    @Override
+    public void connectionDied() {
+        LOG.infoParams("Underlying channel for messenger to {} has died - closing messenger", logicalDestinationAddr);
+        close();
+    }
 	
-	public void connectionDisposed() {
-	    // do nothing - this is only needed if we are
-	    // responding to close asynchronously, which we are not
-	    // in this case
-	}
+    @Override
+    public void connectionDisposed() {
+        // do nothing - this is only needed if we are
+        // responding to close asynchronously, which we are not
+        // in this case
+    }
 	
-	public void channelSaturated(boolean saturated) {
-	    // we do not do anything with channel saturation info in the blocking form
-	    // of netty messenger
-	}
+    @Override
+    public void channelSaturated(boolean saturated) {
+        // we do not do anything with channel saturation info in the blocking form
+        // of netty messenger
+    }
 
-	private boolean isLoopback(EndpointAddress srcAddr) {
-            if (localAddress.equals(srcAddr)) {
-                Logging.logCheckedDebug(LOG, "Loopback message detected");
-                return true;
-            }
+    private boolean isLoopback(EndpointAddress srcAddr) {
+        if (localAddress.equals(srcAddr)) {
+            Logging.logCheckedDebug(LOG, "Loopback message detected");
+            return true;
+        }
 
-            return false;
+        return false;
+    }
 
-	}
+    private EndpointAddress extractEndpointAddress(Message msg, String elementNamespace, String elementName, String addrType) {
 
-	private EndpointAddress extractEndpointAddress(Message msg, String elementNamespace, String elementName, String addrType) {
+        MessageElement element = msg.getMessageElement(elementNamespace, elementName);
 
-            MessageElement element = msg.getMessageElement(elementNamespace, elementName);
-	
-            if(element == null) {
-		Logging.logCheckedDebug(LOG, "Message with no ", addrType, " address detected: ", msg);
-            } else {
-	        msg.removeMessageElement(element);
-            }
-		
-            return new EndpointAddress(element.toString());
+        if(element == null) {
+            Logging.logCheckedDebug(LOG, "Message with no ", addrType, " address detected: ", msg);
+        } else {
+            msg.removeMessageElement(element);
+        }
 
-	}
+        return new EndpointAddress(element.toString());
+    }
 }

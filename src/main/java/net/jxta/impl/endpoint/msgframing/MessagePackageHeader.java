@@ -201,17 +201,13 @@ public class MessagePackageHeader {
         } while (!sawEmpty);
 
         if (!sawLength) {
-
             Logging.logCheckedWarning(LOG, "Content Length header was missing");
             throw new IOException("Content Length header was missing");
-
         }
 
         if (!sawType) {
-
             Logging.logCheckedWarning(LOG, "Content Type header was missing");
             throw new IOException("Content Type header was missing");
-
         }
     }
 
@@ -317,7 +313,6 @@ public class MessagePackageHeader {
             Logging.logCheckedDebug(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
 
             headers.add(new Header(headerNameString, headerValueBytes));
-
         }
 
         // get the end-of-pkg
@@ -349,7 +344,6 @@ public class MessagePackageHeader {
         Logging.logCheckedDebug(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
 
         headers.add(new Header(name, value));
-
     }
 
     /**
@@ -447,6 +441,7 @@ public class MessagePackageHeader {
      * Gets all of the headers matching the specified name
      *
      * @param name the name of the header we are seeking.
+     * @return 
      */
     public Iterator<Header> getHeader(String name) {
         List<Header> matchingHeaders = new ArrayList<Header>();

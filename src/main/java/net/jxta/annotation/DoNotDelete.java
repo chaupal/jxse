@@ -67,7 +67,5 @@ package net.jxta.annotation;
  * 
  */
 public @interface DoNotDelete {
-
     public String Rem() default "";
-
 }

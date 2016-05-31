@@ -106,8 +106,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         }
     }
 
-    private SocketAddress bindServerChannel(List<? extends SocketAddress> potentialBindpoints) {
-        
+    private SocketAddress bindServerChannel(List<? extends SocketAddress> potentialBindpoints) {        
         for(SocketAddress nextBP : potentialBindpoints) {
             try {
                 serverChannel = serverBootstrap.bind(nextBP);
@@ -117,8 +116,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
                 String failReason = (e.getCause() != null) ? e.getCause().getMessage() : e.getMessage();
                 Logging.logCheckedInfo(LOG, "Attempt to bind to ", nextBP, " failed (", failReason, "), trying another address");
             }            
-        }
-        
+        }        
         return null;
     }
     

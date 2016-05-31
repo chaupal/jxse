@@ -150,29 +150,24 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         try {
             if(!connectFuture.await(5000L, TimeUnit.MILLISECONDS)) {
                 if(Logging.SHOW_INFO && LOG.isInfoEnabled()) {
-                    LOG.infoParams("Netty transport for protocol {} failed to connect to {} within acceptable time", 
-                            new Object[] { addrTranslator.getProtocolName(), dest });
+                    LOG.infoParams("Netty transport for protocol {} failed to connect to {} within acceptable time", new Object[] { addrTranslator.getProtocolName(), dest });
                 }
                 return null;
             }
         } catch(InterruptedException e) {
-
             Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection to ", dest, " to be established");
             connectFuture.cancel();
-            return null;
+            return null;        
         }
         
         if(!connectFuture.isSuccess()) {
-
             if(Logging.SHOW_INFO && LOG.isInfoEnabled()) {
                 Throwable cause = connectFuture.getCause();
                 String causeString = (cause != null) ? cause.getMessage() : "cause unknown";
 				String message = String.format("Netty transport for protocol %s failed to connect to %s - %s", addrTranslator.getProtocolName(), dest, causeString);
                 LOG.info(message);
             }
-
             return null;
-
         }
         
         boolean established = false;

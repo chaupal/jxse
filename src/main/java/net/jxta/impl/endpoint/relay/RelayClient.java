@@ -196,14 +196,11 @@ public class RelayClient implements MessageReceiver, Runnable {
     }
 
     public synchronized boolean startClient() {
-
         endpoint = group.getEndpointService();
 
         if (endpoint.addMessageTransport(this) == null) {
-
             Logging.logCheckedError(LOG, "Transport registration refused");
             return false;
-
         }
 
         // start the client thread
@@ -230,17 +227,13 @@ public class RelayClient implements MessageReceiver, Runnable {
         Iterator<RouteAdvertisement> TheIter = Temp.iterator();
 
         while (TheIter.hasNext()) {
-
             RouteAdvertisement TempRA = TheIter.next();
-
             // Adding connected relay entries
             Result.put(TempRA.getDestPeerID(), TempRA);
-
         }
-
+        
         // Return result
         return Result;
-
     }
 
     public synchronized void stopClient() {
@@ -267,14 +260,15 @@ public class RelayClient implements MessageReceiver, Runnable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterator<EndpointAddress> getPublicAddresses() {
-
         return Collections.singletonList(publicAddress).iterator();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getProtocolName() {
         return RelayTransport.protocolName;
     }
@@ -282,6 +276,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointService getEndpointService() {
         return endpoint;
     }
@@ -308,8 +303,8 @@ public class RelayClient implements MessageReceiver, Runnable {
      *  hack I can think of to subvert this is to stop iteration of advs/seeds
      *  if <code>connectToRelay()</code> takes a long time. bizarre.
      */
+    @Override
     public void run() {
-
         Logging.logCheckedInfo(LOG, "Start relay client thread");
 
         try {
@@ -377,14 +372,10 @@ public class RelayClient implements MessageReceiver, Runnable {
             }
 
         } catch (Throwable all) {
-
             Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-
         } finally {
-
             thread = null;
             Logging.logCheckedInfo(LOG, "stop client thread");
-
         }
     }
 
@@ -406,7 +397,9 @@ public class RelayClient implements MessageReceiver, Runnable {
         currentServer = server;
 
         // try getting a messenger to the relay peer
-        if (!server.createMessenger(leaseLengthToRequest)) return referral;
+        if (!server.createMessenger(leaseLengthToRequest)) {
+            return referral;
+        }
 
         Logging.logCheckedDebug(LOG, "got messenger ", server);
 
@@ -450,7 +443,6 @@ public class RelayClient implements MessageReceiver, Runnable {
                 }
 
                 Logging.logCheckedDebug(LOG, "wait done");
-
             }
         }
 
@@ -495,7 +487,6 @@ public class RelayClient implements MessageReceiver, Runnable {
                     }
 
                     Logging.logCheckedDebug(LOG, "wait done");
-
                 }
             }
         }
@@ -503,16 +494,13 @@ public class RelayClient implements MessageReceiver, Runnable {
         // If we had a messenger but are going to give up that relay server because it is
         // not responsive or rejected us. Make sure that the messenger is closed.
         if (currentServer == null) {
-
             Logging.logCheckedDebug(LOG, "did not get connect from ", server);
 
             // return any alternate relay advertisements
             return server.alternateRelayAdv;
-
         }
 
         if (currentServer.relayAdv == null || currentServer.leaseLength == 0 || isRelayConnectDone()) {
-
             Logging.logCheckedDebug(LOG, "did not get connect from ", server);
 
             if (currentServer.messenger != null) {
@@ -546,7 +534,6 @@ public class RelayClient implements MessageReceiver, Runnable {
     // method of RelayServerConnection and at least not refer to currentServer
     // other than to assign the reference.
     protected RdvAdvertisement maintainRelayConnection(RelayServerConnection server) {
-
         Logging.logCheckedDebug(LOG, "maintainRelayConnection() start ", currentServer);
 
         if (server == null) {
@@ -651,7 +638,6 @@ public class RelayClient implements MessageReceiver, Runnable {
                 renewLeaseAt = currentServer.leaseObtainedAt + currentServer.leaseLength / 3;
 
                 if (currentTime >= renewLeaseAt || earlyRenew) {
-
                     earlyRenew = false;
 
                     Logging.logCheckedDebug(LOG, "renew lease ", currentServer);
@@ -680,7 +666,6 @@ public class RelayClient implements MessageReceiver, Runnable {
                         currentServer = null;
 
                         break;
-
                     }
                 }
             }
@@ -772,13 +757,11 @@ public class RelayClient implements MessageReceiver, Runnable {
             long responseLease = 0;
 
             if (responseLeaseString != null) {
-
                 try {
                     responseLease = Long.parseLong(responseLeaseString);
                 } catch (NumberFormatException e) {
                     Logging.logCheckedWarning(LOG, "could not parse response lease string\n", e);
                 }
-
             }
 
             // make sure the lease is valid
@@ -819,7 +802,6 @@ public class RelayClient implements MessageReceiver, Runnable {
             notifyAll();
 
         } else if (RelayTransport.DISCONNECTED_RESPONSE.equals(response)) {
-
             // Disconnect Response
             Logging.logCheckedDebug(LOG, "disconnected from ", currentServer);
 
@@ -830,6 +812,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             if (currentServer.messenger != null) {
                 currentServer.messenger.close();
             }
+            
             currentServer.messenger = null;
             currentServer.peerId = null;
             currentServer.leaseLength = 0;
@@ -840,7 +823,6 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
 
         Logging.logCheckedDebug(LOG, "response handled for ", currentServer);
-
     }
 
     static class RelayServerConnection {
@@ -863,18 +845,19 @@ public class RelayClient implements MessageReceiver, Runnable {
 
         private final MessengerStateListener failureListener = new MessengerStateListener() {
 			
-			public boolean messengerStateChanged(int newState) {
-				if((newState & Messenger.TERMINAL) != 0) {
-					// wake up the relay client, so that it will attempt to
-					// re-establish the connection or switch to a different
-					// relay server.
-					synchronized(client) {
-						client.notifyAll();
-					}
-				}
-				return true;
-			}
-		};
+            @Override
+            public boolean messengerStateChanged(int newState) {
+                if((newState & Messenger.TERMINAL) != 0) {
+                    // wake up the relay client, so that it will attempt to
+                    // re-establish the connection or switch to a different
+                    // relay server.
+                    synchronized(client) {
+                        client.notifyAll();
+                    }
+                }
+                return true;
+            }
+        };
 
         protected RelayServerConnection(RelayClient client, EndpointAddress addr) {
             this.client = client;
@@ -888,7 +871,6 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
 
         protected boolean createMessenger(long leaseLengthToRequest) {
-
             // make sure the old messenger is closed
             if (messenger != null) {
                 messenger.close();
@@ -921,8 +903,9 @@ public class RelayClient implements MessageReceiver, Runnable {
 
             // try each endpoint address until one is successful
             for (String s : endpointAddresses) {
-
-                if (s == null) continue;
+                if (s == null) {
+                    continue;
+                }
 
                 EndpointAddress addr = new EndpointAddress(s);
 
@@ -937,7 +920,6 @@ public class RelayClient implements MessageReceiver, Runnable {
 
                     // only try transports that are senders and allow routing
                     if (transport instanceof MessageSender && ((MessageSender) transport).allowsRouting()) {
-
                         Logging.logCheckedDebug(LOG, "try transport ", transport);
 
                         if (addr.getProtocolName().equals(transport.getProtocolName())) {
@@ -955,9 +937,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                             String reqStr = RelayTransport.createConnectString(leaseLengthToRequest, relayAdv == null, false);
                             // NOTE: this is simulating address mangling by CrossgroupMessenger.
                             // The real service param is after the "/" in the below serviceParam arg.
-                            EndpointAddress addrToUse = new EndpointAddress(addr, "EndpointService:" + client.groupName
-                                    ,
-                                    client.serviceName + "/" + reqStr);
+                            EndpointAddress addrToUse = new EndpointAddress(addr, "EndpointService:" + client.groupName, client.serviceName + "/" + reqStr);
 
                             messenger = ((MessageSender) transport).getMessenger(addrToUse);
 //                            messenger = ((MessageSender) transport).getMessenger(addrToUse, null);
@@ -976,7 +956,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                                     messenger = null;
                                     logicalAddress = null;
                                 } else {
-                                	messenger.addStateListener(failureListener);
+                                    messenger.addStateListener(failureListener);
                                 }
                                 // In case it was not given, set relayAddress
                                 // for toString purposes.
@@ -1000,18 +980,12 @@ public class RelayClient implements MessageReceiver, Runnable {
             Message message = RelayTransport.createConnectMessage(leaseLengthToRequest, (relayAdv == null), flushNeeded);
 
             try {
-
                 messenger.sendMessage(message, "EndpointService:" + client.groupName, client.serviceName + "/" + client.peerId);
-
             } catch (IOException e) {
-
                 Logging.logCheckedWarning(LOG, "could not send connect message\n", e);
-
                 // connection attempt failed
                 return false;
-
             }
-
             return true;
         }
 
@@ -1023,18 +997,12 @@ public class RelayClient implements MessageReceiver, Runnable {
             Message message = RelayTransport.createDisconnectMessage();
 
             try {
-
                 messenger.sendMessage(message, "EndpointService:" + client.groupName, client.serviceName + "/" + client.peerId);
-
             } catch (IOException e) {
-
                 Logging.logCheckedWarning(LOG, "could not send disconnect message\n", e);
-
                 // connection attempt failed
                 return false;
-
             }
-
             return true;
         }
 
@@ -1043,10 +1011,7 @@ public class RelayClient implements MessageReceiver, Runnable {
          */
         @Override
         public String toString() {
-
-            return
-                    ((relayAddress == null) ? "(adv to " + relayAdv.getDestPeerID() + ")" : relayAddress.toString()) + " ["
-                    + leaseLength + ", " + leaseObtainedAt + "] ";
+            return ((relayAddress == null) ? "(adv to " + relayAdv.getDestPeerID() + ")" : relayAddress.toString()) + " [" + leaseLength + ", " + leaseObtainedAt + "] ";
         }
     }
 
@@ -1060,13 +1025,10 @@ public class RelayClient implements MessageReceiver, Runnable {
         boolean added = false;
 
         if (!activeRelayListeners.contains(service)) {
-
             Logging.logCheckedDebug(LOG, "Register group to relay connection ", service.getPeerGroupName());
             activeRelayListeners.add(service);
-
             added = true;
         }
-
         return added;
     }
 
@@ -1263,52 +1225,40 @@ public class RelayClient implements MessageReceiver, Runnable {
             // publish the new advertisement
             DiscoveryService discovery = group.getDiscoveryService();
 
-            if (discovery != null) 
+            if (discovery != null) {
                 discovery.publish(padv, DiscoveryService.DEFAULT_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
-
+            }
         } catch (Throwable theMatter) {
-
             Logging.logCheckedWarning(LOG, "Failed adding relay route", theMatter);
-
         }
     }
 
     /**
      * return the list of connected relays
      */
-    public Vector<AccessPointAdvertisement> getActiveRelays(PeerGroup pg) {
+    public Vector<AccessPointAdvertisement> getActiveRelays(PeerGroup peerGroup) {
 
         Logging.logCheckedDebug(LOG, "get active Relays list");
 
         Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         for (RouteAdvertisement route : activeRelays.values()) {
-
             try {
-
                 // publish our route if pg is not null
-                if (pg != null) {
-
-                    DiscoveryService discovery = pg.getDiscoveryService();
+                if (peerGroup != null) {
+                    DiscoveryService discovery = peerGroup.getDiscoveryService();
 
                     if (discovery != null) {
                         Logging.logCheckedDebug(LOG, "publishing route to active relay ", route.display());
                         discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
                     }
-
                 }
-
             } catch (Exception ex) {
-
                 Logging.logCheckedWarning(LOG, "error publishing active relay\n", ex);
                 continue;
-
             }
-
             hops.add(route.getDest());
         }
-
         return hops;
     }
-
 }

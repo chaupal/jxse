@@ -67,7 +67,5 @@ package net.jxta.annotation;
  * 
  */
 public @interface DoNotRelyOnThisCode {
-
     public String Rem() default "";
-
 }

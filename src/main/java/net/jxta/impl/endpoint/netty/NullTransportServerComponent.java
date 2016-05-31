@@ -23,5 +23,4 @@ public class NullTransportServerComponent extends NullTransportComponent impleme
     public Iterator<EndpointAddress> getPublicAddresses() {
         return new ArrayList<EndpointAddress>(0).iterator();
     }
-
 }

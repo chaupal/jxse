@@ -18,5 +18,4 @@ public interface TransportServerComponent extends TransportComponent {
      * broadcasted to external peers.
      */
     public List<EndpointAddress> getBoundAddresses();
-
 }

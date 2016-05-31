@@ -79,686 +79,641 @@ import net.jxta.peer.PeerID;
  */
 class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
-	private static final Logger LOG = Logging.getLogger(RelayServerClient.class.getName());
+    private static final Logger LOG = Logging.getLogger(RelayServerClient.class.getName());
 
-	/**
-	 * the Relay Server of this client
-	 */
-	private final RelayServer server;
+    /**
+     * the Relay Server of this client
+     */
+    private final RelayServer server;
 
-	/**
-	 * the peerId of this client
-	 */
-	private final PeerID clientPeerId;
+    /**
+     * the peerId of this client
+     */
+    private final PeerID clientPeerId;
 
-	/**
-	 * The absolute time at which the lease expires.
-	 */
-	private long leaseExpireAt = 0;
+    /**
+     * The absolute time at which the lease expires.
+     */
+    private long leaseExpireAt = 0;
 
-	/**
-	 * The time at which the message queue expires.
-	 */
-	private long queueStallAt = Long.MAX_VALUE;
+    /**
+     * The time at which the message queue expires.
+     */
+    private long queueStallAt = Long.MAX_VALUE;
 
-	/**
-	 * The amount of time in relative milliseconds which we will allow the
-	 * client to stall (not poll for messages).
-	 */
-	private final long stallTimeout;
+    /**
+     * The amount of time in relative milliseconds which we will allow the
+     * client to stall (not poll for messages).
+     */
+    private final long stallTimeout;
 
-	/**
-	 *  The messenger we are currently using to send messages or {@code null} if
-	 *  we have no current way to send messages to the client.
-	 */
-	private Messenger messenger = null;
+    /**
+     *  The messenger we are currently using to send messages or {@code null} if
+     *  we have no current way to send messages to the client.
+     */
+    private Messenger messenger = null;
 
-	/**
-	 *  We allow a 1 message queue of high priority messages.
-	 */
-	private QueuedMessage outOfBandMessage = null;
+    /**
+     *  We allow a 1 message queue of high priority messages.
+     */
+    private QueuedMessage outOfBandMessage = null;
 
-	/**
-	 * A queue of message for this client
-	 */
-	private final BlockingQueue<QueuedMessage> messageList;
+    /**
+     * A queue of message for this client
+     */
+    private final BlockingQueue<QueuedMessage> messageList;
 
-	/**
-	 *  Our current set of valid operations.
-	 */
-	private volatile int readyOps = 0;
+    /**
+     *  Our current set of valid operations.
+     */
+    private volatile int readyOps = 0;
 
-	/**
-	 *  A message queued for sending to the client.
-	 */
-	private static class QueuedMessage {
-		final Message message;
-		final String destService;
-		final String destParam;
+    /**
+     *  A message queued for sending to the client.
+     */
+    private static class QueuedMessage {
+        final Message message;
+        final String destService;
+        final String destParam;
 
-		QueuedMessage(Message message, String destService, String destParam) {
-			this.message = message;
-			this.destService = destService;
-			this.destParam = destParam;
-		}
-	}
+        QueuedMessage(Message message, String destService, String destParam) {
+            this.message = message;
+            this.destService = destService;
+            this.destParam = destParam;
+        }
+    }
 
-	RelayServerClient(RelayServer server, PeerID clientPeerId, long leaseLength, long stallTimeout, int clientQueueSize) {
-		super(null);
+    RelayServerClient(RelayServer server, PeerID clientPeerId, long leaseLength, long stallTimeout, int clientQueueSize) {
+        super(null);
 
-		try {
-		    configureBlocking(false);
-		} catch(IOException impossible ) {
-		    throw new Error("Unhandled IOException", impossible);
-		}
+        try {
+            configureBlocking(false);
+        } catch(IOException impossible ) {
+            throw new Error("Unhandled IOException", impossible);
+        }
 
-		Logging.logCheckedDebug(LOG, "new Client peerId=", clientPeerId, " lease=", leaseLength);
-		
-		this.server = server;
-		this.clientPeerId = clientPeerId;
-		this.stallTimeout = stallTimeout;
-		messageList = new ArrayBlockingQueue<QueuedMessage>(clientQueueSize);
+        Logging.logCheckedDebug(LOG, "new Client peerId=", clientPeerId, " lease=", leaseLength);
 
-		// initialize the lease
-		renewLease(leaseLength);
-	}
+        this.server = server;
+        this.clientPeerId = clientPeerId;
+        this.stallTimeout = stallTimeout;
+        messageList = new ArrayBlockingQueue<QueuedMessage>(clientQueueSize);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean equals(Object target) {
-		if(target == this) {
-			return true;
-		}
+        // initialize the lease
+        renewLease(leaseLength);
+    }
 
-		if(target instanceof RelayServerClient) {
-			return clientPeerId.equals(((RelayServerClient) target).clientPeerId);
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if(target == this) {
+            return true;
+        }
 
-		return false;
-	}
+        if(target instanceof RelayServerClient) {
+            return clientPeerId.equals(((RelayServerClient) target).clientPeerId);
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public int hashCode() {
-		return clientPeerId.hashCode();
-	}
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p/>Send all of the queued messages to the client.
-	 */
-	public void run() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return clientPeerId.hashCode();
+    }
 
-            try {
+    /**
+     * {@inheritDoc}
+     *
+     * <p/>Send all of the queued messages to the client.
+     */
+    @Override
+    public void run() {
+        try {
 
-                Logging.logCheckedInfo(LOG, "Sending queued messages for ", this);
+            Logging.logCheckedInfo(LOG, "Sending queued messages for ", this);
 
-                int failedInARow = 0;
+            int failedInARow = 0;
 
-                // We only last as long as the client channel remains open.
-                while(isOpen()) {
+            // We only last as long as the client channel remains open.
+            while(isOpen()) {
+                Messenger useMessenger;
+                QueuedMessage message;
+                boolean wasOOB;
 
-                    Messenger useMessenger;
-                    QueuedMessage message;
-                    boolean wasOOB;
+                synchronized (this) {
+                    // No messenger? Nothing for us to do.
+                    if( null == messenger) {
+                        break;
+                    }
 
+                    // If our messenger is unusable, quit.
+                    if (0 == (messenger.getState() & Messenger.USABLE)) {
+                        queueStallAt = Math.min(queueStallAt, TimeUtils.toAbsoluteTimeMillis(stallTimeout));
+                        messenger = null;
+                        break;
+                    }
+
+                    if (outOfBandMessage != null) {
+                        message = outOfBandMessage;
+                        outOfBandMessage = null;
+                        wasOOB = true;
+                    } else {
+                        message = messageList.poll();
+                        wasOOB = false;
+                    }
+
+                    // No messages? We are now inactive.
+                    if(null == message) {
+                        setReadyOps(0);
+                        break;
+                    }
+                    useMessenger = messenger;
+                }
+
+                // send the message
+                try {
+                    useMessenger.sendMessageB(message.message, message.destService, message.destParam);
+
+                    // A message was sent. Queue is no longer stalled.
                     synchronized (this) {
+                        failedInARow = 0;
+                        queueStallAt = Long.MAX_VALUE;
+                    }
+                } catch (Exception e) {
 
-                        // No messenger? Nothing for us to do.
-                        if( null == messenger) break;
+                    // Check that the exception is not due to the message rather
+                    // than the messenger, and then drop the message. In this
+                    // case we give the messenger the benefit of the doubt and
+                    // keep it open, renewing the lease as above. (this could be
+                    // the last message). For now the transports do not tell the
+                    // difference, so we count the number of times we failed in
+                    // a row. After three times, kill the message rather than
+                    // the messenger.
 
-                        // If our messenger is unusable, quit.
-                        if (0 == (messenger.getState() & Messenger.USABLE)) {
+                    // put the message back
+                    synchronized (this) {
+                        if (++failedInARow >= 3) {
+                            failedInARow = 0;
+                            queueStallAt = Long.MAX_VALUE;
+                            continue;
+                        }
+
+                        // Ok, if we cannot push back the message, below, we
+                        // should reset failedInARow, since we won't be retrying
+                        // the same message. But it does not realy matter so
+                        // let's keep things simple.
+                        if (outOfBandMessage == null) {
+                            outOfBandMessage = message;
+                        }
+
+                        // If we are still holding the same messenger, kill it.
+                        if(useMessenger == messenger) {
                             queueStallAt = Math.min(queueStallAt, TimeUtils.toAbsoluteTimeMillis(stallTimeout));
                             messenger = null;
-                            break;
-                        }
-
-                        if (outOfBandMessage != null) {
-                            message = outOfBandMessage;
-                            outOfBandMessage = null;
-                            wasOOB = true;
                         } else {
-                            message = messageList.poll();
-                            wasOOB = false;
+                            useMessenger = null;
                         }
-
-                        // No messages? We are now inactive.
-                        if(null == message) {
-                            setReadyOps(0);
-                            break;
-                        }
-
-                        useMessenger = messenger;
-
                     }
 
-                    // send the message
+                    // If we're here, we decided to close the messenger. We do
+                    // that out of sync.
+                    Logging.logCheckedInfo(LOG, "Giving up on unusable messenger : ", useMessenger, "\n", e);
+
+                    if(null != useMessenger) {
+                        useMessenger.close();
+                        useMessenger = null;
+                    }
+                }
+            }
+        } catch (Throwable all) {
+            Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+        } finally {
+            Logging.logCheckedDebug(LOG, "Stopped sending queued messages for ", this);
+
+            // Re-register with the selector for future messages.
+            synchronized(this) {
+                if((null != messenger) && isOpen()) {
                     try {
-
-                        useMessenger.sendMessageB(message.message, message.destService, message.destParam);
-
-                        // A message was sent. Queue is no longer stalled.
-                        synchronized (this) {
-                                failedInARow = 0;
-                                queueStallAt = Long.MAX_VALUE;
-                        }
-
-                    } catch (Exception e) {
-
-                        // Check that the exception is not due to the message rather
-                        // than the messenger, and then drop the message. In this
-                        // case we give the messenger the benefit of the doubt and
-                        // keep it open, renewing the lease as above. (this could be
-                        // the last message). For now the transports do not tell the
-                        // difference, so we count the number of times we failed in
-                        // a row. After three times, kill the message rather than
-                        // the messenger.
-
-                        // put the message back
-                        synchronized (this) {
-
-                            if (++failedInARow >= 3) {
-                                    failedInARow = 0;
-                                    queueStallAt = Long.MAX_VALUE;
-                                    continue;
-                            }
-
-                            // Ok, if we cannot push back the message, below, we
-                            // should reset failedInARow, since we won't be retrying
-                            // the same message. But it does not realy matter so
-                            // let's keep things simple.
-                            if (outOfBandMessage == null) {
-                                    outOfBandMessage = message;
-                            }
-
-                            // If we are still holding the same messenger, kill it.
-                            if(useMessenger == messenger) {
-                                    queueStallAt = Math.min(queueStallAt, TimeUtils.toAbsoluteTimeMillis(stallTimeout));
-                                    messenger = null;
-                            } else {
-                                    useMessenger = null;
-                            }
-
-                        }
-
-                        // If we're here, we decided to close the messenger. We do
-                        // that out of sync.
-                        Logging.logCheckedInfo(LOG, "Giving up on unusable messenger : ", useMessenger, "\n", e);
-
-                        if(null != useMessenger) {
-                                useMessenger.close();
-                                useMessenger = null;
-                        }
-
-                    }
-                }
-
-            } catch (Throwable all) {
-
-                Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-
-            } finally {
-
-                Logging.logCheckedDebug(LOG, "Stopped sending queued messages for ", this);
-
-                // Re-register with the selector for future messages.
-                synchronized(this) {
-                    if((null != messenger) && isOpen()) {
-
-                        try {
-
-                            register(server.selector, SelectionKey.OP_WRITE, null);
-                            server.selector.wakeup();
-
-                        } catch(ClosedChannelException betterNotBe) {
-
-                            Logging.logCheckedError(LOG, "Channel unexpectedly closed!\n", betterNotBe);
-
-                        }
+                        register(server.selector, SelectionKey.OP_WRITE, null);
+                        server.selector.wakeup();
+                    } catch(ClosedChannelException betterNotBe) {
+                        Logging.logCheckedError(LOG, "Channel unexpectedly closed!\n", betterNotBe);
                     }
                 }
             }
-	}
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		return super.toString() + "[" + clientPeerId + ","
-		+ getQueueSize() + ","
-		+ (messenger == null ? "-m" : "+m") + ","
-		+ TimeUtils.toRelativeTimeMillis(queueStallAt) + ","
-		+ TimeUtils.toRelativeTimeMillis(leaseExpireAt)
-		+ "]";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+            return super.toString() + "[" + clientPeerId + ","
+            + getQueueSize() + ","
+            + (messenger == null ? "-m" : "+m") + ","
+            + TimeUtils.toRelativeTimeMillis(queueStallAt) + ","
+            + TimeUtils.toRelativeTimeMillis(leaseExpireAt)
+            + "]";
+    }
 
-	/**
-	 *  {@inheritDoc}
-	 */
-	protected void implCloseSelectableChannel() throws IOException {
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    protected void implCloseSelectableChannel() throws IOException {
+        Logging.logCheckedInfo(LOG, "Closing ", this);
 
-            Logging.logCheckedInfo(LOG, "Closing ", this);
+        Messenger messengerToClose = messenger;
+        messenger = null;
 
-            Messenger messengerToClose = messenger;
-            messenger = null;
+        if(null != messengerToClose) {
+            messengerToClose.close();
+        }
 
-            if(null != messengerToClose) {
-                messengerToClose.close();
+        queueStallAt = 0;
+        leaseExpireAt = 0;
+
+        messageList.clear();
+    }
+
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    protected void implConfigureBlocking(boolean block) throws IOException {
+    }
+
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public int validOps() {
+        return SelectionKey.OP_WRITE;
+    }
+
+    /**
+     *  Return the current Ops state.
+     *
+     *  @return the current ops state, if any.
+     */
+    int readyOps() {
+        return readyOps;
+    }
+
+    /**
+     *  Adjust the current Ops state.
+     *
+     *  @param readyOps the new ops state.
+     */
+    private void setReadyOps(int readyOps) {
+        this.readyOps = readyOps;
+        ClientSelectionKey key = (ClientSelectionKey) keyFor(server.selector);
+        if(null != key) {
+                key.setReadyOps(readyOps);
+        }
+    }
+
+    /**
+     *  Creates a new selection key for the specified selector.
+     *
+     *  @param selector The target selector.
+     *  @param ops The initial interest ops.
+     *  @param att The attached object.
+     */
+    ClientSelectionKey newSelectionKey(RelayServer.ClientSelector selector, int ops, Object att) {
+        return new ClientSelectionKey(selector, ops, att);
+    }
+
+    /**
+     *  Returns the number of items we have queued for the client.
+     *
+     *  @return The number of queued messages including the out of band message.
+     */
+    private int getQueueSize() {
+        return (null != outOfBandMessage) ? 1 : 0 + messageList.size();
+    }
+
+    /**
+     * Remove all queued messages. The Out of band message (if any) is retained.
+     */
+    void flushQueue() {
+        messageList.clear();
+    }
+
+    /**
+     *  If {@code true} then:
+     *  <ul>
+     *      <li>This client connection has been closed.</li>
+     *      <li>The client lease has expired.</li>
+     *      <li>The client has failed to poll recently.</li>
+     *  </ul>
+     *
+     * @return {@code true} if this client is no longer usable otherwise
+     * {@code false}.
+     */
+    boolean isExpired() {
+        long now = TimeUtils.timeNow();
+        boolean isExpired = !isOpen() || (now > leaseExpireAt) || (now > queueStallAt);
+        // LOGGING: was Finer
+        Logging.logCheckedDebug(LOG, this, " : isExpired() = ", isExpired);
+
+        return isExpired;
+    }
+
+    long getLeaseRemaining() {
+        return TimeUtils.toRelativeTimeMillis(leaseExpireAt);
+    }
+
+    protected PeerID getClientPeerId() {
+        return clientPeerId;
+    }
+
+    boolean renewLease(long leaseLength) {
+        // It is ok to renew a lease past the expiration time, as long as the
+        // client has not been closed yet.
+
+        if (!isOpen()) {
+            return false;
+        }
+
+        Logging.logCheckedDebug(LOG, this, " : additional lease = ", leaseLength );
+
+        leaseExpireAt = TimeUtils.toAbsoluteTimeMillis(leaseLength);
+
+        return true;
+    }
+
+    /**
+     *  Replace the messenger currently in use with a new messenger.
+     *
+     *  @param newMessenger The messenger to be used to send to the client.
+     *  @return If {@code true} then the new messenger has been accepted and
+     *  will be used to send messages to the client. If {@code false} then the
+     *  messenger will not be used.
+     */
+    boolean addMessenger(Messenger newMessenger) {
+
+        // make sure we are being passed a valid messenger
+        if ((null == newMessenger) || (0 == (newMessenger.getState() & Messenger.USABLE))) {
+            Logging.logCheckedDebug(LOG, "Ignorning bad messenger (", newMessenger, ")");
+            return false;
+        }
+
+        Logging.logCheckedDebug(LOG, "New messenger : ", newMessenger );
+
+        // Unless we change our mind, we'll close the new messenger.
+        // If we do not keep it, we must close it. Otherwise the client on the
+        // other end will never know what happened.
+        // Its connection will be left hanging for a long time.
+        Messenger messengerToClose = newMessenger;
+
+        synchronized (this) {
+            if (isOpen()) {
+                // Swap messengers; we'll close the old one if there was one.
+                messengerToClose = messenger;
+                messenger = newMessenger;
+
+                Logging.logCheckedDebug(LOG, "Messenger (", messenger, ")");
+
+                // If we had no previous messenger then register this channel.
+                if(null == messengerToClose) {
+                    try {
+                        register(server.selector, SelectionKey.OP_WRITE, null);
+                        server.selector.wakeup();
+                    } catch(ClosedChannelException betterNotBe) {
+                        Logging.logCheckedError(LOG, "Channel unexpectedly closed!\n", betterNotBe);
+                    }
+                }
+
+                // If we have waiting messages, select this channel.
+                if (getQueueSize() > 0) {
+                        setReadyOps(SelectionKey.OP_WRITE);
+                }
             }
+        }
 
-            queueStallAt = 0;
-            leaseExpireAt = 0;
+        // Now that we are out of sync, close the unused messenger.
+        // In either case, we claim that we kept the new one.
+        if (messengerToClose != null) {
+            Logging.logCheckedDebug(LOG, "Closing messenger : ", messengerToClose );
+            messengerToClose.close();
+        }
 
-            messageList.clear();
+        return true;
+    }
 
-	}
+    /**
+     * Add a message to the tail of the list
+     *
+     * @param message The message to be enqueued.
+     * @param outOfBand if true, indicates outbound
+     * @return {@code true} if the message was enqueued otherwise {@code false}.
+     */
+    private boolean queueMessage(Message message, String destService, String destParam, boolean outOfBand) {
 
-	/**
-	 *  {@inheritDoc}
-	 */
-	protected void implConfigureBlocking(boolean block) throws IOException {
-	}
+        Logging.logCheckedDebug(LOG, "queueMessage for ", this);
 
-	/**
-	 *  {@inheritDoc}
-	 */
-	public int validOps() {
-		return SelectionKey.OP_WRITE;
-	}
-
-	/**
-	 *  Return the current Ops state.
-	 *
-	 *  @return the current ops state, if any.
-	 */
-	int readyOps() {
-		return readyOps;
-	}
-
-	/**
-	 *  Adjust the current Ops state.
-	 *
-	 *  @param readyOps the new ops state.
-	 */
-	private void setReadyOps(int readyOps) {
-		this.readyOps = readyOps;
-		ClientSelectionKey key = (ClientSelectionKey) keyFor(server.selector);
-		if(null != key) {
-			key.setReadyOps(readyOps);
-		}
-	}
-
-	/**
-	 *  Creates a new selection key for the specified selector.
-	 *
-	 *  @param selector The target selector.
-	 *  @param ops The initial interest ops.
-	 *  @param att The attached object.
-	 */
-	ClientSelectionKey newSelectionKey(RelayServer.ClientSelector selector, int ops, Object att) {
-		return new ClientSelectionKey(selector, ops, att);
-	}
-
-	/**
-	 *  Returns the number of items we have queued for the client.
-	 *
-	 *  @return The number of queued messages including the out of band message.
-	 */
-	private int getQueueSize() {
-		return (null != outOfBandMessage) ? 1 : 0 + messageList.size();
-	}
-
-	/**
-	 * Remove all queued messages. The Out of band message (if any) is retained.
-	 */
-	void flushQueue() {
-		messageList.clear();
-	}
-
-	/**
-	 *  If {@code true} then:
-	 *  <ul>
-	 *      <li>This client connection has been closed.</li>
-	 *      <li>The client lease has expired.</li>
-	 *      <li>The client has failed to poll recently.</li>
-	 *  </ul>
-	 *
-	 * @return {@code true} if this client is no longer usable otherwise
-	 * {@code false}.
-	 */
-	boolean isExpired() {
-
-            long now = TimeUtils.timeNow();
-            boolean isExpired = !isOpen() || (now > leaseExpireAt) || (now > queueStallAt);
-            // LOGGING: was Finer
-            Logging.logCheckedDebug(LOG, this, " : isExpired() = ", isExpired);
-
-            return isExpired;
-
-	}
-
-	long getLeaseRemaining() {
-		return TimeUtils.toRelativeTimeMillis(leaseExpireAt);
-	}
-
-	protected PeerID getClientPeerId() {
-		return clientPeerId;
-	}
-
-	boolean renewLease(long leaseLength) {
-		// It is ok to renew a lease past the expiration time, as long as the
-		// client has not been closed yet.
-
-		if (!isOpen()) return false;
-
-		Logging.logCheckedDebug(LOG, this, " : additional lease = ", leaseLength );
-
-		leaseExpireAt = TimeUtils.toAbsoluteTimeMillis(leaseLength);
-
-		return true;
-	}
-
-	/**
-	 *  Replace the messenger currently in use with a new messenger.
-	 *
-	 *  @param newMessenger The messenger to be used to send to the client.
-	 *  @return If {@code true} then the new messenger has been accepted and
-	 *  will be used to send messages to the client. If {@code false} then the
-	 *  messenger will not be used.
-	 */
-	boolean addMessenger(Messenger newMessenger) {
-
-            // make sure we are being passed a valid messenger
-            if ((null == newMessenger) || (0 == (newMessenger.getState() & Messenger.USABLE))) {
-                Logging.logCheckedDebug(LOG, "Ignorning bad messenger (", newMessenger, ")");
+        synchronized (this) {
+            if (!isOpen()) {
                 return false;
             }
 
-            Logging.logCheckedDebug(LOG, "New messenger : ", newMessenger );
+            QueuedMessage qm = new QueuedMessage(message, destService, destParam);
 
-            // Unless we change our mind, we'll close the new messenger.
-            // If we do not keep it, we must close it. Otherwise the client on the
-            // other end will never know what happened.
-            // Its connection will be left hanging for a long time.
-            Messenger messengerToClose = newMessenger;
-
-            synchronized (this) {
-
-                if (isOpen()) {
-
-                    // Swap messengers; we'll close the old one if there was one.
-                    messengerToClose = messenger;
-                    messenger = newMessenger;
-
-                    Logging.logCheckedDebug(LOG, "Messenger (", messenger, ")");
-
-                    // If we had no previous messenger then register this channel.
-                    if(null == messengerToClose) {
-
-                        try {
-
-                            register(server.selector, SelectionKey.OP_WRITE, null);
-                            server.selector.wakeup();
-
-                        } catch(ClosedChannelException betterNotBe) {
-
-                            Logging.logCheckedError(LOG, "Channel unexpectedly closed!\n", betterNotBe);
-
-                        }
-
-                    }
-
-                    // If we have waiting messages, select this channel.
-                    if (getQueueSize() > 0) {
-                            setReadyOps(SelectionKey.OP_WRITE);
-                    }
+            if (outOfBand) {
+                // We have a single oob message pending.
+                outOfBandMessage = qm;
+            } else {
+                // We will simply discard the new msg when the queue is full
+                // to avoid penalty of dropping earlier reliable message
+                if (!messageList.offer(qm)) {
+                    Logging.logCheckedWarning(LOG, "Dropping ", message, " for peer ", clientPeerId);
+                } else if( (messageList.size() % 50 == 0) ) {
+                    Logging.logCheckedInfo(LOG, "Message queue size for client ", clientPeerId, " now ", messageList.size());
                 }
             }
 
-            // Now that we are out of sync, close the unused messenger.
-            // In either case, we claim that we kept the new one.
-            if (messengerToClose != null) {
-                Logging.logCheckedDebug(LOG, "Closing messenger : ", messengerToClose );
-                messengerToClose.close();
+            // Normally, if messenger is null we knew it already:
+            // it becomes null only when we detect that it breaks while trying
+            // to send. However, let's imagine it's possible that we never had
+            // one so far. Be careful that this is not a one-time event; we
+            // must not keep renewing the short lease; that would ruin it's
+            // purpose.
+            if ((null == messenger) || (0 == (messenger.getState() & Messenger.USABLE))) {
+                queueStallAt = Math.min(queueStallAt, TimeUtils.toAbsoluteTimeMillis(stallTimeout));
+            } else {
+                setReadyOps(SelectionKey.OP_WRITE);
             }
+        }
 
-            return true;
-	}
+        Logging.logCheckedDebug(LOG, "done queueMessage for ", this);
+        return true;
+    }
 
-	/**
-	 * Add a message to the tail of the list
-	 *
-	 * @param message The message to be enqueued.
-	 * @param outOfBand if true, indicates outbound
-	 * @return {@code true} if the message was enqueued otherwise {@code false}.
-	 */
-	private boolean queueMessage(Message message, String destService, String destParam, boolean outOfBand) {
+    /**
+     *  {@inheritDoc}
+     */
+    Messenger getMessenger(EndpointAddress destAddr, boolean outOfBand) {
+        return new RelayMessenger(destAddr, outOfBand);
+    }
 
-            Logging.logCheckedDebug(LOG, "queueMessage for ", this);
+    private class RelayMessenger extends BlockingMessenger {
+        private final boolean outOfBand;
 
-            synchronized (this) {
+        public RelayMessenger(EndpointAddress destAddress, boolean outOfBand) {
+            // We do not use self destruction
+            super(RelayServerClient.this.server.group.getPeerGroupID(), destAddress, RelayServerClient.this.server.group.getTaskManager(), false);
+            this.outOfBand = outOfBand;
+        }
 
-                if (!isOpen()) return false;
-
-                QueuedMessage qm = new QueuedMessage(message, destService, destParam);
-
-                if (outOfBand) {
-
-                    // We have a single oob message pending.
-                    outOfBandMessage = qm;
-
-                } else {
-
-                    // We will simply discard the new msg when the queue is full
-                    // to avoid penalty of dropping earlier reliable message
-                    if (!messageList.offer(qm)) {
-
-                        Logging.logCheckedWarning(LOG, "Dropping ", message, " for peer ", clientPeerId);
-
-                    } else if( (messageList.size() % 50 == 0) ) {
-
-                        Logging.logCheckedInfo(LOG, "Message queue size for client ", clientPeerId, " now ", messageList.size());
-
-                    }
-
-                }
-
-                // Normally, if messenger is null we knew it already:
-                // it becomes null only when we detect that it breaks while trying
-                // to send. However, let's imagine it's possible that we never had
-                // one so far. Be careful that this is not a one-time event; we
-                // must not keep renewing the short lease; that would ruin it's
-                // purpose.
-                if ((null == messenger) || (0 == (messenger.getState() & Messenger.USABLE))) {
-                    queueStallAt = Math.min(queueStallAt, TimeUtils.toAbsoluteTimeMillis(stallTimeout));
-                } else {
-                    setReadyOps(SelectionKey.OP_WRITE);
-                }
-
-            }
-
-            Logging.logCheckedDebug(LOG, "done queueMessage for ", this);
-
-            return true;
-	}
-
-	/**
-	 *  {@inheritDoc}
-	 */
-	Messenger getMessenger(EndpointAddress destAddr, boolean outOfBand) {
-		return new RelayMessenger(destAddr, outOfBand);
-	}
-
-	private class RelayMessenger extends BlockingMessenger {
-
-            private final boolean outOfBand;
-
-	    public RelayMessenger(EndpointAddress destAddress, boolean outOfBand) {
-
-                // We do not use self destruction
-			super(RelayServerClient.this.server.group.getPeerGroupID(),
-			      destAddress,
-			      RelayServerClient.this.server.group.getTaskManager(),
-			      false);
-
-                this.outOfBand = outOfBand;
-
-	    }
-
-            /*
-             * The cost of just having a finalize routine is high. The finalizer is
-             * a bottleneck and can delay garbage collection all the way to heap
-             * exhaustion. Leave this comment as a reminder to future maintainers.
-             * Below is the reason why finalize is not needed here.
-             *
-             * This is never given to application layers directly. No need
-             * to close-on-finalize.
-             *
+        /*
+         * The cost of just having a finalize routine is high. The finalizer is
+         * a bottleneck and can delay garbage collection all the way to heap
+         * exhaustion. Leave this comment as a reminder to future maintainers.
+         * Below is the reason why finalize is not needed here.
+         *
+         * This is never given to application layers directly. No need
+         * to close-on-finalize.
+         *
 
         protected void finalize() {
         }
 
-             */
+         */
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public boolean isIdleImpl() {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isIdleImpl() {
+            // We do not use self destruction
+            return false;
+        }
 
-                // We do not use self destruction
-                return false;
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void closeImpl() {
+            // Nothing to do. The underlying connection is not affected.
+            // The messenger will be marked closed by the state machine once completely down; that's it.
+        }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public EndpointAddress getLogicalDestinationImpl() {
+            return new EndpointAddress(RelayServerClient.this.clientPeerId, null, null);
+        }
+
+        /**
+         *   {@inheritDoc}
+         *
+         * <p/>Send messages. Messages are queued and then processed when there is a transport messenger.
+         */
+        @Override
+        public void sendMessageBImpl(Message message, String serviceName, String serviceParam) throws IOException {
+            if (!RelayServerClient.this.isOpen()) {
+                IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
+                Logging.logCheckedWarning(LOG, failure);
+                throw failure;
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void closeImpl() {
+            // Prepare the final destination address of the message
+            EndpointAddress useAddr = getDestAddressToUse(serviceName, serviceParam);
 
-                // Nothing to do. The underlying connection is not affected.
-                // The messenger will be marked closed by the state machine once completely down; that's it.
+            // simply enqueue the message.
+            // We clone it, since we pretend it's been sent synchronously.
+            if(!RelayServerClient.this.queueMessage(message.clone(), useAddr.getServiceName(), useAddr.getServiceParameter(), outOfBand)) {
+                throw new IOException("Message could not be queued.");
+            }
+        }
+    }
 
+    /**
+     *  Our Selection key
+     */
+    class ClientSelectionKey extends AbstractSelectionKey {
+        private final RelayServer.ClientSelector selector;
+        private volatile int ops;
+
+        private volatile int readyOps = 0;
+
+        ClientSelectionKey(RelayServer.ClientSelector selector, int ops, Object att) {
+            this.selector = selector;
+            interestOps(ops);
+            attach(att);
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        @Override
+        public RelayServerClient channel() {
+            return RelayServerClient.this;
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        @Override
+        public Selector selector() {
+            return selector;
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        @Override
+        public int interestOps() {
+            return ops;
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        @Override
+        public ClientSelectionKey interestOps(int ops) {
+            if(!isValid()) {
+                throw new CancelledKeyException();
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public EndpointAddress getLogicalDestinationImpl() {
+            this.ops = ops;
+            return this;
+        }
 
-                return new EndpointAddress(RelayServerClient.this.clientPeerId, null, null);
-
+        /**
+         *  {@inheritDoc}
+         */
+        @Override
+        public int readyOps() {
+            if(!isValid()) {
+                throw new CancelledKeyException();
             }
 
-            /**
-             *   {@inheritDoc}
-             *
-             * <p/>Send messages. Messages are queued and then processed when there is a transport messenger.
-             */
-            @Override
-            public void sendMessageBImpl(Message message, String serviceName, String serviceParam) throws IOException {
+            return readyOps;
+        }
 
-                if (!RelayServerClient.this.isOpen()) {
-
-                    IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-                    Logging.logCheckedWarning(LOG, failure);
-                    throw failure;
-
-                }
-
-                // Prepare the final destination address of the message
-                EndpointAddress useAddr = getDestAddressToUse(serviceName, serviceParam);
-
-                // simply enqueue the message.
-                // We clone it, since we pretend it's been sent synchronously.
-                if(!RelayServerClient.this.queueMessage(message.clone(), useAddr.getServiceName(), useAddr.getServiceParameter(), outOfBand)) {
-                     throw new IOException("Message could not be queued.");
-                }
-
+        /**
+         *  Set the readyOps for this key.
+         *
+         *  @param readyOps The new ops value.
+         */
+        public void setReadyOps(int readyOps) {	
+            if(!isValid()) {
+                throw new CancelledKeyException();
             }
 
-	}
-
-	/**
-	 *  Our Selection key
-	 */
-	class ClientSelectionKey extends AbstractSelectionKey {
-
-	    private final RelayServer.ClientSelector selector;
-	    private volatile int ops;
-
-	    private volatile int readyOps = 0;
-
-	    ClientSelectionKey(RelayServer.ClientSelector selector, int ops, Object att) {
-
-                this.selector = selector;
-		interestOps(ops);
-		attach(att);
-
-            }
-
-	    /**
-	     *  {@inheritDoc}
-	     */
-            public RelayServerClient channel() {
-	        return RelayServerClient.this;
-	    }
-
-	    /**
-	     *  {@inheritDoc}
-	     */
-	    public Selector selector() {
-	        return selector;
-            }
-
-	    /**
-	     *  {@inheritDoc}
-	     */
-	    public int interestOps() {
-	        return ops;
-            }
-
-	    /**
-	     *  {@inheritDoc}
-	     */
-	    public ClientSelectionKey interestOps(int ops) {
-
-                if(!isValid()) throw new CancelledKeyException();
-
-	        this.ops = ops;
-                return this;
-
-	    }
-
-	    /**
-	     *  {@inheritDoc}
-	     */
-	    public int readyOps() {
-
-		if(!isValid()) throw new CancelledKeyException();
-	        return readyOps;
-
-            }
-
-            /**
-	     *  Set the readyOps for this key.
-	     *
-	     *  @param readyOps The new ops value.
-	     */
-	    public void setReadyOps(int readyOps) {
-	
-                if(!isValid()) throw new CancelledKeyException();
-
-	        this.readyOps = readyOps;
-		selector.keyChanged(this);
-            }
-
-	} 
+            this.readyOps = readyOps;
+            selector.keyChanged(this);
+        }
+    }
 }

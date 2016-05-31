@@ -147,6 +147,7 @@ public final class RelayTransport implements EndpointListener, Module {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         this.group = group;
         ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) implAdv;
@@ -165,23 +166,19 @@ public final class RelayTransport implements EndpointListener, Module {
             try {
                 XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(assignedID);
 
-                if (null != configDoc) adv = AdvertisementFactory.newAdvertisement(configDoc);
-
+                if (null != configDoc) {
+                    adv = AdvertisementFactory.newAdvertisement(configDoc);
+                }
             } catch (NoSuchElementException failed) {
-
                 //ignored
-
             } catch (IllegalArgumentException failed) {
-
                 Logging.logCheckedError(LOG, "Error in relay advertisement\n", failed);
                 throw failed;
-
             }
 
             if (adv instanceof RelayConfigAdv) {
                 relayConfigAdv = (RelayConfigAdv) adv;
             }
-
         }
 
         if ( relayConfigAdv == null ) {
@@ -454,21 +451,13 @@ public final class RelayTransport implements EndpointListener, Module {
         URI asURI = null;
 
         try {
-
             asURI = new URI(ID.URI_ENCODING_NAME, ID.URN_NAMESPACE + ":" + addr.getProtocolAddress(), null);
             return (PeerID) IDFactory.fromURI(asURI);
-
         } catch (URISyntaxException ex) {
-
             Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address : ", addr, "\n", ex);
-
         } catch (ClassCastException cce) {
-
             Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address: ", addr, "\n", cce);
-
         }
-
         return null;
-
     }
 }

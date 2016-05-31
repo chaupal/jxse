@@ -187,13 +187,10 @@ public class RelayReferralSeedingManager extends URISeedingManager {
             }
 
         } catch (Exception ez1) {
-
             Logging.logCheckedWarning(LOG, "Unexpected error getting relays", ez1);
-
         }
 
         Logging.logCheckedDebug(LOG, "Found ", result.size(), " relay seeds.");
         return result;
-
     }
 }

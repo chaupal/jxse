@@ -248,29 +248,22 @@ public class NettyTransport implements Module {
      *     <li>Otherwise, the port is constrained to the bounds defined by the min and max parameters.</li>
      * </ol>
      */
-    private int correctPort(int port, int min, int max, int defaultPort, int anyPort, String portName) {
-        
+    private int correctPort(int port, int min, int max, int defaultPort, int anyPort, String portName) {        
         if(port == -1) {
-
             return defaultPort;
-
         } else if(port == 0) {
-
             return anyPort;
-
         } else if(port < min || port > max) {
-
             port = Math.max(min, Math.min(port, max));
 
             if(Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
                 LOG.warnParams("{} port was outside legal range ({}-{}), changed to {}", new Object[] { portName, min, max, port });
-            }
-            
-        }
-        
+            }            
+        }        
         return port;
     }
 
+    @Override
     public int startApp(String[] args) {
         if(!serverEnabled && !clientEnabled) {
             LOG.infoParams("Both client and server of transport for {} are disabled - module not starting", getProtocolName());
@@ -291,6 +284,7 @@ public class NettyTransport implements Module {
         return Module.START_OK;
     }
 
+    @Override
     public void stopApp() {
         if(!started) {
             return;
@@ -316,6 +310,7 @@ public class NettyTransport implements Module {
     /**
      * Returns the protocol name which will be used, if not specified in the "Proto"
      * element of the module implementation advertisement.
+     * @return 
      */
     protected String getDefaultProtocolName() {
         return "tcp";
@@ -324,6 +319,7 @@ public class NettyTransport implements Module {
     /**
      * The default port for this transport, if not specified by the instance configuration
      * for this transport.
+     * @return 
      */
     protected int getDefaultPort() {
         return 7901;
@@ -334,6 +330,7 @@ public class NettyTransport implements Module {
      * to any port within a range specified by the configuration or within a default range.
      * This method should specify the <em>lower</em> end of the default range, used if the
      * configuration does not specify anything else.
+     * @return Default port range lower bound
      */
     protected int getDefaultPortRangeLowerBound() {
         return 7901;
@@ -344,6 +341,7 @@ public class NettyTransport implements Module {
      * to any port within a range specified by the configuration or within a default range.
      * This method should specify the <em>upper</em> end of the default range, used if the
      * configuration does not specify anything else.
+     * @return 
      */
     protected int getDefaultPortRangeUpperBound() {
         return 7999;
@@ -352,6 +350,7 @@ public class NettyTransport implements Module {
     /**
      * A short human-readable name for this transport, that will be displayed in configuration
      * logging.
+     * @return Netty transport name (TCP)
      */
     protected String getTransportDescriptiveName() {
         return "Netty TCP";
