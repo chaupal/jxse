@@ -63,11 +63,9 @@ import java.util.EventObject;
  */
 public class OutputPipeEvent extends EventObject {
 
-    private OutputPipe outputpipe;
-
-    private String pipeID;
-
-    private int queryID;
+    private final OutputPipe outputpipe;
+    private final String pipeID;
+    private final int queryID;
 
     /**
      *  Creates a new event
@@ -78,13 +76,11 @@ public class OutputPipeEvent extends EventObject {
      * @param  queryID     The query id associated with the response returned in this event
      */
     public OutputPipeEvent(Object source, OutputPipe outputpipe, String pipeID, int queryID) {
-
         super(source);
 
         this.outputpipe = outputpipe;
         this.pipeID = pipeID;
-        this.queryID = queryID;
-    }
+        this.queryID = queryID;    }
 
     /**
      *  Returns the output associated with the event
