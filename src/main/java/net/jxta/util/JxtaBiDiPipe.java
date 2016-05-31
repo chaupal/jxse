@@ -1373,14 +1373,15 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      *                              the timeout interval is completed.
      */
     public Message getMessage(long timeout) throws InterruptedException {
-        BlockingQueue<PipeMsgEvent> msg_queue = queue;
-        if (msg_queue == null) {
+        BlockingQueue<PipeMsgEvent> messageQueue = queue;
+        if (messageQueue == null) {
             return null;
         } else {
             if (0 == timeout) {
                 timeout = Long.MAX_VALUE;
             }
-            PipeMsgEvent ev = msg_queue.poll(timeout, TimeUnit.MILLISECONDS);
+            PipeMsgEvent ev = messageQueue.poll(timeout, TimeUnit.MILLISECONDS);
+            
             if (ev != null) {
                 return ev.getMessage();
             } else {

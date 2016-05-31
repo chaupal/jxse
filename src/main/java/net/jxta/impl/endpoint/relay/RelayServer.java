@@ -1034,7 +1034,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 // stored as a String by older JXTA implementations.
              	XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, me.getStream() );
             	adv = AdvertisementFactory.newAdvertisement(advDocument);
-
             } catch (IOException failed) {
                 Logging.logCheckedWarning(LOG, "Failed building relay advertisement\n", failed);
                 return;

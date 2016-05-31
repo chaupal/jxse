@@ -563,29 +563,21 @@ public class EndpointAddress {
         int index = addr.indexOf("://");
 
         if (index == -1) {
-
             Logging.logCheckedDebug(LOG, "Address is not in absolute form: ", addr);
             throw new IllegalArgumentException("Address is not in absolute form: " + addr);
-
         }
 
         if (0 == index) {
-
             Logging.logCheckedDebug(LOG, "Protocol is missing: ", addr);
             throw new IllegalArgumentException("Protocol is missing: " + addr);
-
         }
 
         try {
-
             setProtocolName(addr.substring(0, index));
             remainder = addr.substring(index + 3);
-
         } catch (Exception e) {
-
             Logging.logCheckedDebug(LOG, "Protocol address is missing: ", addr);
             throw new IllegalArgumentException("Protocol address is missing: " + addr);
-
         }
 
         index = remainder.indexOf("/");

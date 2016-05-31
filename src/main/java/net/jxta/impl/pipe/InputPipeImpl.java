@@ -108,8 +108,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         pipeID = adv.getPipeID();
 
-        Logging.logCheckedInfo(LOG, "Creating InputPipe for ", pipeID, " of type ", adv.getType(),
-            " with ", ((null != listener) ? "listener" : "queue"));
+        Logging.logCheckedInfo(LOG, "Creating InputPipe for ", pipeID, " of type ", adv.getType(), " with ", ((null != listener) ? "listener" : "queue"));
 
         // queue based inputpipe?
         if (listener == null) {
@@ -167,6 +166,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
         if (closed) {
             return;
         }
+        
         closed = true;
         listener = null;
 

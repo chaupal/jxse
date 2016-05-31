@@ -631,19 +631,14 @@ public class DefaultContentProvider implements
             }
 
             try {
-
                 msg = pme.getMessage();
                 processMessage(msg);
-
             } catch (Exception x) {
-
                 Logging.logCheckedWarning(LOG, "Uncaught exception\n", x);
-
             }
         }
 
         Logging.logCheckedDebug(LOG, "Worker thread closing up shop");
-
     }
 
     /**
@@ -662,7 +657,6 @@ public class DefaultContentProvider implements
         it = msg.getMessageElementsOfNamespace(MSG_NAMESPACE);
 
         while (it.hasNext()) {
-
             msge = (MessageElement) it.next();
 
             if (!MSG_ELEM_NAME.endsWith(msge.getElementName())) {
@@ -671,23 +665,17 @@ public class DefaultContentProvider implements
             }
 
             try {
-
                 doc = StructuredDocumentFactory.newStructuredDocument(msge);
                 req = new DataRequest(doc);
-
             } catch (IOException iox) {
-
                 Logging.logCheckedDebug(LOG, "Could not process message\n", iox);
                 return;
-
             }
 
             // LOGGING: was Finest
             Logging.logCheckedDebug(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
             processDataRequest(req);
-
         }
-
     }
 
     /**
@@ -711,16 +699,12 @@ public class DefaultContentProvider implements
         share = getShare(req.getContentID());
 
         if (share == null) {
-
             Logging.logCheckedWarning(LOG, "Content not shared");
             return;
-
         }
 
         try {
-
-            ActiveTransfer session = tracker.getSession(
-                    share, req.getResponsePipe());
+            ActiveTransfer session = tracker.getSession(share, req.getResponsePipe());
             byteOut = new ByteArrayOutputStream();
             written = session.getData(
                     req.getOffset(), req.getLength(), byteOut);
@@ -738,13 +722,9 @@ public class DefaultContentProvider implements
                     (written == 0) ? null : byteOut.toByteArray());
 
         } catch (TooManyClientsException tmcx) {
-
             Logging.logCheckedWarning(LOG, "Too many concurrent clients.  Discarding.");
-
         } catch (IOException iox) {
-
             Logging.logCheckedWarning(LOG, "Exception while handling data request\n", iox);
-
         }
     }
 
