@@ -223,31 +223,25 @@ public class IncomingUnicastServer implements Runnable {
     /**
      * Daemon where we wait for incoming connections.
      */
+    @Override
     public void run() {
-
         try {
-
             Logging.logCheckedInfo(LOG, "Server is ready to accept connections. ", transport.getPublicAddress());
 
             while (acceptSelector.isOpen()) {
                 try {
-
                     // Open the channel if not already open.
                     if ((null == serverSocChannel) || !serverSocChannel.isOpen()) {
-
                         serverSocChannel = null;
                         serverSocket = null;
 
                         if (null == (serverSocChannel = openServerSocket(acceptSelector))) {
-
                             Logging.logCheckedWarning(LOG, "Failed to open Server Channel");
                             break;
-
                         }
 
                         serverSocket = serverSocChannel.socket();
                         serverBindPreferredLocalPort = serverSocket.getLocalPort();
-
                     }
 
                     // select() waiting for connections.
@@ -278,35 +272,24 @@ public class IncomingUnicastServer implements Runnable {
                             }
                         }
                     }
-
                 } catch (ClosedSelectorException cse) {
-
                     break;
-
                 } catch (InterruptedIOException woken) {
-
                     Thread.interrupted();
-
                 } catch (IOException e1) {
-
-                    if (!acceptSelector.isOpen()) break;
+                    if (!acceptSelector.isOpen()) {
+                        break;                    
+                    }
 
                     Logging.logCheckedWarning(LOG, "[1] ServerSocket.accept() failed on ", serverSocket.getInetAddress(), ":", serverSocket.getLocalPort(), "\n", e1);
-
                 } catch (SecurityException e2) {
-
                     Logging.logCheckedWarning(LOG, "[2] ServerSocket.accept() failed on ", serverSocket.getInetAddress(), ":", serverSocket.getLocalPort(), "\n", e2);
                     break;
-
                 }
             }
-
         } catch (Throwable all) {
-
             Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-
         } finally {
-
             synchronized (this) {
                 ServerSocketChannel temp = serverSocChannel;
                 serverSocChannel = null;
@@ -320,9 +303,8 @@ public class IncomingUnicastServer implements Runnable {
                 }
                 acceptThread = null;
             }
-
+            
             Logging.logCheckedInfo(LOG, "Server has been shut down. ", transport.getPublicAddress());
-
         }
     }
 
@@ -342,20 +324,15 @@ public class IncomingUnicastServer implements Runnable {
                     newSocket.setReceiveBufferSize(useBufferSize);
                     newSocket.bind(bindAddress, TcpTransport.MaxAcceptCnxBacklog);
                 } catch (SocketException failed) {
-
                     if (-1 != serverBindStartLocalPort) {
-
                         // If there is a port range then forget our preferred port and rest
                         serverBindPreferredLocalPort = (0 == serverBindStartLocalPort) ? 0 : -1;
                         continue;
-
                     }
-
+                    
                     Logging.logCheckedError(LOG, "Cannot bind ServerSocket on ", serverBindLocalInterface, ":", serverBindPreferredLocalPort, failed);
                     return null;
-
                 }
-
             } else {
                 // No preference or we already tried and failed to bind the preferred port.
                 ServerSocket newSocket = newChannel.socket();
@@ -378,9 +355,7 @@ public class IncomingUnicastServer implements Runnable {
         }
 
         Logging.logCheckedInfo(LOG, "Server will accept connections at ", newChannel.socket().getLocalSocketAddress());
-
         return newChannel;
-
     }
 
     /**
@@ -401,6 +376,7 @@ public class IncomingUnicastServer implements Runnable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void run() {
             try {
                 if (socketChannel.isConnected() && (null != socketChannel.socket())) {
@@ -411,24 +387,15 @@ public class IncomingUnicastServer implements Runnable {
                         if (transportBindingMeter != null) {
                             transportBindingMeter.connectionEstablished(false, 0);
                         }
-
                     }
-
                 } else {
-
                     Logging.logCheckedWarning(LOG, socketChannel, " not connected.");
-
                 }
-
             } catch (IOException io) {
-
                 // protect against invalid connections
                 Logging.logCheckedDebug(LOG, "Messenger creation failure\n\n", io);
-
             } catch (Throwable all) {
-
                 Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
-
             }
         }
     }

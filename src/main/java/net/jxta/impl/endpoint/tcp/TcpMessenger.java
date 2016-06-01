@@ -454,6 +454,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * Now everyone knows its closed and the connection can no-longer be
      * obtained. So, we can go about our business of closing it.
      */
+    @Override
     public void closeImpl() {
         if(!closed.compareAndSet(false, true)) {
             return;
@@ -501,6 +502,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClosed() {
         // FIXME - jice 20040413: Warning. this is overloading the standard
         // isClosed(). Things were arranged so that it
@@ -528,6 +530,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * connections do not go away when the messenger does. There's a receive
      * timeout for that.
      */
+    @Override
     public boolean isIdleImpl() {
         // With NIO, other than the FD, there's no overhead in keeping the channel open,
         return false;
@@ -536,6 +539,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointAddress getLogicalDestinationImpl() {
         // FIXME 20070127 bondolo THIS IS BEING CALLED BEFORE IT IS INITED.
         return logicalDestAddress;
@@ -544,6 +548,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void  sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         sendMessageDirect(message, service, serviceParam, false);
     }
@@ -810,29 +815,18 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             Logging.logCheckedDebug(LOG, "Registering Messenger from ", socketChannel.socket().getInetAddress().getHostAddress(), ":", socketChannel.socket().getPort());
 
             try {
-
                 // announce this messenger by connection address
                 tcpTransport.messengerReadyEvent(this, getConnectionAddress());
-
             } catch (Throwable all) {
-
                 Logging.logCheckedError(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-                IOException failure = new IOException("Failure announcing messenger.");
-                failure.initCause(all);
-                throw failure;
-
+                throw new IOException("Failure announcing messenger.", all);
             }
-
         } catch (IOException e) {
-
             Logging.logCheckedWarning(LOG, "Error while parsing the welcome message\n", e);
             closeImpl();
             return false;
-
         }
-
         return true;
-
     }
 
     /**
@@ -842,7 +836,6 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * @return true if successfully parsed
      */
     private boolean processHeader(ByteBuffer buffer) {
-
         if (null == header) {
             header = new MessagePackageHeader();
         }
@@ -850,14 +843,11 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         Logging.logCheckedDebug(LOG, MessageFormat.format("{0} Processing message package header, buffer stats:{1}", Thread.currentThread(), buffer.toString()));
 
         try {
-
             if (!header.readHeader(buffer)) {
                 Logging.logCheckedDebug(LOG, MessageFormat.format("{0} maintaining current state at header, buffer stats :{1}", Thread.currentThread(), buffer.toString()));
                 return false;
             }
-
         } catch (IOException e) {
-
             Logging.logCheckedWarning(LOG, "Error while parsing the message header\n", e);
 
             if (!socketChannel.isConnected()) {
@@ -865,14 +855,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 // defunct connection close the messenger
                 Logging.logCheckedWarning(LOG, "SocketChannel closed. Closing the messenger");
                 closeImpl();
-
             }
-
         }
 
-        Logging.logCheckedDebug(LOG, MessageFormat.format("{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:",
-            Thread.currentThread(), buffer.toString(), buffer.remaining()));
-
+        Logging.logCheckedDebug(LOG, MessageFormat.format("{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:", Thread.currentThread(), buffer.toString(), buffer.remaining()));
         return true;
     }
 
@@ -889,6 +875,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * This is what gets run by the Executor. It reads whatever is available,
      * processes it and then goes back to the selector waiting for more IO
      */
+    @Override
     public void run() {
         try {
             while (read()) {
@@ -900,12 +887,12 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             }
 
             // resets the interestOPS and wakeup the selector
-            if (socketChannel != null) tcpTransport.register(socketChannel, this);
+            if (socketChannel != null) {
+                tcpTransport.register(socketChannel, this);
+            }
 
         } catch (Throwable all) {
-
             Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
-
         }
     }
 
@@ -914,26 +901,22 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     private boolean read() {
 
-        if (closed.get() || socketChannel == null) return false;
+        if (closed.get() || socketChannel == null) {
+            return false;
+        }
 
         if (!socketChannel.isConnected()) {
-
             Logging.logCheckedWarning(LOG, "SocketChannel is not connected. closing connection");
             closeImpl();
             return false;
-
         }
 
         try {
-
-            Logging.logCheckedDebug(LOG, MessageFormat.format("{0} State before read(): {1}, buffer stats : {2}, remaining :{3}",
-                Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
+            Logging.logCheckedDebug(LOG, MessageFormat.format("{0} State before read(): {1}, buffer stats : {2}, remaining :{3}", Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
 
             int read = socketChannel.read(buffer);
             if (read < 0) {
-
                 if (!socketChannel.isConnected() || read < 0) {
-
                     Logging.logCheckedDebug(LOG, MessageFormat.format("{0} Closing due to EOF", Thread.currentThread()));
                     Logging.logCheckedWarning(LOG, "SocketChannel is not connected. closing connection");
                     closeImpl();
@@ -943,9 +926,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 return false;
 
             } else if (read == 0) {
-
                 return false;
-
             }
 
             tcpTransport.incrementBytesReceived(read);
@@ -957,37 +938,26 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
 
             return true;
-
         } catch (ClosedChannelException e) {
-
             Logging.logCheckedWarning(LOG, "Channel closed while reading data\n", e);
             closeImpl();
             return false;
-
         } catch (InterruptedIOException woken) {
-
             // Framing is maintained within this object, therefore a read maybe interrupted then resumed
-            Logging.logCheckedWarning(LOG, MessageFormat.format("tcp receive - interrupted : read() {0} {1}:{2}",
-                woken.bytesTransferred, inetAddress.getHostAddress(), port));
-
+            Logging.logCheckedWarning(LOG, MessageFormat.format("tcp receive - interrupted : read() {0} {1}:{2}", woken.bytesTransferred, inetAddress.getHostAddress(), port));
         } catch (IOException ioe) {
-
             Logging.logCheckedWarning(LOG, "IOException occured while reading data\n", ioe);
             closeImpl();
             return false;
-
         } catch (Throwable e) {
-
             Logging.logCheckedWarning(LOG, "tcp receive - Error on connection ", inetAddress.getHostAddress(), ":", port, e);
             closingDueToFailure = true;
             closeImpl();
             return false;
-
         }
 
         // if the channel has a valid read ops return true, otherwise false
         return (socketChannel.validOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ;
-
     }
 
     /**
@@ -1001,14 +971,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         boolean done = false;
 
         while (!done) {
-
-            Logging.logCheckedDebug(LOG, MessageFormat.format("{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}",
-                Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
+            Logging.logCheckedDebug(LOG, MessageFormat.format("{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}", Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
 
             switch (state.get()) {
-
                 case WELCOME:
-
                     // Parse Welcome message
                     boolean wseen = processWelcome(buffer);
 
@@ -1053,20 +1019,15 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
 
                     if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
-
                         Message msg;
 
                         try {
-
                             msg = processMessage(buffer, header);
-
                         } catch (IOException io) {
-
                             Logging.logCheckedWarning(LOG, "Failed to parse a message from buffer. closing connection\n", io);
                             closeImpl();
                             done = true;
                             break;
-
                         }
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
@@ -1082,10 +1043,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         msgs.add(msg);
 
                     } else {
-
                         done = true;
                         break;
-
                     }
             }
         } // while loop
@@ -1106,14 +1065,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             this.msg = msg;
         }
 
+        @Override
         public void run() {
-
-            Logging.logCheckedDebug(LOG, MessageFormat.format("{0} calling EndpointService.demux({1})",
-                Thread.currentThread(),
-                msg, inetAddress.getHostAddress(), port));
-
+            Logging.logCheckedDebug(LOG, MessageFormat.format("{0} calling EndpointService.demux({1})", Thread.currentThread(),msg, inetAddress.getHostAddress(), port));
             tcpTransport.endpoint.processIncomingMessage(msg);
-
         }
     }
 

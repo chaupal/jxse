@@ -218,27 +218,21 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
         // Add some selectors to the pool.
         try {
-
-            for (int i = 0; i < MAX_WRITE_SELECTORS; i++)
+            for (int i = 0; i < MAX_WRITE_SELECTORS; i++) {
                 writeSelectorCache.add(Selector.open());
-
+            }
         } catch (IOException ex) {
-
             Logging.logCheckedError(LOG, "Failed adding selector to  write selector pool");
-
         }
 
         try {
-
             String connectTOStr = System.getProperty("sun.net.client.defaultConnectTimeout");
 
-            if (connectTOStr != null) 
+            if (connectTOStr != null) {
                 connectionTimeOut = Integer.parseInt(connectTOStr);
-
+            }
         } catch (Exception e) {
-
             Logging.logCheckedWarning(LOG, "Could not parse system property: sun.net.client.defaultConnectTimeout");
-
         }
     }
 
@@ -329,6 +323,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean equals(Object target) {
         if (this == target) {
             return true;
@@ -369,6 +364,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int hashCode() {
         return getPublicAddress().hashCode();
     }
@@ -376,6 +372,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         this.group = group;
@@ -440,23 +437,14 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         interfaceAddressStr = adv.getInterfaceAddress();
 
         if (interfaceAddressStr != null) {
-
             try {
-
                 usingInterface = InetAddress.getByName(interfaceAddressStr);
-
             } catch (UnknownHostException failed) {
-
                 Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using default");
-
                 usingInterface = IPUtils.ANYADDRESS;
-
             }
-
         } else {
-
             usingInterface = IPUtils.ANYADDRESS;
-
         }
 
         serverName = adv.getServer();
@@ -520,10 +508,12 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 // the result of IPUtils.getAllLocalAddresses() is not known to 
                 // be sorted.
                 Collections.sort(wildAddrs, new Comparator<EndpointAddress>() {
+                    @Override
                     public int compare(EndpointAddress one, EndpointAddress two) {
                         return one.toString().compareTo(two.toString());
                     }
 
+                    @Override
                     public boolean equals(Object that) {
                         return (this == that);
                     }
@@ -655,15 +645,14 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-
             Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return Module.START_AGAIN_STALLED;
-
         }
 
         try {
@@ -712,7 +701,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         Logging.logCheckedInfo(LOG, "TCP Message Transport started.");
 
         return Module.START_OK;
-
     }
 
     /**
@@ -778,6 +766,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointAddress getPublicAddress() {
         return publicAddress;
     }
@@ -785,6 +774,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public EndpointService getEndpointService() {
         return endpoint;
     }
@@ -792,6 +782,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterator<EndpointAddress> getPublicAddresses() {
         return Collections.unmodifiableList(publicAddresses).iterator();
     }
@@ -799,6 +790,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isConnectionOriented() {
         return true;
     }
@@ -806,6 +798,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean allowsRouting() {
         return true;
     }
@@ -813,6 +806,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc }
      */
+    @Override
     public Messenger getMessenger(EndpointAddress dst) {
 //    public Messenger getMessenger(EndpointAddress dst, Object hintIgnored) {
         return getMessenger(dst, null, true);
@@ -829,12 +823,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * @return Messenger instance, or null if no instance could be created
      */
     public Messenger getMessenger(EndpointAddress dst, Object hintIgnored, boolean selfDestruct) {
-
         if (!dst.getProtocolName().equalsIgnoreCase(getProtocolName())) {
-
             Logging.logCheckedWarning(LOG, "Cannot make messenger for protocol: ", dst.getProtocolName());
             return null;
-
         }
 
         EndpointAddress plainAddr = new EndpointAddress(dst, null, null);
@@ -845,9 +836,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             Logging.logCheckedDebug(LOG, "return LoopbackMessenger for addr : ", dst);
 
-            return new LoopbackMessenger(group, endpoint, getPublicAddress(), dst,
-                    new EndpointAddress("jxta", group.getPeerID().getUniqueValue().toString(), null, null));
-
+            return new LoopbackMessenger(group, endpoint, getPublicAddress(), dst, new EndpointAddress("jxta", group.getPeerID().getUniqueValue().toString(), null, null));
         }
 
         try {
@@ -857,10 +846,11 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             return new TcpMessenger(dst, this, selfDestruct);
 
         } catch (Exception caught) {
-
             Logging.logCheckedWarning(LOG, "Could not get messenger for ", dst, " :\n", caught);
-
-            if (caught instanceof RuntimeException) throw (RuntimeException) caught;
+            
+            if (caught instanceof RuntimeException) {
+                throw (RuntimeException) caught;
+            }
 
             return null;
         }
@@ -960,8 +950,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void run() {
-
             try {
 
                 Logging.logCheckedInfo(LOG, "MessengerSelectorThread polling started");
@@ -1033,23 +1023,14 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                                 key = null;
                             }
                         }
-
                     } catch (ClosedSelectorException cse) {
-
                         Logging.logCheckedDebug(LOG, "IO Selector closed");
-
                     } catch (InterruptedIOException woken) {
-
                         Logging.logCheckedDebug(LOG, "Thread inturrupted\n", woken);
-
                     } catch (IOException e1) {
-
                         Logging.logCheckedWarning(LOG, "An exception occurred while selecting keys\n", e1);
-
                     } catch (SecurityException e2) {
-
                         Logging.logCheckedWarning(LOG, "A security exception occurred while selecting keys\n", e2);
-
                     }
                 }
 
@@ -1058,15 +1039,10 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 // updates?
 
             } catch (Throwable all) {
-
                 Logging.logCheckedError(LOG, "Uncaught Throwable\n", all);
-
             } finally {
-
                 messengerSelectorThread = null;
-
             }
-
         }
     }
 
@@ -1129,15 +1105,11 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                     msgr.close();
 
                 } catch (CancelledKeyException e) {
-
                     Logging.logCheckedDebug(LOG, "Key is already cancelled, removing key from registeration map\n", e);
-
                 } catch (IllegalBlockingModeException e) {
-
                     Logging.logCheckedDebug(LOG, "Invalid blocking channel mode, closing messenger\n", e);
                     // messenger state is unknown
                     msgr.close();
-
                 }
 
                 // remove it from the table
