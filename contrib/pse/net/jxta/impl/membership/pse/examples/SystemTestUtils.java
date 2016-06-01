@@ -67,92 +67,105 @@ public class SystemTestUtils {
         final AtomicReference<JxtaBiDiPipe> aliceAcceptedPipe = new AtomicReference<JxtaBiDiPipe>();
         
         ServerPipeAcceptListener listener = new ServerPipeAcceptListener() {
+            @Override
             public void pipeAccepted(JxtaBiDiPipe pipe) {
                 aliceAcceptedPipe.set(pipe);
                 pipeEstablished.countDown();
             }
             
-            public void serverPipeClosed() {}
+            @Override
+            public void serverPipeClosed() {
+            }
         };
         
         JxtaServerPipe aliceServerPipe = createServerPipe(aliceManager, listener, secure);
         
         PipeMsgListener aliceListener = new PipeMsgListener() {
+            @Override
             public void pipeMsgEvent(PipeMsgEvent event) {
-System.out.println("Alice received message: " + event.getMessage().getMessageElement(STRING_PAYLOAD_ELEMENT));
+                System.out.println("Alice received message: " + event.getMessage().getMessageElement(STRING_PAYLOAD_ELEMENT));
                 Message bobsMessage = event.getMessage();
                 Set<EndpointAddress> tempSetEA = (Set)bobsMessage.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
                 Iterator i = tempSetEA.iterator();
-                while(i.hasNext())
-System.out.println("    -- verified address: " + i.next());
+                while(i.hasNext()) {
+                    System.out.println("    -- verified address: " + i.next());
+                }
                 aliceRequestReceived.countDown();
             }
         };
         
         PipeMsgListener bobListener = new PipeMsgListener() {
+            @Override
             public void pipeMsgEvent(PipeMsgEvent event) {
-System.out.println("Bob received message: " + event.getMessage().getMessageElement(STRING_PAYLOAD_ELEMENT));
+                System.out.println("Bob received message: " + event.getMessage().getMessageElement(STRING_PAYLOAD_ELEMENT));
                 Message alicesMessage = event.getMessage();
                 Set<EndpointAddress> tempSetEA = (Set)alicesMessage.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
                 Iterator i = tempSetEA.iterator();
-                while(i.hasNext())
-System.out.println("    -- verified address: " + i.next());
+                while(i.hasNext()) {
+                    System.out.println("    -- verified address: " + i.next());
+                }
+                
                 bobResponseReceived.countDown();
             }
         };
+        
         JxtaBiDiPipe bobPipe = connectNonBlocking(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
 
         pipeEstablished.await(5, TimeUnit.SECONDS);
         aliceAcceptedPipe.get().setMessageListener(aliceListener);
 
-System.out.println("Bob: sending message to alice - 'hello alice'");
+        System.out.println("Bob: sending message to alice - 'hello alice'");
         bobPipe.sendMessage(SystemTestUtils.createMessage("hello alice"));
         aliceRequestReceived.await(5, TimeUnit.SECONDS);
 
-System.out.println("Alice: sending message to bob - 'hello bob'");
+        System.out.println("Alice: sending message to bob - 'hello bob'");
         aliceAcceptedPipe.get().sendMessage(SystemTestUtils.createMessage("hello bob"));
         bobResponseReceived.await(5, TimeUnit.SECONDS);
     }
 
-    private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager,
-                                                 PipeAdvertisement pipeAdv,
-                                                 PipeMsgListener clientListener) throws IOException
-    {
+    private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager, PipeAdvertisement pipeAdv, PipeMsgListener clientListener) throws IOException {
         final JxtaBiDiPipe biDiPipe = new JxtaBiDiPipe();
         biDiPipe.setWindowSize(20);
         biDiPipe.connect(clientManager.getNetPeerGroup(),null, pipeAdv, 5000, clientListener, true);
         return biDiPipe;
     }
 
-    private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager,
-                                                 PipeAdvertisement pipeAdv,
-                                                 PipeMsgListener clientListener) throws IOException {
+    private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, PipeAdvertisement pipeAdv, PipeMsgListener clientListener) throws IOException {
         int tryCount = 0;
+        
         while(true) {
             try {
                 return new JxtaBiDiPipe(clientManager.getNetPeerGroup(), pipeAdv, 5000, clientListener);
             } catch (SocketTimeoutException e) {
                 tryCount++;
                 if(tryCount >= 3) {
-                        throw e;
+                    throw e;
                 }
             }
         }
     }
 
     public static void rmdir(File dir) throws IOException {
-        if (null == dir)
+        if (null == dir) {
             return;
-        if (!dir.exists())
+        }
+        
+        if (!dir.exists()) {
             return;
+        }
+        
         File[] children = dir.listFiles();
-        if (children!=null)
-            for (int i=0; i<children.length; i++) {
-                if(children[i].isFile())
-                    children[i].delete();
-                else if (children[i].isDirectory())
-                    rmdir(children[i]);
+        
+        if (children!=null) {
+            for (File child : children) {
+                if (child.isFile()) {
+                    child.delete();
+                } else if (child.isDirectory()) {
+                    rmdir(child);
+                }
             }
+        }
+        
         dir.delete();
     }
 }

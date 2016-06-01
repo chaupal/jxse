@@ -133,71 +133,71 @@ public class SystemTestUtils {
         assertTrue("Failed to send messages from alice to bob", bobResponseReceived.await(5, TimeUnit.SECONDS));
     }
 
-        private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager, PipeAdvertisement pipeAdv, PipeMsgListener clientListener) throws IOException {
-            final JxtaBiDiPipe biDiPipe = new JxtaBiDiPipe();
-            biDiPipe.setWindowSize(20);
-            biDiPipe.connect(clientManager.getNetPeerGroup(),null, pipeAdv, 5000, clientListener, true);
-            return biDiPipe;
-        }
+    private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager, PipeAdvertisement pipeAdv, PipeMsgListener clientListener) throws IOException {
+        final JxtaBiDiPipe biDiPipe = new JxtaBiDiPipe();
+        biDiPipe.setWindowSize(20);
+        biDiPipe.connect(clientManager.getNetPeerGroup(),null, pipeAdv, 5000, clientListener, true);
+        return biDiPipe;
+    }
 
-        private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, PipeAdvertisement pipeAdv, PipeMsgListener clientListener) throws IOException {
-            int tryCount = 0;
-            while(true) {
-                try {
-                    return new JxtaBiDiPipe(clientManager.getNetPeerGroup(), pipeAdv, 5000, clientListener);
-                } catch (SocketTimeoutException e) {
-                    tryCount++;
-                    if(tryCount >= 3) {
-                        throw e;
-                    }
+    private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, PipeAdvertisement pipeAdv, PipeMsgListener clientListener) throws IOException {
+        int tryCount = 0;
+        while(true) {
+            try {
+                return new JxtaBiDiPipe(clientManager.getNetPeerGroup(), pipeAdv, 5000, clientListener);
+            } catch (SocketTimeoutException e) {
+                tryCount++;
+                if(tryCount >= 3) {
+                    throw e;
                 }
             }
         }
+    }
 
-	public static PipeEnds createBiDiPipe(NetworkManager acceptor, NetworkManager requestor, final PipeMsgListener acceptorListener, final PipeMsgListener requestorListener, long timeout, TimeUnit timeoutUnit) throws IOException, InterruptedException {
-            final CountDownLatch acceptLatch = new CountDownLatch(1);
-            final AtomicReference<JxtaBiDiPipe> acceptedPipeRef = new AtomicReference<JxtaBiDiPipe>();
-            JxtaServerPipe serverPipe = createServerPipe(acceptor, new ServerPipeAcceptListener() {
-                    @Override
-                    public void serverPipeClosed() {}
+    public static PipeEnds createBiDiPipe(NetworkManager acceptor, NetworkManager requestor, final PipeMsgListener acceptorListener, final PipeMsgListener requestorListener, long timeout, TimeUnit timeoutUnit) throws IOException, InterruptedException {
+        final CountDownLatch acceptLatch = new CountDownLatch(1);
+        final AtomicReference<JxtaBiDiPipe> acceptedPipeRef = new AtomicReference<JxtaBiDiPipe>();
+        JxtaServerPipe serverPipe = createServerPipe(acceptor, new ServerPipeAcceptListener() {
+                @Override
+                public void serverPipeClosed() {}
 
-                    @Override
-                    public void pipeAccepted(JxtaBiDiPipe pipe) {
-                            pipe.setMessageListener(acceptorListener);
-                            acceptedPipeRef.set(pipe);
-                            acceptLatch.countDown();
-                    }
-            });
+                @Override
+                public void pipeAccepted(JxtaBiDiPipe pipe) {
+                        pipe.setMessageListener(acceptorListener);
+                        acceptedPipeRef.set(pipe);
+                        acceptLatch.countDown();
+                }
+        });
 
-            Thread.sleep(5000);
+        Thread.sleep(5000);
 
-            JxtaBiDiPipe clientPipeEnd = connectNonBlocking(requestor, serverPipe.getPipeAdv(), requestorListener);
-            boolean success = acceptLatch.await(timeout, timeoutUnit);
-            serverPipe.close();
+        JxtaBiDiPipe clientPipeEnd = connectNonBlocking(requestor, serverPipe.getPipeAdv(), requestorListener);
+        boolean success = acceptLatch.await(timeout, timeoutUnit);
+        serverPipe.close();
 
-            if(success) {
-                    return new PipeEnds(acceptedPipeRef.get(), clientPipeEnd);
-            } else {
-                    fail("Failed to establish connection between peers");
-                    return null;
-            }
-	}
+        if(success) {
+                return new PipeEnds(acceptedPipeRef.get(), clientPipeEnd);
+        } else {
+                fail("Failed to establish connection between peers");
+                return null;
+        }
+    }
 
-	public static void checkMessagesEqual(Message sentMessage, Message receivedMessage) {
-            assertTrue(receivedMessage.getMessageElement(TEST_NAMESPACE, STRING_PAYLOAD_ELEMENT) != null);
+    public static void checkMessagesEqual(Message sentMessage, Message receivedMessage) {
+        assertTrue(receivedMessage.getMessageElement(TEST_NAMESPACE, STRING_PAYLOAD_ELEMENT) != null);
 
-            String sentString = sentMessage.getMessageElement(TEST_NAMESPACE, STRING_PAYLOAD_ELEMENT).toString();
-            String receivedString = receivedMessage.getMessageElement(TEST_NAMESPACE, STRING_PAYLOAD_ELEMENT).toString();
+        String sentString = sentMessage.getMessageElement(TEST_NAMESPACE, STRING_PAYLOAD_ELEMENT).toString();
+        String receivedString = receivedMessage.getMessageElement(TEST_NAMESPACE, STRING_PAYLOAD_ELEMENT).toString();
 
-            assertEquals(sentString, receivedString);
+        assertEquals(sentString, receivedString);
 
-            if(sentMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT) != null) {
-                assertTrue(receivedMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT) != null);
+        if(sentMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT) != null) {
+            assertTrue(receivedMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT) != null);
 
-                byte[] sentBytes = ((ByteArrayMessageElement)sentMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT)).getBytes();
-                byte[] receivedBytes=  ((ByteArrayMessageElement)receivedMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT)).getBytes();
+            byte[] sentBytes = ((ByteArrayMessageElement)sentMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT)).getBytes();
+            byte[] receivedBytes=  ((ByteArrayMessageElement)receivedMessage.getMessageElement(TEST_NAMESPACE, EXTRA_BYTES_ELEMENT)).getBytes();
 
-                assertArrayEquals(sentBytes, receivedBytes);
-            }
-	}
+            assertArrayEquals(sentBytes, receivedBytes);
+        }
+    }
 }
