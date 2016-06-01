@@ -337,6 +337,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          */
+        @Override
         public MessageElement previous() {
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
@@ -508,15 +509,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         } while (anElement.element != anNsElement);
                     }
                 } catch (NoSuchElementException ranOut) {
-
-                    RuntimeException failure = new ConcurrentModificationException(
-                            Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
-
-                    Logging.logCheckedError(LOG,
-                                Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
-                                Message.this.getMessageModCount(), "\n", getMessageModHistory(),
-                                failure);
-
+                    RuntimeException failure = new ConcurrentModificationException(Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
+                    Logging.logCheckedError(LOG, Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=", Message.this.getMessageModCount(), "\n", getMessageModHistory(), failure);
                     throw failure;
                 }
             }
@@ -1442,6 +1436,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void itemChanged(SimpleSelectable o) {// For now, messages are not themselves registered with anything.
         // Therefore itemChanged does not do a thing.
     }
