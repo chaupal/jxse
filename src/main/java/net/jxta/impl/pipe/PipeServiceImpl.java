@@ -71,7 +71,7 @@ import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
 import net.jxta.platform.Module;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
 import java.io.IOException;
@@ -140,7 +140,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * the impl advertisement for this impl.
 	 */
-	private ModuleImplAdvertisement implAdvertisement = null;
+	private JxtaSocket implAdvertisement = null;
 
 	/**
 	 * Table of listeners for asynchronous output pipe creation.
@@ -231,7 +231,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * {@inheritDoc}
 	 */
-	public ModuleImplAdvertisement getImplAdvertisement() {
+	public JxtaSocket getImplAdvertisement() {
 		return implAdvertisement;
 	}
 
@@ -242,7 +242,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 			Advertisement impl) {
 
 		this.group = group;
-		implAdvertisement = (ModuleImplAdvertisement) impl;
+		implAdvertisement = (JxtaSocket) impl;
 
 		if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 			StringBuilder configInfo = new StringBuilder(

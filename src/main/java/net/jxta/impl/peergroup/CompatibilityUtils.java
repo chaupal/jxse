@@ -66,7 +66,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 /**
  * General compatibility utility library for centralizing default
@@ -144,11 +144,11 @@ public final class CompatibilityUtils {
      * @param description description of the Module
      * @return ModuleImplAdvertisement
      */
-    public static ModuleImplAdvertisement createModuleImplAdvertisement(
+    public static JxtaSocket createModuleImplAdvertisement(
             ModuleSpecID msid, String className, String description) {
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
+        JxtaSocket implAdv = (JxtaSocket)
         AdvertisementFactory.newAdvertisement(
-                ModuleImplAdvertisement.getAdvertisementType());
+                JxtaSocket.getAdvertisementType());
 
         implAdv.setModuleSpecID(msid);
         implAdv.setCompat(createDefaultCompatStatement());

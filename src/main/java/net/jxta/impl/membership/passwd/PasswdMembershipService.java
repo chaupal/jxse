@@ -70,7 +70,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.service.Service;
 
@@ -533,7 +533,7 @@ public class PasswdMembershipService implements MembershipService {
     /**
      * The ModuleImplAdvertisement which was used to instantiate this service.
      */
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
 
     /**
      * An internal table containing the identity and password pairs as parsed from the
@@ -601,7 +601,7 @@ public class PasswdMembershipService implements MembershipService {
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         peergroup = group;
-        implAdvertisement = (ModuleImplAdvertisement) impl;
+        implAdvertisement = (JxtaSocket) impl;
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 

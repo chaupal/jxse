@@ -64,7 +64,7 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ContentShareAdvertisement;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.ModuleSpecAdvertisement;
 
 import java.io.BufferedReader;
@@ -137,7 +137,7 @@ public class ContentServiceImpl implements ContentService {
     /**
      * Implementation adv given to us via init().
      */
-    private ModuleImplAdvertisement implAdv = null;
+    private JxtaSocket implAdv = null;
 
     /**
      * Peer group given to us via init().
@@ -211,7 +211,7 @@ public class ContentServiceImpl implements ContentService {
             }
             initialized = true;
             this.group = group;
-            this.implAdv = (ModuleImplAdvertisement) adv;
+            this.implAdv = (JxtaSocket) adv;
             toAdd = waitingForInit;
             waitingForInit = null;
         }
@@ -334,9 +334,9 @@ public class ContentServiceImpl implements ContentService {
                 ModuleSpecAdvertisement specAdv =
                         (ModuleSpecAdvertisement) adv;
                 asgnID = specAdv.getModuleSpecID();
-            } else if (adv instanceof ModuleImplAdvertisement) {
-                ModuleImplAdvertisement mimpAdv =
-                        (ModuleImplAdvertisement) adv;
+            } else if (adv instanceof JxtaSocket) {
+                JxtaSocket mimpAdv =
+                        (JxtaSocket) adv;
                 asgnID = mimpAdv.getModuleSpecID();
             } else {
                 asgnID = adv.getID();

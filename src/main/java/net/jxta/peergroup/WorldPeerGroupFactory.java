@@ -61,7 +61,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logging;
 import net.jxta.platform.IJxtaLoader;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -238,7 +238,7 @@ public final class WorldPeerGroupFactory {
         try {
             IJxtaLoader loader = DynamicJxtaLoader.getInstance();
 
-            ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
+            JxtaSocket worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
 
             if(null == worldGroupImplAdv) {
                 throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");

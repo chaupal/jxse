@@ -71,7 +71,7 @@ import net.jxta.pipe.PipeService;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ContentShareAdvertisement;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
 
@@ -320,9 +320,9 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public Advertisement getImplAdvertisement() {
-        ModuleImplAdvertisement adv =
-                (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(
-                        ModuleImplAdvertisement.getAdvertisementType());
+        JxtaSocket adv =
+                (JxtaSocket) AdvertisementFactory.newAdvertisement(
+                        JxtaSocket.getAdvertisementType());
         adv.setModuleSpecID(specID);
         adv.setCode(getClass().getName());
         adv.setProvider("https://jxta.dev.java.net/");

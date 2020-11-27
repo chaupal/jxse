@@ -99,7 +99,7 @@ import java.net.URI;
  * @see net.jxta.platform.Module
  * @see net.jxta.platform.ModuleClassID
  * @see net.jxta.protocol.ModuleSpecAdvertisement
- * @see net.jxta.protocol.ModuleImplAdvertisement
+ * @see net.jxta.protocol.JxtaSocket
  * @see net.jxta.id.ID
  * @see net.jxta.document.Advertisement
  *

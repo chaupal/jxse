@@ -89,7 +89,7 @@ import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.TransportAdvertisement;
 
 import java.io.ByteArrayOutputStream;
@@ -231,7 +231,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     /**
      * The impl advertisement we were provided in init().
      */
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
 
     /**
      * The endpoint service we are working for.
@@ -279,7 +279,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         this.group = group;
         this.assignedID = assignedID;
-        this.implAdvertisement = (ModuleImplAdvertisement) impl;
+        this.implAdvertisement = (JxtaSocket) impl;
 
         ConfigParams configAdv = group.getConfigAdvertisement();
 

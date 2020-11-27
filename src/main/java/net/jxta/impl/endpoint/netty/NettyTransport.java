@@ -27,7 +27,7 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.TransportAdvertisement;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
@@ -75,7 +75,7 @@ public class NettyTransport implements Module {
         initServer(instanceConfiguration);
         initClient(instanceConfiguration, getPreferredReturnAddress(instanceConfiguration));
         
-        Logging.logCheckedConfig(LOG, buildConfigurationState(assignedID, (ModuleImplAdvertisement)implAdv));
+        Logging.logCheckedConfig(LOG, buildConfigurationState(assignedID, (JxtaSocket)implAdv));
 
     }
 
@@ -136,7 +136,7 @@ public class NettyTransport implements Module {
         }
     }
 
-    private String buildConfigurationState(ID assignedID, ModuleImplAdvertisement implAdv) {
+    private String buildConfigurationState(ID assignedID, JxtaSocket implAdv) {
         StringWriter writer = new StringWriter();
         writer.append("Configuring ").append(getTransportDescriptiveName()).append(" Transport : ").append(assignedID.toString());
         
@@ -176,10 +176,10 @@ public class NettyTransport implements Module {
     }
 
     private void processStaticConfiguration(Advertisement implAdv) {
-        if(implAdv == null || !(implAdv instanceof ModuleImplAdvertisement)) {
+        if(implAdv == null || !(implAdv instanceof JxtaSocket)) {
             return;
         }
-        ModuleImplAdvertisement moduleImplAdv = (ModuleImplAdvertisement) implAdv;
+        JxtaSocket moduleImplAdv = (JxtaSocket) implAdv;
         StructuredDocument<?> parameters = moduleImplAdv.getParam();
         
         if(parameters != null) {

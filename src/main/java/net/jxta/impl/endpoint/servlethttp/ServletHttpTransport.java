@@ -75,7 +75,7 @@ import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.TransportAdvertisement;
 
 import java.net.InetAddress;
@@ -115,7 +115,7 @@ public final class ServletHttpTransport implements Module {
      */
     PeerGroup group;
     ID assignedID;
-    ModuleImplAdvertisement implAdvertisement;
+    JxtaSocket implAdvertisement;
 
     /**
      * The endpoint we attach to.
@@ -182,7 +182,7 @@ public final class ServletHttpTransport implements Module {
     public synchronized void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
         this.assignedID = assignedID;
-        implAdvertisement = (ModuleImplAdvertisement) impl;
+        implAdvertisement = (JxtaSocket) impl;
 
         // Get out invariable parameters from the implAdv
         XMLElement param = (XMLElement) implAdvertisement.getParam();

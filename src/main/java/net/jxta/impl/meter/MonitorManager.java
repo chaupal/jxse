@@ -64,7 +64,7 @@ import net.jxta.meter.*;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
@@ -104,7 +104,7 @@ public class MonitorManager implements Service {
     private boolean isRunning = true; // true until monitor is destroyed, triggers termination of report thread
 
     private ModuleClassID[] supportedModuleClassIDs;
-    private ModuleImplAdvertisement implAdvertisement;
+    private JxtaSocket implAdvertisement;
     private long lastResetTime = System.currentTimeMillis();
 
     public Advertisement getImplAdvertisement() {
@@ -119,7 +119,7 @@ public class MonitorManager implements Service {
     // public MonitorManager(PeerGroup peerGroup) {
 
     public void init(PeerGroup peerGroup, ID assignedID, Advertisement implAdvertisement) {
-        this.implAdvertisement = (ModuleImplAdvertisement) implAdvertisement;
+        this.implAdvertisement = (JxtaSocket) implAdvertisement;
         this.peerGroup = peerGroup;
         createReportThread();
 
@@ -228,7 +228,7 @@ public class MonitorManager implements Service {
         } else {
 
             try {
-                ModuleImplAdvertisement moduleImplAdvertisement = MonitorResources.getServiceMonitorImplAdvertisement(
+                JxtaSocket moduleImplAdvertisement = MonitorResources.getServiceMonitorImplAdvertisement(
                         moduleClassID, implAdvertisement);
                 ServiceMonitor serviceMonitor = (ServiceMonitor) peerGroup.loadModule(moduleClassID, moduleImplAdvertisement);
 
@@ -757,7 +757,7 @@ public class MonitorManager implements Service {
 
         if (monitorManager == null) {
             boolean includeTransports = true;
-            ModuleImplAdvertisement moduleImplAdvertisement = MonitorResources.getReferenceAllPurposeMonitorServiceImplAdvertisement(
+            JxtaSocket moduleImplAdvertisement = MonitorResources.getReferenceAllPurposeMonitorServiceImplAdvertisement(
                     includeTransports);
 
             monitorManager = (MonitorManager) peerGroup.loadModule(MonitorResources.refMonitorServiceSpecID

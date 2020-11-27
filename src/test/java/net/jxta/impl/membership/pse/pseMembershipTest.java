@@ -71,7 +71,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
@@ -96,18 +96,18 @@ public class pseMembershipTest extends TestCase {
                     npg = null; // PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                     // npg.startApp( new String[0]);
 
-                    ModuleImplAdvertisement newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();
+                    JxtaSocket newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();
 
                     StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(newGroupImpl.getParam());
 
                     Map services = params.getServices();
 
-                    ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(IModuleDefinitions.membershipClassID);
+                    JxtaSocket aModuleAdv = (JxtaSocket) services.get(IModuleDefinitions.membershipClassID);
 
                     services.remove(IModuleDefinitions.membershipClassID);
 
-                    ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(
-                            ModuleImplAdvertisement.getAdvertisementType());
+                    JxtaSocket implAdv = (JxtaSocket) AdvertisementFactory.newAdvertisement(
+                            JxtaSocket.getAdvertisementType());
 
                     implAdv.setModuleSpecID(PSEMembershipService.pseMembershipSpecID);
                     implAdv.setCompat(aModuleAdv.getCompat());

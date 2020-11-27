@@ -5,7 +5,7 @@ import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 public interface IJxtaModuleService<T extends Module> extends IModuleService<T>{
 
@@ -24,7 +24,7 @@ public interface IJxtaModuleService<T extends Module> extends IModuleService<T>{
 	 * get a module implementation advertisement
 	 * @return
 	 */
-	public ModuleImplAdvertisement getModuleImplAdvertisement();
+	public JxtaSocket getModuleImplAdvertisement();
 	
 	/**
 	 * Get the class that is represented by this module

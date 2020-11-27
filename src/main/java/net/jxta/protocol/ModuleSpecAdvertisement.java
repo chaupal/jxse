@@ -98,7 +98,7 @@ import net.jxta.platform.ModuleSpecID;
  * @see net.jxta.platform.ModuleSpecID
  * @see net.jxta.protocol.PipeAdvertisement
  * @see net.jxta.protocol.ModuleClassAdvertisement
- * @see net.jxta.protocol.ModuleImplAdvertisement
+ * @see net.jxta.protocol.JxtaSocket
  * @see net.jxta.document.Advertisement
  */
 public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement implements Cloneable {

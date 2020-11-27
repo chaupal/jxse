@@ -71,7 +71,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import java.io.IOException;
@@ -140,7 +140,7 @@ class RouteCM implements Module {
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
+        JxtaSocket implAdvertisement = (JxtaSocket) impl;
 
         // extract Router service configuration properties
 

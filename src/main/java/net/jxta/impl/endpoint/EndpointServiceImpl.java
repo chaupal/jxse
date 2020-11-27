@@ -86,7 +86,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import java.io.IOException;
@@ -207,7 +207,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     private PeerGroup group = null;
     private ID assignedID = null;
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
 
     private String localPeerId = null;
     private boolean useParentEndpoint = DEFAULT_USE_PARENT_ENDPOINT;
@@ -497,7 +497,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         this.group = group;
         // The selector for the element of the peer adv params that we have to update.
         this.assignedID = assignedID;
-        this.implAdvertisement = (ModuleImplAdvertisement) impl;
+        this.implAdvertisement = (JxtaSocket) impl;
 
         this.localPeerId = group.getPeerID().toString();
 
@@ -712,7 +712,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdvertisement;
     }
 

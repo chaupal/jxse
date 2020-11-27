@@ -110,7 +110,7 @@ import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
@@ -191,7 +191,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * This group's implAdvertisement.
      */
-    protected ModuleImplAdvertisement implAdvertisement = null;
+    protected JxtaSocket implAdvertisement = null;
 
     /**
      * This peer's config advertisement.
@@ -624,7 +624,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public Module loadModule(ID assigned, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException {
-        return loadModule(assigned, (ModuleImplAdvertisement) impl, false);
+        return loadModule(assigned, (JxtaSocket) impl, false);
     }
 
     /**
@@ -646,7 +646,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * @throws ProtocolNotSupportedException The module is incompatible.
      * @throws PeerGroupException            The module could not be loaded or initialized
      */
-    protected Module loadModule(ID assigned, ModuleImplAdvertisement implAdv, boolean privileged) throws ProtocolNotSupportedException, PeerGroupException {
+    protected Module loadModule(ID assigned, JxtaSocket implAdv, boolean privileged) throws ProtocolNotSupportedException, PeerGroupException {
 
         Element compat = implAdv.getCompat();
 
@@ -754,7 +754,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     	List<Advertisement> allModuleImplAdvs = new ArrayList<Advertisement>();
 
-    	ModuleImplAdvertisement loadedImplAdv = loader.findModuleImplAdvertisement(specID);
+    	JxtaSocket loadedImplAdv = loader.findModuleImplAdvertisement(specID);
 
     	// We already have a module defined for this spec id.
     	// We test the spec id before deciding to use it
@@ -771,14 +771,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     		if (fromHere && (null != discovery)) {
     			Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV,
-    					"MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+    					"MSID", specID.toString(), 120, JxtaSocket.class);
 
     			allModuleImplAdvs.addAll(here);
     		}
 
     		if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
     			Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV,
-    					"MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+    					"MSID", specID.toString(), 120, JxtaSocket.class);
 
     			allModuleImplAdvs.addAll(parent);
     		}
@@ -787,11 +787,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
     	Throwable recentFailure = null;
 
     	for (Advertisement eachAdv : allModuleImplAdvs) {
-            if (!(eachAdv instanceof ModuleImplAdvertisement)) {
+            if (!(eachAdv instanceof JxtaSocket)) {
                     continue;
             }
 
-            ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
+            JxtaSocket foundImpl = (JxtaSocket) eachAdv;
 
             try {
 
@@ -935,7 +935,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected void initFirst(PeerGroup homeGroup, ID assignedID, Advertisement impl) throws PeerGroupException {
 
-        this.implAdvertisement = (ModuleImplAdvertisement) impl;
+        this.implAdvertisement = (JxtaSocket) impl;
         this.parentGroup = homeGroup;
 
         if (null != parentGroup) {
@@ -1194,7 +1194,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             for (Map.Entry<ModuleClassID, Service> anEntry : services.entrySet()) {
                 ModuleClassID aMCID = anEntry.getKey();
-                ModuleImplAdvertisement anImplAdv = (ModuleImplAdvertisement) anEntry.getValue().getImplAdvertisement();
+                JxtaSocket anImplAdv = (JxtaSocket) anEntry.getValue().getImplAdvertisement();
 
                 configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(anImplAdv.getDescription());
             }
@@ -1348,7 +1348,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdvertisement.clone();
     }
 
@@ -1448,7 +1448,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         try {
 
-            theNewGroup = (PeerGroup) loadModule(gid, (ModuleImplAdvertisement) impl, false);
+            theNewGroup = (PeerGroup) loadModule(gid, (JxtaSocket) impl, false);
 
         } catch (Throwable any) {
 

@@ -71,7 +71,7 @@ import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 import java.net.URI;
 import java.util.Enumeration;
@@ -104,7 +104,7 @@ public class StdPeerGroupParamAdv {
     private static final String SVC_TAG = "Svc";
     private static final String MCID_TAG = "MCID";
     private static final String MSID_TAG = "MSID";
-    private static final String MIA_TAG = ModuleImplAdvertisement.getAdvertisementType();
+    private static final String MIA_TAG = JxtaSocket.getAdvertisementType();
 
     // In the future we should be able to manipulate all modules regardless of 
     // their kind, but right now it helps to keep them categorized as follows.
@@ -115,7 +115,7 @@ public class StdPeerGroupParamAdv {
      * <ul>
      *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
      *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
-     *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
+     *     {@link net.jxta.protocol.JxtaSocket}.</li>
      * </ul>
      */ 
     private final Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
@@ -127,7 +127,7 @@ public class StdPeerGroupParamAdv {
      * <ul>
      *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
      *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
-     *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
+     *     {@link net.jxta.protocol.JxtaSocket}.</li>
      * </ul>
      */ 
     private final Map<ModuleClassID, Object> transports = new HashMap<ModuleClassID, Object>();
@@ -138,7 +138,7 @@ public class StdPeerGroupParamAdv {
      * <ul>
      *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
      *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
-     *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
+     *     {@link net.jxta.protocol.JxtaSocket}.</li>
      * </ul>
      */ 
     private final Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
@@ -385,7 +385,7 @@ public class StdPeerGroupParamAdv {
 
             ModuleSpecID specID = null;
             ModuleClassID classID = null;
-            ModuleImplAdvertisement inLineAdv = null;
+            JxtaSocket inLineAdv = null;
 
             try {
 
@@ -412,7 +412,7 @@ public class StdPeerGroupParamAdv {
 
                     } else if (MIA_TAG.equals(field.getName())) {
 
-                        inLineAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(field);
+                        inLineAdv = (JxtaSocket) AdvertisementFactory.newAdvertisement(field);
 
                     } else {
 

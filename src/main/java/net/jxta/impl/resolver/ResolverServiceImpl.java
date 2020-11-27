@@ -81,7 +81,7 @@ import net.jxta.meter.MonitorResources;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.ResolverSrdiMsg;
@@ -149,7 +149,7 @@ public class ResolverServiceImpl implements ResolverService {
 
     private String handlerName = null;
     private PeerGroup group = null;
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
     private EndpointService endpoint = null;
     private MembershipService membership = null;
 
@@ -259,7 +259,7 @@ public class ResolverServiceImpl implements ResolverService {
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) {
-        implAdvertisement = (ModuleImplAdvertisement) impl;
+        implAdvertisement = (JxtaSocket) impl;
 
         this.group = group;
         handlerName = assignedID.toString();
@@ -418,7 +418,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdvertisement;
     }
 

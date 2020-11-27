@@ -78,7 +78,7 @@ import net.jxta.platform.ModuleSpecID;
  *  on "Name", "GID", and "Desc"
  *
  *  @see    net.jxta.platform.ModuleSpecID
- *  @see    net.jxta.protocol.ModuleImplAdvertisement
+ *  @see    net.jxta.protocol.JxtaSocket
  *  @see    net.jxta.peergroup.PeerGroup
  */
 

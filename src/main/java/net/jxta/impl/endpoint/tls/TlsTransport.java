@@ -75,7 +75,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 import javax.security.auth.x500.X500Principal;
 import java.beans.PropertyChangeEvent;
@@ -114,7 +114,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
     private PeerGroup group = null;
     ID assignedID = null;
-    ModuleImplAdvertisement implAdvertisement = null;
+    JxtaSocket implAdvertisement = null;
 
     EndpointService endpoint = null;
     PSEMembershipService membership = null;
@@ -309,7 +309,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         this.group = group;
         this.assignedID = assignedID;
-        this.implAdvertisement = (ModuleImplAdvertisement) impl;
+        this.implAdvertisement = (JxtaSocket) impl;
 
         localPeerId = group.getPeerID();
 

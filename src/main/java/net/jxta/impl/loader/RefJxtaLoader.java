@@ -70,7 +70,7 @@ import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -129,8 +129,8 @@ public class RefJxtaLoader extends JxtaLoader {
     /**
      * Classes and ImplAdvs we have known. Weak Map so that classes can be GCed.
      */
-    private final Map<Class<? extends Module>, ModuleImplAdvertisement> implAdvs =
-            new WeakHashMap<Class<? extends Module>, ModuleImplAdvertisement>();
+    private final Map<Class<? extends Module>, JxtaSocket> implAdvs =
+            new WeakHashMap<Class<? extends Module>, JxtaSocket>();
 
     /**
      * Construct a new loader for the specified URLS with the default parent
@@ -388,7 +388,7 @@ public class RefJxtaLoader extends JxtaLoader {
      *  a Module implementation
      */
     @Override
-    public synchronized Class<? extends Module> defineClass(ModuleImplAdvertisement impl) throws ClassFormatError {
+    public synchronized Class<? extends Module> defineClass(JxtaSocket impl) throws ClassFormatError {
         String asString = impl.getCompat().toString();
 
         // See if we have any classes defined for this ModuleSpecID.
@@ -440,7 +440,7 @@ public class RefJxtaLoader extends JxtaLoader {
      */
     @SuppressWarnings("rawtypes")
 	@Override
-    public ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz) {
+    public JxtaSocket findModuleImplAdvertisement(Class clazz) {
         Class<? extends Module> modClass;
         try {
             modClass = verifyAndCast(clazz);
@@ -454,13 +454,13 @@ public class RefJxtaLoader extends JxtaLoader {
         ClassLoader parentLoader = getParent();
         if (parentLoader instanceof JxtaLoader) {
             IJxtaLoader jxtaLoader = (IJxtaLoader) parentLoader;
-            ModuleImplAdvertisement result = jxtaLoader.findModuleImplAdvertisement(modClass);
+            JxtaSocket result = jxtaLoader.findModuleImplAdvertisement(modClass);
             if (result != null) {
                 return result;
             }
         }
 
-        ModuleImplAdvertisement result = implAdvs.get(modClass);
+        JxtaSocket result = implAdvs.get(modClass);
 
         if (result == null) {
 
@@ -478,7 +478,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * {@inheritDoc}
      */
     @Override
-    public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
+    public JxtaSocket findModuleImplAdvertisement(ModuleSpecID msid) {
 
         Class<? extends Module> moduleClass;
 
@@ -574,7 +574,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
         Logging.logCheckedFinest(LOG, hashHex(), ": discoverModuleImplementations(MSID=", msid, ")");
 
-        List<ModuleImplAdvertisement> locatedAdvs = null;
+        List<JxtaSocket> locatedAdvs = null;
 
         try {
 
@@ -582,11 +582,11 @@ public class RefJxtaLoader extends JxtaLoader {
 
             for (URL providers : Collections.list(allProviderLists)) {
 
-                List<ModuleImplAdvertisement> located = locateModuleImplementations(msid, providers);
+                List<JxtaSocket> located = locateModuleImplementations(msid, providers);
 
                 if (located != null) {
                     if (locatedAdvs == null) {
-                        locatedAdvs = new ArrayList<ModuleImplAdvertisement>();
+                        locatedAdvs = new ArrayList<JxtaSocket>();
                     }
                     locatedAdvs.addAll(located);
                 }
@@ -604,7 +604,7 @@ public class RefJxtaLoader extends JxtaLoader {
             return;
         }
 
-        for (ModuleImplAdvertisement mAdv : locatedAdvs) {
+        for (JxtaSocket mAdv : locatedAdvs) {
             defineClass(mAdv);
         }
     }
@@ -621,9 +621,9 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return list of discovered ModuleImplAdvertisements for the specified
      *  ModuleSpecID, or null if no results were found.
      */
-    private List<ModuleImplAdvertisement> locateModuleImplementations(ModuleSpecID specID, URL providers) {
+    private List<JxtaSocket> locateModuleImplementations(ModuleSpecID specID, URL providers) {
 
-        List<ModuleImplAdvertisement> result = null;
+        List<JxtaSocket> result = null;
         InputStream urlStream = null;
 
         Logging.logCheckedFinest(LOG, hashHex(), ": discoverModuleImplementations(MSID=", specID, ", URL=", providers, ")");
@@ -650,7 +650,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
                 try {
 
-                    ModuleImplAdvertisement mAdv = null;
+                    JxtaSocket mAdv = null;
                     String[] parts = provider.split("\\s", 3);
 
                     if (parts.length == 1) {
@@ -685,7 +685,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
                     if (mAdv != null) {
                         if (result == null) {
-                            result = new ArrayList<ModuleImplAdvertisement>();
+                            result = new ArrayList<JxtaSocket>();
                         }
                         result.add(mAdv);
                     }
@@ -723,14 +723,14 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return ModuleImplAdvertisement found by introspection, or null if
      *  the ModuleImplAdvertisement could not be discovered in this manner
      */
-    private ModuleImplAdvertisement locateModuleImplAdvertisement(String className) {
+    private JxtaSocket locateModuleImplAdvertisement(String className) {
 
         try {
 
             Class<?> moduleClass = (Class<?>) Class.forName(className);
             Class<? extends Module> modClass = verifyAndCast(moduleClass);
             Method getImplAdvMethod = modClass.getMethod("getDefaultModuleImplAdvertisement");
-            return (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
+            return (JxtaSocket) getImplAdvMethod.invoke(null);
 
         } catch(Exception ex) {
 

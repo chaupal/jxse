@@ -102,7 +102,7 @@ import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.AccessPointAdvertisement;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.service.Service;
@@ -671,7 +671,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
         this.assignedID = assignedID;
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
+        JxtaSocket implAdvertisement = (JxtaSocket) impl;
 
         localPeerId = group.getPeerID();
         localPeerAddr = pid2addr(group.getPeerID());

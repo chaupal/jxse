@@ -74,7 +74,7 @@ import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
@@ -117,7 +117,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     private static final Logger LOG = Logger.getLogger(LightWeightPeerGroup.class.getName());
     private PeerGroup group = null;
     private ID assignedID = null;
-    private ModuleImplAdvertisement implAdv = null;
+    private JxtaSocket implAdv = null;
     private final PeerGroupAdvertisement adv;
 
     /**
@@ -138,7 +138,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
         this.group = group;
         this.assignedID = assignedID;
-        this.implAdv = (ModuleImplAdvertisement) implAdv;
+        this.implAdv = (JxtaSocket) implAdv;
     }
 
     /**
@@ -170,7 +170,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdv;
     }
 
@@ -544,7 +544,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
+    public JxtaSocket getAllPurposePeerGroupImplAdvertisement() throws Exception {
         if (group != null) {
             return group.getAllPurposePeerGroupImplAdvertisement();
         } else {

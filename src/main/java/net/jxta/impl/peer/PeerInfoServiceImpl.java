@@ -86,7 +86,7 @@ import net.jxta.peer.PeerInfoService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerInfoQueryMessage;
 import net.jxta.protocol.PeerInfoResponseMessage;
 import net.jxta.protocol.ResolverQueryMsg;
@@ -121,7 +121,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     private PeerGroup group = null;
     private EndpointService endpoint = null;
     private PeerID localPeerId = null;
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
     private String resolverHandlerName = null;
     private MembershipService membership = null;
     private Credential credential = null;
@@ -146,7 +146,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
 
-        implAdvertisement = (ModuleImplAdvertisement) impl;
+        implAdvertisement = (JxtaSocket) impl;
         localPeerId = group.getPeerID();
         resolverHandlerName = assignedID.toString();
 

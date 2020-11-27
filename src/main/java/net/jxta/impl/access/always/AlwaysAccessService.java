@@ -65,7 +65,7 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.service.Service;
 
 import java.net.URI;
@@ -287,7 +287,7 @@ public class AlwaysAccessService implements AccessService {
 
     PeerGroup group;
 
-    ModuleImplAdvertisement implAdvertisement;
+    JxtaSocket implAdvertisement;
 
     /**
      *  Default Constructor
@@ -299,7 +299,7 @@ public class AlwaysAccessService implements AccessService {
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
 
-        implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        implAdvertisement = (JxtaSocket) implAdv;
         this.group = group;
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
@@ -334,7 +334,7 @@ public class AlwaysAccessService implements AccessService {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdvertisement;
     }
 

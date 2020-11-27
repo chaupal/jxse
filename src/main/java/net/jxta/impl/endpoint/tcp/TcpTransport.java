@@ -84,7 +84,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.TransportAdvertisement;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -382,7 +382,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         this.group = group;
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
+        JxtaSocket implAdvertisement = (JxtaSocket) impl;
 
         this.executor = group.getTaskManager().getExecutorService();
 

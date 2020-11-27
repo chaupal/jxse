@@ -69,7 +69,7 @@ import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.service.Service;
 import net.jxta.logging.Logging;
 import java.beans.PropertyChangeListener;
@@ -457,7 +457,7 @@ public class NoneMembershipService implements MembershipService {
         }
     }
 
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
 
     /**
      *  The peergroup we live in.
@@ -536,7 +536,7 @@ public class NoneMembershipService implements MembershipService {
      **/
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
-        implAdvertisement = (ModuleImplAdvertisement) impl;
+        implAdvertisement = (JxtaSocket) impl;
         peergroup = group;
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {

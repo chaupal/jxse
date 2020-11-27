@@ -25,7 +25,7 @@ import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
@@ -85,7 +85,7 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
+    public JxtaSocket getAllPurposePeerGroupImplAdvertisement() throws Exception {
         throw new RuntimeException("not implemented");
     }
 

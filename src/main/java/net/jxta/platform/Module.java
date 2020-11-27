@@ -79,7 +79,7 @@ import net.jxta.peergroup.PeerGroup;
  * implemented by an object of class Platform, a subclass of PeerGroup.
  * The "parent" PeerGroup of the World Peer Group is null.
  *
- * @see net.jxta.protocol.ModuleImplAdvertisement
+ * @see net.jxta.protocol.JxtaSocket
  * @see net.jxta.platform.ModuleClassID
  * @see net.jxta.peergroup.PeerGroup
  * @see net.jxta.document.Advertisement

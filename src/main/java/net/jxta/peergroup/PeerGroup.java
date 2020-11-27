@@ -81,7 +81,7 @@ import net.jxta.pipe.PipeService;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
@@ -112,7 +112,7 @@ import net.jxta.service.Service;
  * @see net.jxta.service.Service
  * @see net.jxta.peergroup.PeerGroupFactory
  * @see net.jxta.protocol.PeerGroupAdvertisement
- * @see net.jxta.protocol.ModuleImplAdvertisement
+ * @see net.jxta.protocol.JxtaSocket
  * @see net.jxta.platform.ModuleSpecID
  * @see net.jxta.platform.ModuleClassID
  */
@@ -768,7 +768,7 @@ public interface PeerGroup extends Service {
      * @return ModuleImplAdvertisement The new peergroup impl adv.
      * @throws Exception if an error occurs while creating the implementation advertisement
      */
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception;
+    public JxtaSocket getAllPurposePeerGroupImplAdvertisement() throws Exception;
 
 //    /**
 //     * Explicitly notifies a group interface that it will no-longer be used

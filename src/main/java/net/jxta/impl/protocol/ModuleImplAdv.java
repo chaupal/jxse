@@ -69,7 +69,7 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -95,10 +95,10 @@ import java.util.logging.Logger;
  * </pre>
  *
  * @see net.jxta.document.Advertisement
- * @see net.jxta.protocol.ModuleImplAdvertisement
+ * @see net.jxta.protocol.JxtaSocket
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#advert-mia> target='_blank'>JXTA Protocols Specification - Advertisements : Module Implementation Advertisement</a>
  */
-public class ModuleImplAdv extends ModuleImplAdvertisement {
+public class ModuleImplAdv extends JxtaSocket {
 
     /**
      * Log4J Logger

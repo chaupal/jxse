@@ -100,7 +100,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
     /**
      * Descriptive meta-data about this pipe.
      */
-    private Element description = null;
+    private Element<?> description = null;
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -111,7 +111,7 @@ public abstract class PipeAdvertisement extends ExtendableAdvertisement implemen
         return "jxta:PipeAdvertisement";
     }
 
-    /**
+   	/**
      *  {@inheritDoc}
      */
     @Override

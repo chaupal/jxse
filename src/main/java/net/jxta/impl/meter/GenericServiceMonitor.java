@@ -65,7 +65,7 @@ import net.jxta.meter.ServiceMonitorFilter;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 public abstract class GenericServiceMonitor implements ServiceMonitorImpl, Module {
     private ModuleClassID moduleClassID;
@@ -75,7 +75,7 @@ public abstract class GenericServiceMonitor implements ServiceMonitorImpl, Modul
     protected int reportRateIndex;
     protected ServiceMetric cumulativeServiceMetric;
     protected ServiceMetric deltaServiceMetrics[];
-    protected ModuleImplAdvertisement implAdvertisement;
+    protected JxtaSocket implAdvertisement;
 
     public GenericServiceMonitor() {}
 
@@ -83,7 +83,7 @@ public abstract class GenericServiceMonitor implements ServiceMonitorImpl, Modul
 
     public void init(PeerGroup group, ID assignedID, Advertisement advertisement) {
 //        group.unref(); // We do not use the group. These are not quite real modules.
-        this.implAdvertisement = (ModuleImplAdvertisement) advertisement;
+        this.implAdvertisement = (JxtaSocket) advertisement;
         this.moduleClassID = (ModuleClassID) assignedID;
     }
 

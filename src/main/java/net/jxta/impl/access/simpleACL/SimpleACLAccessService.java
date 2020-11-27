@@ -66,7 +66,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.service.Service;
 import java.net.URI;
@@ -333,7 +333,7 @@ public class SimpleACLAccessService implements AccessService {
     /**
      *  Implementation advertisement for this instance.
      */
-    ModuleImplAdvertisement implAdvertisement;
+    JxtaSocket implAdvertisement;
 
     /**
      *  The ACLs we are supporting.
@@ -351,7 +351,7 @@ public class SimpleACLAccessService implements AccessService {
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
 
         this.group = group;
-        implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        implAdvertisement = (JxtaSocket) implAdv;
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder("Configuring Access Service : " + assignedID);
@@ -435,7 +435,7 @@ public class SimpleACLAccessService implements AccessService {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdvertisement;
     }
 

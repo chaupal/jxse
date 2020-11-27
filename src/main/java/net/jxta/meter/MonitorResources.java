@@ -67,7 +67,7 @@ import net.jxta.exception.JxtaException;
 import net.jxta.id.ID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 
 import java.net.URI;
@@ -82,7 +82,7 @@ import java.util.Map;
 
 public class MonitorResources {
     public static final String SERVICE_MONITOR_TAG = "serviceMonitor";
-    public static final String SERVICE_MONITOR_ADVERTISEMENT_TAG = ModuleImplAdvertisement.getAdvertisementType();
+    public static final String SERVICE_MONITOR_ADVERTISEMENT_TAG = JxtaSocket.getAdvertisementType();
     public static final String CLASS_ID_TAG = "moduleClassID";
     public static final String SERVICE_TITLE_TAG = "serviceTitle";
     public static final String SERVICE_MONITOR_IMPL_TAG = "serviceMonitorImpl";
@@ -284,8 +284,8 @@ public class MonitorResources {
                 ,
         transportServiceMonitorClassID };
 
-    public static ModuleImplAdvertisement getReferenceAllPurposeMonitorServiceImplAdvertisement(boolean includeTransports) {
-    	ModuleImplAdvertisement moduleImplAdvertisement = (ModuleImplAdvertisement)AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+    public static JxtaSocket getReferenceAllPurposeMonitorServiceImplAdvertisement(boolean includeTransports) {
+    	JxtaSocket moduleImplAdvertisement = (JxtaSocket)AdvertisementFactory.newAdvertisement(JxtaSocket.getAdvertisementType());
 
     	moduleImplAdvertisement.setModuleSpecID(refMonitorServiceSpecID);
         moduleImplAdvertisement.setDescription("Service Monitor");
@@ -334,7 +334,7 @@ public class MonitorResources {
     }
 
     private static void addServiceMonitorServiceAdvertisement(Element root, ModuleSpecID moduleSpecID, String title, String implClassName, String metricClassName, String filterClassName) {
-        ModuleImplAdvertisement moduleImplAdvertisement = createServiceMonitorModuleImplAdvertisement(moduleSpecID, title
+        JxtaSocket moduleImplAdvertisement = createServiceMonitorModuleImplAdvertisement(moduleSpecID, title
                 ,
                 implClassName, metricClassName, filterClassName);
 
@@ -352,9 +352,9 @@ public class MonitorResources {
         DocumentSerializableUtilities.copyChildren(serviceMonitorAdvertisementElement, advDoc);
     }
 
-    public static ModuleImplAdvertisement createServiceMonitorModuleImplAdvertisement(ModuleSpecID moduleSpecID, String title, String implClassName, String metricClassName, String filterClassName) {
+    public static JxtaSocket createServiceMonitorModuleImplAdvertisement(ModuleSpecID moduleSpecID, String title, String implClassName, String metricClassName, String filterClassName) {
 
-    	ModuleImplAdvertisement moduleImplAdvertisement = (ModuleImplAdvertisement)AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+    	JxtaSocket moduleImplAdvertisement = (JxtaSocket)AdvertisementFactory.newAdvertisement(JxtaSocket.getAdvertisementType());
 
     	moduleImplAdvertisement.setModuleSpecID(moduleSpecID);
         moduleImplAdvertisement.setDescription("Service Monitor");
@@ -374,7 +374,7 @@ public class MonitorResources {
         return moduleImplAdvertisement;
     }
 
-    public static ModuleImplAdvertisement getServiceMonitorImplAdvertisement(ModuleClassID serviceMonitorModuleClassID, ModuleImplAdvertisement monitorServiceImplAdvertisement) {
+    public static JxtaSocket getServiceMonitorImplAdvertisement(ModuleClassID serviceMonitorModuleClassID, JxtaSocket monitorServiceImplAdvertisement) {
 
         String classIDText = serviceMonitorModuleClassID.toString();
 
@@ -389,7 +389,7 @@ public class MonitorResources {
                 XMLElement serviceMonitorAdvertisementElement = (XMLElement) DocumentSerializableUtilities.getChildElement(
                         serviceMonitorElement, SERVICE_MONITOR_ADVERTISEMENT_TAG);
 
-                return (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(serviceMonitorAdvertisementElement);
+                return (JxtaSocket) AdvertisementFactory.newAdvertisement(serviceMonitorAdvertisementElement);
             }
         }
 
@@ -405,7 +405,7 @@ public class MonitorResources {
         String serviceMetricClassName;
         Class serviceMetricClass;
 
-        ServiceResource(ModuleImplAdvertisement moduleImplAdvertisement) throws JxtaException {
+        ServiceResource(JxtaSocket moduleImplAdvertisement) throws JxtaException {
             try {
                 serviceMonitorClassName = moduleImplAdvertisement.getCode();
 
@@ -435,7 +435,7 @@ public class MonitorResources {
      * Register the Implementation Advertisement for a ServiceMonitor Type
      *  This contains the Monitor, Metric and Filter classNames
      */
-    public static void registerServiceMonitorModuleImplAdvertisement(ModuleImplAdvertisement moduleImplAdvertisement) throws JxtaException {
+    public static void registerServiceMonitorModuleImplAdvertisement(JxtaSocket moduleImplAdvertisement) throws JxtaException {
         ModuleClassID moduleClassID = moduleImplAdvertisement.getModuleSpecID().getBaseClass();
 
         if (registeredMonitorResources.get(moduleClassID) != null) {
@@ -482,7 +482,7 @@ public class MonitorResources {
     /**
      * get ServiceMetric ClassName from its ImplAdvertisement
      */
-    public static String getServiceMetricClassName(ModuleImplAdvertisement serviceMonitorModuleImplAdvertisement) {
+    public static String getServiceMetricClassName(JxtaSocket serviceMonitorModuleImplAdvertisement) {
         Element param = serviceMonitorModuleImplAdvertisement.getParam();
 
         return DocumentSerializableUtilities.getString(param, METRIC_CLASS_TAG, null);
@@ -491,7 +491,7 @@ public class MonitorResources {
     /**
      * get ServiceMonitorFilter ClassName from its ImplAdvertisement
      */
-    public static String getServiceMonitorFilterClassName(ModuleImplAdvertisement serviceMonitorModuleImplAdvertisement) {
+    public static String getServiceMonitorFilterClassName(JxtaSocket serviceMonitorModuleImplAdvertisement) {
         Element param = serviceMonitorModuleImplAdvertisement.getParam();
 
         return DocumentSerializableUtilities.getString(param, FILTER_CLASS_TAG, null);

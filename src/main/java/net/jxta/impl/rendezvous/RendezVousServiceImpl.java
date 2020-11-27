@@ -103,7 +103,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
@@ -138,7 +138,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     private PeerGroup group = null;
     private ID assignedID = null;
-    private ModuleImplAdvertisement implAdvertisement = null;
+    private JxtaSocket implAdvertisement = null;
 
     public EndpointService endpoint = null;
 
@@ -200,7 +200,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getImplAdvertisement() {
+    public JxtaSocket getImplAdvertisement() {
         return implAdvertisement;
     }
 
@@ -222,7 +222,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     public synchronized void init(PeerGroup g, ID assignedID, Advertisement impl) {
         this.group = g;
         this.assignedID = assignedID;
-        this.implAdvertisement = (ModuleImplAdvertisement) impl;
+        this.implAdvertisement = (JxtaSocket) impl;
 
         RdvConfigAdv rdvConfigAdv = null;
         ConfigParams confAdv = group.getConfigAdvertisement();

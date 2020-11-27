@@ -73,7 +73,7 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -150,7 +150,7 @@ public final class RelayTransport implements EndpointListener, Module {
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         this.group = group;
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        JxtaSocket implAdvertisement = (JxtaSocket) implAdv;
 
         this.serviceName = assignedID.getUniqueValue().toString();
 

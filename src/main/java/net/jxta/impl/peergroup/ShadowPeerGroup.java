@@ -66,7 +66,7 @@ import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 /**
  * ShadowPeerGroup is almost a regular StdPeerGroup, except that it borrows its
@@ -84,8 +84,8 @@ public class ShadowPeerGroup extends StdPeerGroup {
      *
      *  @return The default module impl advertisement for this class.
      */
-    public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
+    public static JxtaSocket getDefaultModuleImplAdvertisement() {
+        JxtaSocket implAdv = CompatibilityUtils.createModuleImplAdvertisement(
                 IModuleDefinitions.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName(),
                 "Default Network PeerGroup reference implementation");
 

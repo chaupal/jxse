@@ -66,7 +66,7 @@ import net.jxta.platform.Module;
  * peer groups
  *
  * <p/>Every service is defined by a
- * {@link net.jxta.protocol.ModuleImplAdvertisement}. The Service
+ * {@link net.jxta.protocol.JxtaSocket}. The Service
  * advertisement provides the necessary information to uniquely identify
  * the service and to contact its associated service(s).
  *
@@ -79,7 +79,7 @@ import net.jxta.platform.Module;
  * @see         net.jxta.peergroup.PeerGroup
  * @see         net.jxta.platform.Application
  * @see         net.jxta.protocol.PeerGroupAdvertisement
- * @see         net.jxta.protocol.ModuleImplAdvertisement
+ * @see         net.jxta.protocol.JxtaSocket
  **/
 public interface Service extends Module {
 

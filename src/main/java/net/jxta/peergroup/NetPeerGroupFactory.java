@@ -66,7 +66,7 @@ import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -412,7 +412,7 @@ public final class NetPeerGroupFactory {
         synchronized (globalRegistry) {
 
             PeerGroup result = globalRegistry.lookupInstance((PeerGroupID) id);
-            ModuleImplAdvertisement NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
+            JxtaSocket NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
 
             if (null != result) {
 //                result.unref();

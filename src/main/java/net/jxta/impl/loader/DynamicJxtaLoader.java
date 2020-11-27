@@ -11,7 +11,7 @@ import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 public class DynamicJxtaLoader implements IJxtaLoader {
 
@@ -80,7 +80,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		return null;
 	}
 
-	public Class<? extends Module> defineClass(ModuleImplAdvertisement impl) {
+	public Class<? extends Module> defineClass(JxtaSocket impl) {
 		for( IJxtaLoader loader: loaders ){
 			Class<? extends Module> clss = loader.defineClass(impl);
 			if( clss != null )
@@ -89,19 +89,19 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		return null;
 	}
 
-	public ModuleImplAdvertisement findModuleImplAdvertisement(
+	public JxtaSocket findModuleImplAdvertisement(
 			Class<? extends Module> clazz) {
 		for( IJxtaLoader loader: loaders ){
-			ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(clazz);
+			JxtaSocket implAdv = loader.findModuleImplAdvertisement(clazz);
 			if( implAdv != null )
 				return implAdv;
 		}
 		return null;
 	}
 
-	public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
+	public JxtaSocket findModuleImplAdvertisement(ModuleSpecID msid) {
 		for( IJxtaLoader loader: loaders ){
-			ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement( msid );
+			JxtaSocket implAdv = loader.findModuleImplAdvertisement( msid );
 			if( implAdv != null )
 				return implAdv;
 		}
@@ -139,7 +139,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			this.services.remove( service );
 		}
 
-		public Class<? extends Module> defineClass(ModuleImplAdvertisement impl) {
+		public Class<? extends Module> defineClass(JxtaSocket impl) {
 			for( IJxtaModuleService<Module> service: services ){
 				if( service.getModuleImplAdvertisement().equals( impl ))
 					return service.getModule().getClass();
@@ -147,7 +147,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			return null;
 		}
 
-		public ModuleImplAdvertisement findModuleImplAdvertisement(
+		public JxtaSocket findModuleImplAdvertisement(
 				Class<? extends Module> clazz) {
 			for( IJxtaModuleService<Module> service: services ){
 				if( service.getRepresentedClassName().equals( clazz.getCanonicalName() ))
@@ -156,7 +156,7 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			return null;
 		}
 
-		public ModuleImplAdvertisement findModuleImplAdvertisement(
+		public JxtaSocket findModuleImplAdvertisement(
 				ModuleSpecID msid) {
 			for( IJxtaModuleService<Module> service: services ){
 				if( service.getModuleSpecID().equals( msid ))

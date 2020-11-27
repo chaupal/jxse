@@ -261,7 +261,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
+        JxtaSocket implAdvertisement = (JxtaSocket) impl;
 
         // extract Router service configuration properties
         ConfigParams confAdv = group.getConfigAdvertisement();

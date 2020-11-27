@@ -82,7 +82,7 @@ import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 
@@ -104,18 +104,18 @@ public class SimpleACLAccessServiceTest extends TestCase {
                     
                     npg = null; //PeerGroupFactory.newNetPeerGroup(wpg);
 
-                    ModuleImplAdvertisement newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();
+                    JxtaSocket newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();
 
                     StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(newGroupImpl.getParam());
 
                     Map services = params.getServices();
 
-                    ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(IModuleDefinitions.accessClassID);
+                    JxtaSocket aModuleAdv = (JxtaSocket) services.get(IModuleDefinitions.accessClassID);
 
                     services.remove(IModuleDefinitions.accessClassID);
 
-                    ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
-                            AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+                    JxtaSocket implAdv = (JxtaSocket)
+                            AdvertisementFactory.newAdvertisement(JxtaSocket.getAdvertisementType());
 
                     implAdv.setModuleSpecID(SimpleACLAccessService.simpleACLAccessSpecID);
                     implAdv.setCompat(aModuleAdv.getCompat());

@@ -56,7 +56,7 @@
 
 package net.jxta.platform;
 
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -125,7 +125,7 @@ public abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
      *  specification
      *  @return The Class object that was created from the specified class data.
      */
-    public abstract Class<? extends Module> defineClass(ModuleImplAdvertisement impl);
+    public abstract Class<? extends Module> defineClass(JxtaSocket impl);
 
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the
@@ -135,7 +135,7 @@ public abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
      *  @return The matching {@code ModuleImplAdvertisement} otherwise
      *  {@code null} if there is no known association.
      */
-    public abstract ModuleImplAdvertisement findModuleImplAdvertisement(Class<? extends Module> clazz);
+    public abstract JxtaSocket findModuleImplAdvertisement(Class<? extends Module> clazz);
 
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the 
@@ -145,5 +145,5 @@ public abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
      *  @return The matching {@code ModuleImplAdvertisement} otherwise
      *  {@code null} if there is no known association.
      */
-    public abstract ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid);
+    public abstract JxtaSocket findModuleImplAdvertisement(ModuleSpecID msid);
 }

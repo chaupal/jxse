@@ -71,7 +71,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.IJxtaLoader;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.JxtaSocket;
 import net.jxta.service.Service;
 
 import java.io.IOException;
@@ -107,8 +107,8 @@ public class Platform extends StdPeerGroup {
      *
      *  @return The default module impl advertisement for this class.
      */
-    public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = 
+    public static JxtaSocket getDefaultModuleImplAdvertisement() {
+        JxtaSocket implAdv = 
                 CompatibilityUtils.createModuleImplAdvertisement(
                 IModuleDefinitions.refPlatformSpecID, Platform.class.getName(),
                 "Standard World PeerGroup Reference Implementation");
@@ -192,7 +192,7 @@ public class Platform extends StdPeerGroup {
         //     loader.
         IJxtaLoader loader = getJxtaLoader();
 
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
+        JxtaSocket implAdv = (JxtaSocket) impl;
         if(null == implAdv) {
             implAdv = loader.findModuleImplAdvertisement(getClass());
         }
@@ -247,13 +247,13 @@ public class Platform extends StdPeerGroup {
      * @return A ModuleImplAdvertisement suitable for the Network Peer Group.
      */
     @Override
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
+    public JxtaSocket getAllPurposePeerGroupImplAdvertisement() {
         IJxtaLoader loader = getLoader();
 
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 
         // initializes the peer config from its parent.
-        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refNetPeerGroupSpecID);
+        JxtaSocket implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refNetPeerGroupSpecID);
 
         return implAdv;
     }

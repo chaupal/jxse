@@ -86,7 +86,7 @@ import net.jxta.platform.ModuleSpecID;
  * @see net.jxta.service.Service
  * @see net.jxta.peergroup.PeerGroupFactory
  * @see net.jxta.protocol.PeerGroupAdvertisement
- * @see net.jxta.protocol.ModuleImplAdvertisement
+ * @see net.jxta.protocol.JxtaSocket
  * @see net.jxta.platform.ModuleSpecID
  * @see net.jxta.platform.ModuleClassID
  */
