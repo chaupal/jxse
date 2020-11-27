@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JXSE Bundle Project
 Bundle-SymbolicName: net.jxse
-Bundle-Version: 1.0.0.v20140526
+Bundle-Version: 1.0.0.v20140129
 Bundle-Vendor: Chaupal
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: net.jxse,
@@ -108,21 +108,3 @@ Export-Package: net.jxse,
  net.jxta.test.util,
  net.jxta.util,
  net.jxta.util.documentSerializable
-Import-Package: org.apache.derby.jdbc,
- org.h2;version="1.3.170",
- org.h2.jdbcx;version="1.3.170",
- org.spongycastle.asn1;version="1.47.0.2",
- org.spongycastle.asn1.x509;version="1.47.0.2",
- org.spongycastle.jce;version="1.47.0.2",
- org.spongycastle.jce.provider;version="1.47.0.2",
- org.spongycastle.x509;version="1.47.0.2",
- org.jboss.netty.bootstrap;version="3.6.2.Final",
- org.jboss.netty.buffer;version="3.6.2.Final",
- org.jboss.netty.channel;version="3.6.2.Final",
- org.jboss.netty.channel.group;version="3.6.2.Final",
- org.jboss.netty.channel.socket;version="3.6.2.Final",
- org.jboss.netty.channel.socket.httptunnel;version="0.92.0",
- org.jboss.netty.channel.socket.nio;version="3.6.2.Final",
- org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
- org.jboss.netty.handler.timeout;version="3.6.2.Final",
- org.jboss.netty.util;version="3.6.2.Final"

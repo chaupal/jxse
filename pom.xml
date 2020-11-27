@@ -88,8 +88,8 @@
         </repository>
     </repositories>
 
-    <build>        
-        <plugins>
+    <build>
+          <plugins>
            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -99,37 +99,14 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>    
-                <executions>
-                    <execution>
-                       <phase>package</phase>
-                       <goals>
-                          <goal>jar</goal>
-                       </goals>
-                       <configuration>
-                          <finalName>${project.artifactId}-${project.version}</finalName>
-                       </configuration>
-                    </execution>
-                 </executions>
-            </plugin>
 
             <!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>2.0.1</version>
                 <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>bundle</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                      <archive>
                        <addMavenDescriptor>true</addMavenDescriptor>
@@ -174,14 +151,17 @@
                             org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
                             org.jboss.netty.handler.timeout;version="3.6.2.Final",
                             org.jboss.netty.util;version="3.6.2.Final"
-                        </Import-Package>                        
-                    </instructions>                    
-                </configuration>                
+                        </Import-Package>
+                    </instructions>
+                </configuration>
             </plugin>
+
             <plugin>
+
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
+
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -191,9 +171,10 @@
                         </goals>
                     </execution>
                 </executions>
+
             </plugin>
 
-            <!-- Configuring JUnits / Surefire 
+            <!-- Configuring JUnits / Surefire -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -202,11 +183,13 @@
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>pertest</forkMode>
 
-                       disactivate tests for the Sonatype OSS release
+                    <!-- Don't remove skip, it is sometimes necessary to
+                      disactivate tests for the Sonatype OSS release. -->
                     <skip>false</skip>
+
                 </configuration>
             </plugin>
-            -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -305,7 +288,7 @@
             <artifactId>jmock-legacy</artifactId>
             <version>2.5.1</version>
             <scope>test</scope>
-        </dependency>    
+        </dependency>
     </dependencies>
 
     <reporting>
@@ -330,6 +313,7 @@
     </reporting>
 
     <profiles>
+
         <profile>
             <id>mikeci</id>
             <activation>
@@ -345,7 +329,10 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
-                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                          <archive>
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                          </archive>                           
+                          <redirectTestOutputToFile>true</redirectTestOutputToFile>
                             <forkMode>pertest</forkMode>
                             <excludes>
                                 <!-- multicast not supported -->
@@ -478,13 +465,12 @@
                                               <fileset dir="${project.build.directory}/site" />
                                           </copy>   -->
 
-                                        <!-- Tar-gz & zip dependencies 
+                                        <!-- Tar-gz & zip dependencies -->
                                         <tar destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" basedir="${basedir}/lib" />
                                         <gzip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz" src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
                                         <delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
                                         <zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip" basedir="${basedir}/lib" />
-                                        -->
-                                        
+
                                         <!-- Tar-gz & zip Javadoc -->
                                         <tar destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" basedir="${project.build.directory}/apidocs" />
                                         <gzip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar.gz" src="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
@@ -574,5 +560,7 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>    
+
+    </profiles>
+
 </project>
