@@ -1,3 +1,11 @@
+# Ignore all bin directories
+bin/
+# Ignore all files ending with ~
+*~
+*.class
+# Ignore the target directory
+target/
+
 .ant.properties
 .cache
 .jxta
