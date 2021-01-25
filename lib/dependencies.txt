@@ -6,7 +6,7 @@ h2/h2-1.1.127.jar - used by the H2 implementation of the cache manager (Cm)
 jetty/javax.servlet.jar - required by Jetty
 jetty/org.mortbay.jetty.jar - required by the HTTP transport
 netty/netty-3.1.5.GA.jar - required by the TCP transport
-
+netty/org.jboss.netty.httptunnel_0.92.0.jar - required by the TCP transport
 
 Optional runtime dependencies:
 derby/derby-10.5.1.1.jar - used by the derby based Cm implementation

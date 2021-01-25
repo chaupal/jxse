@@ -1,30 +1,38 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jxse</artifactId>
-    <groupId>io.github.chaupal</groupId>
-    <version>2.8-SNAPSHOT</version>
-    <packaging>bundle</packaging>
+	<artifactId>jxse</artifactId>
+	<groupId>io.github.chaupal</groupId>
+	<version>2.8-SNAPSHOT</version>
+	<packaging>bundle</packaging>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>3</version>
-    </parent>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+	</properties>
 
-    <scm>
-        <connection>scm:git:git://github.com/chaupal/jxse</connection>
-        <developerConnection>scm:git:git@github.com:chaupal/jxse.git</developerConnection>
-        <url>https://github.com/chaupal/jxse/</url>
-    </scm>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>3</version>
+	</parent>
 
-    <name>JXSE</name>
-    <organization>
-        <name>The Chaupal P2P Organisation</name>
-        <url>http://chaupal.github.io/</url>
-    </organization>
+	<scm>
+		<connection>scm:git:git://github.com/chaupal/jxse</connection>
+		<developerConnection>scm:git:git@github.com:chaupal/jxse.git</developerConnection>
+		<url>https://github.com/chaupal/jxse/</url>
+	</scm>
 
-    <description>JXTA technology is a set of open protocols that allow any connected device on the
+	<name>JXSE</name>
+	<organization>
+		<name>The Chaupal P2P Organisation</name>
+		<url>http://chaupal.github.io/</url>
+	</organization>
+
+	<description>JXTA technology is a set of open protocols that allow any connected device on the
         network ranging from cell phones and wireless PDAs to PCs and servers to communicate and
         collaborate in a P2P manner. JXTA peers create a virtual network where any peer can interact
         with other peers and resources directly even when some of the peers and resources are behind
@@ -32,535 +40,555 @@
         of the JXTA protocols.
     </description>
 
-    <issueManagement>
-        <system>Project Issues</system>
-        <url>https://jxta-jxse.dev.java.net/issues/query.cgi</url>
-    </issueManagement>
+	<issueManagement>
+		<system>Project Issues</system>
+		<url>https://jxta-jxse.dev.java.net/issues/query.cgi</url>
+	</issueManagement>
 
-    <licenses>
-        <license>
-            <name>Sun Project JXTA(TM) Software License</name>
-            <url>http://chaupal.github.io/jxta-license.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+	<licenses>
+		<license>
+			<name>Sun Project JXTA(TM) Software License</name>
+			<url>http://chaupal.github.io/jxta-license.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
-    <mailingLists>
-        <mailingList>
-            <name>announce</name>
-            <subscribe>announce@platform.jxta.org</subscribe>
-            <unsubscribe>announce-unsubscribe@platform.jxta.org</unsubscribe>
-            <archive>https://java.net/nonav/projects/jxta/lists/announce/archive</archive>
-        </mailingList>
-        <mailingList>
-            <name>dev</name>
-            <subscribe>dev@platform.jxta.org</subscribe>
-            <unsubscribe>dev-unsubscribe@platform.jxta.org</unsubscribe>
-            <archive>https://java.net/nonav/projects/jxta/lists/dev/archive</archive>
-        </mailingList>
-        <mailingList>
-            <name>discuss</name>
-            <subscribe>discuss@platform.jxta.org</subscribe>
-            <unsubscribe>discuss-unsubscribe@platform.jxta.org</unsubscribe>
-            <archive>https://java.net/nonav/projects/jxta/lists/discuss/archive</archive>
-        </mailingList>
-    </mailingLists>
-    <developers>
-    </developers>
+	<mailingLists>
+		<mailingList>
+			<name>announce</name>
+			<subscribe>announce@platform.jxta.org</subscribe>
+			<unsubscribe>announce-unsubscribe@platform.jxta.org</unsubscribe>
+			<archive>https://java.net/nonav/projects/jxta/lists/announce/archive</archive>
+		</mailingList>
+		<mailingList>
+			<name>dev</name>
+			<subscribe>dev@platform.jxta.org</subscribe>
+			<unsubscribe>dev-unsubscribe@platform.jxta.org</unsubscribe>
+			<archive>https://java.net/nonav/projects/jxta/lists/dev/archive</archive>
+		</mailingList>
+		<mailingList>
+			<name>discuss</name>
+			<subscribe>discuss@platform.jxta.org</subscribe>
+			<unsubscribe>discuss-unsubscribe@platform.jxta.org</unsubscribe>
+			<archive>https://java.net/nonav/projects/jxta/lists/discuss/archive</archive>
+		</mailingList>
+	</mailingLists>
+	<developers>
+	</developers>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+	<repositories>
+		<repository>
+			<!-- Repository needed to include the jboss netty library -->
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 
-    <repositories>
-        <repository>
-            <!-- Repository needed to include the jboss netty library -->
-            <id>repository.jboss.org</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <!-- Repository needed to include the jboss netty library -->
-            <id>repository.httptunnel</id>
-            <url>http://bitbucket.org/iainmcgin/netty-httptunnel/raw/tip/repo</url>
-        </repository>
-    </repositories>
+		<repository>
+			<id>repository.netty.httptunnel</id>
+			<url>file:${basedir}/lib/netty/org.jboss.netty.httptunnel-0.92.0.jar</url>
+		</repository>
 
-    <build>
-          <plugins>
-           <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
+	</repositories>
 
-            <!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.0.1</version>
-                <extensions>true</extensions>
-                <configuration>
-                     <archive>
-                       <addMavenDescriptor>true</addMavenDescriptor>
-                     </archive>
-                     <supportedProjectTypes>
-                       <supportedProjectType>jar</supportedProjectType>
-                     </supportedProjectTypes>
-                     <instructions>
-                        <Built-By>${project.organization.name}</Built-By>
-                        <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
-                        <Bundle-ContactAddress>${project.organization.url}</Bundle-ContactAddress>
-                        <Bundle-Description>${project.description}</Bundle-Description>
-                        <Bundle-DocURL>${bundle.doc.url}</Bundle-DocURL>
-                        <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
-                        <Bundle-DocURL>${project.url}</Bundle-DocURL>
-                        <Bundle-Category>${bundle.category}</Bundle-Category>
-                        <Bundle-Version>${project.version}</Bundle-Version>
-                        <Export-Package>
-                            net.jxta.*;version=${project.version},
-                            net.jxse.*;version=${project.version}
-                        </Export-Package>
-                        <Private-Package>
-                            ${project.groupId}.example.*,
-                            ${project.groupId}.util.internal.*,
-                        </Private-Package>
-                        <Import-Package>
-                            org.apache.derby.jdbc,
-                            org.h2;version="1.3.170",
-                            org.h2.jdbcx;version="1.3.170",
-                            org.spongycastle.asn1,
-                            org.spongycastle.asn1.x509,
-                            org.spongycastle.jce,
-                            org.spongycastle.jce.provider,
-                            org.spongycastle.x509,
-                            org.jboss.netty.bootstrap;version="3.6.2.Final",
-                            org.jboss.netty.buffer;version="3.6.2.Final",
-                            org.jboss.netty.channel;version="3.6.2.Final",
-                            org.jboss.netty.channel.group;version="3.6.2.Final",
-                            org.jboss.netty.channel.socket;version="3.6.2.Final",
-                            org.jboss.netty.channel.socket.httptunnel;version="0.92.0",
-                            org.jboss.netty.channel.socket.nio;version="3.6.2.Final",
-                            org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
-                            org.jboss.netty.handler.timeout;version="3.6.2.Final",
-                            org.jboss.netty.util;version="3.6.2.Final"
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
+			<!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
 
-            <plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.0.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>true</addMavenDescriptor>
+					</archive>
+					<supportedProjectTypes>
+						<supportedProjectType>jar</supportedProjectType>
+					</supportedProjectTypes>
+					<instructions>
+						<Built-By>${project.organization.name}</Built-By>
+						<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+						<Bundle-ContactAddress>${project.organization.url}</Bundle-ContactAddress>
+						<Bundle-Description>${project.description}</Bundle-Description>
+						<Bundle-DocURL>${bundle.doc.url}</Bundle-DocURL>
+						<Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
+						<Bundle-DocURL>${project.url}</Bundle-DocURL>
+						<Bundle-Category>${bundle.category}</Bundle-Category>
+						<Bundle-Version>${project.version}</Bundle-Version>
+						<Export-Package>
+							net.jxta.*;version=${project.version},
+							net.jxse.*;version=${project.version}
+						</Export-Package>
+						<Private-Package>
+							${project.groupId}.example.*,
+							${project.groupId}.util.internal.*,
+						</Private-Package>
+						<Import-Package>
+							org.apache.derby.jdbc,
+							org.h2;version="1.3.170",
+							org.h2.jdbcx;version="1.3.170",
+							org.spongycastle.asn1,
+							org.spongycastle.asn1.x509,
+							org.spongycastle.jce,
+							org.spongycastle.jce.provider,
+							org.spongycastle.x509,
+							org.jboss.netty.bootstrap;version="3.6.2.Final",
+							org.jboss.netty.buffer;version="3.6.2.Final",
+							org.jboss.netty.channel;version="3.6.2.Final",
+							org.jboss.netty.channel.group;version="3.6.2.Final",
+							org.jboss.netty.channel.socket;version="3.6.2.Final",
+							org.jboss.netty.channel.socket.httptunnel;version="0.92.0",
+							org.jboss.netty.channel.socket.nio;version="3.6.2.Final",
+							org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
+							org.jboss.netty.handler.timeout;version="3.6.2.Final",
+							org.jboss.netty.util;version="3.6.2.Final"
+							org.jboss.netty.httptunnel;version="0.92.0",
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
 
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+			<plugin>
 
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
 
-            </plugin>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 
-            <!-- Configuring JUnits / Surefire -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <forkMode>pertest</forkMode>
+			</plugin>
 
-                    <!-- Don't remove skip, it is sometimes necessary to
-                      disactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+			<!-- Configuring JUnits / Surefire -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.16</version>
+				<configuration>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<forkMode>pertest</forkMode>
 
-                </configuration>
-            </plugin>
+					<!-- Don't remove skip, it is sometimes necessary to disactivate tests 
+						for the Sonatype OSS release. -->
+					<skip>false</skip>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.1</version>
-                <configuration>
-                    <passphrase />
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+				</configuration>
+			</plugin>
 
-    <dependencies>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.1</version>
+				<configuration>
+					<passphrase />
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
-        <dependency>
-            <groupId>com.madgag</groupId>
-            <artifactId>sc-light-jdk15on</artifactId>
-            <version>1.47.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.madgag</groupId>
-            <artifactId>scpkix-jdk15on</artifactId>
-            <version>1.47.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.madgag</groupId>
-            <artifactId>scprov-jdk15on</artifactId>
-            <version>1.47.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.main</artifactId>
-            <version>2.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <!--
-              The following dependencies are not always needed in normal JXTA use,
-              so they are flagged as "optional". Include it manually in your
-              project's pom.xml if you want to use the parts of JXTA that depend on
-              them.
-          -->
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>4.2.25</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>3.2.2.Final</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.netty</groupId>
-            <artifactId>httptunnel</artifactId>
-            <version>0.92</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>10.5.3.0_1</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.1.118</version>
-            <optional>true</optional>
-        </dependency>
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock-junit4</artifactId>
-            <version>2.5.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock-legacy</artifactId>
-            <version>2.5.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+	<dependencies>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.4.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
+		<dependency>
+			<groupId>com.madgag</groupId>
+			<artifactId>sc-light-jdk15on</artifactId>
+			<version>1.47.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.madgag</groupId>
+			<artifactId>scpkix-jdk15on</artifactId>
+			<version>1.47.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.madgag</groupId>
+			<artifactId>scprov-jdk15on</artifactId>
+			<version>1.47.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.main</artifactId>
+			<version>2.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- The following dependencies are not always needed in normal JXTA use, 
+			so they are flagged as "optional". Include it manually in your project's 
+			pom.xml if you want to use the parts of JXTA that depend on them. -->
+		<dependency>
+			<groupId>jetty</groupId>
+			<artifactId>org.mortbay.jetty</artifactId>
+			<version>4.2.25</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.2.2.Final</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>net.jxse</groupId>
+			<artifactId>org.jboss.netty.httptunnel</artifactId>
+			<version>0.92.0</version>
+			<optional>true</optional>
+    		<scope>system</scope>
+    		<systemPath>${pom.basedir}/lib/netty/org.jboss.netty.httptunnel-0.92.0.jar</systemPath>
+   		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.5.3.0_1</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.1.118</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit4</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-legacy</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-    <profiles>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.4.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 
-        <profile>
-            <id>mikeci</id>
-            <activation>
-                <property>
-                    <name>env</name>
-                    <value>mikeci</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.16</version>
-                        <configuration>
-                          <archive>
-                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                          </archive>                           
-                          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                            <forkMode>pertest</forkMode>
-                            <excludes>
-                                <!-- multicast not supported -->
-                                <exclude>**/AdHoc*.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>replace-if-jre-6</id>
-            <activation>
-                <jdk>[1.6,)</jdk>
-            </activation>
-            <build>
-              <pluginManagement>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>tweak-sources-for-java-6</id>
-                                <phase>process-sources</phase>
-                                <configuration>
-                                    <tasks>
-                                        <replace file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
-                                            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
-                                            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
-                                        </replace>
-                                    </tasks>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-              </pluginManagement>
-            </build>
-        </profile>
+	<profiles>
 
-        <profile>
-            <id>replace-if-jre-5</id>
-            <activation>
-                <jdk>(,1.6)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>tweak-sources-for-java-5</id>
-                                <phase>process-sources</phase>
-                                <configuration>
-                                    <tasks>
-                                        <replace file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
-                                            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
-                                            <replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
-                                        </replace>
-                                    </tasks>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+		<profile>
+			<id>mikeci</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>mikeci</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.16</version>
+						<configuration>
+							<archive>
+								<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+							</archive>
+							<redirectTestOutputToFile>true</redirectTestOutputToFile>
+							<forkMode>pertest</forkMode>
+							<excludes>
+								<!-- multicast not supported -->
+								<exclude>**/AdHoc*.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>replace-if-jre-6</id>
+			<activation>
+				<jdk>[1.6,)</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<artifactId>maven-antrun-plugin</artifactId>
+							<version>1.7</version>
+							<executions>
+								<execution>
+									<id>tweak-sources-for-java-6</id>
+									<phase>process-sources</phase>
+									<configuration>
+										<tasks>
+											<replace
+												file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+												<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+												<replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+											</replace>
+										</tasks>
+									</configuration>
+									<goals>
+										<goal>run</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
 
-        <!-- This Kenai profile is to be deleted when we move to ASF -->
-        <profile>
-            <id>create-kenai-packaging</id>
-            <build>
-                <plugins>
+		<profile>
+			<id>replace-if-jre-5</id>
+			<activation>
+				<jdk>(,1.6)</jdk>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>tweak-sources-for-java-5</id>
+								<phase>process-sources</phase>
+								<configuration>
+									<tasks>
+										<replace
+											file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+											<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+											<replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
+										</replace>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 
-                    <!-- We add Javadoc creation to the build process  -->
+		<!-- This Kenai profile is to be deleted when we move to ASF -->
+		<profile>
+			<id>create-kenai-packaging</id>
+			<build>
+				<plugins>
 
-                    <plugin>
+					<!-- We add Javadoc creation to the build process -->
 
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+					<plugin>
 
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.9.1</version>
 
-                        <!-- We exclude Impl Javadoc
-                      <configuration>
-                          <excludePackageNames>net.jxta.impl</excludePackageNames>
-                      </configuration>  -->
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
 
-                    </plugin>
+						<!-- We exclude Impl Javadoc <configuration> <excludePackageNames>net.jxta.impl</excludePackageNames> 
+							</configuration> -->
 
-                    <!-- Kenai packages -->
+					</plugin>
 
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>packaging</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <tasks>
+					<!-- Kenai packages -->
 
-                                        <!-- Deleting kenai dir content -->
-                                        <delete dir="${project.build.directory}/kenai" />
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>packaging</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
 
-                                        <!-- Making dir -->
-                                        <mkdir dir="${project.build.directory}/kenai" />
+										<!-- Deleting kenai dir content -->
+										<delete dir="${project.build.directory}/kenai" />
 
-                                        <!-- Copying site (including online Javadoc)
-                                          <copy todir="${project.build.directory}/kenai/site">
-                                              <fileset dir="${project.build.directory}/site" />
-                                          </copy>   -->
+										<!-- Making dir -->
+										<mkdir dir="${project.build.directory}/kenai" />
 
-                                        <!-- Tar-gz & zip dependencies -->
-                                        <tar destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" basedir="${basedir}/lib" />
-                                        <gzip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz" src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
-                                        <delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
-                                        <zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip" basedir="${basedir}/lib" />
+										<!-- Copying site (including online Javadoc) <copy todir="${project.build.directory}/kenai/site"> 
+											<fileset dir="${project.build.directory}/site" /> </copy> -->
 
-                                        <!-- Tar-gz & zip Javadoc -->
-                                        <tar destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" basedir="${project.build.directory}/apidocs" />
-                                        <gzip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar.gz" src="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
-                                        <delete file="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
-                                        <zip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.zip" basedir="${project.build.directory}/apidocs" /> 
+										<!-- Tar-gz & zip dependencies -->
+										<tar
+											destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar"
+											basedir="${basedir}/lib" />
+										<gzip
+											destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz"
+											src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
+										<delete
+											file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
+										<zip
+											destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip"
+											basedir="${basedir}/lib" />
 
-                                        <!-- Moving the src code packaging -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.tar.gz" todir="${project.build.directory}/kenai" />
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.zip" todir="${project.build.directory}/kenai" />
+										<!-- Tar-gz & zip Javadoc -->
+										<tar
+											destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar"
+											basedir="${project.build.directory}/apidocs" />
+										<gzip
+											destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar.gz"
+											src="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
+										<delete
+											file="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
+										<zip
+											destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.zip"
+											basedir="${project.build.directory}/apidocs" />
 
-                                        <!-- Moving the .jar -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="${project.build.directory}/kenai" />
+										<!-- Moving the src code packaging -->
+										<copy
+											file="${project.build.directory}/${project.artifactId}-${project.version}-project.tar.gz"
+											todir="${project.build.directory}/kenai" />
+										<copy
+											file="${project.build.directory}/${project.artifactId}-${project.version}-project.zip"
+											todir="${project.build.directory}/kenai" />
 
-                                        <!-- Copying the pom.xml -->
-                                        <copy file="${basedir}/pom.xml" todir="${project.build.directory}/kenai" />
+										<!-- Moving the .jar -->
+										<copy
+											file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+											todir="${project.build.directory}/kenai" />
 
-                                    </tasks>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+										<!-- Copying the pom.xml -->
+										<copy file="${basedir}/pom.xml"
+											todir="${project.build.directory}/kenai" />
 
-        <profile>
-            <id>sonatype-packaging</id>
-            <build>
-                <plugins>
-                    <!-- We add Javadoc creation to the build process  -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 
-                        <!-- We exclude Impl Javadoc
-                        <configuration>
-                          <excludePackageNames>net.jxta.impl</excludePackageNames>
-                        </configuration>  -->
+		<profile>
+			<id>sonatype-packaging</id>
+			<build>
+				<plugins>
+					<!-- We add Javadoc creation to the build process -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
 
-                    </plugin>
+						<!-- We exclude Impl Javadoc <configuration> <excludePackageNames>net.jxta.impl</excludePackageNames> 
+							</configuration> -->
 
-                    <!-- Sonatype packages -->
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>packaging</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <tasks>
+					</plugin>
 
-                                        <!-- Deleting Sonatype dir content -->
-                                        <delete dir="${project.build.directory}/Sonatype" />
+					<!-- Sonatype packages -->
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
+								<id>packaging</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
 
-                                        <!-- Making dir -->
-                                        <mkdir dir="${project.build.directory}/Sonatype" />
+										<!-- Deleting Sonatype dir content -->
+										<delete dir="${project.build.directory}/Sonatype" />
 
-                                        <!-- Copying the .jar -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="${project.build.directory}/Sonatype" />
+										<!-- Making dir -->
+										<mkdir dir="${project.build.directory}/Sonatype" />
 
-                                        <!-- Copying the Javadoc -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar" todir="${project.build.directory}/Sonatype" />
+										<!-- Copying the .jar -->
+										<copy
+											file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+											todir="${project.build.directory}/Sonatype" />
 
-                                        <!-- Copying the sources -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-sources.jar" todir="${project.build.directory}/Sonatype" />
+										<!-- Copying the Javadoc -->
+										<copy
+											file="${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar"
+											todir="${project.build.directory}/Sonatype" />
 
-                                        <!-- Copying the pom.xml -->
-                                        <copy file="${basedir}/pom.xml" todir="${project.build.directory}/Sonatype" />
+										<!-- Copying the sources -->
+										<copy
+											file="${project.build.directory}/${project.artifactId}-${project.version}-sources.jar"
+											todir="${project.build.directory}/Sonatype" />
 
-                                    </tasks>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+										<!-- Copying the pom.xml -->
+										<copy file="${basedir}/pom.xml"
+											todir="${project.build.directory}/Sonatype" />
 
-    </profiles>
-
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
