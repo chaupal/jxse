@@ -46,27 +46,27 @@ public class JxseConfigurationToolTest {
     @Test
     public void testGetConfiguredNetworkManager() {
 
-        // Creating new valid peer configuration
-        JxsePeerConfiguration JPC = new ValidJxsePeerConfiguration();
+    	// Creating new valid peer configuration
+    	JxsePeerConfiguration JPC = new ValidJxsePeerConfiguration();
 
-        // Need to create separate temp dir, or residual config files will/may
-        // be read and break this test
-        File ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager");
-        ToBeDeleted.mkdirs();
-        assertTrue(ToBeDeleted.exists());
+    	// Need to create separate temp dir, or residual config files will/may
+    	// be read and break this test
+    	NetworkManager TheNM = null;
+    	try {
+    		File ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager");
+    		ToBeDeleted.mkdirs();
+    		assertTrue(ToBeDeleted.exists());
 
-        JPC.setPersistenceLocation(ToBeDeleted.toURI());
+    		JPC.setPersistenceLocation(ToBeDeleted.toURI());
 
-        // Retrieving the NetworkManager
-        NetworkManager TheNM = null;
+    		// Retrieving the NetworkManager
 
-        try {
-            TheNM = JxseConfigurationTool.getConfiguredNetworkManager(JPC);
-        } catch (Exception ex) {
-            fail(ex.toString());
-        }
+    		TheNM = JxseConfigurationTool.getConfiguredNetworkManager(JPC);
+    	} catch (Exception ex) {
+    		fail(ex.toString());
+    	}
 
-        assertNotNull(TheNM);
+    	assertNotNull(TheNM);
 
     }
 
@@ -125,13 +125,18 @@ public class JxseConfigurationToolTest {
 
         // Need to create separate temp dir, or residual config files will/may
         // be read and break this test
-        File ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager2");
-        ToBeDeleted.mkdirs();
-        assertTrue(ToBeDeleted.exists());
+        File ToBeDeleted;
+		try {
+			ToBeDeleted = tempStorage.newFolder("GetConfiguredNetworkManager2");
+	        ToBeDeleted.mkdirs();
+	        assertTrue(ToBeDeleted.exists());
+	        Source.setPersistenceLocation(ToBeDeleted.toURI());
+		} catch (IOException e) {
+            fail(e.toString());
+		}
 
         // Remaining config
-        Source.setPersistenceLocation(ToBeDeleted.toURI());
-        Source.setHttpTransportConfiguration(TempHttp);
+         Source.setHttpTransportConfiguration(TempHttp);
         Source.setHttp2TransportConfiguration(TempHttp2);
         Source.setMulticastTransportConfiguration(TempMulti);
         Source.setTcpTransportConfiguration(TempTcp);
