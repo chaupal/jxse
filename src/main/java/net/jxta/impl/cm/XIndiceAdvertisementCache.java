@@ -303,7 +303,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param doc to hash to generate a unique name
      * @return String a random file name
      */
-    public static String createTmpName(StructuredTextDocument doc) {
+    public static String createTmpName(StructuredTextDocument<?> doc) {
         try {
             StringWriter out = new StringWriter();
 
@@ -585,7 +585,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 try {
                     if (calcExpiration(record) > 0) {
                         InputStream is = record.getValue().getInputStream();
-                        XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
+                        XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
                         Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
                         Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), asDoc);
 
@@ -623,7 +623,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @throws IOException if an I/O error occurs
      *                     was not possible.
      */
-    public StructuredDocument restore(String dn, String fn) throws IOException {
+    public StructuredDocument<?> restore(String dn, String fn) throws IOException {
         InputStream is = getInputStream(dn, fn);
         return StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
     }
@@ -695,10 +695,10 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             if (expiration < 0 || lifetime <= 0) {
                 throw new IllegalArgumentException("Bad expiration or lifetime.");
             }
-            XMLDocument doc;
+            XMLDocument<?> doc;
 
             try {
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument<?>) adv.getSignedDocument();
             } catch (RuntimeException e) {
                 IOException failure = new IOException("Advertisement couldn't be saved");
                 failure.initCause(e);
@@ -947,7 +947,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             this.indexer = indexer;
 //            this.results = results;
             this.threshold = threshold;
-            this.results = new ArrayList((threshold < 200) ? threshold : 200);
+            this.results = new ArrayList<>((threshold < 200) ? threshold : 200);
             this.purge = purge;
         }
 
@@ -1313,7 +1313,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                     database.deleteRecord(record.getKey());
                 } else {
                     InputStream is = record.getValue().getInputStream();
-                    XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
+                    XMLDocument<?> asDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
                     Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
                     Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), asDoc);
 

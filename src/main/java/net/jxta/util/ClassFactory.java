@@ -292,7 +292,8 @@ public abstract class ClassFactory<K, I> {
      *  @return boolean true if the class was registered otherwise false.
      *  @throws Exception   when an error occurs.
      */
-    protected boolean registerAssoc(final String className) throws Exception {
+    @SuppressWarnings("unused")
+	protected boolean registerAssoc(final String className) throws Exception {
 
         boolean registeredSomething = false;
 
@@ -302,7 +303,7 @@ public abstract class ClassFactory<K, I> {
              * itself as part of class initialization.
              */
 
-            Class ignored = Class.forName(className);
+            Class<?> ignored = Class.forName(className);
             registeredSomething = true;
 
         } catch (ClassNotFoundException ignored) {

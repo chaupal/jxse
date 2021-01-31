@@ -124,7 +124,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
          * will be converted into an Advertisement.
          * @return The instance of {@link Advertisement}.
          */
-        Advertisement newInstance(net.jxta.document.Element root);
+        Advertisement newInstance(net.jxta.document.Element<?> root);
     }
 
     /**
@@ -201,7 +201,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
         boolean registeredSomething = false;
 
         try {
-            Class advClass = Class.forName(className + "$Instantiator");
+            Class<?> advClass = Class.forName(className + "$Instantiator");
 
             Instantiator instantiator = (Instantiator) advClass.newInstance();
 
@@ -263,7 +263,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      * @throws NoSuchElementException if there is no advertisement type
      * matching the type of the root node.
      */
-    public static Advertisement newAdvertisement(XMLElement root) {
+    public static Advertisement newAdvertisement(XMLElement<?> root) {
         factory.loadProviders();
 
         Instantiator instantiator = null;

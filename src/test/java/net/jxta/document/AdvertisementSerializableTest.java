@@ -93,8 +93,8 @@ public class AdvertisementSerializableTest {
         desc.appendChild(desc.createElement("Text3", TestDescription));
         return desc;
     }
-    private Hashtable<ID,Element> buildService(ID serviceid){
-    	Hashtable<ID,Element> service = new Hashtable<ID,Element>();
+    private Hashtable<ID,Element<?>> buildService(ID serviceid){
+    	Hashtable<ID,Element<?>> service = new Hashtable<ID,Element<?>>();
     	service.put(serviceid,  buildDesc());
     	return service;
     }

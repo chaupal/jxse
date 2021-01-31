@@ -137,7 +137,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     private static final CompatibilityEquater COMP_EQ =
     	new CompatibilityEquater() {
-        public boolean compatible(Element test) {
+        public boolean compatible(Element<?> test) {
             return CompatibilityUtils.isCompatible(test);
         }
     };
@@ -403,7 +403,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *                  match.
      * @return a Collection of advertisements
      */
-    private Collection<Advertisement> discoverSome(DiscoveryService discovery, int type, String attr, String value, int seconds, Class thisClass) {
+    private Collection<Advertisement> discoverSome(DiscoveryService discovery, int type, String attr, String value, int seconds, Class<?> thisClass) {
         long discoverUntil = TimeUtils.toAbsoluteTimeMillis(seconds * TimeUtils.ASECOND);
         long lastRemoteAt = 0; // no previous remote discovery made.
 
@@ -454,7 +454,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * @param thisClass The Advertisement class which the advertisement must match.
      * @return a Collection of advertisements
      */
-    private Advertisement discoverOne(int type, String attr, String value, int seconds, Class thisClass) {
+    private Advertisement discoverOne(int type, String attr, String value, int seconds, Class<?> thisClass) {
         Iterator<Advertisement> res = discoverSome(discovery, type, attr, value, seconds, thisClass).iterator();
 
         if (!res.hasNext()) {
@@ -565,7 +565,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public Iterator getRoleMap(ID name) {
+    public Iterator<ID> getRoleMap(ID name) {
         // No translation; use the given name in a singleton.
         return Collections.singletonList(name).iterator();
     }
@@ -648,7 +648,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected Module loadModule(ID assigned, ModuleImplAdvertisement implAdv, boolean privileged) throws ProtocolNotSupportedException, PeerGroupException {
 
-        Element compat = implAdv.getCompat();
+        Element<?> compat = implAdv.getCompat();
 
         if (null == compat)
             throw new IllegalArgumentException("No compatibility statement for : " + assigned);
@@ -898,7 +898,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * <code>initFirst</code> since <code>initFirst</code> may
      * be overLoaded and the overloading method may modify these parameters
      * when calling <code>super.initFirst</code>. (See
-     * {@link net.jxta.impl.peergroup.Platform} for an example of such a case).
+     * {@link net.jxta.impl.platform.Platform} for an example of such a case).
      * <p/>
      * Upon completion, the group object is marked as completely initialized
      * in all cases. Once a group object is completely initialized, it becomes
@@ -960,7 +960,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 if (parentGroup != null) {
                     DiscoveryService disco = parentGroup.getDiscoveryService();
                     if (null != disco) {
-                        Enumeration found = disco.getLocalAdvertisements(DiscoveryService.GROUP, "GID", assignedID.toString());
+                        Enumeration<Advertisement> found = disco.getLocalAdvertisements(DiscoveryService.GROUP, "GID", assignedID.toString());
                         if (found.hasMoreElements()) {
                             peerGroupAdvertisement = (PeerGroupAdvertisement) found.nextElement();
                         }
@@ -993,7 +993,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 if ((null == configPID) || (ID.nullID == configPID)) {
                     if ("cbid".equals(IDFactory.getDefaultIDFormat())) {
                         // Get our peer-defined parameters in the configAdv
-                        XMLElement param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.membershipClassID);
+                        XMLElement<?> param = (XMLElement<?>) platformConfig.getServiceParam(IModuleDefinitions.membershipClassID);
 
                         if (null == param) {
                             throw new IllegalArgumentException(PSEConfigAdv.getAdvertisementType() + " could not be located");
@@ -1053,14 +1053,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 loader = new RefJxtaLoader(new URL[0], staticLoader.getClassLoader(), COMP_EQ, this);
 
             } else {
-                IJxtaLoader upLoader = ((GenericPeerGroup) parentGroup).getLoader();
-                StructuredDocument cfgDoc =
+                IJxtaLoader upLoader = GenericPeerGroup.getLoader();
+                StructuredDocument<?> cfgDoc =
                         peerGroupAdvertisement.getServiceParam(
                         		IModuleDefinitions.peerGroupClassID);
                 PeerGroupConfigAdv pgca;
                 if (cfgDoc != null) {
                     pgca = (PeerGroupConfigAdv)
-                            AdvertisementFactory.newAdvertisement((XMLElement)
+                            AdvertisementFactory.newAdvertisement((XMLElement<?>)
                             peerGroupAdvertisement.getServiceParam(IModuleDefinitions.peerGroupClassID));
                     if (pgca.isFlagSet(PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER)) {
                         // We'll shunt to the same class loader that loaded this
@@ -1105,12 +1105,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             // Merge service params with those specified by the group (if any). The only
             // policy, right now, is to give peer params the precedence over group params.
-            Hashtable grpParams = peerGroupAdvertisement.getServiceParams();
-            Enumeration keys = grpParams.keys();
+            Hashtable<ID, StructuredDocument<?>> grpParams = peerGroupAdvertisement.getServiceParams();
+            Enumeration<ID> keys = grpParams.keys();
 
             while (keys.hasMoreElements()) {
                 ID key = (ID) keys.nextElement();
-                Element e = (Element) grpParams.get(key);
+                Element<?> e = (Element<?>) grpParams.get(key);
 
                 if (configAdvertisement.getServiceParam(key) == null) {
                     configAdvertisement.putServiceParam(key, e);

@@ -57,13 +57,13 @@
 package net.jxta.impl.content;
 
 import net.jxta.exception.PeerGroupException;
-import static net.jxta.impl.content.ModuleLifecycleState.*;
+import net.jxta.platform.Module;
 
 /**
  * This interface defines the API which must be implemented to be notified of
  * uncaught throwables being raised during Module lifecycle state transitions.
  */
-public interface ModuleLifecycleListener {
+public interface ModuleLifecycleListener<M extends Module> {
 
     /**
      * Called when a Module has thrown a PeerGroupException while attempting
@@ -73,7 +73,7 @@ public interface ModuleLifecycleListener {
      * @param mlcx the exception that was thrown
      */
     void unhandledPeerGroupException(
-            ModuleLifecycleTracker subject, PeerGroupException mlcx);
+            ModuleLifecycleTracker<M> subject, PeerGroupException mlcx);
 
     /**
      * Called when a Module has changed lifecycle states.
@@ -83,6 +83,6 @@ public interface ModuleLifecycleListener {
      * @param newState the Module's new state
      */
     void moduleLifecycleStateUpdated(
-            ModuleLifecycleTracker subject, ModuleLifecycleState newState);
+            ModuleLifecycleTracker<M> subject, ModuleLifecycleState newState);
 
 }

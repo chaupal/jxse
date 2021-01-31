@@ -84,8 +84,8 @@ public class DocumentSerializableUtilities {
      * @return	The created Document
      * @throws DocumentSerializationException if Unable to parse the serialized object.
      */	
-    public static XMLDocument createStructuredXmlDocument(String docType, DocumentSerializable documentSerializable) throws DocumentSerializationException {
-        XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, docType);
+    public static XMLDocument<?> createStructuredXmlDocument(String docType, DocumentSerializable documentSerializable) throws DocumentSerializationException {
+        XMLDocument<?> xmlDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, docType);
 
         documentSerializable.serializeTo(xmlDoc);
         return xmlDoc;
@@ -97,10 +97,10 @@ public class DocumentSerializableUtilities {
      * @param toElement The target Element
      * @param fromElement The source Element
      */	
-    public static void copyChildren(Element toElement, Element fromElement) {
+    public static void copyChildren(Element<?> toElement, Element<?> fromElement) {
         // for now ... a quicky use of another utility
 
-        StructuredDocument intoDoc = toElement.getRoot();
+        StructuredDocument<?> intoDoc = toElement.getRoot();
 
         StructuredDocumentUtils.copyChildren(intoDoc, toElement, fromElement);
     }
@@ -113,9 +113,10 @@ public class DocumentSerializableUtilities {
      * @param documentSerializable This value will be serialized into the created child element
      \ 	 * @throws DocumentSerializationException if Unable to serialized object.
      **/
-    public static void addDocumentSerializable(Element element, String tagName, DocumentSerializable documentSerializable)  throws DocumentSerializationException {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName);
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void addDocumentSerializable(Element element, String tagName, DocumentSerializable documentSerializable)  throws DocumentSerializationException {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName);
 
         element.appendChild(childElement);
         documentSerializable.serializeTo(childElement);
@@ -129,7 +130,7 @@ public class DocumentSerializableUtilities {
      * @return An object of type 'clazz'
      * @throws DocumentSerializationException if Unable to parse the serialized object.
      **/
-    public static DocumentSerializable getDocumentSerializable(Element element, Class clazz) throws DocumentSerializationException {
+    public static DocumentSerializable getDocumentSerializable(Element<?> element, Class<?> clazz) throws DocumentSerializationException {
         try {
             return getDocumentSerializable(element, (DocumentSerializable) clazz.newInstance());
         } catch (DocumentSerializationException e) {
@@ -147,7 +148,7 @@ public class DocumentSerializableUtilities {
      * @return The same parameter passed to it 'documentSerializable'
      * @throws DocumentSerializationException if Unable to parse the serialized object.
      **/
-    public static DocumentSerializable getDocumentSerializable(Element element, DocumentSerializable documentSerializable) throws DocumentSerializationException {
+    public static DocumentSerializable getDocumentSerializable(Element<?> element, DocumentSerializable documentSerializable) throws DocumentSerializationException {
         documentSerializable.initializeFrom(element);
         return documentSerializable;
     }
@@ -161,8 +162,8 @@ public class DocumentSerializableUtilities {
      * @return An object of type 'clazz'
      * @throws DocumentSerializationException if Unable to parse the serialized object.
      **/
-    public static DocumentSerializable getDocumentSerializable(Element element, String tagName, Class clazz) throws DocumentSerializationException {
-        Element childElement = getChildElement(element, tagName);
+    public static DocumentSerializable getDocumentSerializable(Element<?> element, String tagName, Class<?> clazz) throws DocumentSerializationException {
+        Element<?> childElement = getChildElement(element, tagName);
 		
         if (childElement != null) {
             return getDocumentSerializable(childElement, clazz);
@@ -181,7 +182,7 @@ public class DocumentSerializableUtilities {
      * @throws DocumentSerializationException if Unable to serialize or parse object.
      **/
     public static DocumentSerializable copyDocumentSerializable(DocumentSerializable documentSerializable) throws DocumentSerializationException {
-        StructuredDocument structuredDocument = createStructuredXmlDocument("temp", documentSerializable);
+        StructuredDocument<?> structuredDocument = createStructuredXmlDocument("temp", documentSerializable);
 
         return getDocumentSerializable(structuredDocument, documentSerializable.getClass());
     }
@@ -195,9 +196,10 @@ public class DocumentSerializableUtilities {
      * @param tagName The Tag Name for the new Element
      * @return The created Element
      **/
-    public static Element createChildElement(Element element, String tagName) {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Element<?> createChildElement(Element element, String tagName) {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName);
 
         element.appendChild(childElement);
         return childElement;
@@ -212,11 +214,11 @@ public class DocumentSerializableUtilities {
      * @param tagName The Tag Name for the new Element
      * @return The found Element
      **/
-    public static Element getChildElement(Element element, String tagName) {
-        Enumeration e = element.getChildren(tagName);
+    public static Element<?> getChildElement(Element<?> element, String tagName) {
+        Enumeration<?> e = element.getChildren(tagName);
 		
         if (e.hasMoreElements()) {
-            return (Element) e.nextElement();
+            return (Element<?>) e.nextElement();
         } else {
             return null;
         }
@@ -229,9 +231,10 @@ public class DocumentSerializableUtilities {
      * @param tagName TagName to be used for the created Child Element
      * @param value The value that will be stored in the Element as a String
      **/	 
-    public static void addInt(Element element, String tagName, int value) {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName, Integer.toString(value));
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void addInt(Element element, String tagName, int value) {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName, Integer.toString(value));
 
         element.appendChild(childElement);
     }
@@ -242,7 +245,7 @@ public class DocumentSerializableUtilities {
      * @param element Element that contains the value
      * @return the value converted from a String
      **/
-    public static int getInt(Element element) {
+    public static int getInt(Element<?> element) {
         return Integer.parseInt((String) element.getValue());
     }
 	
@@ -254,8 +257,8 @@ public class DocumentSerializableUtilities {
      * @param defaultValue The return value if there is no Child Element with that Tag Name
      * @return the value converted from a String
      **/
-    public static int getInt(Element element, String tagName, int defaultValue) {
-        Element childElement = getChildElement(element, tagName);
+    public static int getInt(Element<?> element, String tagName, int defaultValue) {
+        Element<?> childElement = getChildElement(element, tagName);
 		
         if (childElement != null) {
             return getInt(childElement);
@@ -271,9 +274,10 @@ public class DocumentSerializableUtilities {
      * @param tagName TagName to be used for the created Child Element
      * @param value The value that will be stored in the Element as a String
      **/
-    public static void addLong(Element element, String tagName, long value) {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName, Long.toString(value));
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void addLong(Element element, String tagName, long value) {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName, Long.toString(value));
 
         element.appendChild(childElement);
     }
@@ -284,7 +288,7 @@ public class DocumentSerializableUtilities {
      * @param element Element that contains the value
      * @return the value converted from a String
      **/
-    public static long getLong(Element element) {
+    public static long getLong(Element<?> element) {
         return Long.parseLong((String) element.getValue());
     }
 
@@ -296,8 +300,8 @@ public class DocumentSerializableUtilities {
      * @param defaultValue The return value if there is no Child Element with that Tag Name
      * @return the value converted from a String
      **/
-    public static long getLong(Element element, String tagName, long defaultValue) {
-        Element childElement = getChildElement(element, tagName);
+    public static long getLong(Element<?> element, String tagName, long defaultValue) {
+        Element<?> childElement = getChildElement(element, tagName);
 		
         if (childElement != null) {
             return getLong(childElement);
@@ -313,9 +317,10 @@ public class DocumentSerializableUtilities {
      * @param tagName TagName to be used for the created Child Element
      * @param value The value that will be stored in the Element as a String
      **/
-    public static void addDouble(Element element, String tagName, double value) {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName, Double.toString(value));
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void addDouble(Element element, String tagName, double value) {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName, Double.toString(value));
 
         element.appendChild(childElement);
     }
@@ -326,7 +331,7 @@ public class DocumentSerializableUtilities {
      * @param element Element that contains the value
      * @return the value converted from a String
      **/
-    public static double getDouble(Element element) {
+    public static double getDouble(Element<?> element) {
         return Double.parseDouble((String) element.getValue());
     }
 
@@ -338,8 +343,8 @@ public class DocumentSerializableUtilities {
      * @param defaultValue The return value if there is no Child Element with that Tag Name
      * @return the value converted from a String
      **/
-    public static double getDouble(Element element, String tagName, double defaultValue) {
-        Element childElement = getChildElement(element, tagName);
+    public static double getDouble(Element<?> element, String tagName, double defaultValue) {
+        Element<?> childElement = getChildElement(element, tagName);
 		
         if (childElement != null) {
             return getDouble(childElement);
@@ -355,9 +360,10 @@ public class DocumentSerializableUtilities {
      * @param tagName TagName to be used for the created Child Element
      * @param value The value that will be stored in the Element as a String
      **/
-    public static void addBoolean(Element element, String tagName, boolean value) {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName, value ? "true" : "false");
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void addBoolean(Element element, String tagName, boolean value) {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName, value ? "true" : "false");
 
         element.appendChild(childElement);
     }
@@ -368,7 +374,7 @@ public class DocumentSerializableUtilities {
      * @param element Element that contains the value
      * @return the value converted from a String
      **/
-    public static boolean getBoolean(Element element) {
+    public static boolean getBoolean(Element<?> element) {
         return "true".equals((String) element.getValue());
     }
 
@@ -380,8 +386,8 @@ public class DocumentSerializableUtilities {
      * @param defaultValue The return value if there is no Child Element with that Tag Name
      * @return the value converted from a String
      **/
-    public static boolean getBoolean(Element element, String tagName, boolean defaultValue) {
-        Element childElement = getChildElement(element, tagName);
+    public static boolean getBoolean(Element<?> element, String tagName, boolean defaultValue) {
+        Element<?> childElement = getChildElement(element, tagName);
 		
         if (childElement != null) {
             return getBoolean(childElement);
@@ -397,9 +403,10 @@ public class DocumentSerializableUtilities {
      * @param tagName TagName to be used for the created Child Element
      * @param value The value that will be stored in the Element
      **/
-    public static void addString(Element element, String tagName, String value) {
-        StructuredDocument structuredDocument = element.getRoot();
-        Element childElement = structuredDocument.createElement(tagName, value);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void addString(Element element, String tagName, String value) {
+        StructuredDocument<?> structuredDocument = element.getRoot();
+        Element<?> childElement = structuredDocument.createElement(tagName, value);
 
         element.appendChild(childElement);
     }
@@ -410,7 +417,7 @@ public class DocumentSerializableUtilities {
      * @param element Element that contains the value
      * @return the value converted from a String
      **/
-    public static String getString(Element element) {
+    public static String getString(Element<?> element) {
         return (String) element.getValue();
     }
 
@@ -422,8 +429,8 @@ public class DocumentSerializableUtilities {
      * @param defaultValue The return value if there is no Child Element with that Tag Name
      * @return The value found in the Element
      **/
-    public static String getString(Element element, String tagName, String defaultValue) {
-        Element childElement = getChildElement(element, tagName);
+    public static String getString(Element<?> element, String tagName, String defaultValue) {
+        Element<?> childElement = getChildElement(element, tagName);
 		
         if (childElement != null) {
             return getString(childElement);
@@ -458,7 +465,7 @@ public class DocumentSerializableUtilities {
     public static String toXmlString(DocumentSerializable documentSerializable, String rootTagName) throws DocumentSerializationException {
         try {
             StringWriter bout = new StringWriter();
-            XMLDocument document = DocumentSerializableUtilities.createStructuredXmlDocument(rootTagName, documentSerializable);
+            XMLDocument<?> document = DocumentSerializableUtilities.createStructuredXmlDocument(rootTagName, documentSerializable);
 
             document.sendToWriter(bout);
             bout.close();
@@ -495,7 +502,7 @@ public class DocumentSerializableUtilities {
      * @throws IOException if I/O error while writing
      **/
     public static void writeAsXmlString(OutputStream out, DocumentSerializable documentSerializable, String rootTagName) throws IOException, DocumentSerializationException {
-        StructuredDocument document = DocumentSerializableUtilities.createStructuredXmlDocument(rootTagName, documentSerializable);
+        StructuredDocument<?> document = DocumentSerializableUtilities.createStructuredXmlDocument(rootTagName, documentSerializable);
 
         document.sendToStream(out);
     }
@@ -527,9 +534,9 @@ public class DocumentSerializableUtilities {
      * @return An object of type 'clazz'
      * @throws DocumentSerializationException if Unable to parse object.
      **/
-    public static DocumentSerializable getDocumentSerializableFromXml(String buf, Class clazz) throws DocumentSerializationException {
+    public static DocumentSerializable getDocumentSerializableFromXml(String buf, Class<?> clazz) throws DocumentSerializationException {
         try {
-            XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
+            XMLDocument<?> xmlDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                     ,
                     new StringReader(buf));
 
@@ -549,7 +556,7 @@ public class DocumentSerializableUtilities {
      * @return An object of type 'clazz'
      * @throws DocumentSerializationException if Unable to parse object.
      **/
-    public static DocumentSerializable getDocumentSerializableFromXml(byte buf[], Class clazz) throws DocumentSerializationException {
+    public static DocumentSerializable getDocumentSerializableFromXml(byte buf[], Class<?> clazz) throws DocumentSerializationException {
         return getDocumentSerializableFromXml(new ByteArrayInputStream(buf), clazz);
     }
 
@@ -561,9 +568,9 @@ public class DocumentSerializableUtilities {
      * @return An object of type 'clazz'
      * @throws DocumentSerializationException if Unable to parse object.
      **/
-    public static DocumentSerializable getDocumentSerializableFromXml(InputStream in, Class clazz) throws DocumentSerializationException {
+    public static DocumentSerializable getDocumentSerializableFromXml(InputStream in, Class<?> clazz) throws DocumentSerializationException {
         try {
-            XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, in);
+            XMLDocument<?> xmlDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, in);
 
             return getDocumentSerializable(xmlDoc.getRoot(), clazz);			
         } catch (IOException readErr) {

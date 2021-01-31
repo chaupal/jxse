@@ -62,7 +62,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -83,7 +82,6 @@ import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLElement;
-import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkConfigurator;
@@ -402,8 +400,8 @@ public abstract class AbstractContentProviderTest {
             dcl.addClassNeverRedefinePattern(Pattern.compile("org.junit.*"));
             dcl.addClassNeverRedefinePattern(Pattern.compile(
                     ContentSharerSPI.class.getName()));
-            Class fc = dcl.loadClass(ContentSharer.class.getName());
-            Constructor constructor = fc.getDeclaredConstructor(
+            Class<?> fc = dcl.loadClass(ContentSharer.class.getName());
+            Constructor<?> constructor = fc.getDeclaredConstructor(
                     File.class, String.class);
             File sharerHome = new File(home, "sharerHome");
             Object obj = constructor.newInstance(
@@ -435,7 +433,7 @@ public abstract class AbstractContentProviderTest {
     throws IOException {
         byte[] advData = spi.share(cID.toURI(), data, mimeType.getMimeMediaType(), false);
         BinaryDocument advDoc = new BinaryDocument(advData, MimeMediaType.XMLUTF8);
-        XMLElement elem = (XMLElement) StructuredDocumentFactory.newStructuredDocument(
+        XMLElement<?> elem = (XMLElement<?>) StructuredDocumentFactory.newStructuredDocument(
                 advDoc.getMimeType(), advDoc.getStream());
         ContentShareAdvertisement shareAdv = (ContentShareAdvertisement)
                 AdvertisementFactory.newAdvertisement(elem);

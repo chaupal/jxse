@@ -74,18 +74,18 @@ public class Util {
 
     private static final boolean VERBOSE = false;
 
-    private static Map getHeaders = null;
-    private static Map postHeaders = null;
+    private static Map<String,String> getHeaders = null;
+    private static Map<String,String> postHeaders = null;
     private static byte[] code = new byte[64];
 
     static {
-        getHeaders = new HashMap();
+        getHeaders = new HashMap<>();
 
         getHeaders.put(Constants.MIME.Key.USER_AGENT, Constants.MIME.Value.TROLL);
         getHeaders.put(Constants.MIME.Key.ACCEPT, Constants.MIME.Value.ACCEPT_ALL);
         getHeaders.put(Constants.MIME.Key.CONNECTION, Constants.MIME.Value.KEEP_ALIVE);
 
-        postHeaders = new HashMap();
+        postHeaders = new HashMap<>();
 
         postHeaders.putAll(getHeaders);
 
@@ -109,11 +109,11 @@ public class Util {
     }
     ;
 
-    public static Map getDefaultGetHeaders() {
+    public static Map<String,String> getDefaultGetHeaders() {
         return getHeaders;
     }
 
-    public static Map getDefaultPostHeaders() {
+    public static Map<String,String> getDefaultPostHeaders() {
         return postHeaders;
     }
 

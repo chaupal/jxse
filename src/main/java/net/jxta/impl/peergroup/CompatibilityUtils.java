@@ -84,10 +84,12 @@ public final class CompatibilityUtils {
             Logger.getLogger(CompatibilityUtils.class.getName());
 
     /**
-     * Package URI to use in the default ModuleImplAdvertisement.
+     * The old jar is no longer maintained by Oracle, so switiching to the most recent
+     * jar on maven
      */
     private static final String MODULE_IMPL_STD_URI =
-            "http://download.java.net/jxta/jxta-jxse/latest/jnlp/lib/jxta.jar";
+            //"http://download.java.net/jxta/jxta-jxse/latest/jnlp/lib/jxta.jar";
+    		"https://repo1.maven.org/maven2/net/jxta/jxta-jxse/2.5/jxta-jxse-2.5.jar";
 
     /**
      * Default provider name to use in the default ModuleImplAdvertisement.
@@ -169,12 +171,12 @@ public final class CompatibilityUtils {
      * 
      * @return compatibility statement document
      */
-    @SuppressWarnings("unchecked")
-    public static XMLDocument createDefaultCompatStatement() {
-        XMLDocument doc = (XMLDocument)
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static XMLDocument<?> createDefaultCompatStatement() {
+        XMLDocument doc = (XMLDocument<?>)
                 StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Comp");
-        XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
+        XMLElement<?> e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
         doc.appendChild(e);
 
         e = doc.createElement(STD_COMPAT_BINDING, STD_COMPAT_BINDING_VALUE);
@@ -190,7 +192,8 @@ public final class CompatibilityUtils {
      * @return {@code true} if we are compatible with the provided statement
      *  otherwise {@code false}.
      */
-    public static boolean isCompatible(Element compat) {
+    @SuppressWarnings("unchecked")
+	public static boolean isCompatible(Element<?> compat) {
         boolean formatOk = false;
         boolean bindingOk = false;
 
@@ -199,7 +202,7 @@ public final class CompatibilityUtils {
         }
 
         try {
-            Enumeration<TextElement> hisChildren = ((TextElement)compat).getChildren();
+            Enumeration<TextElement<?>> hisChildren = (Enumeration<TextElement<?>>) compat.getChildren();
             int i = 0;
             while (hisChildren.hasMoreElements()) {
                 // Stop after 2 elements; there shall not be more.
@@ -207,7 +210,7 @@ public final class CompatibilityUtils {
                     return false;
                 }
 
-                TextElement e = hisChildren.nextElement();
+                TextElement<?> e = hisChildren.nextElement();
                 String key = e.getKey();
                 String val = e.getValue().trim();
 
@@ -227,8 +230,12 @@ public final class CompatibilityUtils {
                         specMatches = false;
                         version = null;
                     }
-
-                    formatOk = specMatches && javaLangPackage.isCompatibleWith(version);
+                    if( javaLangPackage.getSpecificationVersion() == null ) {
+                    	String vers = System.getProperty("java.version");
+                    	formatOk = (compareVersion( vers, version )>0);
+                   }else {
+                    	formatOk = specMatches && javaLangPackage.isCompatibleWith(version);
+                    }
 
                 } else if (STD_COMPAT_BINDING.equals(key) && STD_COMPAT_BINDING_VALUE.equals(val)) {
 
@@ -250,6 +257,21 @@ public final class CompatibilityUtils {
         }
 
         return formatOk && bindingOk;
+    }
+
+    public static int compareVersion( String first, String second ) {
+       	String[] splitf = first.split("[.]");
+       	String[] splits = second.split("[.]");
+       	int compare = 0;
+       	int length = splitf.length<splits.length?splitf.length: splits.length;
+       	for( int i=0; i<length; i++) {
+       		int index = Integer.parseInt(splitf[i]);
+           	int index2 = Integer.parseInt(splits[i]);
+            compare = ( index - index2);
+           	if( compare != 0 )
+           	   return compare;
+       	}
+       	return compare; 	
     }
 
 }

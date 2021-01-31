@@ -71,7 +71,7 @@ import java.util.Iterator;
  * @author james todd [gonzo at jxta dot org]
  */
 
-public class PostMessage extends GetMessage {
+public class PostMessage extends GetMessage<String> {
 
     public PostMessage() {
         this(null, "");
@@ -82,10 +82,10 @@ public class PostMessage extends GetMessage {
     }
 
     public PostMessage(URL url, String message) {
-        this(url, ((message != null) ? new Message(message) : new Message()));
+        this(url, ((message != null) ? new Message<String>(message) : new Message<String>()));
     }
 
-    public PostMessage(URL url, Message message) {
+    public PostMessage(URL url, Message<String> message) {
         super(url, message);
         super.method = Constants.HTTP.POST;
 
@@ -113,8 +113,8 @@ public class PostMessage extends GetMessage {
     }
 
     @Override
-    public Message dispatch() throws IOException {
-        Message response = null;
+    public Message<String> dispatch() throws IOException {
+        Message<String> response = null;
         URL to = getURL();
 
         try {
@@ -145,20 +145,20 @@ public class PostMessage extends GetMessage {
         if (to != null) {
             from = to;
 
-            List cookies = new ArrayList();
+            List<String> cookies = new ArrayList<>();
 
-            for (Iterator h = response.getHeaders(Constants.MIME.Key.COOKIE); h.hasNext();) {
-                cookies.add((String) h.next());
+            for (Iterator<String> h = response.getHeaders(Constants.MIME.Key.COOKIE); h.hasNext();) {
+                cookies.add( h.next());
             }
 
-            for (Iterator h = response.getHeaders(Constants.MIME.Key.SET_COOKIE); h.hasNext();) {
+            for (Iterator<String> h = response.getHeaders(Constants.MIME.Key.SET_COOKIE); h.hasNext();) {
                 cookies.add((String) h.next());
             }
 
             response.removeHeaders();
 
-            for (Iterator c = cookies.iterator(); c.hasNext();) {
-                response.setHeader(Constants.MIME.Key.COOKIE, (String) c.next());
+            for (Iterator<String> c = cookies.iterator(); c.hasNext();) {
+                response.setHeader(Constants.MIME.Key.COOKIE, c.next());
             }
 
             setMessage(response);
@@ -180,9 +180,9 @@ public class PostMessage extends GetMessage {
 
     @Override
     public String toString() {
-        java.lang.Class clazz = getClass();
+        java.lang.Class<?> clazz = getClass();
         java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
-        java.util.HashMap map = new java.util.HashMap();
+        java.util.HashMap<String, Object> map = new java.util.HashMap<>();
         java.lang.String object = null;
         java.lang.Object value = null;
 

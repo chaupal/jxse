@@ -76,9 +76,9 @@ public interface Dispatchable {
 
     public String getHeader(String key);
 
-    public Iterator getHeaderKeys();
+    public Iterator<String> getHeaderKeys();
 
-    public void setHeaders(Map headers);
+    public void setHeaders(Map<String, String> headers);
 
     public void setHeader(String key, String value);
 

@@ -84,7 +84,7 @@ public class Dispatcher {
     private static final int SLEEP = 100;
     private static final boolean VERBOSE = false;
 
-    private List cookies = new ArrayList();
+    private List<String> cookies = new ArrayList<>();
     private boolean isCookieEnabled = false;
     private int maxWait = 0;
 
@@ -107,23 +107,23 @@ public class Dispatcher {
     }
 
     public Message dispatch(URL url) throws IOException {
-        return dispatch(url, (Map) null);
+        return dispatch(url, (Map<String, Object>) null);
     }
 
-    public Message dispatch(URL url, Map queryString) throws IOException {
+    public Message dispatch(URL url, Map<String, Object> queryString) throws IOException {
         return dispatch(url, queryString, (Message) null);
     }
 
     public Message dispatch(URL url, Message message) throws IOException {
-        return dispatch(url, (Map) null, message);
+        return dispatch(url, (Map<String, Object>) null, message);
     }
 
-    public Message dispatch(URL url, Map queryString, Message message) throws IOException {
+    public Message dispatch(URL url, Map<String, Object> queryString, Message message) throws IOException {
         URL u = bindQueryString(url, queryString);
         Dispatchable dispatcher = DispatchableFactory.create(u, message);
         String header = null;
 
-        for (Iterator c = this.cookies.iterator(); c.hasNext();) {
+        for (Iterator<String> c = this.cookies.iterator(); c.hasNext();) {
             header = (String) c.next();
 
             if (isCookieEnabled()) {
@@ -162,7 +162,7 @@ public class Dispatcher {
         }
 
         if (response != null) {
-            for (Iterator h = response.getHeaders(Constants.MIME.Key.SET_COOKIE); h.hasNext();) {
+            for (Iterator<String> h = response.getHeaders(Constants.MIME.Key.SET_COOKIE); h.hasNext();) {
                 this.cookies.add((String) h.next());
             }
         }
@@ -170,12 +170,12 @@ public class Dispatcher {
         return response;
     }
 
-    private URL bindQueryString(URL requestURL, Map queryString) {
+    private URL bindQueryString(URL requestURL, Map<String, Object> queryString) {
         URL u = requestURL;
 
         if (u != null && queryString != null) {
             StringBuilder sb = new StringBuilder();
-            Iterator keys = queryString.keySet().iterator();
+            Iterator<String> keys = queryString.keySet().iterator();
             String key = null;
             String value = null;
 

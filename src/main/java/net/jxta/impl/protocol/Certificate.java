@@ -111,7 +111,7 @@ public class Certificate {
         super();
     }
 
-    public Certificate(Element root) {
+    public Certificate(Element<?> root) {
         this();
         certs = new ArrayList<X509Certificate>();
         initialize(root);
@@ -143,13 +143,13 @@ public class Certificate {
      *
      * @param root the element
      */
-    private void initialize(Element root) {
+    private void initialize(Element <?>root) {
 
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String doctype = doc.getName();
 
@@ -181,11 +181,11 @@ public class Certificate {
             throw new IllegalArgumentException("bad certificate.");
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            Element elem = (Element) elements.nextElement();
+            Element<?> elem = (Element<?>) elements.nextElement();
 
             if (!elem.getKey().equals("Issuer")) {
                 Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
@@ -209,7 +209,8 @@ public class Certificate {
      * @param encodeAs The document representation format requested.
      * @return the message as a document.
      */
-    public Document getDocument(MimeMediaType encodeAs) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public Document getDocument(MimeMediaType encodeAs) {
         String encodedCert;
 
         try {
@@ -231,8 +232,8 @@ public class Certificate {
         StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType(), encodedCert);
 
         if (doc instanceof XMLDocument) {
-            ((XMLDocument) doc).addAttribute("xmlns:jxta", "http://jxta.org");
-            ((XMLDocument) doc).addAttribute("xml:space", "preserve");
+            ((XMLDocument<?>) doc).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) doc).addAttribute("xml:space", "preserve");
         }
 
         Iterator<X509Certificate> eachCert = certs.iterator();
@@ -260,7 +261,7 @@ public class Certificate {
                 throw failure;
             }
 
-            Element issuerElement = doc.createElement("Issuer", encodedCert);
+            Element<?> issuerElement = doc.createElement("Issuer", encodedCert);
 
             addTo.appendChild(issuerElement);
 

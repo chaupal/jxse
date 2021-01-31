@@ -97,7 +97,7 @@ public interface Element<E extends Element<E>> {
      *
      *  @return The root document element of this element's hierarchy.
      */
-    StructuredDocument getRoot();
+    StructuredDocument<?> getRoot();
 
     /**
      * Get the parent element of this element. If this Element has not been

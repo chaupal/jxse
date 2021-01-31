@@ -13,8 +13,7 @@ package net.jxta.impl.util.backport.java.util;
  * @author Doug Lea
  * @author Dawid Kurzyniec
  */
-@SuppressWarnings("unchecked")
-public abstract class AbstractSet extends java.util.AbstractSet {
+public abstract class AbstractSet extends java.util.AbstractSet<Object> {
 
     /**
      * Sole constructor. (For invocation by subclass constructors, typically
@@ -26,7 +25,8 @@ public abstract class AbstractSet extends java.util.AbstractSet {
         return Utils.collectionToArray(this);
     }
 
-    public Object[] toArray(Object[] a) {
+    @SuppressWarnings("unchecked")
+	public Object[] toArray(Object[] a) {
         return Utils.collectionToArray(this, a);
     }
 }

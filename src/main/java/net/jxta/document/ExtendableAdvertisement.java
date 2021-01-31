@@ -122,10 +122,10 @@ public abstract class ExtendableAdvertisement extends Advertisement {
      * @param elem The element to be processed.
      * @return {@code true} if the element was recognized, otherwise false.
      */
-    protected boolean handleElement(Element elem) {
+    protected boolean handleElement(Element<?> elem) {
         if(elem instanceof XMLElement)
         {
-            XMLElement tempSigElement = (XMLElement) elem;
+            XMLElement<?> tempSigElement = (XMLElement<?>) elem;
             if(tempSigElement.getName().equals("XMLSignatureInfo"))
             {
                 this.xmlSignatureInfoElement=tempSigElement;
@@ -189,7 +189,7 @@ public abstract class ExtendableAdvertisement extends Advertisement {
         }
 
         if (adv instanceof XMLDocument) {
-            XMLDocument xmlAdv = (XMLDocument) adv;
+            XMLDocument<?> xmlAdv = (XMLDocument<?>) adv;
 
             xmlAdv.addAttribute("xmlns:jxta", "http://jxta.org");
             if (!formatted) {

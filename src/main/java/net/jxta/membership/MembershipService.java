@@ -180,7 +180,7 @@ public interface MembershipService extends Service {
      * @throws PeerGroupException Thrown in the event of errors.
      * @throws Exception Thrown in the event of errors.
      */
-    public Credential makeCredential(Element element) throws PeerGroupException, Exception;
+    public Credential makeCredential(Element<?> element) throws PeerGroupException, Exception;
 
     /**
      *  Add a listener

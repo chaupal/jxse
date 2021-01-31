@@ -235,7 +235,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * Create a new remote credential. This credential cannot be used for
      * signing and cannot be re-serialized.
      */
-    public PSECredential(Element root) {
+    public PSECredential(Element<?> root) {
         this.local = false;
         initialize(root);
     }
@@ -244,7 +244,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * Create a new remote credential. This credential cannot be used for
      * signing and cannot be re-serialized.
      */
-    public PSECredential(PSEMembershipService source, Element root) {
+    public PSECredential(PSEMembershipService source, Element<?> root) {
         this.local = false;
         this.source = source;
         initialize(root);
@@ -445,7 +445,8 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     /**
      * {@inheritDoc}
      */
-    public StructuredDocument getDocument(MimeMediaType encodeAs) throws Exception {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public StructuredDocument<?> getDocument(MimeMediaType encodeAs) throws Exception {
         if (!isValid()) {
             throw new javax.security.cert.CertificateException("Credential is not valid. Cannot generate document.");
         }
@@ -457,15 +458,15 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, "jxta:Cred");
 
         if (doc instanceof XMLDocument) {
-            ((XMLDocument) doc).addAttribute("xmlns:jxta", "http://jxta.org");
-            ((XMLDocument) doc).addAttribute("xml:space", "preserve");
+            ((XMLDocument<?>) doc).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((XMLDocument<?>) doc).addAttribute("xml:space", "preserve");
         }
 
         if (doc instanceof Attributable) {
             ((Attributable) doc).addAttribute("type", "jxta:PSECred");
         }
 
-        Element e;
+        Element<?> e;
 
         e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
         doc.appendChild(e);
@@ -481,7 +482,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
         certChain.setCertificates(certsList);
 
-        StructuredDocument certsDoc = (StructuredDocument) certChain.getDocument(encodeAs);
+        StructuredDocument<?> certsDoc = (StructuredDocument<?>) certChain.getDocument(encodeAs);
 
         if (certsDoc instanceof Attributable) {
             ((Attributable) certsDoc).addAttribute("type", certsDoc.getKey().toString());
@@ -491,7 +492,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
         // Add the signature.
 
-        List someStreams = new ArrayList(3);
+        List<ByteArrayInputStream> someStreams = new ArrayList<>(3);
 
         try {
             someStreams.add(new ByteArrayInputStream(getPeerGroupID().toString().getBytes("UTF-8")));
@@ -553,7 +554,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * @return the certificate chain associated with this credential.
      */
     public X509Certificate[] getCertificateChain() {
-        List certList = certs.getCertificates();
+        List<? extends Certificate> certList = certs.getCertificates();
 
         return (X509Certificate[]) certList.toArray(new X509Certificate[certList.size()]);
     }
@@ -733,7 +734,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * @param elem the element to be processed.
      * @return true if the element was recognized, otherwise false.
      */
-    protected boolean handleElement(XMLElement elem) {
+    protected boolean handleElement(XMLElement<?> elem) {
         if (elem.getName().equals("PeerGroupID")) {
             try {
                 ID pid = IDFactory.fromURI(new URI(elem.getTextValue()));
@@ -793,7 +794,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
                 someStreams.add(new ByteArrayInputStream(getPeerGroupID().toString().getBytes("UTF-8")));
                 someStreams.add(new ByteArrayInputStream(getPeerID().toString().getBytes("UTF-8")));
-                Iterator eachCert = certs.getCertificates().iterator();
+                Iterator<? extends Certificate> eachCert = certs.getCertificates().iterator();
 
                 for (Certificate certificate : certs.getCertificates()) {
                     X509Certificate aCert = (X509Certificate) certificate;
@@ -825,13 +826,13 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     /**
      * Intialize from a portion of a structured document.
      */
-    protected void initialize(Element root) {
+    protected void initialize(Element<?> root) {
 
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String typedoctype = "";
 
@@ -848,11 +849,11 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedWarning(LOG, "Unhandled element \'", elem.getName(), "\' in ", doc.getName());

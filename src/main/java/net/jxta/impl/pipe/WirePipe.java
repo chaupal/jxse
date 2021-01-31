@@ -326,7 +326,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
         try {
 
-            XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
+            XMLDocument<?> doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(elem);
             header = new WireHeader(doc);
 
         } catch (Exception e) {
@@ -374,7 +374,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      */
     private void callLocalListeners(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        List<InputPipeImpl> listeners = new ArrayList(wireinputpipes.keySet());
+        List<InputPipe> listeners = new ArrayList<InputPipe>(wireinputpipes.keySet());
 
         if (listeners.isEmpty()) {
 
@@ -384,11 +384,12 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
             int listenersCalled = 0;
 
-            for (InputPipeImpl anInputPipe : listeners) {
+            for (InputPipe anInputPipe : listeners) {
 
                 try {
+                	InputPipeImpl impl = (InputPipeImpl) anInputPipe;
 
-                    anInputPipe.processIncomingMessage(message.clone(), srcAddr, dstAddr);
+                    impl.processIncomingMessage(message.clone(), srcAddr, dstAddr);
                     listenersCalled++;
 
                 } catch (Throwable ignored) {
@@ -409,7 +410,8 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * @param message the message
      * @param header  the header
      */
-    void repropagate(Message message, WireHeader header) {
+    @SuppressWarnings("unchecked")
+	void repropagate(Message message, WireHeader header) {
 
         if (closed) {
             return;
@@ -425,7 +427,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
         Message msg = message.clone();
         header.setTTL(header.getTTL() - 1);
-        XMLDocument headerDoc = (XMLDocument) header.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> headerDoc = (XMLDocument<?>) header.getDocument(MimeMediaType.XMLUTF8);
         MessageElement elem = new TextDocumentMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAME, headerDoc, null);
 
         msg.replaceMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAMESPACE, elem);

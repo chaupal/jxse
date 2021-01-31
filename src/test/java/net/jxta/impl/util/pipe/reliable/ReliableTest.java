@@ -138,7 +138,7 @@ public class ReliableTest extends TestCase implements
     private Random random = new Random(System.currentTimeMillis());
 
     private int nextMessageId = 0;
-    private ArrayList loadElements = null;
+    private ArrayList<byte[]> loadElements = null;
 
     private int dropMsgCount = 0;
 
@@ -265,7 +265,7 @@ public class ReliableTest extends TestCase implements
     @Override
     protected void setUp() {
         scheduledExecutor = new ScheduledThreadPoolExecutor(2);
-        loadElements = new ArrayList();
+        loadElements = new ArrayList<>();
         for (int size = MIN_LOAD; size <= MAX_LOAD; size = size << 1) {
             byte[] le = new byte[size];
 
@@ -603,16 +603,16 @@ public class ReliableTest extends TestCase implements
     }
 
     public void discoveryEvent(DiscoveryEvent event) {
-        Enumeration ae = event.getResponse().getResponses();
+        Enumeration<?> ae = event.getResponse().getResponses();
 
         while (ae.hasMoreElements()) {
             String str = (String) ae.nextElement();
             // create Advertisement from response
             Advertisement adv = null;
-            XMLDocument advDocument = null;
+            XMLDocument<?> advDocument = null;
 
             try {
-                advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, new StringReader(str) );
+                advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, new StringReader(str) );
             	
                 adv = AdvertisementFactory.newAdvertisement(advDocument);
             } catch (IOException ex) {

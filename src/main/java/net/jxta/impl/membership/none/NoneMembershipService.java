@@ -71,7 +71,6 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
-import net.jxta.logging.Logging;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
@@ -143,7 +142,7 @@ public class NoneMembershipService implements MembershipService {
             this.peerid = source.peergroup.getPeerID();
         }
 
-        protected NoneCredential(NoneMembershipService source, Element root) throws PeerGroupException {
+        protected NoneCredential(NoneMembershipService source, Element<?> root) throws PeerGroupException {
 
             this.source = source;
 
@@ -228,7 +227,8 @@ public class NoneMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          **/
-        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+		public StructuredDocument<?> getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
 
             if (doc instanceof Attributable) {
@@ -237,7 +237,7 @@ public class NoneMembershipService implements MembershipService {
                 ((Attributable) doc).addAttribute("type", "jxta:NullCred");
             }
 
-            Element e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
+            Element<?> e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
 
             doc.appendChild(e);
 
@@ -256,7 +256,7 @@ public class NoneMembershipService implements MembershipService {
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
          **/
-        protected boolean handleElement(TextElement elem) {
+        protected boolean handleElement(TextElement<?> elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
                     URI gID = new URI(elem.getTextValue());
@@ -298,13 +298,13 @@ public class NoneMembershipService implements MembershipService {
         /**
          *  Intialize from a portion of a structured document.
          **/
-        protected void initialize(Element root) {
+        protected void initialize(Element<?> root) {
 
             if (!TextElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
             }
 
-            TextElement doc = (TextElement) root;
+            TextElement<?> doc = (TextElement<?>) root;
 
             String typedoctype = "";
 
@@ -323,11 +323,11 @@ public class NoneMembershipService implements MembershipService {
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
             }
 
-            Enumeration elements = doc.getChildren();
+            Enumeration<?> elements = doc.getChildren();
 
             while (elements.hasMoreElements()) {
 
-                TextElement elem = (TextElement) elements.nextElement();
+                TextElement<?> elem = (TextElement<?>) elements.nextElement();
 
                 if (!handleElement(elem)) 
                     Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());
@@ -467,12 +467,12 @@ public class NoneMembershipService implements MembershipService {
     /**
      *  our current credentials
      **/
-    private List principals;
+    private List<Credential> principals;
 
     /**
      *  our current auth credentials
      **/
-    private List principalsAuth;
+    private List<Credential> principalsAuth;
 
     /**
      *  the default "nobody" credential
@@ -488,8 +488,8 @@ public class NoneMembershipService implements MembershipService {
      *  default constructor. Normally called only by the peer group.
      **/
     public NoneMembershipService() {
-        principals = new ArrayList();
-        principalsAuth = new ArrayList();
+        principals = new ArrayList<>();
+        principalsAuth = new ArrayList<>();
         support = new PropertyChangeSupport(this); // getInterface());
     }
 
@@ -652,7 +652,7 @@ public class NoneMembershipService implements MembershipService {
      * {@inheritDoc}
      **/
     public void resign() {
-        List allCreds = new ArrayList();
+        List<Credential> allCreds = new ArrayList<>();
 
         allCreds.addAll(principals);
         allCreds.remove(defaultCredential);
@@ -666,7 +666,7 @@ public class NoneMembershipService implements MembershipService {
             principals.add(defaultCredential);
         }
 
-        Iterator eachCred = allCreds.iterator();
+        Iterator<Credential> eachCred = allCreds.iterator();
 
         while (eachCred.hasNext()) {
             NoneCredential aCred = (NoneCredential) eachCred.next();
@@ -678,7 +678,7 @@ public class NoneMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    public Credential makeCredential(Element element) throws PeerGroupException, Exception {
+    public Credential makeCredential(Element<?> element) throws PeerGroupException, Exception {
         return new NoneCredential(this, element);
     }
 }

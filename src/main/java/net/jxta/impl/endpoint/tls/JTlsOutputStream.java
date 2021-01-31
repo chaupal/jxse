@@ -564,7 +564,7 @@ class JTlsOutputStream extends OutputStream {
 
             }
 
-            Iterator eachRetryQueueEntry = retrQ.iterator();
+            Iterator<RetrQElt> eachRetryQueueEntry = retrQ.iterator();
 
             // First remove monotonically increasing seq#s in retrans vector
             while (eachRetryQueueEntry.hasNext()) {
@@ -614,7 +614,7 @@ class JTlsOutputStream extends OutputStream {
             int retrans = 0;
 
             if (sackList.length > 0) {
-                Iterator eachRetrQElement = retrQ.iterator();
+                Iterator<RetrQElt> eachRetrQElement = retrQ.iterator();
 
                 int currentSACK = 0;
 
@@ -689,7 +689,7 @@ class JTlsOutputStream extends OutputStream {
      *  @return number of messages retransmitted.
      **/
     private int retransmit(int rwin, long triggerTime) {
-        List retransMsgs = new ArrayList();
+        List<RetrQElt> retransMsgs = new ArrayList<>();
 
         int numberToRetrans;
 
@@ -747,7 +747,7 @@ class JTlsOutputStream extends OutputStream {
         // send the retries.
         int retransmitted = 0;
 
-        Iterator eachRetrans = retransMsgs.iterator();
+        Iterator<RetrQElt> eachRetrans = retransMsgs.iterator();
 
         while (eachRetrans.hasNext()) {
             RetrQElt r = (RetrQElt) eachRetrans.next();
@@ -803,7 +803,8 @@ class JTlsOutputStream extends OutputStream {
 
         }
 
-        public int getRetransCount() {
+        @SuppressWarnings("unused")
+		public int getRetransCount() {
             return nretransmitted;
         }
 

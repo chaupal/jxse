@@ -110,10 +110,10 @@ public class TcpConnection implements Runnable {
     private int connectionTimeOut = 10 * 1000;
 
     // Connections that are watched often - io in progress
-    List ShortCycle = Collections.synchronizedList(new ArrayList());
+    List<Object> ShortCycle = Collections.synchronizedList(new ArrayList<>());
 
     // Connections that are watched rarely - idle or waiting for input
-    List LongCycle = Collections.synchronizedList(new ArrayList());
+    List<Object> LongCycle = Collections.synchronizedList(new ArrayList<>());
 
     /**
      *  only one outgoing message per connection.

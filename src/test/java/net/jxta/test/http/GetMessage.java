@@ -79,13 +79,13 @@ import java.util.Iterator;
  * @author james todd [gonzo at jxta dot org]
  */
 
-public class GetMessage
+public class GetMessage<M extends Object>
         implements Dispatchable {
 
     protected static boolean VERBOSE = false;
 
     protected String method = null;
-    protected Message message = null;
+    protected Message<M> message = null;
     protected URLConnection connection = null;
 
     private URL url = null;
@@ -99,7 +99,7 @@ public class GetMessage
         this(url, null);
     }
 
-    public GetMessage(URL url, Message message) {
+    public GetMessage(URL url, Message<M>  message) {
         this.url = url;
         this.method = Constants.HTTP.GET;
         this.message = message;
@@ -117,12 +117,13 @@ public class GetMessage
         return ((this.message != null) ? this.message.getHeader(key) : null);
     }
 
-    public Iterator getHeaderKeys() {
+    @SuppressWarnings("unchecked")
+	public Iterator<String> getHeaderKeys() {
         return ((this.message != null) ? this.message.getHeaderKeys() : Collections.EMPTY_LIST.iterator());
     }
 
-    public void setHeaders(Map headers) {
-        Iterator keys = headers.keySet().iterator();
+    public void setHeaders(Map<String, String> headers) {
+        Iterator<String> keys = headers.keySet().iterator();
 
         while (keys.hasNext()) {
             String key = (String) keys.next();
@@ -134,10 +135,10 @@ public class GetMessage
 
     public void setHeader(String key, String value) {
         if (this.message == null) {
-            this.message = new Message();
+            this.message = new Message<>();
         }
 
-        this.message.setHeader(key, value);
+        this.message.setHeaderAsString(key, value);
     }
 
     public void removeHeader(String key) throws NullPointerException {
@@ -158,7 +159,7 @@ public class GetMessage
         this.isUnicodeEncoding = isUnicodeEncoding;
     }
 
-    public Message dispatch() throws IOException {
+    public Message<M> dispatch() throws IOException {
         return dispatch(getURL());
     }
 
@@ -168,9 +169,9 @@ public class GetMessage
 
     @Override
     public String toString() {
-        java.lang.Class clazz = getClass();
+        java.lang.Class<?> clazz = getClass();
         java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
-        java.util.HashMap map = new java.util.HashMap();
+        java.util.HashMap<String, Object> map = new java.util.HashMap<>();
         java.lang.String object = null;
         java.lang.Object value = null;
 
@@ -192,7 +193,7 @@ public class GetMessage
         return clazz.getName() + map;
     }
 
-    protected void setMessage(Message message) {
+    protected void setMessage(Message<M> message) {
         this.message = message;
     }
 
@@ -202,14 +203,14 @@ public class GetMessage
 
     protected void setBody(String body) {
         if (this.message == null) {
-            this.message = new Message();
+            this.message = new Message<>();
         }
 
         this.message.setBody((body != null) ? body : "");
     }
 
-    protected Message dispatch(URL u) throws IOException {
-        Message response = null;
+    protected Message<M> dispatch(URL u) throws IOException {
+        Message<M> response = null;
         URL to = u;
         URL from = null;
 
@@ -274,8 +275,8 @@ public class GetMessage
 
     protected void doGet() throws IOException {}
 
-    protected Message getResponse(URL u) throws IOException {
-        Message m = new Message();
+    protected Message<M> getResponse(URL u) throws IOException {
+        Message<M> m = new Message<>();
 
         m.setHeaders(getResponseHeaders());
 
@@ -294,7 +295,7 @@ public class GetMessage
         return m;
     }
 
-    protected URL getLocation(URL base, Message message) {
+    protected URL getLocation(URL base, Message<M> message) {
         URL u = null;
         final String LOCATION_PREFIX = ".location='";
         final String LOCATION_SUFFIX = "'";
@@ -332,14 +333,15 @@ public class GetMessage
 
     // xxx: ugly
 
-    protected Message resolveFrames(Message response, URL base) {
+    @SuppressWarnings("unchecked")
+	protected Message<M> resolveFrames(Message<M> response, URL base) {
         final String prefix = "<frame ";
         final String prefixCap = prefix.toUpperCase();
         final String postfix = ">";
         final String target = "src";
         final String targetCap = target.toUpperCase();
         final String quote = "\"";
-        Message msg = new Message();
+        Message<M> msg = new Message<>();
         int i = -1;
         int j = -1;
         int k = -1;
@@ -348,24 +350,24 @@ public class GetMessage
         String s = null;
         String r = null;
         URL u = null;
-        Message reply = null;
+        Message<M> reply = null;
         String key = null;
-        List values = null;
+        List<String> values = null;
         StringBuilder sb = new StringBuilder();
 
         if (response != null && response.getBody() != null) {
             sb.append(response.getBody());
         }
 
-        for (Iterator keys = (response != null ? response.getHeaderKeys() : Collections.EMPTY_MAP.keySet().iterator()); keys.hasNext();) {
+        for (Iterator<String> keys = (response != null ? response.getHeaderKeys() : Collections.EMPTY_MAP.keySet().iterator()); keys.hasNext();) {
             key = (String) keys.next();
-            values = new ArrayList();
+            values = new ArrayList<>();
 
-            for (Iterator h = response.getHeaders(key); h.hasNext();) {
+            for (Iterator<String> h = response.getHeaders(key); h.hasNext();) {
                 values.add((String) h.next());
             }
 
-            msg.setHeader(key, (String) values.get(0));
+            msg.setHeaderAsString(key, (String) values.get(0));
         }
 
         while ((i = sb.indexOf(prefix)) > -1 || (j = sb.indexOf(prefixCap)) > -1) {
@@ -391,7 +393,7 @@ public class GetMessage
                 }
 
                 try {
-                    reply = new GetMessage(u).dispatch();
+                    reply = new GetMessage<M>(u).dispatch();
                 } catch (IOException ioe) {
                     if (VERBOSE) {
                         ioe.printStackTrace();
@@ -420,7 +422,7 @@ public class GetMessage
         String value = null;
 
         if (this.message != null) {
-            for (Iterator keys = this.message.getHeaderKeys(); keys.hasNext();) {
+            for (Iterator<String> keys = this.message.getHeaderKeys(); keys.hasNext();) {
                 key = (String) keys.next();
                 value = this.message.getHeader(key);
                 connection.setRequestProperty(key, value);
@@ -428,9 +430,9 @@ public class GetMessage
         }
 
         boolean doOutput = (this.method == Constants.HTTP.POST && this.message != null && this.message.hasBody());
-        Map defaultHeaders = ((!doOutput) ? Util.getDefaultGetHeaders() : Util.getDefaultPostHeaders());
+        Map<String, String> defaultHeaders = ((!doOutput) ? Util.getDefaultGetHeaders() : Util.getDefaultPostHeaders());
 
-        for (Iterator keys = defaultHeaders.keySet().iterator(); keys.hasNext();) {
+        for (Iterator<String> keys = defaultHeaders.keySet().iterator(); keys.hasNext();) {
             key = (String) keys.next();
 
             if (connection.getRequestProperty(key) == null) {
@@ -451,7 +453,7 @@ public class GetMessage
         connection.setDoOutput(doOutput);
         connection.setDoInput(true);
         connection.setUseCaches(false);
-        connection.setFollowRedirects(followRedirects);
+        HttpURLConnection.setFollowRedirects(followRedirects);
         connection.setInstanceFollowRedirects(followRedirects);
 
         return connection;
@@ -461,9 +463,10 @@ public class GetMessage
         return u.openConnection();
     }
 
-    private Map getResponseHeaders() {
-        Map headers = new HashMap();
-        Map m = this.connection.getHeaderFields();
+    @SuppressWarnings("unchecked")
+	private Map<String, M> getResponseHeaders() {
+        Map<String, M> headers = new HashMap<>();
+        Map<String, M> m = (Map<String, M>) this.connection.getHeaderFields();
 
         headers.putAll(m);
         headers.remove(null);

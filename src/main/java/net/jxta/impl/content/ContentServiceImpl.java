@@ -62,6 +62,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -163,37 +164,37 @@ public class ContentServiceImpl implements ContentService {
      * Default constructor.
      */
     public ContentServiceImpl() {
-        // Track available providers indirectly via the lifecycle manager
-        manager.addModuleLifecycleListener(
-                new ModuleLifecycleListener() {
+    	// Track available providers indirectly via the lifecycle manager
+    	manager.addModuleLifecycleListener(
+    			new ModuleLifecycleListener<Module>() {
 
-            /**
-             * {@inheritDoc}
-             */
-            public void unhandledPeerGroupException(ModuleLifecycleTracker subject, PeerGroupException mlcx) {
+    				/**
+    				 * {@inheritDoc}
+    				 */
+    				public void unhandledPeerGroupException( ModuleLifecycleTracker<Module> subject, PeerGroupException mlcx) {
 
-                Logging.logCheckedWarning(LOG, "Uncaught exception", mlcx);
+    					Logging.logCheckedWarning(LOG, "Uncaught exception", mlcx);
 
-            }
+    				}
 
-            /**
-             * {@inheritDoc}
-             */
-            public void moduleLifecycleStateUpdated(
-                    ModuleLifecycleTracker subject,
-                    ModuleLifecycleState newState) {
-                ContentProviderSPI provider =
-                        (ContentProviderSPI) subject.getModule();
-                LOG.fine("Content provider lifecycle state update: "
-                        + provider + " --> " + newState);
-                if (newState == ModuleLifecycleState.STARTED) {
-                    active.add(provider);
-                } else {
-                    active.remove(provider);
-                }
-            }
+    				/**
+    				 * {@inheritDoc}
+    				 */
+    				public void moduleLifecycleStateUpdated(
+    						ModuleLifecycleTracker<Module> subject,
+    						ModuleLifecycleState newState) {
+    					ContentProviderSPI provider =
+    							(ContentProviderSPI) subject.getModule();
+    					LOG.fine("Content provider lifecycle state update: "
+    							+ provider + " --> " + newState);
+    					if (newState == ModuleLifecycleState.STARTED) {
+    						active.add(provider);
+    					} else {
+    						active.remove(provider);
+    					}
+    				}
 
-        });
+    			});
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -203,87 +204,87 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public void init(
-            PeerGroup group, ID assignedID, Advertisement adv) {
-        List<ContentProviderSPI> toAdd;
-        synchronized(lock) {
-            if (initialized) {
-                return;
-            }
-            initialized = true;
-            this.group = group;
-            this.implAdv = (ModuleImplAdvertisement) adv;
-            toAdd = waitingForInit;
-            waitingForInit = null;
-        }
+    		PeerGroup group, ID assignedID, Advertisement adv) {
+    	List<ContentProviderSPI> toAdd;
+    	synchronized(lock) {
+    		if (initialized) {
+    			return;
+    		}
+    		initialized = true;
+    		this.group = group;
+    		this.implAdv = (ModuleImplAdvertisement) adv;
+    		toAdd = waitingForInit;
+    		waitingForInit = null;
+    	}
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+    	if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder();
+    		StringBuilder configInfo = new StringBuilder();
 
-            configInfo.append("Configuring Content Service : ").append(assignedID);
+    		configInfo.append("Configuring Content Service : ").append(assignedID);
 
-            configInfo.append( "\n\tImplementation :" );
+    		configInfo.append( "\n\tImplementation :" );
 
-            if (implAdv != null) {
-                configInfo.append("\n\t\tModule Spec ID: ").append(implAdv.getModuleSpecID());
-                configInfo.append("\n\t\tImpl Description : ").append(implAdv.getDescription());
-                configInfo.append("\n\t\tImpl URI : ").append(implAdv.getUri());
-                configInfo.append("\n\t\tImpl Code : ").append(implAdv.getCode());
-            }
+    		if (implAdv != null) {
+    			configInfo.append("\n\t\tModule Spec ID: ").append(implAdv.getModuleSpecID());
+    			configInfo.append("\n\t\tImpl Description : ").append(implAdv.getDescription());
+    			configInfo.append("\n\t\tImpl URI : ").append(implAdv.getUri());
+    			configInfo.append("\n\t\tImpl Code : ").append(implAdv.getCode());
+    		}
 
-            configInfo.append( "\n\tGroup Params :" );
-            configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
+    		configInfo.append( "\n\tGroup Params :" );
+    		configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
+    		configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
+    		configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
 
-            configInfo.append( "\n\tProviders: ");
+    		configInfo.append( "\n\tProviders: ");
 
-            for (ContentProviderSPI provider : toAdd) {
-                configInfo.append("\n\t\tProvider: ").append(provider);
-            }
+    		for (ContentProviderSPI provider : toAdd) {
+    			configInfo.append("\n\t\tProvider: ").append(provider);
+    		}
 
-            LOG.config( configInfo.toString() );
+    		LOG.config( configInfo.toString() );
 
-        }
+    	}
 
-        // Provider initialization
-        for (ContentProviderSPI provider : toAdd) {
-            addContentProvider(provider);
-        }
+    	// Provider initialization
+    	for (ContentProviderSPI provider : toAdd) {
+    		addContentProvider(provider);
+    	}
 
-        manager.init();
+    	manager.init();
     }
 
     /**
      * {@inheritDoc}
      */
     public int startApp(String args[]) {
-        synchronized(lock) {
-            if (started) {
-                return START_OK;
-            }
-            started = true;
-        }
+    	synchronized(lock) {
+    		if (started) {
+    			return START_OK;
+    		}
+    		started = true;
+    	}
 
-        Logging.logCheckedFine(LOG, "Content Service started.");
+    	Logging.logCheckedFine(LOG, "Content Service started.");
 
-        return START_OK;
+    	return START_OK;
     }
 
     /**
      * {@inheritDoc}
      */
     public void stopApp() {
-        synchronized(lock) {
-            if (!started) {
-                return;
-            }
-            started = false;
-        }
+    	synchronized(lock) {
+    		if (!started) {
+    			return;
+    		}
+    		started = false;
+    	}
 
-        manager.stop();
+    	manager.stop();
 
-        Logging.logCheckedFine(LOG, "Content Service stopped.");
+    	Logging.logCheckedFine(LOG, "Content Service stopped.");
 
     }
 
@@ -294,19 +295,19 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public Advertisement getImplAdvertisement() {
-        synchronized(lock) {
-            return implAdv;
-        }
+    	synchronized(lock) {
+    		return implAdv;
+    	}
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    public ContentService getInterface() {
-//        return  (ContentService) ModuleWrapperFactory.newWrapper(
-//                new Class[] { ContentService.class },
-//                this);
-//    }
+    //    /**
+    //     * {@inheritDoc}
+    //     */
+    //    public ContentService getInterface() {
+    //        return  (ContentService) ModuleWrapperFactory.newWrapper(
+    //                new Class[] { ContentService.class },
+    //                this);
+    //    }
 
     //////////////////////////////////////////////////////////////////////////
     // ContentService interface methods:
@@ -315,34 +316,34 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public void addContentProvider(ContentProviderSPI provider) {
-        boolean addToManager = false;
-        providers.add(provider);
-        synchronized(lock) {
-            if (initialized) {
-                // Add to manager and let the manager event add to list
-                addToManager = true;
-            } else {
-                // Add to pending list
-                waitingForInit.add(provider);
-            }
-        }
-        if (addToManager) {
-            // We try to be as correct and complete as possible here...
-            Advertisement adv = provider.getImplAdvertisement();
-            ID asgnID;
-            if (adv instanceof ModuleSpecAdvertisement) {
-                ModuleSpecAdvertisement specAdv =
-                        (ModuleSpecAdvertisement) adv;
-                asgnID = specAdv.getModuleSpecID();
-            } else if (adv instanceof ModuleImplAdvertisement) {
-                ModuleImplAdvertisement mimpAdv =
-                        (ModuleImplAdvertisement) adv;
-                asgnID = mimpAdv.getModuleSpecID();
-            } else {
-                asgnID = adv.getID();
-            }
-            manager.addModule(provider, group, asgnID, adv, null);
-        }
+    	boolean addToManager = false;
+    	providers.add(provider);
+    	synchronized(lock) {
+    		if (initialized) {
+    			// Add to manager and let the manager event add to list
+    			addToManager = true;
+    		} else {
+    			// Add to pending list
+    			waitingForInit.add(provider);
+    		}
+    	}
+    	if (addToManager) {
+    		// We try to be as correct and complete as possible here...
+    		Advertisement adv = provider.getImplAdvertisement();
+    		ID asgnID;
+    		if (adv instanceof ModuleSpecAdvertisement) {
+    			ModuleSpecAdvertisement specAdv =
+    					(ModuleSpecAdvertisement) adv;
+    			asgnID = specAdv.getModuleSpecID();
+    		} else if (adv instanceof ModuleImplAdvertisement) {
+    			ModuleImplAdvertisement mimpAdv =
+    					(ModuleImplAdvertisement) adv;
+    			asgnID = mimpAdv.getModuleSpecID();
+    		} else {
+    			asgnID = adv.getID();
+    		}
+    		manager.addModule(provider, group, asgnID, adv, null);
+    	}
     }
 
     /**
@@ -350,57 +351,57 @@ public class ContentServiceImpl implements ContentService {
      */
     public void removeContentProvider(ContentProvider provider) {
 
-        if (!(provider instanceof ContentProviderSPI)) {
+    	if (!(provider instanceof ContentProviderSPI)) {
 
-            /*
-             * Can't cast so we can't use.  Note that the add/remove
-             * asymmetry is intentional since getContentProviders()
-             * returns the ContentProvider sub-interface to prevent
-             * user access to SPI methods.
-             */
-            Logging.logCheckedFine(LOG, "Cannot remove provider which is not a full SPI: ", provider);
-            return;
+    		/*
+    		 * Can't cast so we can't use.  Note that the add/remove
+    		 * asymmetry is intentional since getContentProviders()
+    		 * returns the ContentProvider sub-interface to prevent
+    		 * user access to SPI methods.
+    		 */
+    		Logging.logCheckedFine(LOG, "Cannot remove provider which is not a full SPI: ", provider);
+    		return;
 
-        }
+    	}
 
-        providers.remove(provider);
-        ContentProviderSPI spi = (ContentProviderSPI) provider;
-        boolean removeFromManager = false;
-        synchronized(lock) {
-            if (initialized) {
-                // List is maintained via manager
-                removeFromManager = true;
-            } else {
-                // Remove from pending list
-                waitingForInit.remove(provider);
-            }
-        }
-        if (removeFromManager) {
-            manager.removeModule(spi, true);
-        }
+    	providers.remove(provider);
+    	ContentProviderSPI spi = (ContentProviderSPI) provider;
+    	boolean removeFromManager = false;
+    	synchronized(lock) {
+    		if (initialized) {
+    			// List is maintained via manager
+    			removeFromManager = true;
+    		} else {
+    			// Remove from pending list
+    			waitingForInit.remove(provider);
+    		}
+    	}
+    	if (removeFromManager) {
+    		manager.removeModule(spi, true);
+    	}
     }
 
     /**
      * {@inheritDoc}
      */
     public List<ContentProvider> getContentProviders() {
-        return Collections.unmodifiableList(providers);
+    	return Collections.unmodifiableList(providers);
     }
 
     /**
      * {@inheritDoc}
      */
     public List<ContentProvider> getActiveContentProviders() {
-        checkStart();
-        /*
-         * NOTE mcumings 20061120:  Note that this could also be implemented
-         * using Collections.unmodifiableList(), but having the returned list
-         * run the potential of effectively changing over time (it would be
-         * read-through) led me to select a full copy instead.
-         */
-        List<ContentProvider> result =
-                new ArrayList<ContentProvider>(active);
-        return result;
+    	checkStart();
+    	/*
+    	 * NOTE mcumings 20061120:  Note that this could also be implemented
+    	 * using Collections.unmodifiableList(), but having the returned list
+    	 * run the potential of effectively changing over time (it would be
+    	 * read-through) led me to select a full copy instead.
+    	 */
+    	List<ContentProvider> result =
+    			new ArrayList<ContentProvider>(active);
+    	return result;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -410,18 +411,18 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public void addContentProviderListener(
-            ContentProviderListener listener) {
-        checkStart();
-        listeners.add(listener);
+    		ContentProviderListener listener) {
+    	checkStart();
+    	listeners.add(listener);
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeContentProviderListener(
-            ContentProviderListener listener) {
-        checkStart();
-        listeners.remove(listener);
+    		ContentProviderListener listener) {
+    	checkStart();
+    	listeners.remove(listener);
     }
 
     /**
@@ -429,14 +430,14 @@ public class ContentServiceImpl implements ContentService {
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
 
-        checkStart();
+    	checkStart();
 
-        try {
-            return new TransferAggregator(this, active, contentID);
-        } catch (TransferException transx) {
-            Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
-            return null;
-        }
+    	try {
+    		return new TransferAggregator(this, active, contentID);
+    	} catch (TransferException transx) {
+    		Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
+    		return null;
+    	}
 
     }
 
@@ -445,86 +446,86 @@ public class ContentServiceImpl implements ContentService {
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
 
-        checkStart();
+    	checkStart();
 
-        try {
-            return new TransferAggregator(this, active, adv);
-        } catch (TransferException transx) {
-            Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
-            return null;
-        }
+    	try {
+    		return new TransferAggregator(this, active, adv);
+    	} catch (TransferException transx) {
+    		Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
+    		return null;
+    	}
     }
 
     /**
      * {@inheritDoc}
      */
     public List<ContentShare> shareContent(Content content) {
-        checkStart();
+    	checkStart();
 
-        List<ContentShare> result = null;
-        List<ContentShare> subShares;
-        for (ContentProvider provider : active) {
+    	List<ContentShare> result = null;
+    	List<ContentShare> subShares;
+    	for (ContentProvider provider : active) {
 
-            try {
+    		try {
 
-                subShares = provider.shareContent(content);
+    			subShares = provider.shareContent(content);
 
-                if (subShares == null) continue;
+    			if (subShares == null) continue;
 
-                Logging.logCheckedFine(LOG, "Content with ID '", content.getContentID(),
-                    "' being shared by provider: ", provider);
+    			Logging.logCheckedFine(LOG, "Content with ID '", content.getContentID(),
+    					"' being shared by provider: ", provider);
 
-                if (result == null) result = new ArrayList<ContentShare>();
+    			if (result == null) result = new ArrayList<ContentShare>();
 
-                result.addAll(subShares);
+    			result.addAll(subShares);
 
-            } catch (UnsupportedOperationException uox) {
+    		} catch (UnsupportedOperationException uox) {
 
-                Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support ",
-                            "share operation: ", provider);
+    			Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support ",
+    					"share operation: ", provider);
 
-            }
+    		}
 
-        }
+    	}
 
-        if (result != null) {
-            fireContentShared(result);
-        }
+    	if (result != null) {
+    		fireContentShared(result);
+    	}
 
-        return result;
+    	return result;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean unshareContent(ContentID contentID) {
-        checkStart();
+    	checkStart();
 
-        boolean unshared = false;
-        for (ContentProvider provider : active) {
-            unshared |= provider.unshareContent(contentID);
-        }
+    	boolean unshared = false;
+    	for (ContentProvider provider : active) {
+    		unshared |= provider.unshareContent(contentID);
+    	}
 
-        if (unshared) {
-            fireContentUnshared(contentID);
-        }
-        return unshared;
+    	if (unshared) {
+    		fireContentUnshared(contentID);
+    	}
+    	return unshared;
     }
 
     /**
      * {@inheritDoc}
      */
     public void findContentShares(
-            int maxNum, ContentProviderListener listener) {
-        checkStart();
+    		int maxNum, ContentProviderListener listener) {
+    	checkStart();
 
-        List<ContentProviderListener> findListeners =
-                new ArrayList<ContentProviderListener>();
-        findListeners.add(listener);
+    	List<ContentProviderListener> findListeners =
+    			new ArrayList<ContentProviderListener>();
+    	findListeners.add(listener);
 
-        EventAggregator aggregator =
-                new EventAggregator(findListeners, active);
-        aggregator.dispatchFindRequest(maxNum);
+    	EventAggregator aggregator =
+    			new EventAggregator(findListeners, active);
+    	aggregator.dispatchFindRequest(maxNum);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -538,13 +539,13 @@ public class ContentServiceImpl implements ContentService {
      * be deferred until the time of use.
      */
     private void checkStart() {
-        synchronized(lock) {
-            if (!started) {
-                throw(new IllegalStateException(
-                        "Service instance has not yet been started"));
-            }
-        }
-        manager.start();
+    	synchronized(lock) {
+    		if (!started) {
+    			throw(new IllegalStateException(
+    					"Service instance has not yet been started"));
+    		}
+    	}
+    	manager.start();
     }
 
     /**
@@ -553,24 +554,24 @@ public class ContentServiceImpl implements ContentService {
      * @param shares list of shares for the Content
      */
     private void fireContentShared(List<ContentShare> shares) {
-        ContentProviderEvent event = null;
+    	ContentProviderEvent event = null;
 
-        for (ContentProviderListener listener : listeners) {
-            try {
+    	for (ContentProviderListener listener : listeners) {
+    		try {
 
-                if (event == null) {
-                    event = new ContentProviderEvent.Builder(this, shares)
-                            .build();
-                }
+    			if (event == null) {
+    				event = new ContentProviderEvent.Builder(this, shares)
+    						.build();
+    			}
 
-                listener.contentShared(event);
+    			listener.contentShared(event);
 
-            } catch (Throwable thr) {
+    		} catch (Throwable thr) {
 
-                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
+    			Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
 
-            }
-        }
+    		}
+    	}
     }
 
     /**
@@ -579,24 +580,24 @@ public class ContentServiceImpl implements ContentService {
      * @param id Content ID
      */
     private void fireContentUnshared(ContentID id) {
-        ContentProviderEvent event = null;
+    	ContentProviderEvent event = null;
 
-        for (ContentProviderListener listener : listeners) {
-            try {
+    	for (ContentProviderListener listener : listeners) {
+    		try {
 
-                if (event == null) {
-                    event = new ContentProviderEvent.Builder(this, id)
-                            .build();
-                }
+    			if (event == null) {
+    				event = new ContentProviderEvent.Builder(this, id)
+    						.build();
+    			}
 
-                listener.contentUnshared(event);
+    			listener.contentUnshared(event);
 
-            } catch (Throwable thr) {
+    		} catch (Throwable thr) {
 
-                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
+    			Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
 
-            }
-        }
+    		}
+    	}
     }
 
     /**
@@ -607,92 +608,92 @@ public class ContentServiceImpl implements ContentService {
      */
     private List<ContentProviderSPI> locateProviders() {
 
-        ContentProviderSPI provider;
+    	ContentProviderSPI provider;
 
-        List<ContentProviderSPI> result = new CopyOnWriteArrayList<ContentProviderSPI>();
+    	List<ContentProviderSPI> result = new CopyOnWriteArrayList<ContentProviderSPI>();
 
-        ClassLoader loader = getClass().getClassLoader();
+    	ClassLoader loader = getClass().getClassLoader();
 
-        Logging.logCheckedFine(LOG, "Locating providers");
+    	Logging.logCheckedFine(LOG, "Locating providers");
 
-        Enumeration resources;
-        try {
-            resources = loader.getResources(
-                    "META-INF/services/" + ContentProviderSPI.class.getName());
+    	Enumeration<URL> resources;
+    	try {
+    		resources = loader.getResources(
+    				"META-INF/services/" + ContentProviderSPI.class.getName());
 
-        } catch (IOException iox) {
+    	} catch (IOException iox) {
 
-            Logging.logCheckedWarning(LOG, "Unable to enumerate ContentProviders\n", iox);
+    		Logging.logCheckedWarning(LOG, "Unable to enumerate ContentProviders\n", iox);
 
-            // Early-out.
-            return result;
+    		// Early-out.
+    		return result;
 
-        }
+    	}
 
-        // Create a Set of all unique class names
-        Set<String> provClassNames = new HashSet<String>();
-        while (resources.hasMoreElements()) {
+    	// Create a Set of all unique class names
+    	Set<String> provClassNames = new HashSet<String>();
+    	while (resources.hasMoreElements()) {
 
-            URL resURL = (URL) resources.nextElement();
-            Logging.logCheckedFine(LOG, "   Provider services resource: " + resURL);
+    		URL resURL = (URL) resources.nextElement();
+    		Logging.logCheckedFine(LOG, "   Provider services resource: " + resURL);
 
-            try {
+    		try {
 
-                InputStreamReader inReader = new InputStreamReader(resURL.openStream());
-                BufferedReader reader = new BufferedReader(inReader);
-                String str;
+    			InputStreamReader inReader = new InputStreamReader(resURL.openStream());
+    			BufferedReader reader = new BufferedReader(inReader);
+    			String str;
 
-                while ((str = reader.readLine()) != null) {
-                    int idx = str.indexOf('#');
-                    if (idx >= 0) {
-                        str = str.substring(0, idx);
-                    }
-                    str = str.trim();
-                    if (str.length() == 0) {
-                        // Probably a commented line
-                        continue;
-                    }
+    			while ((str = reader.readLine()) != null) {
+    				int idx = str.indexOf('#');
+    				if (idx >= 0) {
+    					str = str.substring(0, idx);
+    				}
+    				str = str.trim();
+    				if (str.length() == 0) {
+    					// Probably a commented line
+    					continue;
+    				}
 
-                    provClassNames.add(str);
+    				provClassNames.add(str);
 
-                }
+    			}
 
-            } catch (IOException iox) {
+    		} catch (IOException iox) {
 
-                Logging.logCheckedWarning(LOG, "Could not parse ContentProvider services from: ",
-                    resURL, iox);
+    			Logging.logCheckedWarning(LOG, "Could not parse ContentProvider services from: ",
+    					resURL, iox);
 
-            }
-        }
+    		}
+    	}
 
-        // Now attempt to instantiate all the providers we've found
-        for (String str : provClassNames) {
+    	// Now attempt to instantiate all the providers we've found
+    	for (String str : provClassNames) {
 
-            try {
+    		try {
 
-                Class cl = loader.loadClass(str);
-                provider = (ContentProviderSPI) cl.newInstance();
-                result.add(provider);
-                Logging.logCheckedFine(LOG, "Added provider: ", str);
+    			Class<?> cl = loader.loadClass(str);
+    			provider = (ContentProviderSPI) cl.newInstance();
+    			result.add(provider);
+    			Logging.logCheckedFine(LOG, "Added provider: ", str);
 
-            } catch (ClassNotFoundException cnfx) {
+    		} catch (ClassNotFoundException cnfx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider\n", cnfx);
-                // Continue to next provider class name
+    			Logging.logCheckedSevere(LOG, "Could not load service provider\n", cnfx);
+    			// Continue to next provider class name
 
-            } catch (InstantiationException instx) {
+    		} catch (InstantiationException instx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider\n", instx);
-                // Continue to next provider class name
+    			Logging.logCheckedSevere(LOG, "Could not load service provider\n", instx);
+    			// Continue to next provider class name
 
-            } catch (IllegalAccessException iaccx) {
+    		} catch (IllegalAccessException iaccx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider\n", iaccx);
-                // Continue to next provider class name
+    			Logging.logCheckedSevere(LOG, "Could not load service provider\n", iaccx);
+    			// Continue to next provider class name
 
-            }
-        }
+    		}
+    	}
 
-        return result;
+    	return result;
     }
 }

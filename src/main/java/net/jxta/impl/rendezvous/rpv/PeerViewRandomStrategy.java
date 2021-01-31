@@ -65,11 +65,12 @@ import java.util.SortedSet;
  */
 final class PeerViewRandomStrategy implements PeerViewStrategy {
 
-    private SortedSet set;
-    private List copy = new ArrayList();
+    private SortedSet<PeerViewElement> set;
+    private List<PeerViewElement> copy = new ArrayList<>();
 
-    PeerViewRandomStrategy(SortedSet set) {
-        this.set = set;
+    @SuppressWarnings("unchecked")
+	PeerViewRandomStrategy(SortedSet<?> set) {
+        this.set = (SortedSet<PeerViewElement>) set;
         reset();
     }
 

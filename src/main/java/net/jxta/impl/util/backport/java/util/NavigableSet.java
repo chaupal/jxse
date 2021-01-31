@@ -56,8 +56,7 @@ import java.util.Iterator;
  * @author Josh Bloch
  * @since 1.6
  */
-@SuppressWarnings("unchecked")
-public interface NavigableSet extends SortedSet {
+public interface NavigableSet<K extends Object> extends SortedSet<K> {
     /**
      * Returns the greatest element in this set strictly less than the
      * given element, or {@code null} if there is no such element.
@@ -70,7 +69,7 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException if the specified element is null
      *         and this set does not permit null elements
      */
-    Object lower(Object e);
+    K lower(K e);
 
     /**
      * Returns the greatest element in this set less than or equal to
@@ -84,7 +83,7 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException if the specified element is null
      *         and this set does not permit null elements
      */
-    Object floor(Object e);
+    K floor(K e);
 
     /**
      * Returns the least element in this set greater than or equal to
@@ -98,7 +97,7 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException if the specified element is null
      *         and this set does not permit null elements
      */
-    Object ceiling(Object e);
+    K ceiling(K e);
 
     /**
      * Returns the least element in this set strictly greater than the
@@ -112,7 +111,7 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException if the specified element is null
      *         and this set does not permit null elements
      */
-    Object higher(Object e);
+    K higher(K e);
 
     /**
      * Retrieves and removes the first (lowest) element,
@@ -120,7 +119,7 @@ public interface NavigableSet extends SortedSet {
      *
      * @return the first element, or {@code null} if this set is empty
      */
-    Object pollFirst();
+    K pollFirst();
 
     /**
      * Retrieves and removes the last (highest) element,
@@ -128,14 +127,14 @@ public interface NavigableSet extends SortedSet {
      *
      * @return the last element, or {@code null} if this set is empty
      */
-    Object pollLast();
+    K pollLast();
 
     /**
      * Returns an iterator over the elements in this set, in ascending order.
      *
      * @return an iterator over the elements in this set, in ascending order
      */
-    Iterator iterator();
+    Iterator<K> iterator();
 
     /**
      * Returns a reverse order view of the elements contained in this set.
@@ -152,7 +151,7 @@ public interface NavigableSet extends SortedSet {
      *
      * @return a reverse order view of this set
      */
-    NavigableSet descendingSet();
+    NavigableSet<K> descendingSet();
 
     /**
      * Returns an iterator over the elements in this set, in descending order.
@@ -160,7 +159,7 @@ public interface NavigableSet extends SortedSet {
      *
      * @return an iterator over the elements in this set, in descending order
      */
-    Iterator descendingIterator();
+    Iterator<K> descendingIterator();
 
     /**
      * Returns a view of the portion of this set whose elements range from
@@ -197,8 +196,8 @@ public interface NavigableSet extends SortedSet {
      *         has a restricted range, and {@code fromElement} or
      *         {@code toElement} lies outside the bounds of the range.
      */
-    NavigableSet subSet(Object fromElement, boolean fromInclusive,
-                        Object toElement,   boolean toInclusive);
+    NavigableSet<K> subSet(K fromElement, boolean fromInclusive,
+                        K toElement,   boolean toInclusive);
 
     /**
      * Returns a view of the portion of this set whose elements are less than
@@ -227,7 +226,7 @@ public interface NavigableSet extends SortedSet {
      *         restricted range, and {@code toElement} lies outside the
      *         bounds of the range
      */
-    NavigableSet headSet(Object toElement, boolean inclusive);
+    NavigableSet<K> headSet(K toElement, boolean inclusive);
 
     /**
      * Returns a view of the portion of this set whose elements are greater
@@ -256,7 +255,7 @@ public interface NavigableSet extends SortedSet {
      *         restricted range, and {@code fromElement} lies outside the
      *         bounds of the range
      */
-    NavigableSet tailSet(Object fromElement, boolean inclusive);
+    NavigableSet<K> tailSet(K fromElement, boolean inclusive);
 
     /**
      * {@inheritDoc}
@@ -267,7 +266,7 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException     {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    SortedSet subSet(Object fromElement, Object toElement);
+    SortedSet<K> subSet(K fromElement, K toElement);
 
     /**
      * {@inheritDoc}
@@ -278,7 +277,7 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException     {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    SortedSet headSet(Object toElement);
+    SortedSet<K> headSet(K toElement);
 
     /**
      * {@inheritDoc}
@@ -289,5 +288,5 @@ public interface NavigableSet extends SortedSet {
      * @throws NullPointerException     {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    SortedSet tailSet(Object fromElement);
+    SortedSet<K> tailSet(K fromElement);
 }
