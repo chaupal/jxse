@@ -56,8 +56,6 @@
 
 package net.jxta.socket;
 
-import java.security.InvalidKeyException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.logging.Level;
 import net.jxta.credential.Credential;
 import net.jxta.document.AdvertisementFactory;
@@ -358,7 +356,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * This constructor is used by JxtaServer socket for creating JxtaSocket
      * instances in response to incoming connections.
      *
-     * @deprecated use following JxtaSocket instead
+     * CP: I don't see wehy this constructor needs to be deprecated, as it provides a nice default. 
      *
      * @param group               group context
      * @param pipeAdv             The original PipeAdvertisement
@@ -370,8 +368,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      *                            {@code false} for unreliable stream connection.
      * @throws IOException if an io error occurs
      */
-    @Deprecated
-    protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable) throws IOException {
+     protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable) throws IOException {
 
         this( group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, remoteCredential, isReliable, null, null, false);
 
@@ -865,7 +862,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         if (credential != null) {
             try {
-                XMLDocument credDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
+                XMLDocument<?> credDoc = (XMLDocument<?>) credential.getDocument(MimeMediaType.XMLUTF8);
 
                 msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                         new TextDocumentMessageElement(JxtaServerSocket.credTag, credDoc, null));
@@ -878,11 +875,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new TextDocumentMessageElement(initiator ? JxtaServerSocket.reqPipeTag : JxtaServerSocket.remPipeTag,
-                (XMLDocument) pipeAdv.getDocument(MimeMediaType.XMLUTF8), null));
+                (XMLDocument<?>) pipeAdv.getDocument(MimeMediaType.XMLUTF8), null));
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new TextDocumentMessageElement(JxtaServerSocket.remPeerTag,
-                (XMLDocument) group.getPeerAdvertisement().getDocument(MimeMediaType.XMLUTF8), null));
+                (XMLDocument<?>) group.getPeerAdvertisement().getDocument(MimeMediaType.XMLUTF8), null));
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.streamTag, Boolean.toString(isReliable), null));
@@ -1262,7 +1259,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * {@inheritDoc}
      */
-    public void pipeMsgEvent(PipeMsgEvent event) {
+    @SuppressWarnings("unchecked")
+	public void pipeMsgEvent(PipeMsgEvent event) {
 
         Logging.logCheckedFiner(LOG, "Pipe Message Event for ", this, "\n\t", event.getMessage(), " for ", event.getPipeID());
 
@@ -1317,7 +1315,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
             if (element != null) {
                 try {
-                    XMLDocument pipeAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                    XMLDocument<?> pipeAdvDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
 
                     incomingPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(pipeAdvDoc);
                 } catch (IOException badPipeAdv) {// ignored
@@ -1329,7 +1327,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
             if (element != null) {
                 try {
-                    XMLDocument peerAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
+                    XMLDocument<?> peerAdvDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(element);
                     incomingRemotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(peerAdvDoc);
                 } catch (IOException badPeerAdv) {// ignored
                 }
@@ -1342,7 +1340,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                 try {
 
-                    StructuredDocument incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
+                    StructuredDocument<?> incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
                     incomingCredential = group.getMembershipService().makeCredential(incomingCredentialDoc);
 
                 } catch (Exception failed) {
@@ -1377,8 +1375,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         }
                     }
 
-                    acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
-                    acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                    acceptMessageVerifiedAddressSet = (Set<EndpointAddress>)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+                    acceptMessageCertSet = (Set<X509Certificate>)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
                 }
             }
 
@@ -1428,8 +1426,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         socketConnectLock.notify();
 
                         if (!isEncrypt) {
-                            acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
-                            acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                            acceptMessageVerifiedAddressSet = (Set<EndpointAddress>)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+                            acceptMessageCertSet = (Set<X509Certificate>)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
                         }
 
                         Logging.logCheckedInfo(LOG, "New Socket Connection : ", this);

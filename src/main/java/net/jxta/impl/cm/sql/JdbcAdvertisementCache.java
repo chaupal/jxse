@@ -61,6 +61,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -103,9 +104,9 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 
 	private static final Logger LOG = Logger.getLogger(JdbcAdvertisementCache.class.getName());
 	private static final int MAX_CONNECTIONS = 16;
-	
+
 	private static final String CREATE_RECORD_TABLE_SQL 
-		= "CREATE TABLE Record \n" + 
+	= "CREATE TABLE Record \n" + 
 			"(\n" + 
 			"	dn VARCHAR(255) NOT NULL, \n" + 
 			"	fn VARCHAR(255) NOT NULL, \n" +
@@ -115,9 +116,9 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			"	data BLOB NOT NULL,\n" + 
 			"	PRIMARY KEY (dn, fn)\n" + 
 			")";
-	
+
 	private static final String CREATE_INDEXFIELD_TABLE_SQL
-		= "CREATE TABLE IndexField\n" + 
+	= "CREATE TABLE IndexField\n" + 
 			"(\n" + 
 			"	dn VARCHAR(255) NOT NULL,\n" + 
 			"	fn VARCHAR(255) NOT NULL,\n" + 
@@ -126,48 +127,59 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			"	FOREIGN KEY(dn, fn) REFERENCES Record(dn, fn) ON DELETE CASCADE,\n" +
 			"   PRIMARY KEY(dn, fn, name)\n" +
 			")";
-	
+
 	private static final String CREATE_DELTA_EXPIRY_INDEX_SQL
-		= "CREATE INDEX RecordExpiryIndex ON Record ( lifetime )";
-	
+	= "CREATE INDEX RecordExpiryIndex ON Record ( lifetime )";
+
+	@SuppressWarnings("unused")
 	private static final String PUT_INDEXFIELD_SQL
-		= "INSERT INTO IndexField VALUES (?,?,?,?)";
-	
-//	static {
-//		if(!loadDbDriver(DATABASE_DRIVER)) {
-//			throw new RuntimeException("Unable to load " + DATABASE_DRIVER + " DB driver");
-//		}
-//	}
-	
+	= "INSERT INTO IndexField VALUES (?,?,?,?)";
+
+	//	static {
+	//		if(!loadDbDriver(DATABASE_DRIVER)) {
+	//			throw new RuntimeException("Unable to load " + DATABASE_DRIVER + " DB driver");
+	//		}
+	//	}
+
 	protected static boolean loadDbDriver(String dbDriver) {
 
-            try {
-		Class.forName(dbDriver).newInstance();
-		return true;
-		
-            } catch(ClassNotFoundException e) {
+		try {
+			Class.forName(dbDriver).getDeclaredConstructor().newInstance();
+			return true;
 
-                Logging.logCheckedWarning(LOG, "Unable to find JDBC driver [", dbDriver, "]\n", e);
-		return false;
+		} catch(ClassNotFoundException e) {
 
-	    } catch(InstantiationException e) {
+			Logging.logCheckedWarning(LOG, "Unable to find JDBC driver [", dbDriver, "]\n", e);
+			return false;
 
-		Logging.logCheckedWarning(LOG, "Unable to instantiate JDBC driver [", dbDriver, "]\n", e);
-		return false;
+		} catch(InstantiationException e) {
 
-	    } catch(IllegalAccessException e) {
+			Logging.logCheckedWarning(LOG, "Unable to instantiate JDBC driver [", dbDriver, "]\n", e);
+			return false;
 
-		Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
-                return false;
-		
-            }
+		} catch(IllegalAccessException e) {
+			Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
+			return false;
+		} catch (IllegalArgumentException e) {
+			Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
+			return false;
+		} catch (InvocationTargetException e) {
+			Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
+			return false;
+		} catch (NoSuchMethodException e) {
+			Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
+			return false;
+		} catch (SecurityException e) {
+			Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
+			return false;
+		}
 
 	}
-	
+
 	private MiniConnectionPoolManager connPool;
 	protected File dbDir;
 	private DeltaTracker deltaTracker;
-	
+
 	public JdbcAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
 		this(storeRoot, areaName, taskManager, 1 * TimeUtils.ANHOUR, false);
 	}
@@ -179,20 +191,20 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		connPool = new MiniConnectionPoolManager(dataSource,MAX_CONNECTIONS);
 		deltaTracker = new DeltaTracker();
 		deltaTracker.setTrackingDeltas(trackDeltas);
-		
+
 		try {
 			configureDatabase();
 		} catch (SQLException e) {
 
-                    try {
-                        connPool.dispose();
-                    } catch (SQLException e1) {
-                        Logging.logCheckedSevere(LOG, "Failed to dispose database pool when recovering from configuring database\n", e1);
-                    }
+			try {
+				connPool.dispose();
+			} catch (SQLException e1) {
+				Logging.logCheckedSevere(LOG, "Failed to dispose database pool when recovering from configuring database\n", e1);
+			}
 
-                    IOException wrapper = new IOException("Failed to configure database properly");
-                    wrapper.initCause(e);
-                    throw wrapper;
+			IOException wrapper = new IOException("Failed to configure database properly");
+			wrapper.initCause(e);
+			throw wrapper;
 
 		}
 	}
@@ -204,15 +216,15 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		boolean successful = false;
 		try {
 			conn = getConnection();
-			
+
 			if(testDatabaseSetUp(conn)) {
 				successful = true;
 			}
-			
+
 			executeCreate(conn, CREATE_RECORD_TABLE_SQL);
 			executeCreate(conn, CREATE_INDEXFIELD_TABLE_SQL);
 			executeCreate(conn, CREATE_DELTA_EXPIRY_INDEX_SQL);
-			
+
 			conn.commit();
 			successful = true;
 		} 
@@ -223,7 +235,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeResources(conn, !successful);
 		}
 	}
-	
+
 	/**
 	 * Attempts to close the common resources used in most DB accesses. If any
 	 * exceptions occur, they are logged and ignored. 
@@ -235,64 +247,64 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 				closeStatement(st);
 			}
 		}
-		
+
 		if(conn != null) {
 
-                    if(rollBack) {
-                        try {
-                            conn.rollback();
-                        } catch(SQLException e) {
-                            Logging.logCheckedSevere(LOG, "Failed to roll back connection\n", e);
-                        }
-                    }
-			
-                    try {
-                        conn.close();
-                    } catch(SQLException e) {
-                        Logging.logCheckedSevere(LOG, "Failed to close connection\n", e);
-                    }
+			if(rollBack) {
+				try {
+					conn.rollback();
+				} catch(SQLException e) {
+					Logging.logCheckedSevere(LOG, "Failed to roll back connection\n", e);
+				}
+			}
+
+			try {
+				conn.close();
+			} catch(SQLException e) {
+				Logging.logCheckedSevere(LOG, "Failed to close connection\n", e);
+			}
 		}
 	}
-	
+
 	private void closeStatement(Statement st) {
 
-            if(st == null) return;
+		if(st == null) return;
 
-            try {
-                st.close();
-            } catch(SQLException e) {
-                Logging.logCheckedSevere(LOG, "Failed to close statement\n", e);
-            }
-
-	}
-	
-	private void closeResultSet(ResultSet rs) {
-		if(rs == null) return;
-		
 		try {
-		    rs.close();
+			st.close();
 		} catch(SQLException e) {
-                    Logging.logCheckedSevere(LOG, "Failed to close result set\n", e);
+			Logging.logCheckedSevere(LOG, "Failed to close statement\n", e);
 		}
 
 	}
-	
+
+	private void closeResultSet(ResultSet rs) {
+		if(rs == null) return;
+
+		try {
+			rs.close();
+		} catch(SQLException e) {
+			Logging.logCheckedSevere(LOG, "Failed to close result set\n", e);
+		}
+
+	}
+
 	private boolean testDatabaseSetUp(Connection conn) throws SQLException {
 
-            // check to see if the Record table exists
-            return conn.getMetaData().getTables(null, null, "Record", null).next();
+		// check to see if the Record table exists
+		return conn.getMetaData().getTables(null, null, "Record", null).next();
 
 	}
-	
+
 	private Connection getConnection() throws SQLException {
 
-            Connection connection = connPool.getConnection();
-            connection.setAutoCommit(false);
+		Connection connection = connPool.getConnection();
+		connection.setAutoCommit(false);
 
-            return connection;
+		return connection;
 
 	}
-	
+
 	private void executeCreate(Connection conn, String sql) throws SQLException {
 		Statement st = null;
 		try {
@@ -302,7 +314,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeStatement(st);
 		}
 	}
-	
+
 	private static final String REMOVE_EXPIRED_RECORDS = "DELETE FROM Record WHERE lifetime < ?";
 	public void garbageCollect() throws IOException {
 		Connection conn = null;
@@ -310,11 +322,11 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		boolean rollback = true;
 		try {
 			conn = getConnection();
-			
+
 			st = conn.prepareStatement(REMOVE_EXPIRED_RECORDS);
 			st.setLong(1, TimeUtils.timeNow());
 			st.executeUpdate();
-			
+
 			conn.commit();
 			rollback = false;
 		} catch(SQLException e) {
@@ -329,11 +341,11 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	private static final String GET_ENTRIES_SQL 
-		= "SELECT IndexField.name, IndexField.value, Record.lifetime " +
-		  "FROM Record, IndexFIELD " +
-		  "WHERE Record.dn = ?" +
-		  "  AND Record.dn = IndexField.dn" +
-		  "  AND Record.fn = IndexField.fn";
+	= "SELECT IndexField.name, IndexField.value, Record.lifetime " +
+			"FROM Record, IndexFIELD " +
+			"WHERE Record.dn = ?" +
+			"  AND Record.dn = IndexField.dn" +
+			"  AND Record.fn = IndexField.fn";
 	public List<Entry> getEntries(String dn, boolean clearDeltas) throws IOException {
 		LinkedList<Entry> entries = new LinkedList<Entry>();
 		Connection conn = null;
@@ -345,20 +357,20 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st = conn.prepareStatement(GET_ENTRIES_SQL);
 			st.setString(1, dn);
 			st.execute();
-			
+
 			rs = st.getResultSet();
 			while(rs.next()) {
 				String fieldName = rs.getString(1);
 				String fieldValue = rs.getString(2);
 				long lifetime = rs.getLong(3);
-				
+
 				entries.add(new Entry(fieldName, fieldValue, TimeUtils.toRelativeTimeMillis(lifetime)));
 			}
-			
+
 			if(clearDeltas) {
 				deltaTracker.clearDeltas(dn);
 			}
-			
+
 			conn.commit();
 			rollback = false;
 			return entries;
@@ -371,7 +383,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	private static final String GET_EXPIRATION_SQL = "SELECT lifetime, expiry FROM Record WHERE dn = ? AND fn = ?";
-	
+
 	public long getExpirationtime(String dn, String fn) throws IOException {
 		Connection conn = null;
 		PreparedStatement st = null;
@@ -383,15 +395,15 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st.setString(1, dn);
 			st.setString(2, fn);
 			st.execute();
-			
+
 			rs = st.getResultSet();
 			if(!rs.next()) {
 				return -1;
 			}
-			
+
 			long absoluteLifetime = rs.getLong(1);
 			long relativeExpiry = rs.getLong(2);
-			
+
 			conn.commit();
 			rollback = false;
 			return CacheUtils.getRelativeExpiration(absoluteLifetime, relativeExpiry);
@@ -404,7 +416,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	private static final String GET_INPUT_STREAM_SQL = "SELECT data FROM Record WHERE dn = ? AND fn = ?";
-	
+
 	public InputStream getInputStream(String dn, String fn) throws IOException {
 		Connection conn = null;
 		PreparedStatement st = null;
@@ -416,12 +428,12 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st.setString(1, dn);
 			st.setString(2, fn);
 			st.execute();
-			
+
 			rs = st.getResultSet();
 			if(!rs.next()) {
 				return null;
 			}
-			
+
 			ByteArrayInputStream result = new ByteArrayInputStream(rs.getBytes(1)); 
 			conn.commit();
 			rollback = false;
@@ -435,7 +447,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	private static final String GET_LIFETIME_SQL = "SELECT lifetime FROM Record WHERE dn = ? AND fn = ?";
-	
+
 	public long getLifetime(String dn, String fn) throws IOException {
 		Connection conn = null;
 		PreparedStatement st = null;
@@ -446,13 +458,13 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st = conn.prepareStatement(GET_LIFETIME_SQL);
 			st.setString(1, dn);
 			st.setString(2, fn);
-			
+
 			st.execute();
 			rs = st.getResultSet();
 			if(!rs.next()) {
 				return -1;
 			}
-			
+
 			long result = TimeUtils.toRelativeTimeMillis(rs.getLong(1));
 			conn.commit();
 			rollback = false;
@@ -464,15 +476,15 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeResources(conn, rollback, st);
 		}
 	}
-	
+
 	private static final String GET_RECORDS_SQL = "SELECT data,lifetime,expiry FROM Record WHERE dn = ? AND lifetime > ?";
-	
+
 	public List<InputStream> getRecords(String dn, int threshold, List<Long> expirations, boolean purge) throws IOException {
 		LinkedList<InputStream> results = new LinkedList<InputStream>();
 		if(dn == null) {
 			return results;
 		}
-		
+
 		Connection conn = null;
 		PreparedStatement st = null;
 		ResultSet rs = null;
@@ -485,16 +497,16 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st.setLong(2, TimeUtils.timeNow());
 			st.setMaxRows(threshold);
 			st.execute();
-			
+
 			rs = st.getResultSet();
 			while(rs.next()) {
 				long lifetime = rs.getLong(2);
 				long expiry = rs.getLong(3);
 				long relativeExpiry = CacheUtils.getRelativeExpiration(lifetime, expiry);
-				
+
 				if(relativeExpiry > 0) {
 					results.add(new ByteArrayInputStream(rs.getBytes(1)));
-					
+
 					if(expirations != null) {
 						expirations.add(relativeExpiry);
 					}
@@ -502,7 +514,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 					rs.deleteRow();
 				}
 			}
-			
+
 			conn.commit();
 			rollback = false;
 		} catch(SQLException e) {
@@ -511,16 +523,16 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeResultSet(rs);
 			closeResources(conn, rollback, st);
 		}
-		
+
 		return results;
 	}
 
 	private static final String GET_DATA_AND_EXPIRY_SQL 
-		= "SELECT data, lifetime " +
-		  "FROM Record " +
-		  "WHERE dn = ? " +
-		  "  AND fn = ? " +
-		  "  AND isAdvertisement = 1";
+	= "SELECT data, lifetime " +
+			"FROM Record " +
+			"WHERE dn = ? " +
+			"  AND fn = ? " +
+			"  AND isAdvertisement = 1";
 	private static final String REMOVE_RECORD_SQL = "DELETE FROM Record WHERE dn = ? AND fn = ?";
 	public void remove(String dn, String fn) throws IOException {
 		Connection conn = null;
@@ -530,7 +542,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		boolean rollback = true;
 		try {
 			conn = getConnection();
-			
+
 			if(deltaTracker.isTrackingDeltas()) {
 				fetchSt = conn.prepareStatement(GET_DATA_AND_EXPIRY_SQL);
 				fetchSt.setString(1, dn);
@@ -541,17 +553,17 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 					byte[] data = rs.getBytes(1);
 					long lifetime = rs.getLong(2);
 					XMLDocument<?> doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new ByteArrayInputStream(data));
-	                Advertisement adv = AdvertisementFactory.newAdvertisement(doc);
-	                deltaTracker.generateDeltas(dn, adv, doc, lifetime);
+					Advertisement adv = AdvertisementFactory.newAdvertisement(doc);
+					deltaTracker.generateDeltas(dn, adv, doc, lifetime);
 				}
 			}
-			
+
 			st = conn.prepareStatement(REMOVE_RECORD_SQL);
 			st.setString(1, dn);
 			st.setString(2, fn);
-			
+
 			st.executeUpdate();
-			
+
 			rollback = (st.getUpdateCount() != 1);
 			if(!rollback) {
 				conn.commit();
@@ -565,32 +577,32 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	public void save(String dn, String fn, Advertisement adv, long lifetime, long expiration) throws IOException {
-		
+
 		if(lifetime < 0 || expiration < 0) {
 			throw new IllegalArgumentException("Bad expiration or lifetime.");
 		}
-		
+
 		Connection conn = null;
 		Statement st = null;
 		boolean rollback = true;
 		try {
 			conn = getConnection();
 			boolean wasNew = putRecord(conn, dn, fn, true, getBytesForAdvert(adv), lifetime, expiration);
-			
+
 			if(!wasNew) {
 				deleteIndexables(conn, dn, fn);
 			}
-			
-                        StructuredDocument<?> doc = (StructuredDocument<?>)adv.getSignedDocument();
+
+			StructuredDocument<?> doc = (StructuredDocument<?>)adv.getSignedDocument();
 			Map<String, String> indexFields = CacheUtils.getIndexfields(adv.getIndexFields(), doc);
 			for(String indexField : indexFields.keySet()) {
 				if(!putIndexable(conn, dn, fn, indexField, indexFields.get(indexField))) {
 					return;
 				}
 			}
-			
+
 			deltaTracker.generateDeltas(dn, adv, null, expiration);
-			
+
 			conn.commit();
 			rollback = false;
 		} catch(SQLException e) {
@@ -599,7 +611,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeResources(conn, rollback, st);
 		}
 	}
-	
+
 	private static final String DELETE_INDEXABLES_SQL = "DELETE FROM IndexField WHERE dn = ? AND fn = ?";
 	private void deleteIndexables(Connection conn, String dn, String fn) throws SQLException {
 		PreparedStatement st = null;
@@ -607,7 +619,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st = conn.prepareStatement(DELETE_INDEXABLES_SQL);
 			st.setString(1, dn);
 			st.setString(2, fn);
-			
+
 			st.execute();
 		} finally {
 			closeStatement(st);
@@ -623,9 +635,9 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st.setString(2, fn);
 			st.setString(3, field);
 			st.setString(4, value);
-			
+
 			st.executeUpdate();
-			
+
 			return st.getUpdateCount() == 1;
 		} finally {
 			closeStatement(st);
@@ -647,7 +659,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 
 	public void save(String dn, String fn, byte[] data, long lifetime,
 			long expiration) throws IOException {
-		
+
 		if(lifetime < 0 || expiration < 0) {
 			throw new IllegalArgumentException("Bad expiration or lifetime.");
 		}
@@ -656,7 +668,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		try {
 			conn = getConnection();
 			putRecord(conn, dn, fn, false, data, lifetime, expiration);
-			
+
 			conn.commit();
 			rollback = false;
 		} catch(SQLException e) {
@@ -667,22 +679,22 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeResources(conn, rollback);
 		}
 	}
-	
+
 	/**
 	 * @return true if the record was new, false otherwise.
 	 * @throws SQLException if an error occurred, or writing the record failed
 	 */
 	private boolean putRecord(Connection conn, String dn, String fn, boolean isAdvertisement, byte[] data, long lifetime, long expiration) throws SQLException {
-		
+
 		long newLifetime = TimeUtils.toAbsoluteTimeMillis(lifetime);
 		Long oldLifetime = getOldLifetime(conn, dn, fn);
 		if(oldLifetime != null) {
 			newLifetime = Math.max(newLifetime, oldLifetime.longValue());
 		}
-		
+
 		long newLifetimeAsRelative = TimeUtils.toRelativeTimeMillis(newLifetime);
 		long boundedExpiration = Math.min(newLifetimeAsRelative, expiration); 
-		
+
 		if(oldLifetime != null) {
 			// there is an existing record, update rather than insert
 			updateRecord(conn, dn, fn, isAdvertisement, data, newLifetime, boundedExpiration);
@@ -701,9 +713,9 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st = conn.prepareStatement(GET_OLD_LIFETIME_SQL);
 			st.setString(1, dn);
 			st.setString(2, fn);
-			
+
 			st.execute();
-			
+
 			rs = st.getResultSet();
 			if(rs.next()) {
 				return rs.getLong(1);
@@ -715,7 +727,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			closeStatement(st);
 		}
 	}
-	
+
 	private static final String INSERT_RECORD_SQL = "INSERT INTO Record VALUES (?,?,?,?,?,?)";
 	private void insertRecord(Connection conn, String dn, String fn, boolean isAdvertisment, byte[] data, long newLifetime, long boundedExpiration) throws SQLException {
 		PreparedStatement st = null;
@@ -728,7 +740,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st.setLong(5, boundedExpiration);
 			st.setBytes(6, data);
 			st.execute();
-			
+
 			if(st.getUpdateCount() != 1) {
 				throw new SQLException("Incorrect number of rows updated");
 			}
@@ -748,9 +760,9 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			st.setInt(4, isAdvertisement ? 1 : 0);
 			st.setString(5, dn);
 			st.setString(6, fn);
-			
+
 			st.execute();
-			
+
 			if(st.getUpdateCount() != 1) {
 				throw new SQLException("Incorrect number of rows updated");
 			}
@@ -761,42 +773,42 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 
 	static String SEARCH_RECORDS_SQL(boolean withValueMatch) {
 		return "SELECT Record.data, Record.lifetime, Record.expiry\n" +
-		  "FROM Record, IndexField\n" +
-		  "WHERE Record.isAdvertisement = 1" +
-		  "  AND IndexField.name = ?\n" +
-		  ((withValueMatch) ? "  AND IndexField.value LIKE ?\n" : "") +
-		  "  AND IndexField.dn = ?\n" +
-		  "  AND IndexField.dn = Record.dn\n" +
-		  "  AND IndexField.fn = Record.fn";
+				"FROM Record, IndexField\n" +
+				"WHERE Record.isAdvertisement = 1" +
+				"  AND IndexField.name = ?\n" +
+				((withValueMatch) ? "  AND IndexField.value LIKE ?\n" : "") +
+				"  AND IndexField.dn = ?\n" +
+				"  AND IndexField.dn = Record.dn\n" +
+				"  AND IndexField.fn = Record.fn";
 	}
 
 	public List<InputStream> search(String dn, String attribute, String value,
 			int threshold, List<Long> expirations) throws IOException {
-		
+
 		LinkedList<InputStream> results = new LinkedList<InputStream>();
-		
+
 		boolean withValueMatch = !("*".equals(value));
 		boolean returnExpiry = (expirations != null);
-		
+
 		Connection conn = null;
 		PreparedStatement st = null;
 		boolean rollback = true;
 		try {
 			conn = getConnection();
 			st = conn.prepareStatement(SEARCH_RECORDS_SQL(withValueMatch));
-			
+
 			int attrIndex = 1;
 			st.setString(attrIndex++, attribute);
 			if(withValueMatch) {
 				st.setString(attrIndex++, value.replace('*', '%'));
 			}
-			
+
 			st.setString(attrIndex++, dn);
 			st.setMaxRows(threshold);
-			
+
 			st.execute();
 			ResultSet resultSet = st.getResultSet();
-			
+
 			while(resultSet.next()) {
 				byte[] bytes = resultSet.getBytes(1);
 				long lifetime = resultSet.getLong(2);
@@ -809,7 +821,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 					}
 				}
 			}
-			
+
 			conn.commit();
 			rollback = false;
 			return results;
@@ -822,25 +834,25 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 
 	public void setTrackDeltas(boolean trackDeltas) {
 
-	    deltaTracker.setTrackingDeltas(trackDeltas);
+		deltaTracker.setTrackingDeltas(trackDeltas);
 
 	}
 
 	public void stop() throws IOException {
 
-            try {
+		try {
 
-                connPool.dispose();
-                shutdownDb();
+			connPool.dispose();
+			shutdownDb();
 
-            } catch(SQLException e) {
+		} catch(SQLException e) {
 
-                Logging.logCheckedSevere(LOG, "Failed to shut down database\n", e);
-                IOException wrapper = new IOException("Failed to shut down database");
-                wrapper.initCause(e);
-                throw wrapper;
+			Logging.logCheckedSevere(LOG, "Failed to shut down database\n", e);
+			IOException wrapper = new IOException("Failed to shut down database");
+			wrapper.initCause(e);
+			throw wrapper;
 
-            }
+		}
 
 	}
 

@@ -202,5 +202,8 @@ public class TimeUtilsTest extends TestCase {
         long muchLater = TimeUtils.timeNow();
 
         assertTrue("much later wasn't in the future.", TimeUtils.toRelativeTimeMillis(muchLater, start) >= (3 * TimeUtils.AWEEK));
+        
+        //Restore the static after the test to its original value
+        TimeUtils.WARPBEGAN = 0;
     }
 }
