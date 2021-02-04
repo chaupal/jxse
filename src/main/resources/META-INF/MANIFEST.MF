@@ -108,3 +108,5 @@ Export-Package: net.jxse,
  net.jxta.test.util,
  net.jxta.util,
  net.jxta.util.documentSerializable
+Bundle-ClassPath: lib/jmock/,
+ lib/junit/
