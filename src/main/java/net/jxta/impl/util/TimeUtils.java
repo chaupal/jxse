@@ -229,6 +229,10 @@ public final class TimeUtils {
     	clock = new JavaSystemClock();
 	}
 
+    public static void reset() {
+    	WARPFACTOR = 1.0;
+    }
+    
     /**
      * @return The current time which has been possibly adjusted for testing purposes
      */

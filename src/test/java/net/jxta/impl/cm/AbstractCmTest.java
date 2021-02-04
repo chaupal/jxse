@@ -225,22 +225,32 @@ public abstract class AbstractCmTest {
    
     private Logger logger = Logger.getLogger(this.getClass().getName());
     
-    @Test
-    public void testGetLifetime() throws Exception {
-    	fakeTimer.currentTime = 0;
-    	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 50000, 100000);
-    	logger.info("LifeTime; " + cm.getLifetime("a", "b"));
-    	assertEquals(50000L, cm.getLifetime("a", "b"));
-    	fakeTimer.currentTime = 20000;
-       	logger.info("LifeTime; " + cm.getLifetime("a", "b"));
-        assertEquals(30000L, cm.getLifetime("a", "b"));
-    	fakeTimer.currentTime = 40000;
-    	assertEquals(10000L, cm.getLifetime("a", "b"));
-       	logger.info("LifeTime; " + cm.getLifetime("a", "b"));
-        fakeTimer.currentTime = 60000;
-    	assertEquals(-10000L, cm.getLifetime("a", "b"));
-       	logger.info("LifeTime; " + cm.getLifetime("a", "b"));
-    }
+    /**
+     * CP: Again, these tests do not seem to cater for changes made in previous tests.
+     * In particular, the autowarp test impairs this one. By adding a reset to TimeUtils,
+     * the timer can be reset to a default
+     * 
+     * @throws Exception
+     */
+     @Test
+     public void testGetLifetime() throws Exception {
+     	fakeTimer.currentTime = 0;
+     	TimeUtils.reset();
+     	long lifeTime = cm.getLifetime("a", "b");
+     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 50000, 100000);
+     	
+     	lifeTime = cm.getLifetime("a", "b");
+     	assertEquals(50000, lifeTime );
+     	fakeTimer.currentTime = 20000;
+     	lifeTime = cm.getLifetime("a", "b");
+     	assertEquals(30000, lifeTime);
+     	fakeTimer.currentTime = 40000;
+     	lifeTime = cm.getLifetime("a", "b");
+     	assertEquals(10000, lifeTime);
+     	fakeTimer.currentTime = 60000;
+     	lifeTime = cm.getLifetime("a", "b");
+     	assertEquals(-10000, lifeTime);
+     }
     
     @Test
     public void testGetExpirationTime_withUnknownDnFnPair() throws Exception {
@@ -507,14 +517,6 @@ public abstract class AbstractCmTest {
     	assertTrue(deltas.containsAll(expectedDeltas));
     }
     
-	/**
-	 * @FIXME CP: This test is a bit confusing. First two deltas are compared, in which apparently
-	 * the same delta is changed from two to zero in two checks of cm.getDeltas("a")
-	 * After ä" and "b" are removed, the same check is done, and the test checks for exactly the same results.
-	 * I would expect the test to be different at this point. I have commented out the original test, and
-	 * included the one that makes more sense to me
-	 * @throws Exception
-	 */
 	@Test
     public void testGetDeltas_clearsOnEachConsecutiveCall() throws Exception {
     	cm.setTrackDeltas(true);
@@ -523,8 +525,7 @@ public abstract class AbstractCmTest {
     	assertEquals(0, cm.getDeltas("a").size());
     	
     	cm.remove("a", "b");
-    	//assertEquals(2, cm.getDeltas("a").size());
-       	assertNotEquals(2, cm.getDeltas("a").size());
+    	assertEquals(2, cm.getDeltas("a").size());
     	assertEquals(0, cm.getDeltas("a").size());
     }
     
