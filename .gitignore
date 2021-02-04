@@ -1,8 +1,13 @@
-.ant.properties
+[# Ignore all bin and target directories
+bin/
+target/
+# Ignore all files ending with ~
+*~
+*.class
+*.jar
+# Ignore the target directory
+# .ant.properties
+.settings/
 .cache
-.classpath
 .jxta
-.project
 .settings
-target
-/bin/
