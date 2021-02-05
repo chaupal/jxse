@@ -1,8 +1,6 @@
 .ant.properties
 .cache
-.classpath
 .jxta
-.project
 .settings
 target
 /bin/
