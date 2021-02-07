@@ -129,7 +129,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(Element root) {
+        public Advertisement newInstance(Element<?> root) {
             return new PSEConfigAdv(root);
         }
     }
@@ -186,13 +186,13 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *
      *  @param root The XMLElement which is the root element of the PSEConfigAdv.
      */
-    private PSEConfigAdv(Element root) {
+    private PSEConfigAdv(Element<?> root) {
 
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        XMLElement<?> doc = (XMLElement<?>) root;
 
         String doctype = doc.getName();
 
@@ -207,7 +207,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration eachAttr = doc.getAttributes();
+        Enumeration<?> eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
 
@@ -233,11 +233,11 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         certs.clear();
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<?> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
 
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement<?> elem = (XMLElement<?>) elements.nextElement();
 
             if (!handleElement(elem)) 
                 Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
@@ -423,7 +423,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public PrivateKey getPrivateKey(char[] password) {
 
-        return PSEUtils.pkcs5_Decrypt_pbePrivateKey(password, privAlgorithm, encryptedPrivateKey);
+        return PSEUtils.pkcs5_Decrypt_pbePrivateKey(password, encryptedPrivateKey);
     }
 
     /**
@@ -621,20 +621,20 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  {@inheritDoc}
      */
     @Override
-    protected boolean handleElement(Element raw) {
+    protected boolean handleElement(Element<?> raw) {
 
         if (super.handleElement(raw)) {
             return true;
         }
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
 
         if (ROOT_CERT_TAG.equals(elem.getName())) {
 
-            Enumeration elements = elem.getChildren();
+            Enumeration<?> elements = elem.getChildren();
 
             while (elements.hasMoreElements()) {
-                XMLElement eachcertelem = (XMLElement) elements.nextElement();
+                XMLElement<?> eachcertelem = (XMLElement<?>) elements.nextElement();
 
                 if (CERT_TAG.equals(eachcertelem.getName())) {
                     // XXX bondolo 20040415 backwards compatibility
@@ -693,9 +693,10 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
     /**
      *  {@inheritDoc}
      */
-    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        StructuredDocument adv = (StructuredDocument<?>) super.getDocument(encodeAs);
 
         if (adv instanceof Attributable) {
             Attributable attrDoc = (Attributable) adv;
@@ -710,7 +711,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
         }
 
         if (null != keyStoreLocation) {
-            Element keyStoreLocationURI = adv.createElement(KEY_STORE_LOCATION_TAG, keyStoreLocation.toString());
+            Element<?> keyStoreLocationURI = adv.createElement(KEY_STORE_LOCATION_TAG, keyStoreLocation.toString());
 
             adv.appendChild(keyStoreLocationURI);
         }

@@ -885,10 +885,10 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
 
         // Try a few times without locking
         for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
-            int sum = 0;
+            //int sum = 0;
             int mcsum = 0;
             for (int i = 0; i < segments.length; ++i) {
-                int c = segments[i].count;
+                //int c = segments[i].count;
                 mcsum += mc[i] = segments[i].modCount;
                 if (segments[i].containsValue(value))
                     return true;
@@ -896,7 +896,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             boolean cleanSweep = true;
             if (mcsum != 0) {
                 for (int i = 0; i < segments.length; ++i) {
-                    int c = segments[i].count;
+                    //int c = segments[i].count;
                     if (mc[i] != segments[i].modCount) {
                         cleanSweep = false;
                         break;
@@ -1254,11 +1254,11 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             return oldValue;
         }
 
-        public boolean equals(Object o) {
+        @SuppressWarnings("unchecked")
+		public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            @SuppressWarnings("unchecked")
-            Map.Entry e = (Map.Entry) o;
+             Map.Entry<SimpleEntry<K,V>,Object> e = (Map.Entry<SimpleEntry<K,V>,Object>) o;
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 

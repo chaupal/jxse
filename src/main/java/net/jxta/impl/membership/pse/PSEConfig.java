@@ -60,6 +60,7 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -76,12 +77,11 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * Manages the state of a Personal Security Enviroment.
  */
-public final class PSEConfig {
+public final class PSEConfig implements Closeable{
 
     /**
      * Log4J Logger
@@ -133,13 +133,10 @@ public final class PSEConfig {
     /**
      * {@inheritDoc}
      */
-    @Override
-    protected void finalize() throws Throwable {
+    public void close(){
         if (null != keystore_password) {
             Arrays.fill(keystore_password, '\0');
         }
-
-        super.finalize();
     }
 
     /**

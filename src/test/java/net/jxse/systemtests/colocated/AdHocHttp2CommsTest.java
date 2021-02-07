@@ -1,7 +1,12 @@
 package net.jxse.systemtests.colocated;
 
 import net.jxse.systemtests.colocated.configs.PeerConfigurator;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.platform.NetworkManager;
+
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,8 +33,16 @@ public class AdHocHttp2CommsTest {
 		aliceManager = PeerConfigurator.createHttp2AdhocPeer("alice", 58000, tempStorage);
 		bobManager = PeerConfigurator.createHttp2AdhocPeer("bob", 58001, tempStorage);
 
-		aliceManager.startNetwork();
-		bobManager.startNetwork();
+		try {
+			aliceManager.startNetwork();
+			bobManager.startNetwork();
+		} catch (PeerGroupException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 		
 		// XXX: give the network managers time to stabilise
 		Thread.sleep(5000L);

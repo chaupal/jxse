@@ -57,12 +57,12 @@ package net.jxta.rendezvous;
 
 import java.net.InetAddress;
 import java.util.Iterator;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.util.Hashtable;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.IPUtils;
@@ -84,8 +84,11 @@ import net.jxta.test.util.TcpConnection;
  * Run a local rdv peer on the same host running the test
  * The peer must be configured with a tcp transport on port 9701
  * In addition $JXTA_HOME/jxta.properties must define RdvManager.MaxClients=#clients simulated
+ * 
+ * CP: This test requires additional prweparation
  */
-public class RendezvousLoad extends TestCase {
+@Ignore
+public class RendezvousLoad {
 
     String incarnationTagName = "RdvIncarnjxta-NetGroup" + System.currentTimeMillis();
     private String myAddress = null;
@@ -98,53 +101,14 @@ public class RendezvousLoad extends TestCase {
     private String service = IModuleDefinitions.rendezvousClassID.toString();
 
     /**
-     *  Constructor for the RendezvousLoad
-     *
-     *@param  testName
-     *@exception  Exception
-     */
-    public RendezvousLoad(String testName) throws Exception {
-        super(testName);
-    }
-
-    /**
-     *  Description of the Method
-     *
-     *@exception  Exception
-     */
-    @Override
-    protected void finalize() throws Exception {}
-
-    /**
-     *  The main program for the RendezvousLoad class
-     *
-     *@param  args  The command line arguments
-     */
-    public static void main(java.lang.String[] args) {
-        TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     *@return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(RendezvousLoad.class);
-
-        return suite;
-    }
-
-    /**
      *  Load test rdv peer using a tcp configuration
      */
+    @Test
     public void testLoad() {
         TcpConnection connection = null;
         PeerID destPeerID = null;
-        Hashtable sinkTBL = new Hashtable(ITERATIONS);
-        Hashtable connectionTBL = new Hashtable(ITERATIONS);
+        Hashtable<PeerID, TcpConnection> sinkTBL = new Hashtable<>(ITERATIONS);
+        Hashtable<PeerID, TcpConnection> connectionTBL = new Hashtable<>(ITERATIONS);
 
         for (int i = 0; i < ITERATIONS; i++) {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey" + i, getMyAddress(), PORT + i, false);

@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.StringMessageElement;
@@ -136,6 +135,7 @@ public class SystemTestUtils {
         return biDiPipe;
     }
 
+	@SuppressWarnings("unused")
 	private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, 
 												 PipeAdvertisement pipeAdv, 
 												 PipeMsgListener clientListener) throws IOException {

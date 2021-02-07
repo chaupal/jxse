@@ -96,6 +96,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.security.auth.x500.X500Principal;
@@ -137,6 +138,7 @@ public final class PSEUtils {
     */
     public final static String symmetricAlgorithm = "DESede";
 
+    private static SecretKey secretKey;
     /**
      * Singleton utility class
      */
@@ -508,10 +510,16 @@ public final class PSEUtils {
     }
 
     /**
-     * We are trying to use : PBEWITHMD5ANDDES
+     * We are trying to use : PKCS WITH AES CBC
      */
-    static final String PKCS5_PBSE1_ALGO = "PBEWITHMD5ANDDES";
+    static final String PKCS5_PBSE1_ALGO = "AES/CBC/PKCS5PADDING";
 
+    private static SecretKey generateSecretKey() throws NoSuchAlgorithmException {        
+    	KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128);
+        return keyGenerator.generateKey();
+    }
+    
     /**
      * Given a private key and a password, encrypt the private key using the
      * PBESE1 algorithm.
@@ -524,32 +532,28 @@ public final class PSEUtils {
      */
     public static EncryptedPrivateKeyInfo pkcs5_Encrypt_pbePrivateKey(char[] password, PrivateKey privkey, int iterations) {
 
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
-        byte[] salt = new byte[8];
-
-        UTILS.srng.nextBytes(salt);
-
         try {
-            PBEParameterSpec pbeParamSpec = new PBEParameterSpec(salt, iterations);
-
-            // convert password into a SecretKey object, using a PBE key factory.
-            SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
-            SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
+        	byte[] iv = new byte[16];
+        	SecureRandom secureRandom = new SecureRandom();
+        	secureRandom.nextBytes(iv);
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
+            
+            secretKey = generateSecretKey();
 
             // Create PBE Cipher
-            Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
+            Cipher aesCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
 
             // Initialize PBE Cipher with key and parameters
-            pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParamSpec);
+            AlgorithmParameters algo = AlgorithmParameters.getInstance("AES");
+            algo.init(ivspec);
+            
+            aesCipher.init(Cipher.ENCRYPT_MODE, secretKey, algo);
+            byte[] encryptedPrivKey = aesCipher.doFinal(privkey.getEncoded());
 
-            byte[] encryptedPrivKey = pbeCipher.doFinal(privkey.getEncoded());
-
-            AlgorithmParameters algo = AlgorithmParameters.getInstance(PKCS5_PBSE1_ALGO);
-
-            algo.init(pbeParamSpec);
 
             EncryptedPrivateKeyInfo result = new EncryptedPrivateKeyInfo(algo, encryptedPrivKey);
-
+      
+            pkcs5_Decrypt_pbePrivateKey(password, result);
             return result;
 
         } catch (Exception failed) {
@@ -568,53 +572,42 @@ public final class PSEUtils {
      * @param encryptedPrivKey The private key to be encrypted.
      * @return The decrypted private key or null if the key could not be decrpyted.
      */
-    public static PrivateKey pkcs5_Decrypt_pbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivKey) {
-
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
+    public static PrivateKey pkcs5_Decrypt_pbePrivateKey(char[] password, EncryptedPrivateKeyInfo encryptedPrivKey) {
 
         try {
-
             AlgorithmParameters algo = encryptedPrivKey.getAlgParameters();
 
             if (null == algo) {
-
-                Logging.logCheckedWarning(LOG, "Could not get algo parameters from ", encryptedPrivKey);
-                throw new IllegalStateException("Could not get algo parameters from " + encryptedPrivKey);
+            	Logging.logCheckedWarning(LOG, "Could not get algo parameters from ", encryptedPrivKey);
+            	throw new IllegalStateException("Could not get algo parameters from " + encryptedPrivKey);
 
             }
-
-            PBEParameterSpec pbeParamSpec = algo.getParameterSpec(PBEParameterSpec.class);
+            IvParameterSpec ivParamSpec = algo.getParameterSpec(IvParameterSpec.class);
 
             // convert password into a SecretKey object, using a PBE key factory.
             try {
 
-                SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
-                SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
+            	// Create PBE Cipher
+            	Cipher aesCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
+            	// Initialize PBE Cipher with key and parameters
+            	aesCipher.init(Cipher.DECRYPT_MODE, secretKey, ivParamSpec);
+            	aesCipher.doFinal();
 
-                // Create PBE Cipher
-                Cipher pbeCipher = Cipher.getInstance(PKCS5_PBSE1_ALGO);
+            	KeyFactory kf = KeyFactory.getInstance("RSA");
 
-                // Initialize PBE Cipher with key and parameters
-                pbeCipher.init(Cipher.DECRYPT_MODE, pbeKey, pbeParamSpec);
-
-                KeySpec key_spec;
-
-                key_spec = encryptedPrivKey.getKeySpec(pbeCipher);
-
-                KeyFactory kf = KeyFactory.getInstance(algorithm);
-
-                return kf.generatePrivate(key_spec);
+            	KeySpec key_spec = encryptedPrivKey.getKeySpec(aesCipher);
+            	return kf.generatePrivate(key_spec);
 
             } catch (InvalidKeySpecException failed) {
 
-                Logging.logCheckedWarning(LOG, "Incorrect key for ", encryptedPrivKey, " : \n", failed);
-                return null;
+            	Logging.logCheckedWarning(LOG, "Incorrect key for ", encryptedPrivKey, " : \n", failed);
+            	return null;
 
             }
         } catch (Exception failed) {
 
-            Logging.logCheckedWarning(LOG, "Decrypt failed\n", failed);
-            return null;
+        	Logging.logCheckedWarning(LOG, "Decrypt failed\n", failed);
+        	return null;
 
         }
     }
@@ -882,18 +875,18 @@ public final class PSEUtils {
      * @param messageDigest   The messageDigest to which .
      * @return An encrypted private key info or null if the key could not be
      */
-    public static void xmlElementDigest(XMLElement xmlElement, List ignoreXmlElementNames, MessageDigest messageDigest) {
+    public static void xmlElementDigest(XMLElement<?> xmlElement, List<String> ignoreXmlElementNames, MessageDigest messageDigest) {
         PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
-        Enumeration attributes = xmlElement.getAttributes();
+        Enumeration<?> attributes = xmlElement.getAttributes();
         while(attributes.hasMoreElements()) {
             Attribute attribute = (Attribute)attributes.nextElement();
             PSEUtils.writeStringToDigest(attribute.getName(), messageDigest);
             PSEUtils.writeStringToDigest(attribute.getValue(), messageDigest);
         }
         PSEUtils.writeStringToDigest(xmlElement.getValue(), messageDigest);
-        Enumeration children = xmlElement.getChildren();
+        Enumeration<?> children = xmlElement.getChildren();
         while(children.hasMoreElements()) {
-            XMLElement xmlElementChild = (XMLElement)children.nextElement();
+            XMLElement<?> xmlElementChild = (XMLElement<?>)children.nextElement();
             if (ignoreXmlElementNames.contains(xmlElementChild.getName()))
                 continue;
             PSEUtils.xmlElementDigest(xmlElementChild, messageDigest);
@@ -906,18 +899,18 @@ public final class PSEUtils {
      * @param messageDigest   The messageDigest to which .
      * @return An encrypted private key info or null if the key could not be
      */
-    public static void xmlElementDigest(XMLElement xmlElement, MessageDigest messageDigest) {
+    public static void xmlElementDigest(XMLElement<?> xmlElement, MessageDigest messageDigest) {
         PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
-        Enumeration attributes = xmlElement.getAttributes();
+        Enumeration<?> attributes = xmlElement.getAttributes();
         while(attributes.hasMoreElements()) {
             Attribute attribute = (Attribute)attributes.nextElement();
             PSEUtils.writeStringToDigest(attribute.getName(), messageDigest);
             PSEUtils.writeStringToDigest(attribute.getValue(), messageDigest);
         }
         PSEUtils.writeStringToDigest(xmlElement.getValue(), messageDigest);
-        Enumeration children = xmlElement.getChildren();
+        Enumeration<?> children = xmlElement.getChildren();
         while(children.hasMoreElements()) {
-            XMLElement xmlElementChild = (XMLElement)children.nextElement();
+            XMLElement<?> xmlElementChild = (XMLElement<?>)children.nextElement();
             PSEUtils.xmlElementDigest(xmlElementChild, messageDigest);
         }
     }

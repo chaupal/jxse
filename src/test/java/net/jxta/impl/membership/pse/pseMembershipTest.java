@@ -70,7 +70,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
-// import net.jxta.peergroup.PeerGroupFactory;
+import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.credential.AuthenticationCredential;
@@ -100,7 +100,7 @@ public class pseMembershipTest extends TestCase {
 
                     StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(newGroupImpl.getParam());
 
-                    Map services = params.getServices();
+                    Map<ModuleClassID,Object> services = params.getServices();
 
                     ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(IModuleDefinitions.membershipClassID);
 
@@ -144,7 +144,7 @@ public class pseMembershipTest extends TestCase {
                     pseConf.setCertificate(info.cert);
                     pseConf.setPrivateKey(info.subjectPkey, "password".toCharArray());
 
-                    XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
+                    XMLDocument<?> pseDoc = (XMLDocument<?>) pseConf.getDocument(MimeMediaType.XMLUTF8);
 
                     newPGAdv.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);
 
@@ -255,9 +255,7 @@ public class pseMembershipTest extends TestCase {
 
             assertNotNull("Could not encrypt Private Key", encPrivKey);
 
-            PrivateKey decPrivKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey("password".toCharArray(), test.subjectPkey.getAlgorithm()
-                    ,
-                    encPrivKey);
+            PrivateKey decPrivKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey("password".toCharArray(), encPrivKey);
 
             assertNotNull("Could not decrypt Private Key", decPrivKey);
 
@@ -267,9 +265,7 @@ public class pseMembershipTest extends TestCase {
 
             EncryptedPrivateKeyInfo deserialedencPrivKey = new EncryptedPrivateKeyInfo(encPrivKeyDer);
 
-            decPrivKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey("password".toCharArray(), test.subjectPkey.getAlgorithm()
-                    ,
-                    deserialedencPrivKey);
+            decPrivKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey("password".toCharArray(), deserialedencPrivKey);
 
             assertNotNull("Could not decrypt Private Key", decPrivKey);
 

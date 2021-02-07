@@ -200,7 +200,7 @@ public class StringAuthenticator implements Authenticator {
     synchronized public boolean isReadyForJoin() {
         if (null != seedCert) {
             Logging.logCheckedFine(LOG, "seed certificate:\n", seedCert.toString());
-            return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(key_password, seedCert.getPublicKey().getAlgorithm(), seedKey);
+            return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(key_password, seedKey);
         } else {
             Logging.logCheckedFine(LOG, "null seed certificate");
             return source.getPSEConfig().validPasswd(identity, store_password, key_password);

@@ -86,8 +86,6 @@ import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.PSEPeerValidationEngine;
 import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.peergroup.CompatibilityUtils;
-import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
@@ -238,7 +236,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 //        }
 
         // Insert the newParamAdv in implAdv
-        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+        XMLElement<?> paramElement = (XMLElement<?>) paramAdv.getDocument(MimeMediaType.XMLUTF8);
 
         implAdv.setParam(paramElement);
 
@@ -256,7 +254,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * {@inheritDoc}
      */
     // @Override
-    public boolean compatible(Element compat) {
+    public boolean compatible(Element<?> compat) {
         return CompatibilityUtils.isCompatible(compat);
     }
 
@@ -365,7 +363,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         loadAllModules(applications, false); // Apps are non-privileged;
 
-        res = startModules((Map) applications);
+        res = startModules( applications);
 
         return res;
     }
@@ -424,7 +422,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      *
      * @param services The services to start.
      */
-    private int startModules(Map<ModuleClassID,Module> services) {
+    private int startModules(Map<ModuleClassID, Object> services) {
         int iterations = 0;
         int maxIterations = services.size() * services.size() + iterations + 1;
 
@@ -437,12 +435,12 @@ public class StdPeerGroup extends GenericPeerGroup {
 
             Logging.logCheckedFine(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
 
-            Iterator<Map.Entry<ModuleClassID, Module>> eachService = services.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Object>> eachService = services.entrySet().iterator();
 
             while (eachService.hasNext()) {
-                Map.Entry<ModuleClassID, Module> anEntry = eachService.next();
+                Map.Entry<ModuleClassID, Object> anEntry = eachService.next();
                 ModuleClassID mcid = anEntry.getKey();
-                Module aModule = anEntry.getValue();
+                Module aModule = (Module) anEntry.getValue();
 
                 int res;
 
@@ -516,7 +514,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 failed.append("\nThe following services could not be started : ");
 
-                for (Map.Entry<ModuleClassID, Module> aService : services.entrySet()) {
+                for (Map.Entry<ModuleClassID, Object> aService : services.entrySet()) {
                     failed.append("\n\t");
                     failed.append(aService.getKey());
                     failed.append(" : ");
@@ -647,7 +645,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             Map<ModuleClassID, Object> tempMsMap = new HashMap<ModuleClassID, Object>();
             tempMsMap.put(IModuleDefinitions.membershipClassID, tempMsSpec);
             loadAllModules(tempMsMap,true);
-            int tempRes = startModules((Map)tempMsMap);
+            int tempRes = startModules( tempMsMap);
             if(Module.START_OK ==tempRes)
             {
                 MembershipService tempMs = this.getMembershipService();
@@ -845,7 +843,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         loadAllModules(initServices, true);
 
-        int res = startModules((Map) initServices);
+        int res = startModules((Map<ModuleClassID, Object>) initServices);
 
         if(Module.START_OK != res) {
             throw new PeerGroupException("Failed to start peer group services. res : " + res);
@@ -916,14 +914,14 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
             configInfo.append(indent);
-            Iterator eachProto = messageTransports.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID, Object>> eachProto = messageTransports.entrySet().iterator();
 
             if (eachProto.hasNext()) {
                 configInfo.append("\n\t\tMessage Transports :");
             }
             while (eachProto.hasNext()) {
-                Map.Entry anEntry = (Map.Entry) eachProto.next();
-                ModuleClassID aMCID = (ModuleClassID) anEntry.getKey();
+                Map.Entry<ModuleClassID, Object> anEntry = eachProto.next();
+                ModuleClassID aMCID = anEntry.getKey();
                 Module anMT = (Module) anEntry.getValue();
 
                 configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(
