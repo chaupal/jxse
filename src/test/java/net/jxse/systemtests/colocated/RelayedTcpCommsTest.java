@@ -9,7 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class RelayedTcpCommsTest {
+public class RelayedTcpCommsTest{
 
 	@Rule
     public TemporaryFolder tempStorage = new TemporaryFolder();

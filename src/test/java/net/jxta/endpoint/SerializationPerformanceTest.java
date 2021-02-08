@@ -56,10 +56,12 @@
 
 package net.jxta.endpoint;
 
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import junit.framework.*;
+import org.junit.Test;
 
 import net.jxta.document.MimeMediaType;
 
@@ -67,27 +69,12 @@ import net.jxta.document.MimeMediaType;
  *
  * @author mike
  */
-public class SerializationPerformanceTest extends TestCase {
+public class SerializationPerformanceTest{
 
     private static final MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");
 
-    public SerializationPerformanceTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SerializationPerformanceTest.class);
-
-        return suite;
-    }
-
+    @SuppressWarnings("unused")
+	@Test
     public void testSerialPerformance() {
         try {
             Message msg = new Message();
@@ -150,5 +137,4 @@ public class SerializationPerformanceTest extends TestCase {
             fail("exception thrown : " + caught.getMessage());
         }
     }
-
 }

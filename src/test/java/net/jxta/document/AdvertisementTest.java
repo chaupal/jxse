@@ -56,15 +56,13 @@
 
 package net.jxta.document;
 
-import java.io.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 
-import net.jxta.document.Advertisement;
-
-public final class AdvertisementTest extends TestCase {
+public final class AdvertisementTest{
 
     public static class WimpyAdv extends Advertisement {
 
@@ -87,12 +85,10 @@ public final class AdvertisementTest extends TestCase {
             /**
              *  {@inheritDoc}
              **/
-            public Advertisement newInstance(Element root) {
+            public Advertisement newInstance(Element<?> root) {
                 return new WimpyAdv();
             }
         }
-
-        ;
 
         @Override
         public net.jxta.document.Document getDocument(net.jxta.document.MimeMediaType asMimeType) {
@@ -114,22 +110,12 @@ public final class AdvertisementTest extends TestCase {
         }
     }
 
-    /** Creates new AdvertisementTest */
-    public AdvertisementTest(String name) {
-        super(name);
-    }
-
-    @Override
+    @Before
     public void setUp() throws Exception {
         AdvertisementFactory.registerAdvertisementInstance(WimpyAdv.getAdvertisementType(), new WimpyAdv.Instantiator());
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(AdvertisementTest.class);
-
-        return suite;
-    }
-
+    @Test
     public void testGetAdvType() {
         try {
             Advertisement adv = new WimpyAdv();
@@ -140,14 +126,4 @@ public final class AdvertisementTest extends TestCase {
             fail("caught an unexpected exception - " + everything.toString());
         }
     }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
 }

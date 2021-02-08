@@ -56,33 +56,22 @@
 
 package net.jxta.endpoint;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
-import junit.framework.*;
+
+import org.junit.Test;
 
 import net.jxta.document.MimeMediaType;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.ByteArrayMessageElement;
 
 /**
  *
  * @author mike
  */
-public class ByteArrayMessageElementTest extends TestCase {
+public class ByteArrayMessageElementTest{
 
-    public ByteArrayMessageElementTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ByteArrayMessageElementTest.class);
-
-        return suite;
-    }
-
+	@Test
     public void testEmptyArray() {
         try {
             byte[] source1 = {};
@@ -137,6 +126,7 @@ public class ByteArrayMessageElementTest extends TestCase {
         }
     }
 
+	@Test
     public void testFullArray() {
         try {
             byte[] source1 = { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48 };
@@ -191,6 +181,7 @@ public class ByteArrayMessageElementTest extends TestCase {
         }
     }
 
+	@Test
     public void testSubsetArray() {
         try {
             byte[] source1 = { 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68 };

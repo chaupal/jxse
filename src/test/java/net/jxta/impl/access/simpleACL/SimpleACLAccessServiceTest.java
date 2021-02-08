@@ -56,6 +56,9 @@
 
 package net.jxta.impl.access.simpleACL;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -63,7 +66,6 @@ import java.net.URI;
 import java.util.Map;
 import java.net.URISyntaxException;
 
-import junit.framework.*;
 import net.jxta.access.AccessService;
 import net.jxta.access.AccessService.AccessResult;
 import net.jxta.credential.Credential;
@@ -86,16 +88,20 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("JXTA Configurator & PeerGroupFactory Required")
-public class SimpleACLAccessServiceTest extends TestCase {
+public class SimpleACLAccessServiceTest {
 
     static PeerGroup npg = null;
     static PeerGroup pg = null;
 
-    public SimpleACLAccessServiceTest(java.lang.String testName) {
-        super(testName);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Before
+    public void setup() {
 
         synchronized (SimpleACLAccessServiceTest.class) {
             try {
@@ -153,11 +159,11 @@ public class SimpleACLAccessServiceTest extends TestCase {
                     newPGAdv.setName("Test Group");
                     newPGAdv.setDescription("Created by Unit Test");
 
-                    XMLDocument accessparams = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
+                    XMLDocument accessparams = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                             ,
                             "Parm");
 
-                    XMLElement perm = accessparams.createElement("perm", "<<DEFAULT>>:nobody,permit");
+                    XMLElement<?> perm = accessparams.createElement("perm", "<<DEFAULT>>:nobody,permit");
 
                     accessparams.appendChild(perm);
 
@@ -185,30 +191,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
         }
     }
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        synchronized (SimpleACLAccessServiceTest.class) {
-            if (null != pg) {
-                pg.stopApp();
-//                pg.unref();
-                pg = null;
-            }
-
-            if (null != npg) {
-                npg.stopApp();
-//                npg.unref();
-                npg = null;
-            }
-        }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SimpleACLAccessServiceTest.class);
-
-        return suite;
-    }
-
+    @Test
     public void testAllow() {
         try {
             AccessService access = pg.getAccessService();
@@ -225,6 +208,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
         }
     }
 
+    @Test
     public void testDefault() {
         try {
             AccessService access = pg.getAccessService();
@@ -241,6 +225,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
         }
     }
 
+    @Test
     public void testDeny() {
         try {
             AccessService access = pg.getAccessService();
@@ -254,7 +239,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
 
             StringWriter serialed = new StringWriter();
 
-            ((XMLDocument) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
+            ((XMLDocument<?>) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
 
             Reader deserial = new StringReader(serialed.toString());
 
@@ -266,5 +251,22 @@ public class SimpleACLAccessServiceTest extends TestCase {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
         }
+    }
+    
+    @After
+    public void tearDown() {
+    	synchronized (SimpleACLAccessServiceTest.class) {
+    		if (null != pg) {
+    			pg.stopApp();
+    			//pg.unref();
+    			pg = null;
+    		}
+
+    		if (null != npg) {
+    			npg.stopApp();
+    			//npg.unref();
+    			npg = null;
+    		}
+    	}
     }
 }

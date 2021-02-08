@@ -57,27 +57,27 @@
 package net.jxta.id;
 
 import java.io.ByteArrayOutputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.net.URI;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+
 import net.jxta.peergroup.PeerGroupID;
 
 /**
  * @author  mike
  */
-public final class IDTest extends TestCase {
+public final class IDTest {
 
-    /** Creates new DocTest */
-    public IDTest(String name) {
-        super(name);
-    }
-
+	@Test
     public void testID() {
         try {
             ID first = ID.nullID;
@@ -85,7 +85,6 @@ public final class IDTest extends TestCase {
             ID third;
             String  asString;
             URI     asURI;
-            ID myPeerGroup;
 
             assertTrue("comparison of two IDs failed", first.equals(second));
 
@@ -107,6 +106,7 @@ public final class IDTest extends TestCase {
 
     }
 
+	@Test
     public void testSerialization() {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -134,6 +134,7 @@ public final class IDTest extends TestCase {
         }
     }
 
+	@Test
     public void testIDFactoryURI() {
         try {
             URI urla = new URI("urn:jxta:idform-1234567890");
@@ -166,6 +167,7 @@ public final class IDTest extends TestCase {
         }
     }
 
+	@Test
     public void testJXTAIDFormatURI() {
         try {
             URI nulluri = ID.nullID.toURI();
@@ -183,17 +185,5 @@ public final class IDTest extends TestCase {
             everything.printStackTrace();
             fail("caught an unexpected exception - " + everything.toString());
         }
-    }
-
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(IDTest.class);
-
-        return suite;
     }
 }

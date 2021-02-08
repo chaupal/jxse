@@ -97,8 +97,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
 import javax.security.auth.x500.X500Principal;
 
 import net.jxta.document.Attribute;
@@ -551,9 +549,7 @@ public final class PSEUtils {
             byte[] encryptedPrivKey = aesCipher.doFinal(privkey.getEncoded());
 
 
-            EncryptedPrivateKeyInfo result = new EncryptedPrivateKeyInfo(algo, encryptedPrivKey);
-      
-            pkcs5_Decrypt_pbePrivateKey(password, result);
+            EncryptedPrivateKeyInfo result = new EncryptedPrivateKeyInfo(algo, encryptedPrivKey);    
             return result;
 
         } catch (Exception failed) {

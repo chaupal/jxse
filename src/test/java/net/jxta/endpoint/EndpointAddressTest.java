@@ -56,16 +56,17 @@
 
 package net.jxta.endpoint;
 
-import net.jxta.endpoint.EndpointAddress;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import junit.framework.*;
+import org.junit.Test;
 
-public class EndpointAddressTest extends TestCase {
+public class EndpointAddressTest {
 
-    public EndpointAddressTest(java.lang.String testName) {
-        super(testName);
-    }
-
+	@SuppressWarnings("unused")
+	@Test
     public void testParseURL() {
         String[] goodtests = {
             "foo://happy", "foo://happy/", "foo://happy/birthday", "foo://happy/birthday/", "foo://happy/birthday/2u"
@@ -102,6 +103,7 @@ public class EndpointAddressTest extends TestCase {
 
     }
 
+	@Test
     public void testEquals() {
         EndpointAddress first = new EndpointAddress("jxta", "test", "service", "param");
         EndpointAddress second = new EndpointAddress("urn:jxta", "test", "service", "param");
@@ -147,6 +149,7 @@ public class EndpointAddressTest extends TestCase {
         assertTrue("should have been equal", sixth.equals(second));
     }
 
+	@Test
     public void testEqualsIdentity() {
         EndpointAddress first = new EndpointAddress("jxta://test");
         EndpointAddress second = new EndpointAddress("jxta://test");
@@ -160,6 +163,7 @@ public class EndpointAddressTest extends TestCase {
         assertTrue("should have been equal", second.equals(second));
     }
 
+	@Test
     public void testNotEquals() {
         EndpointAddress first = new EndpointAddress("jxta://test");
         EndpointAddress second = new EndpointAddress("jxta://test/");
@@ -181,6 +185,7 @@ public class EndpointAddressTest extends TestCase {
         assertTrue("should not have been equal", !third.equals(fourth));
     }
 
+	@Test
     public void testToString() {
         EndpointAddress first = new EndpointAddress("jxta", "test", "service", "param");
 
@@ -195,6 +200,7 @@ public class EndpointAddressTest extends TestCase {
         assertNotNull("should have had a value", third.toString());
     }
 
+	@Test
     public void testParse() {
         String atest = "tcp://192.18.37.36:9701/EndpointService:uuid-E91967CEE3E54E9F97F6A8732F0FA38902/PeerView/uuid-E91967CEE3E54E9F97F6A8732F0FA38902";
 
@@ -209,6 +215,7 @@ public class EndpointAddressTest extends TestCase {
         assertTrue("wrong service param", "PeerView/uuid-E91967CEE3E54E9F97F6A8732F0FA38902".equals(ea.getServiceParameter()));
     }
 
+	@Test
     public void testEqualsSynonyms() {
         EndpointAddress first = new EndpointAddress("jxta://uuid-E91967CEE3E54E9F97F6A8732F0FA38902");
         EndpointAddress second = new EndpointAddress("urn:jxta:uuid-E91967CEE3E54E9F97F6A8732F0FA38902");
@@ -230,18 +237,5 @@ public class EndpointAddressTest extends TestCase {
         assertTrue("should have been equal", first.equals(third));
         assertTrue("should have been equal", second.equals(third));
 
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(EndpointAddressTest.class);
-
-        return suite;
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.out.flush();
-        System.err.flush();
     }
 }

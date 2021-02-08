@@ -55,6 +55,11 @@
  */
 package net.jxta.document;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -66,9 +71,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.*;
+import org.junit.After;
+import org.junit.Test;
 
-public class MimeMediaTypeTest extends TestCase {
+public class MimeMediaTypeTest {
 
 	private boolean exceptionOnThread = false;
 	
@@ -87,18 +93,15 @@ public class MimeMediaTypeTest extends TestCase {
 			return t;
 		}
 	}
-
-	public MimeMediaTypeTest(java.lang.String testName) {
-        super(testName);
-    }
 	
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		MimeMediaType.clearInternMap();
 		exceptionOnThread = false;
 	}
 
-    public void testConstructors() {
+    @Test
+	public void testConstructors() {
         MimeMediaType plainXMLString = new MimeMediaType("text/xml");
         MimeMediaType plainXML2params = new MimeMediaType("text", "xml");
         MimeMediaType plaintext2params = new MimeMediaType("text", "plain");
@@ -156,6 +159,7 @@ public class MimeMediaTypeTest extends TestCase {
         assertTrue(!nonexperimentalXMLString.isExperimentalSubtype());
     }
 
+    @Test
     public void testParams() {
         MimeMediaType xmlmanyparamsstring = new MimeMediaType(
                 "text/xml;chArset=\"UTF-8\";encoding=\"BASE64\";synopsis=\"boring\";priority=\"junk\"");
@@ -189,6 +193,7 @@ public class MimeMediaTypeTest extends TestCase {
         assertTrue("attributes should be case insensitive", spacedparam.equals("x y z"));
     }
 
+    @Test
     public void testValueOf() {
         MimeMediaType newed = new MimeMediaType("text/xml");
         MimeMediaType valued = MimeMediaType.valueOf("text/xml");
@@ -203,6 +208,7 @@ public class MimeMediaTypeTest extends TestCase {
         assertTrue(newInterned == valueInterned);
     }
 
+    @Test
     public void testInternPerformance() {
         int trials = 10000;
         String [] strings = new String[trials];
@@ -296,6 +302,7 @@ public class MimeMediaTypeTest extends TestCase {
         System.out.println( stop - start + "ms for " + trials + " non-unique interned types.");
     }
 
+    @Test
     public void testInternContention() {
         final int concurrency = 50;
         final int trials = 50000;
@@ -358,6 +365,7 @@ public class MimeMediaTypeTest extends TestCase {
         System.out.println( stop - start + "ms for " + trials + " identical types on " + concurrency + " threads.");
     }
 
+    @Test
     public void testInternUniquesContention() {
         final int concurrency = 50;
         final int trials = 1000;
@@ -420,6 +428,7 @@ public class MimeMediaTypeTest extends TestCase {
         System.out.println( stop - start + "ms for " + trials + " unique types on " + concurrency + " threads.");
     }
 
+    @Test
     public void testSerialization() {
         MimeMediaType one = new MimeMediaType("text/xml");
 
@@ -442,18 +451,5 @@ public class MimeMediaTypeTest extends TestCase {
         } catch (Throwable failure) {
             fail("Exception during test! " + failure.getMessage());
         }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(MimeMediaTypeTest.class);
-
-        return suite;
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.err.flush();
-        System.out.flush();
     }
 }

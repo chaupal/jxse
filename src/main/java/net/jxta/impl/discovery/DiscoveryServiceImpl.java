@@ -70,6 +70,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.SrdiManager;
+import net.jxta.impl.cm.XIndiceAdvertisementCache;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.DiscoveryConfigAdv;
@@ -658,7 +659,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 failure.initCause(everything);
                 throw failure;
             }
-            advName = CacheManager.createTmpName(doc);
+            advName = XIndiceAdvertisementCache.createTmpName(doc);
         }
 
         if (advName != null) {
@@ -717,7 +718,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
 
-                advName = CacheManager.createTmpName(doc);
+                advName = XIndiceAdvertisementCache.createTmpName(doc);
             } catch (IllegalStateException ise) {
                 IOException failure = new IOException("Failed to generate tempname from advertisement");
 
@@ -1339,7 +1340,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             }
 
-            advName = CacheManager.createTmpName(doc);
+            advName = XIndiceAdvertisementCache.createTmpName(doc);
         }
 
         return cm.getExpirationtime(dirname[type], advName);
@@ -1385,7 +1386,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             }
 
-            advName = CacheManager.createTmpName(doc);
+            advName = XIndiceAdvertisementCache.createTmpName(doc);
         }
         return cm.getLifetime(dirname[type], advName);
     }

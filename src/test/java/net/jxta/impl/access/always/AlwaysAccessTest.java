@@ -55,11 +55,12 @@
  */
 package net.jxta.impl.access.always;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-
-import junit.framework.*;
 
 import net.jxta.access.AccessService;
 import net.jxta.access.AccessService.AccessResult;
@@ -70,43 +71,28 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
+
+import org.junit.After;
+import org.junit.Before;
 // import net.jxta.peergroup.PeerGroupFactory;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("JXTA Configurator & PeerGroupFactory required")
-public class alwaysAccessTest extends TestCase {
+public class AlwaysAccessTest{
 
     static PeerGroup pg;
 
-    public alwaysAccessTest(java.lang.String testName) {
-        super(testName);
-
-        synchronized (alwaysAccessTest.class) {
+    @Before
+    public void setup() {
+        synchronized (AlwaysAccessTest.class) {
             if (null == pg) {
 //                pg = PeerGroupFactory.newPlatform();
             }
-        }
+        }    	
     }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        synchronized (alwaysAccessTest.class) {
-            pg.stopApp();
-//            pg.unref();
-            pg = null;
-        }
-
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(alwaysAccessTest.class);
-
-        return suite;
-    }
-
+    
+    @Test
     public void testAllow() {
         try {
             AccessService access = pg.getAccessService();
@@ -123,6 +109,7 @@ public class alwaysAccessTest extends TestCase {
         }
     }
 
+    @Test
     public void testDeny() {
         try {
             AccessService access = pg.getAccessService();
@@ -136,7 +123,7 @@ public class alwaysAccessTest extends TestCase {
 
             StringWriter serialed = new StringWriter();
 
-            ((StructuredTextDocument) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
+            ((StructuredTextDocument<?>) denied.getDocument(MimeMediaType.XMLUTF8)).sendToWriter(serialed);
 
             Reader deserial = new StringReader(serialed.toString());
 
@@ -148,5 +135,12 @@ public class alwaysAccessTest extends TestCase {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
         }
+    }
+    
+    @After
+    public void tearDown(java.lang.String[] args) {
+    	pg.stopApp();
+    	//            pg.unref();
+    	pg = null;
     }
 }

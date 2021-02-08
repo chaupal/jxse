@@ -1,9 +1,12 @@
 package net.jxse.systemtests.colocated.pipes;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,6 +32,8 @@ public class BlockingPipeAcceptTest {
     private NetworkManager aliceManager;
     private NetworkManager bobManager;
     private NetworkManager relayManager;
+    
+    private ExecutorService service;
 
     @Before
     public void initPeers() throws Exception {
@@ -40,17 +45,12 @@ public class BlockingPipeAcceptTest {
         aliceManager.startNetwork();
         bobManager.startNetwork();
         
+        service = Executors.newCachedThreadPool();
+        
         // XXX: frustratingly, this test does not pass reliably unless time is given to 
         // the peers to connect to the Rdv/Relay peer and settle down. Otherwise, the 
         // pipe accept request is never received by alice unless bob explicitly retries.
         Thread.sleep(5000);
-    }
-
-    @After
-    public void killPeers() throws Exception {
-        aliceManager.stopNetwork();
-        bobManager.stopNetwork();
-        relayManager.stopNetwork();
     }
 
     @Test(timeout=60000)
@@ -66,7 +66,7 @@ public class BlockingPipeAcceptTest {
     	// create the server pipe, and have alice wait for an incoming connection (in another thread)
     	JxtaServerPipe aliceServerPipe = SystemTestUtils.createServerPipe(aliceManager);
     	aliceServerPipe.setPipeTimeout(0);
-    	aliceWait(aliceServerPipe, connectionAcceptLatch, acceptedPipe);
+    	service.execute( ()->aliceWait( aliceServerPipe, connectionAcceptLatch, acceptedPipe));
     	
     	// have bob attempt to connect to alice's server pipe
     	JxtaBiDiPipe bobClientPipe = new JxtaBiDiPipe(bobManager.getNetPeerGroup(), aliceServerPipe.getPipeAdv(), 2000, new PipeMsgListener() {
@@ -93,18 +93,28 @@ public class BlockingPipeAcceptTest {
     	assertTrue("Timeout while waiting for alice -> bob message", bobReceivedResponse.await(15, TimeUnit.SECONDS));
     }
 
-	private void aliceWait(final JxtaServerPipe serverPipe, final CountDownLatch connectionAcceptLatch, final AtomicReference<JxtaBiDiPipe> accepted) {
-		new Thread(new Runnable() {
-
-			public void run() {
-				try {
-					accepted.set(serverPipe.accept());
-					connectionAcceptLatch.countDown();
-				} catch (IOException e) {
-					System.err.println("Failed to accept");
-					e.printStackTrace();
-				}
-			}
-		}).start();
-	}
+    /**
+     * Run this in a separate thread
+     * @param serverPipe
+     * @param connectionAcceptLatch
+     * @param accepted
+     */
+    private void aliceWait(final JxtaServerPipe serverPipe, final CountDownLatch connectionAcceptLatch, final AtomicReference<JxtaBiDiPipe> accepted) {
+    	try {
+    		accepted.set(serverPipe.accept());
+    		connectionAcceptLatch.countDown();
+    	} catch (IOException e) {
+    		System.err.println("Failed to accept");
+    		e.printStackTrace();
+    		fail( e.getMessage());
+    	}
+    }
+	
+    @After
+    public void killPeers() throws Exception {
+        aliceManager.stopNetwork();
+        bobManager.stopNetwork();
+        relayManager.stopNetwork();
+        service.shutdown();
+    }
 }

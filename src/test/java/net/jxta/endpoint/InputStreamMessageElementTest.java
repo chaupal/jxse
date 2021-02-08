@@ -56,45 +56,36 @@
 
 package net.jxta.endpoint;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.Arrays;
 import java.util.Vector;
+
+import org.junit.Test;
+
 import java.util.Collections;
 
 import java.io.IOException;
 
-import junit.framework.*;
-
 import net.jxta.document.MimeMediaType;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.InputStreamMessageElement;
 
 /**
  *
  * @author mike
  */
-public class InputStreamMessageElementTest extends TestCase {
+public class InputStreamMessageElementTest {
 
     String data = "11111111111111111111111111111111111111111111111111111111111111\n\r"
             + "22222222222222222222222222222222222222222222222222222222222222\n\r"
             + "33333333333333333333333333333333333333333333333333333333333333\n\r";
 
-    public InputStreamMessageElementTest(java.lang.String testName) {
-        super(testName);
-    }
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(InputStreamMessageElementTest.class);
-
-        return suite;
-    }
 
     static class noMarkInputStream extends java.io.FilterInputStream {
 
@@ -146,12 +137,13 @@ public class InputStreamMessageElementTest extends TestCase {
             }
 
         } catch (Throwable e) {
-            this.fail("Stream to bytes");
+            fail("Stream to bytes");
         }
 
         return bout.toByteArray();
     }
 
+    @Test
     public void testVisual() throws IOException {
 
         InputStream stream = new ByteArrayInputStream(data.getBytes());
@@ -164,22 +156,25 @@ public class InputStreamMessageElementTest extends TestCase {
         printStream(element.getStream(), "Element");
     }
 	
+    @Test
     public void testGetStream() throws IOException {
 
         InputStream stream = new ByteArrayInputStream(data.getBytes());
         MessageElement element = new InputStreamMessageElement("TEST", null, stream, null);
 
-        this.assertTrue("getStream()", Arrays.equals(data.getBytes(), streamToBytes(element.getStream())));
+        assertTrue("getStream()", Arrays.equals(data.getBytes(), streamToBytes(element.getStream())));
     }
 		
+    @Test
     public void testToString() throws IOException {
 
         InputStream stream = new ByteArrayInputStream(data.getBytes());
         MessageElement element = new InputStreamMessageElement("TEST", null, stream, null);
 
-        this.assertEquals("toString()", data, element.toString());
+        assertEquals("toString()", data, element.toString());
     }
 
+    @Test
     public void testNewByteArrayMessageElement() {
         try {
             byte[] source1 = { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48 };
@@ -189,7 +184,7 @@ public class InputStreamMessageElementTest extends TestCase {
             InputStream in1 = new ByteArrayInputStream(source1);
             InputStream in2 = new ByteArrayInputStream(source2);
 
-            Vector concat = new Vector(0);
+            Vector<InputStream> concat = new Vector<>(0);
 
             concat.add(new ByteArrayInputStream(source1));
             concat.add(new ByteArrayInputStream(source2));

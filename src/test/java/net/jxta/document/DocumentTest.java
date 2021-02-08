@@ -56,6 +56,11 @@
 
 package net.jxta.document;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -69,7 +74,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.jxta.impl.document.LiteXMLDocument;
 import net.jxta.impl.document.PlainTextDocument;
 
@@ -78,7 +84,7 @@ import net.jxta.impl.document.PlainTextDocument;
  * odd partial-testing behaviour based on catching exceptions in _test. Could either do with
  * a complete overhaul, or to be scrapped.
  */
-public final class DocumentTest extends TestCase {
+public final class DocumentTest {
 
     final static String badlittleimpl = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!DOCTYPE jxta:MIA>\n"
             + "<jxta:MIA xmlns:jxta=\"http://jxta.org\">\n" + "  	<MSID/>\n" + " 	<Parm>\n" + " 		<Svc>\n"
@@ -476,6 +482,7 @@ public final class DocumentTest extends TestCase {
         }
     }
 
+    @Test
     public void testLiteXMLStructuredDoc() {
         try {
             _test(LiteXMLDocument.INSTANTIATOR, MimeMediaType.XML_DEFAULTENCODING);
@@ -488,6 +495,7 @@ public final class DocumentTest extends TestCase {
         }
     }
 
+    @Test
     public void testDOMXMLStructuredDoc() throws Exception {
         StructuredDocumentFactory.Instantiator domInstantiator = null;
 
@@ -499,12 +507,14 @@ public final class DocumentTest extends TestCase {
         _testAttributesSolo(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
     }
 
+    @Test
     public void testPlainTextDoc() throws Exception {
         _test(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
         _testConstructors(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
         _testAttributesSolo(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
     }
 
+    @Test
     public void testExtensionMapping() {
         MimeMediaType refMime = new MimeMediaType("Text/Xml");
         String refExt = "xml";
@@ -518,6 +528,7 @@ public final class DocumentTest extends TestCase {
         assertTrue("extension was not the same after reflex mapping", refExt.equals(ext));
     }
 
+    @Test
     @SuppressWarnings("unused")
 	public void testIssue102() {
         String WORKS = "<xml><stooges>Moe, Larry, &#x41;&#65;&#0666;& Curly</stooges></xml>";
@@ -528,6 +539,7 @@ public final class DocumentTest extends TestCase {
         LiteXMLBug doesNotWork = new LiteXMLBug(DOES_NOT_WORK);
     }
 
+    @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testIssue1282() {
 
@@ -589,6 +601,7 @@ public final class DocumentTest extends TestCase {
         }
     }
 
+    @Test
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testIssue1372() {
         XMLDocument document = null;
@@ -646,6 +659,7 @@ public final class DocumentTest extends TestCase {
         }
     }
 
+    @Test
     public void testIssue13XX() {
         XMLDocument<?> document = null;
 
@@ -663,6 +677,7 @@ public final class DocumentTest extends TestCase {
         }
     }
 
+    @Test
     public void testIssue15() {
         XMLDocument<?> document = null;
 

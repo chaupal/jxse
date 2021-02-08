@@ -84,8 +84,9 @@ public class AdvertisementSerializableTest {
     	return peergroupAdv;
     }
     
-    private Element buildDesc() {
-        StructuredTextDocument desc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private Element<?> buildDesc() {
+        StructuredTextDocument desc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Desc");
 
         desc.appendChild(desc.createElement("Text1", TestDescription));

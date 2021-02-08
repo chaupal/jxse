@@ -56,6 +56,11 @@
 
 package net.jxta.endpoint;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -66,9 +71,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import java.util.ConcurrentModificationException;
+import org.junit.Test;
 
-import junit.framework.*;
+import java.util.ConcurrentModificationException;
 
 import net.jxta.document.MimeMediaType;
 
@@ -76,28 +81,13 @@ import net.jxta.document.MimeMediaType;
  *
  * @author mike
  */
-public class MessageTest extends TestCase {
+public class MessageTest {
 
-    public MessageTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(MessageTest.class);
-
-        return suite;
-    }
 
     /**
      *   Tests Default Namespace
      **/
+	@Test
     public void testMessageDefaultNamespaces() {
         Message msg1 = new Message();
         Message msg2 = new Message("default");
@@ -118,6 +108,7 @@ public class MessageTest extends TestCase {
     /**
      *   Tests Simple AddElement
      **/
+	@Test
     public void testMessageAddGetElement() {
         Message msg1 = new Message();
  
@@ -148,6 +139,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the clear method
      **/
+	@Test
     public void testMessageClear() {
         Message msg1 = new Message();
 
@@ -179,6 +171,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the getMessageElements iterator
      **/
+	@Test
     public void testMessageGetMessageElements() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -220,6 +213,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the getMessageElements( String ) iterator
      **/
+	@Test
     public void testMessageGetMessageElementsNamed() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -255,6 +249,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the getMessageElementsOfNamespace iterator
      **/
+	@Test
     public void testMessagegeGetMessageElementsOfNamespace() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -289,6 +284,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the getMessageElements Mimetype iterator
      **/
+	@Test
     public void testMessagegeGetMessageElementsMimeType() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -326,6 +322,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the getMessageElements Mimetype iterator
      **/
+	@Test
     public void testMessagegeGetMessageElementsNamespaceMimeType() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -361,6 +358,7 @@ public class MessageTest extends TestCase {
         assertTrue("iterators should have ended at the same time", !eachListElement.hasNext());
     }
 
+	@Test
     public void testMessageGetElement() {
         Message msg1 = new Message("default");
 
@@ -398,6 +396,7 @@ public class MessageTest extends TestCase {
         assertNull("Should not have gotten an element", elm3);
     }
 
+	@Test
     public void testMessageGetNamespaces() {
         Message msg1 = new Message("default");
         Set<String> namespaces = new HashSet<>();
@@ -425,6 +424,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the replace method
      **/
+	@Test
     public void testMessageReplacement() {
         Message msg1 = new Message();
 
@@ -459,6 +459,7 @@ public class MessageTest extends TestCase {
     /**
      *    tests the replace method
      **/
+	@Test
     public void testIteratorSet() {
         Message msg1 = new Message();
 
@@ -495,6 +496,7 @@ public class MessageTest extends TestCase {
     /**
      *   Tests Message Element
      **/
+	@Test
     public void testMessageLength() {
         Message msg1 = new Message();
 
@@ -533,6 +535,7 @@ public class MessageTest extends TestCase {
     /**
      *   Tests Message Element
      **/
+	@Test
     public void testMessageToString() {
         Message msg1 = new Message();
 
@@ -544,6 +547,7 @@ public class MessageTest extends TestCase {
     /**
      *    Test Message Element Remove
      **/
+	@Test
     public void testMessageRemoveElement() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -584,6 +588,7 @@ public class MessageTest extends TestCase {
         assertTrue("should not have removed an element", !msg1.removeMessageElement("bogus", elm2));
     }
 
+	@Test
     public void testIssue991() {
         Message msg1 = new Message();
         List<MessageElement>    list = new ArrayList<>();
@@ -649,6 +654,7 @@ public class MessageTest extends TestCase {
     }
 
     @SuppressWarnings("unused")
+	@Test
 	public void testConcurrentMod() {
         Message msg1 = new Message();
 
@@ -674,6 +680,7 @@ public class MessageTest extends TestCase {
         } catch (ConcurrentModificationException failed) {}
     }
 
+	@Test
     public void testMessageSerialization() {
         Message msg1 = new Message();
 
