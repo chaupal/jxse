@@ -234,7 +234,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * {@inheritDoc}
      */
     @Override
-    public Class getClassForKey() {
+    public Class<MimeMediaType> getClassForKey() {
         // our key is the mime types.
         return MimeMediaType.class;
     }
@@ -250,7 +250,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
         Logging.logCheckedFine(LOG, "Registering : ", className);
 
         try {
-            Class msgClass = Class.forName(className);
+            Class<?> msgClass = Class.forName(className);
 
             Instantiator instantiator = (Instantiator) (msgClass.getField("INSTANTIATOR").get(null));
 

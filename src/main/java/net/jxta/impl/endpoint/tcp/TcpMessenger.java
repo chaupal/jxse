@@ -425,6 +425,9 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * The cost of just having a finalize routine is high. The finalizer is
      * a bottleneck and can delay garbage collection all the way to heap
      * exhaustion. Leave this comment as a reminder to future maintainers.
+     * 
+     * CP: The finalize warnings are replaced by making the relevant classes closeable
+     * so that they generate warning at compile time, to close it
      * <p/>
      * These messengers are given to application layers. Endpoint code
      * always calls {@code close()} when needed.
@@ -435,20 +438,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * for the reason explained above.
      * @throws Throwable for errors during finalization.
      */
-    @Override
-    protected void finalize() throws Throwable {
-
-        try {
-
-            Logging.logCheckedWarning(LOG, "Messenger being finalized. closing messenger");
-            closeImpl();
-
-        } finally {
-
-            super.finalize();
-
-        }
-
+    public void close() {
+         closeImpl();
     }
 
     /**
@@ -996,7 +987,6 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * processes the input byte buffer
      * @return the list of messages present in the buffer
      */
-    @SuppressWarnings("fallthrough")
     public List<Message> processBuffer() {
 
         List<Message> msgs = new ArrayList<Message>();

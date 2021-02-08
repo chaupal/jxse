@@ -284,12 +284,12 @@ public abstract class AbstractContentTransfer
     /**
      * Future used when scheduling source location activity.
      */
-    private ScheduledFuture locationTask = null;
+    private ScheduledFuture<?> locationTask = null;
 
     /**
      * Future used when scheduling transfer activity.
      */
-    private ScheduledFuture transferTask = null;
+    private ScheduledFuture<?> transferTask = null;
 
     /**
      * The destination file that the content data should be dumped into
@@ -852,7 +852,7 @@ public abstract class AbstractContentTransfer
         if (allowLocalDiscovery) {
             try {
 
-                Enumeration localAdvs =
+                Enumeration<?> localAdvs =
                         discoveryService.getLocalAdvertisements(
                         DiscoveryService.ADV,
                         "ContentID", desiredID);
@@ -875,7 +875,7 @@ public abstract class AbstractContentTransfer
     /**
      * Adds the discovery results to our known list of allSources.
      */
-    private void addDiscoveredSources(Enumeration advs) {
+    private void addDiscoveredSources(Enumeration<?> advs) {
         while(advs.hasMoreElements()) {
             Object adv = advs.nextElement();
             try {
@@ -1015,7 +1015,6 @@ public abstract class AbstractContentTransfer
     /**
      * Transfer execution mainline.
      */
-    @SuppressWarnings("fallthrough")
     private void transferExecution() throws InterruptedException {
 
         Logging.logCheckedFine(LOG, "Transfer execution starting");

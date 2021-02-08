@@ -224,7 +224,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * Passive listeners for messengers. Three priorities, so far.
      */
-    private final Collection[] passiveMessengerListeners = {
+    @SuppressWarnings("rawtypes")
+	private final Collection[] passiveMessengerListeners = {
             Collections.synchronizedList(new ArrayList<MessengerEventListener>()),
             Collections.synchronizedList(new ArrayList<MessengerEventListener>()),
             Collections.synchronizedList(new ArrayList<MessengerEventListener>())
@@ -504,19 +505,19 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         this.myServiceName = ChannelMessenger.InsertedServicePrefix + group.getPeerGroupID().getUniqueValue().toString();
 
         ConfigParams confAdv = group.getConfigAdvertisement();
-        XMLElement paramBlock = null;
+        XMLElement<?> paramBlock = null;
 
         if (confAdv != null) {
-            paramBlock = (XMLElement) confAdv.getServiceParam(assignedID);
+            paramBlock = (XMLElement<?>) confAdv.getServiceParam(assignedID);
         }
 
         if (paramBlock != null) {
             // get our two tunables: virtual messenger queue size, and whether to use the parent endpoint
-            Enumeration param;
+            Enumeration<?> param;
 
             param = paramBlock.getChildren("MessengerQueueSize");
             if (param.hasMoreElements()) {
-                String textQSz = ((XMLElement) param.nextElement()).getTextValue();
+                String textQSz = ((XMLElement<?>) param.nextElement()).getTextValue();
 
                 try {
                     Integer requestedSize = Integer.parseInt(textQSz.trim());
@@ -537,7 +538,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             if (param.hasMoreElements()) {
 
-                String textUPE = ((XMLElement) param.nextElement()).getTextValue();
+                String textUPE = ((XMLElement<?>) param.nextElement()).getTextValue();
                 useParentEndpoint = textUPE.trim().equalsIgnoreCase("true");
 
             }
@@ -1133,7 +1134,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public Iterator<MessageTransport> getAllMessageTransports() {
         if (null != parentEndpoint) {
-            return new SequenceIterator(getAllLocalTransports(), parentEndpoint.getAllMessageTransports());
+            return new SequenceIterator<MessageTransport>(getAllLocalTransports(), parentEndpoint.getAllMessageTransports());
         } else {
             return getAllLocalTransports();
         }
@@ -1191,16 +1192,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
 
             PeerAdvertisement padv = group.getPeerAdvertisement();
-            StructuredDocument myParam = padv.getServiceParam(assignedID);
+            StructuredDocument<?> myParam = padv.getServiceParam(assignedID);
 
             RouteAdvertisement route = null;
 
             if (myParam != null) {
-                Enumeration paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
+                Enumeration<?> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
 
                 if (paramChilds.hasMoreElements()) {
                     // we have an advertisement just add the new access points
-                    XMLElement param = (XMLElement) paramChilds.nextElement();
+                    XMLElement<?> param = (XMLElement<?>) paramChilds.nextElement();
 
                     route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
                     for(String endpointAddress:ea){
@@ -1245,8 +1246,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
 
             // create the param route
-            XMLDocument newParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-            XMLDocument xptDoc = (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> newParam = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            XMLDocument<?> xptDoc = (XMLDocument<?>) route.getDocument(MimeMediaType.XMLUTF8);
 
             StructuredDocumentUtils.copyElements(newParam, newParam, xptDoc);
 
@@ -1295,19 +1296,19 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
 
             PeerAdvertisement padv = group.getPeerAdvertisement();
-            XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
+            XMLDocument<?> myParam = (XMLDocument<?>) padv.getServiceParam(assignedID);
 
             if (myParam == null) {
                 return;
             }
 
-            Enumeration paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
+            Enumeration<?> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
 
             if (!paramChilds.hasMoreElements()) {
                 return;
             }
 
-            XMLElement param = (XMLElement) paramChilds.nextElement();
+            XMLElement<?> param = (XMLElement<?>) paramChilds.nextElement();
 
             RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
 
@@ -1316,9 +1317,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
 
             // update the new route to a new parm structure.
-            XMLDocument newParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            XMLDocument<?> newParam = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
-            XMLDocument xptDoc = (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> xptDoc = (XMLDocument<?>) route.getDocument(MimeMediaType.XMLUTF8);
 
             StructuredDocumentUtils.copyElements(newParam, newParam, xptDoc);
 
@@ -1340,7 +1341,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
-    public boolean addMessengerEventListener(MessengerEventListener listener, int prio) {
+    @SuppressWarnings("unchecked")
+	public boolean addMessengerEventListener(MessengerEventListener listener, int prio) {
         int priority = prio;
 
         if (priority > EndpointService.HighPrecedence) {

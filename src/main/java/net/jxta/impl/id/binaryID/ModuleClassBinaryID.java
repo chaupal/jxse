@@ -58,8 +58,6 @@ package net.jxta.impl.id.binaryID;
 
 import net.jxta.peergroup.PeerGroupID;
 
-import java.util.logging.Logger;
-
 /**
  * This interface defines a Module Class Identifier.
  * A ModuleClassID uniquely identifies a particular local behaviour, that is,
@@ -128,11 +126,8 @@ import java.util.logging.Logger;
  */
 
 public final class ModuleClassBinaryID extends net.jxta.platform.ModuleClassID {
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Log4J categorgy
-     */
-    private final static transient Logger LOG = Logger.getLogger(ModuleClassBinaryID.class.getName());
 
     /**
      * The id data
@@ -221,7 +216,7 @@ public final class ModuleClassBinaryID extends net.jxta.platform.ModuleClassID {
 
         ModuleClassBinaryID targetObj = (ModuleClassBinaryID) target;
 
-        return this.classID.equals(targetObj.getClassID()) && this.parentClassID.equals(targetObj.getBaseClass())
+        return this.classID.equals(targetObj.getClassID()) && this.parentClassID.equals(targetObj.getClassID())
                 && this.roleID.equals(targetObj.getRoleID()) && this.peerGroupID.equals(targetObj.getPeerGroupID());
     }
 

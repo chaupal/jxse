@@ -59,6 +59,7 @@ package net.jxta.endpoint;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.util.SimpleSelectable;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
@@ -91,7 +92,7 @@ import java.io.IOException;
  * @see net.jxta.endpoint.Message
  * @see MessengerState
  */
-public interface Messenger extends SimpleSelectable {
+public interface Messenger extends SimpleSelectable, Closeable {
 
     /**
      * No message was ever submitted for sending. No connection has ever been attempted.

@@ -562,7 +562,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * actually break anything. However, that will cause the state machine to go through the close process.
      * this will end up calling closeImpl(). That will do.
      */
-    public final void close() {
+    public void close() {
         DeferredAction action;
 
         synchronized (stateMachine) {

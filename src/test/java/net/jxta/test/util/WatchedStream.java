@@ -62,7 +62,7 @@ import java.util.Collection;
 
 
 
-interface WatchedStream {
+interface WatchedStream<I extends Object> {
 
     /**
      * Sets the watcher list onto which this stream must register
@@ -76,7 +76,7 @@ interface WatchedStream {
      * @param watchList The watchList to register with. Must be a
      *                  Synchronized Collection.
      */
-    public void setWatchList(Collection watchList);
+    public void setWatchList(Collection<I> watchList);
 
     /**
      * This routine may be invoked as often as progress needs to be asserted.

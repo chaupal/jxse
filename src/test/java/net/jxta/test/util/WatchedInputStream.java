@@ -65,11 +65,11 @@ import java.util.Collection;
 
 
 
-class WatchedInputStream extends FilterInputStream
-        implements WatchedStream {
+class WatchedInputStream<I extends Object> extends FilterInputStream
+        implements WatchedStream<I> {
 
     static final int DEFAULT_CHUNK_SIZE = 4096;
-    Collection watchList = null;
+    Collection<I> watchList = null;
     volatile boolean stalled = false;
     volatile boolean idle = true;
     boolean closed = false;
@@ -117,12 +117,13 @@ class WatchedInputStream extends FilterInputStream
      * @param watchList The watchList to register with. Must be a
      *                  Synchronized Collection.
      */
-    public synchronized void setWatchList(Collection watchList) {
+    @SuppressWarnings("unchecked")
+	public synchronized void setWatchList(Collection<I> watchList) {
         if (this.watchList != null) {
             this.watchList.remove(this);
         }
         this.watchList = watchList;
-        watchList.add(this);
+        watchList.add((I) this);
     }
 
     // This routine may be invoked as often as progress needs to be asserted.

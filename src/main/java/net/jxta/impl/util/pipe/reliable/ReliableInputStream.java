@@ -171,7 +171,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
      *  An input queue element which breaks out a received message in 
      *  enqueueMessage().
      */
-    private static class IQElt implements Comparable {
+    private static class IQElt implements Comparable<IQElt> {
         final int seqnum;
         final MessageElement elt;
         boolean ackd = false;
@@ -199,13 +199,6 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
         public int compareTo(IQElt el) {
             return this.seqnum < el.seqnum ? -1 : this.seqnum == el.seqnum ? 0 : 1;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public int compareTo(Object o) {
-            return compareTo((IQElt) o);
         }
     }
 

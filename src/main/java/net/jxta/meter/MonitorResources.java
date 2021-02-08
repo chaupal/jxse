@@ -89,7 +89,7 @@ public class MonitorResources {
     public static final String METRIC_CLASS_TAG = "serviceMetric";
     public static final String FILTER_CLASS_TAG = "serviceMonitorFilter";
 
-    public static final StructuredTextDocument STANDARD_COMPATABILITY = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+    public static final StructuredTextDocument<?> STANDARD_COMPATABILITY = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
             MimeMediaType.XMLUTF8, "Comp");
     public static final String STANDARD_URI = "http://www.jxta.org/download/jxta.jar";
     public static final String STANDARD_PROVIDER = "jxta.org";
@@ -294,7 +294,7 @@ public class MonitorResources {
         moduleImplAdvertisement.setUri(STANDARD_URI);
         moduleImplAdvertisement.setProvider(STANDARD_PROVIDER);
 
-        StructuredTextDocument param = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+        StructuredTextDocument<?> param = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "serviceMonitor");
 
         addServiceMonitorServiceAdvertisement(param, refResolverServiceMonitorSpecID, "Resolver"
@@ -333,21 +333,21 @@ public class MonitorResources {
         return moduleImplAdvertisement;
     }
 
-    private static void addServiceMonitorServiceAdvertisement(Element root, ModuleSpecID moduleSpecID, String title, String implClassName, String metricClassName, String filterClassName) {
+    private static void addServiceMonitorServiceAdvertisement(Element<?> root, ModuleSpecID moduleSpecID, String title, String implClassName, String metricClassName, String filterClassName) {
         ModuleImplAdvertisement moduleImplAdvertisement = createServiceMonitorModuleImplAdvertisement(moduleSpecID, title
                 ,
                 implClassName, metricClassName, filterClassName);
 
-        Element serviceMonitorElement = DocumentSerializableUtilities.createChildElement(root, SERVICE_MONITOR_TAG);
+        Element<?> serviceMonitorElement = DocumentSerializableUtilities.createChildElement(root, SERVICE_MONITOR_TAG);
 
         ModuleClassID moduleClassID = moduleSpecID.getBaseClass();
 
         DocumentSerializableUtilities.addString(serviceMonitorElement, CLASS_ID_TAG, moduleClassID.toString());
 
-        Element serviceMonitorAdvertisementElement = DocumentSerializableUtilities.createChildElement(serviceMonitorElement
+        Element<?> serviceMonitorAdvertisementElement = DocumentSerializableUtilities.createChildElement(serviceMonitorElement
                 ,
                 SERVICE_MONITOR_ADVERTISEMENT_TAG);
-        Element advDoc = (Element) moduleImplAdvertisement.getDocument(MimeMediaType.XMLUTF8);
+        Element<?> advDoc = (Element<?>) moduleImplAdvertisement.getDocument(MimeMediaType.XMLUTF8);
 
         DocumentSerializableUtilities.copyChildren(serviceMonitorAdvertisementElement, advDoc);
     }
@@ -363,7 +363,7 @@ public class MonitorResources {
         moduleImplAdvertisement.setUri(STANDARD_URI);
         moduleImplAdvertisement.setProvider(STANDARD_PROVIDER);
 
-        StructuredTextDocument param = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+        StructuredTextDocument<?> param = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "serviceMonitor");
 
         DocumentSerializableUtilities.addString(param, SERVICE_TITLE_TAG, title);
@@ -378,15 +378,15 @@ public class MonitorResources {
 
         String classIDText = serviceMonitorModuleClassID.toString();
 
-        StructuredDocument param = monitorServiceImplAdvertisement.getParam();
+        StructuredDocument<?> param = monitorServiceImplAdvertisement.getParam();
 
-        for (Enumeration e = param.getChildren(SERVICE_MONITOR_TAG); e.hasMoreElements();) {
-            Element serviceMonitorElement = (Element) e.nextElement();
+        for (Enumeration<?> e = param.getChildren(SERVICE_MONITOR_TAG); e.hasMoreElements();) {
+            Element<?> serviceMonitorElement = (Element<?>) e.nextElement();
 
             String serviceMonitorClassIDText = DocumentSerializableUtilities.getString(serviceMonitorElement, CLASS_ID_TAG, "");
 
             if (classIDText.equals(serviceMonitorClassIDText)) {
-                XMLElement serviceMonitorAdvertisementElement = (XMLElement) DocumentSerializableUtilities.getChildElement(
+                XMLElement<?> serviceMonitorAdvertisementElement = (XMLElement<?>) DocumentSerializableUtilities.getChildElement(
                         serviceMonitorElement, SERVICE_MONITOR_ADVERTISEMENT_TAG);
 
                 return (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(serviceMonitorAdvertisementElement);
@@ -397,13 +397,14 @@ public class MonitorResources {
 
     }
 
+    @SuppressWarnings("unused")
     private static class ServiceResource {
         String serviceMonitorClassName;
-        Class serviceMonitorClass;
+		Class<?> serviceMonitorClass;
         String serviceMonitorFilterClassName;
-        Class serviceMonitorFilterClass;
+        Class<?> serviceMonitorFilterClass;
         String serviceMetricClassName;
-        Class serviceMetricClass;
+        Class<?> serviceMetricClass;
 
         ServiceResource(ModuleImplAdvertisement moduleImplAdvertisement) throws JxtaException {
             try {
@@ -453,7 +454,7 @@ public class MonitorResources {
     public static ServiceMonitorFilter createServiceMonitorFilter(ModuleClassID moduleClassID) throws MonitorFilterException {
         try {
             ServiceResource serviceResource = registeredMonitorResources.get(moduleClassID);
-            ServiceMonitorFilter serviceMonitorFilter = (ServiceMonitorFilter) serviceResource.serviceMonitorFilterClass.newInstance();
+            ServiceMonitorFilter serviceMonitorFilter = (ServiceMonitorFilter) serviceResource.serviceMonitorFilterClass.getDeclaredConstructor().newInstance();
 
             serviceMonitorFilter.init(moduleClassID);
             return serviceMonitorFilter;
@@ -470,7 +471,7 @@ public class MonitorResources {
     public static ServiceMetric createServiceMetric(ModuleClassID moduleClassID) throws JxtaException {
         try {
             ServiceResource serviceResource = registeredMonitorResources.get(moduleClassID);
-            ServiceMetric serviceMetric = (ServiceMetric) serviceResource.serviceMetricClass.newInstance();
+            ServiceMetric serviceMetric = (ServiceMetric) serviceResource.serviceMetricClass.getDeclaredConstructor().newInstance();
 
             serviceMetric.init(moduleClassID);
             return serviceMetric;
@@ -483,7 +484,7 @@ public class MonitorResources {
      * get ServiceMetric ClassName from its ImplAdvertisement
      */
     public static String getServiceMetricClassName(ModuleImplAdvertisement serviceMonitorModuleImplAdvertisement) {
-        Element param = serviceMonitorModuleImplAdvertisement.getParam();
+        Element<?> param = serviceMonitorModuleImplAdvertisement.getParam();
 
         return DocumentSerializableUtilities.getString(param, METRIC_CLASS_TAG, null);
     }
@@ -492,7 +493,7 @@ public class MonitorResources {
      * get ServiceMonitorFilter ClassName from its ImplAdvertisement
      */
     public static String getServiceMonitorFilterClassName(ModuleImplAdvertisement serviceMonitorModuleImplAdvertisement) {
-        Element param = serviceMonitorModuleImplAdvertisement.getParam();
+        Element<?> param = serviceMonitorModuleImplAdvertisement.getParam();
 
         return DocumentSerializableUtilities.getString(param, FILTER_CLASS_TAG, null);
     }

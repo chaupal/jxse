@@ -129,7 +129,7 @@ public class JxseInstantiator {
      * @param inParamsValues An array of parameter values
      * @return an {@code Object} class or {@code null}
      */
-    public static Object instantiate(Class inClass, Class[] inParamTypes, Object[] inParamValues) {
+    public static Object instantiate(Class<?> inClass, Class<?>[] inParamTypes, Object[] inParamValues) {
 
         // Checking parameter
         if (inParamTypes == null) {
@@ -215,9 +215,9 @@ public class JxseInstantiator {
      * @param inParamsValues Any number of parameter values for the constructor
      * @return an {@code Object} class or {@code null}
      */
-    public static Object instantiate(Class inClass, Object... inParametersValues) {
+    public static Object instantiate(Class<?> inClass, Object... inParametersValues) {
 
-        Class[] TheTypes = new Class[inParametersValues.length];
+        Class<?>[] TheTypes = new Class[inParametersValues.length];
         Object[] TheValues = new Object[inParametersValues.length];
 
         for (int i=0;i<inParametersValues.length;i++) {
@@ -241,7 +241,7 @@ public class JxseInstantiator {
      * @param inClass The {@code Class} to instantiate
      * @return an {@code Object} class or {@code null}
      */
-    public static Object instantiateWithNoParameterConstructor(Class inClass) {
+    public static Object instantiateWithNoParameterConstructor(Class<?> inClass) {
 
         return instantiate(inClass, new Class[0], new Object[0]);
         

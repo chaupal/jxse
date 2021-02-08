@@ -56,8 +56,6 @@
 
 package net.jxta.impl.id.binaryID;
 
-import java.util.logging.Logger;
-
 /**
  * A ModuleSpecID uniquely identifies a particular network behaviour
  * (wire protocol and choregraphy) that may be embodied by a Jxta Module.
@@ -104,11 +102,7 @@ import java.util.logging.Logger;
  */
 
 public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
-
-    /**
-     * Log4J categorgy
-     */
-    private final static transient Logger LOG = Logger.getLogger(ModuleSpecBinaryID.class.getName());
+	private static final long serialVersionUID = -4858730407832658652L;
 
     protected BinaryID classID;
     protected BinaryID baseClassID;

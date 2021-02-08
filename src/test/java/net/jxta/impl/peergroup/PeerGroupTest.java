@@ -72,7 +72,6 @@ import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.JxtaLoader;
-import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.platform.NetworkManager;
@@ -264,7 +263,7 @@ public class PeerGroupTest {
     public void staticJxtaLoader() {
         ClassLoader loader = (ClassLoader) GenericPeerGroup.getJxtaLoader();
         try {
-            Class clazz = loader.loadClass("TestClass");
+            Class<?> clazz = loader.loadClass("TestClass");
             fail("Static loader could see the test class: " + clazz);
         } catch (ClassNotFoundException cnfx) {
             // Good.  Fall through.
@@ -440,7 +439,7 @@ public class PeerGroupTest {
         pga.setModuleSpecID(msid);
         pga.setPeerGroupID(pgid);
         pga.putServiceParam(IModuleDefinitions.peerGroupClassID,
-                (Element) pgca.getDocument(MimeMediaType.XMLUTF8));
+                (Element<?>) pgca.getDocument(MimeMediaType.XMLUTF8));
         disco.publish(pga);
         LOG.finest(name + " PGA:\n" + pga);
         return pga;
@@ -459,7 +458,7 @@ public class PeerGroupTest {
         LOG.fine("Testing PeerGroup: " + pg.getClass() + " " + pg);
         PeerGroupAdvertisement pga = pg.getPeerGroupAdvertisement();
         PeerGroupConfigAdv pgca = (PeerGroupConfigAdv)
-                AdvertisementFactory.newAdvertisement((XMLElement)
+                AdvertisementFactory.newAdvertisement((XMLElement<?>)
                 pga.getServiceParam(IModuleDefinitions.peerGroupClassID));
         if (enabled) {
             assertTrue(pgca.isFlagSet(flag));

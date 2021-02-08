@@ -206,7 +206,6 @@ public class SocketServerTest implements Closeable{
         }
     }
 
-    @SuppressWarnings("unused")
     protected void testServerSocket() {
     	SocketServerTest socEx = null;
     	try {

@@ -327,12 +327,7 @@ public final class PSEUtils {
             info.issuerPkey = signer;
 
             // dump the certificate?
-            if (null == issuer) {
-                Logging.logCheckedFine(LOG, "Root Cert : \n", info.cert);
-            } else {
-                Logging.logCheckedFine(LOG, "Client Cert : \n", info.cert);
-            }
-
+            Logging.logCheckedFine(LOG, "Client Cert : \n", info.cert);
             return info;
 
         } catch (SignatureException e) {

@@ -81,8 +81,6 @@ import net.jxta.document.Element;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.IJxtaLoader;
-import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
@@ -105,7 +103,7 @@ public class RefJxtaLoaderTest {
      */
     private static final CompatibilityEquater COMP_EQ =
             new CompatibilityEquater() {
-                public boolean compatible(Element test) {
+                public boolean compatible(Element<?> test) {
                     return CompatibilityUtils.isCompatible(test);
                 }
             };
@@ -249,7 +247,7 @@ public class RefJxtaLoaderTest {
                     pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Non-Module in a Jar");
 
-            Class clazz = loader.defineClass(mia);
+            Class<?> clazz = loader.defineClass(mia);
             fail("Was able to load a POJO as a Module");
         } catch (ClassFormatError err) {
             // Good.  Fall through.
@@ -278,7 +276,7 @@ public class RefJxtaLoaderTest {
                     pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
 
-            Class clazz = loader.defineClass(mia);
+            Class<?> clazz = loader.defineClass(mia);
             assertTrue(Module.class.isAssignableFrom(clazz));
         } catch (Error err) {
             fail("Was not able to load a Module");
@@ -298,14 +296,14 @@ public class RefJxtaLoaderTest {
 
         // First, make sure we cant load TestPOJO
         try {
-            Class clazz = loader.loadClass("TestPOJO");
+            Class<?> clazz = loader.loadClass("TestPOJO");
             fail("Shouldn't be able to load TestPOJO at this point");
         } catch (Exception ex) {
             // Good.
         }
 
         // Now load in the Module requiring the additional package
-        Class moduleClazz = null;
+        Class<?> moduleClazz = null;
         try {
             ModuleClassID baseClass = IDFactory.newModuleClassID();
             ModuleImplAdvertisement mia = (ModuleImplAdvertisement)
@@ -327,7 +325,7 @@ public class RefJxtaLoaderTest {
 
         // Now we should be able to load TestPOJO
         try {
-            Class pojo = loader.loadClass("TestPOJO");
+            Class<?> pojo = loader.loadClass("TestPOJO");
             assertSame(moduleClazz.getClassLoader(), pojo.getClassLoader());
         } catch (Exception ex) {
             fail("Should have been able to load TestPOJO at this point");
@@ -353,7 +351,7 @@ public class RefJxtaLoaderTest {
                     pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
 
-            Class clazz = loader.defineClass(mia);
+            Class<?> clazz = loader.defineClass(mia);
             assertTrue(Module.class.isAssignableFrom(clazz));
 
             // Check that it is stored in the correct location
