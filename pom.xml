@@ -78,15 +78,6 @@
 
 	<repositories>
 		<repository>
-			<!-- Repository needed to include the jboss netty library -->
-			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-
-		<repository>
 			<id>repository.netty.httptunnel</id>
 			<url>file:${basedir}/lib/netty/org.jboss.netty.httptunnel-0.92.0.jar</url>
 		</repository>
@@ -110,15 +101,12 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>4.2.1</version>
+				<version>5.1.1</version>
 				<extensions>true</extensions>
 				<configuration>
 					<archive>
 						<addMavenDescriptor>true</addMavenDescriptor>
 					</archive>
-					<supportedProjectTypes>
-						<supportedProjectType>jar</supportedProjectType>
-					</supportedProjectTypes>
 					<instructions>
 						<Built-By>${project.organization.name}</Built-By>
 						<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
@@ -146,18 +134,22 @@
 							org.spongycastle.jce,
 							org.spongycastle.jce.provider,
 							org.spongycastle.x509,
-							org.jboss.netty.bootstrap;version="3.6.2.Final",
-							org.jboss.netty.buffer;version="3.6.2.Final",
-							org.jboss.netty.channel;version="3.6.2.Final",
-							org.jboss.netty.channel.group;version="3.6.2.Final",
-							org.jboss.netty.channel.socket;version="3.6.2.Final",
+							org.jboss.netty.bootstrap;version="3.9.9.Final",
+							org.jboss.netty.buffer;version="3.9.9.Final",
+							org.jboss.netty.channel;version="3.9.9.Final",
+							org.jboss.netty.channel.group;version="3.9.9.Final",
+							org.jboss.netty.channel.socket;version="3.9.9.Final",
 							org.jboss.netty.channel.socket.httptunnel;version="0.92.0",
-							org.jboss.netty.channel.socket.nio;version="3.6.2.Final",
-							org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
-							org.jboss.netty.handler.timeout;version="3.6.2.Final",
-							org.jboss.netty.util;version="3.6.2.Final"
+							org.jboss.netty.channel.socket.nio;version="3.9.9.Final",
+							org.jboss.netty.handler.codec.oneone;version="3.9.9.Final",
+							org.jboss.netty.handler.timeout;version="3.9.9.Final",
+							org.jboss.netty.util;version="3.9.9.Final"
 							org.jboss.netty.httptunnel;version="0.92.0",
 						</Import-Package>
+						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+						<Embed-Directory>target/dependency</Embed-Directory>
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Transitive>true</Embed-Transitive>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -256,9 +248,9 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.netty</groupId>
+			<groupId>io.netty</groupId>
 			<artifactId>netty</artifactId>
-			<version>3.2.2.Final</version>
+			<version>3.9.9.Final</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -278,7 +270,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.1.118</version>
+			<version>1.2.127</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- Test dependencies -->
@@ -291,13 +283,13 @@
 		<dependency>
 			<groupId>org.jmock</groupId>
 			<artifactId>jmock-junit4</artifactId>
-			<version>2.5.1</version>
+			<version>2.12.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jmock</groupId>
 			<artifactId>jmock-legacy</artifactId>
-			<version>2.5.1</version>
+			<version>2.12.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
