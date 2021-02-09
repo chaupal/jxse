@@ -56,16 +56,19 @@
 
 package net.jxta.impl.endpoint;
 
-import junit.framework.*;
-
 import net.jxta.peergroup.*;
 import net.jxta.endpoint.*;
+
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
 @Ignore("JXTA Configurator Required")
-public class EndpointApiTest extends TestCase implements EndpointListener, MessengerEventListener, OutgoingMessageEventListener {
+public class EndpointApiTest implements EndpointListener, MessengerEventListener, OutgoingMessageEventListener {
 
     static PeerGroup pg;
 
@@ -155,9 +158,9 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         }
     }
 
-    public EndpointApiTest(java.lang.String testName) throws net.jxta.exception.PeerGroupException {
+    @Before
+    public void setup(){
 
-        super(testName);
         System.setProperty("net.jxta.tls.password", "password");
         System.setProperty("net.jxta.tls.principal", "password");
 
@@ -168,12 +171,13 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         }
     }
 
+	@Test
     public void testGetMessenger() {
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // Remove listener from previous test.
         endp.removeIncomingMessageListener("EndpointApiTest", "0");
@@ -240,13 +244,14 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
 
     }
 
-    public void testGetMessengerListener() {
+	@Test
+	public void testGetMessengerListener() {
 
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // Listener legacy api test.
         EndpointAddress localAddr = new EndpointAddress("jxta", pg.getPeerID().getUniqueValue().toString(), "EndpointApiTest", "0");
@@ -262,12 +267,13 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         }
     }
 
+	@Test
     public void testSendMessageListener() {
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // Remove listener from previous test.
         endp.removeIncomingMessageListener("EndpointApiTest", "0");
@@ -329,12 +335,13 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         }
     }
 
+	@Test
     public void testCantGetRawMessenger() {
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress badAddr = new EndpointAddress("tcp://1.1.1.1:1/EndpointApiTest/0");
         Messenger m = endp.getMessengerImmediate(badAddr, null);
@@ -364,12 +371,13 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         m = null;
     }
 
+	@Test
     public void testCantGetRouterMessenger() {
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress badAddr = new EndpointAddress(
                 "jxta://uuid-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA03/EndpointApiTest/0");
@@ -402,12 +410,13 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
     }
 
     // This will exhaust the heap if channel caching does not work for unresolved messengers.
+	@Test
     public void testMessageQueueHog() {
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress badAddr = new EndpointAddress("tcp://1.1.1.1:1/EndpointApiTest/0");
 
@@ -432,12 +441,13 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
     }
 
     // This will exhaust the heap if channel caching does not work for resolved messengers.
-    public void testMessageQueueHog2() {
+	@Test
+	public void testMessageQueueHog2() {
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         EndpointAddress localAddr = new EndpointAddress("jxta", pg.getPeerID().getUniqueValue().toString(), "EndpointApiTest", "0");
 
@@ -461,13 +471,14 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         m = null;
     }
 
+	@Test
     public void testAddRmListener() {
 
         try {
             Thread.sleep(5000);
         } catch (Exception e) {}
 
-        EndpointService endp = endp = pg.getEndpointService();
+        EndpointService endp = pg.getEndpointService();
 
         // A few basic tests.
 
@@ -530,19 +541,5 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
                 fail("Wrong variable listener removed after " + i + " cycles");
             }
         }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(EndpointApiTest.class);
-
-        return suite;
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-//        pg.unref();
-        pg = null;
-        System.out.flush();
-        System.err.flush();
     }
 }

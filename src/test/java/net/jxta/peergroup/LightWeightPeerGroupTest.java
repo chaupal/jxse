@@ -58,24 +58,25 @@ package net.jxta.peergroup;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.document.AdvertisementFactory;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
 
-import junit.framework.*;
+import static org.junit.Assert.fail;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("JXTA Configurator Required")
-public class LightWeightPeerGroupTest extends TestCase {
+public class LightWeightPeerGroupTest{
 
     static int inits = 0;
     static PeerGroup npg;
     static LightWeightPeerGroup pg;
 
-    public LightWeightPeerGroupTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    @Override
-    public void setUp() throws Exception {
+    @Before
+    public void setUp(){
 
         System.setProperty("net.jxta.tls.password", "password");
         System.setProperty("net.jxta.tls.principal", "password");
@@ -84,18 +85,24 @@ public class LightWeightPeerGroupTest extends TestCase {
 
             inits++;
             if (npg == null) {
-                NetPeerGroupFactory npgf = new NetPeerGroupFactory();
-                npg = npgf.getNetPeerGroup();
+                NetPeerGroupFactory npgf;
+				try {
+					npgf = new NetPeerGroupFactory();
+	                npg = npgf.getNetPeerGroup();
 
-                // Create a LightWeightPeerGroup
-                pg = new LightWeightPeerGroup(createPeerGroupAdv());
-                pg.init(npg, null, null);
+	                // Create a LightWeightPeerGroup
+	                pg = new LightWeightPeerGroup(createPeerGroupAdv());
+	                pg.init(npg, null, null);
+				} catch (PeerGroupException e) {
+					fail( e.getMessage());
+					e.printStackTrace();
+				}
             }
         }
     }
 
-    @Override
-    protected void tearDown() {
+    @After
+    public void tearDown() {
         synchronized (LightWeightPeerGroupTest.class) {
             inits--;
 
@@ -109,17 +116,6 @@ public class LightWeightPeerGroupTest extends TestCase {
                 npg = null;
             }
         }
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        // finalize();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(LightWeightPeerGroupTest.class);
-
-        return suite;
     }
 
     private PeerGroupAdvertisement createPeerGroupAdv() {
@@ -136,6 +132,7 @@ public class LightWeightPeerGroupTest extends TestCase {
         return adv;
     }
 
+    @Test
     public void testCreated() {
 
         PeerGroup group = pg.getParentGroup();
@@ -147,6 +144,7 @@ public class LightWeightPeerGroupTest extends TestCase {
         }
     }
 
+    @Test
     public void test_PeerAdvertisement() {
 
         PeerAdvertisement fromnpg = null;

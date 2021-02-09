@@ -56,76 +56,63 @@
 
 package net.jxta.impl.id.UUID;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 /**
  * @author  mike
  */
-public final class UUIDTest extends TestCase {
+public final class UUIDTest {
 
-    /** Creates new IDTest */
-    public UUIDTest(String name) {
-        super(name);
-    }
+	@Test
+	public void testSeq() {
 
-    public void testSeq() {
+		try {
+			UUID myUUID = UUIDFactory.newSeqUUID();
 
-        try {
-            UUID myUUID = UUIDFactory.newSeqUUID();
+			System.out.println(myUUID);
 
-            System.out.println(myUUID);
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
+		}
+	}
 
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
-        }
-    }
+	@Test
+	public void testHash() {
 
-    public void testHash() {
+		try {
+			UUID myUUID = UUIDFactory.newHashUUID(1, 2);
 
-        try {
-            UUID myUUID = UUIDFactory.newHashUUID(1, 2);
+			System.out.println(myUUID);
 
-            System.out.println(myUUID);
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
+		}
+	}
 
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
-        }
-    }
+	@Test
+	public void testString() {
 
-    public void testString() {
+		try {
+			UUID myUUID = UUIDFactory.newSeqUUID();
 
-        try {
-            UUID myUUID = UUIDFactory.newSeqUUID();
+			String asString = myUUID.toString();
 
-            String asString = myUUID.toString();
+			System.out.println(asString);
 
-            System.out.println(asString);
+			UUID myUUID2 = new UUID(asString);
 
-            UUID myUUID2 = new UUID(asString);
+			System.out.println(myUUID2);
 
-            System.out.println(myUUID2);
+			assertTrue("UUIDs should be equal", myUUID.equals(myUUID2));
 
-            assertTrue("UUIDs should be equal", myUUID.equals(myUUID2));
-
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
-        }
-    }
-
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(UUIDTest.class);
-
-        return suite;
-    }
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
+		}
+	}
 }

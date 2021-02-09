@@ -56,17 +56,18 @@
 package net.jxta.platform;
 
 import java.io.IOException;
-import java.io.File;
-import java.net.URI;
 
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+
+import org.junit.Test;
 
 /**
  *  A JUnit test for NetworkConfigurator
  */
-public class NetworkConfiguratorTest extends TestCase {
+public class NetworkConfiguratorTest {
     private File home = new File(System.getProperty("JXTA_HOME", ".jxta"));
     private File adhocHome = new File(home, "adhoc");
     private File edgeHome = new File(home, "edge");
@@ -81,39 +82,9 @@ public class NetworkConfiguratorTest extends TestCase {
             + NetworkConfigurator.PROXY_SERVER;
 
     /**
-     *Constructor for the NetworkConfiguratorTest object
-     *
-     * @param  testName  test name
-     */
-    public NetworkConfiguratorTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the NetworkConfiguratorTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(NetworkConfiguratorTest.class);
-
-        return suite;
-    }
-
-    /**
      *  The JUnit setup method
      */
+    @Test
     public void testCreateConfiguration() {
         createConfiguration(NetworkConfigurator.ADHOC_NODE);
         createConfiguration(NetworkConfigurator.EDGE_NODE);
@@ -176,14 +147,5 @@ public class NetworkConfiguratorTest extends TestCase {
             fail("Failed to create edge configuration :" + io.getMessage());
         }
     }
-
-    /**
-     *  {@inheritDoc}
-     */
-    public static void fail(String message) {
-        failed = true;
-        junit.framework.TestCase.fail(message);
-    }
-
 }
 

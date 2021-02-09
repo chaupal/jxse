@@ -56,6 +56,8 @@
 
 package net.jxta.impl.util.pipe.reliable;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -68,10 +70,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
@@ -101,10 +99,14 @@ import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("JXTA Configurator & PeerGroupFactory required")
-public class ReliableTest extends TestCase implements
+public class ReliableTest implements
         RendezvousListener, DiscoveryListener, PipeMsgListener, OutputPipeListener {
 
     private static int MIN_LOAD = 1024;
@@ -252,17 +254,7 @@ public class ReliableTest extends TestCase implements
         reliableTestTaskHandle = scheduledExecutor.scheduleAtFixedRate(new TimedMsg(delivDate), delivDelay, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
     }
 
-    public ReliableTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ReliableTest.class);
-
-        return suite;
-    }
-
-    @Override
+    @Before
     protected void setUp() {
         scheduledExecutor = new ScheduledThreadPoolExecutor(2);
         loadElements = new ArrayList<>();
@@ -303,7 +295,7 @@ public class ReliableTest extends TestCase implements
         }
     }
 
-    @Override
+    @After
     public void tearDown() {
             if (reliableTestTaskHandle != null) {
                 reliableTestTaskHandle.cancel(false);
@@ -312,13 +304,6 @@ public class ReliableTest extends TestCase implements
 
         scheduledExecutor.shutdownNow();
         System.exit(0);
-    }
-
-    public static void main(String[] args) throws Exception {
-        parse(args);
-        TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
     }
 
     public static void parse(String[] args) {
@@ -436,6 +421,7 @@ public class ReliableTest extends TestCase implements
         }
     }
 
+	@Test
     public void test() {
         if (IS_SENDER) {
             doSender();
