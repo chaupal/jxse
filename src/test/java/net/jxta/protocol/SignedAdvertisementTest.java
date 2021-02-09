@@ -56,28 +56,26 @@
 
 package net.jxta.protocol;
 
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.UndeclaredThrowableException;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import net.jxta.document.*;
 import net.jxta.credential.Credential;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.membership.MembershipService;
-import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
-// import net.jxta.peergroup.PeerGroupFactory;
 
 import net.jxta.exception.PeerGroupException;
 
 import net.jxta.impl.membership.pse.StringAuthenticator;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * */
 @Ignore("JXTA Configurator required")
-public class SignedAdvertisementTest extends TestCase {
+public class SignedAdvertisementTest{
 
     static PeerGroup pg;
     static Credential cred;
@@ -126,18 +124,8 @@ public class SignedAdvertisementTest extends TestCase {
         }
     }
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SignedAdvertisementTest.class);
-
-        return suite;
-    }
-
+    @SuppressWarnings("unused")
+	@Test
     public void testSignedAdvertisement() {
         try {
             SignedAdvertisement signedAdv = (SignedAdvertisement) AdvertisementFactory.newAdvertisement(
@@ -146,7 +134,7 @@ public class SignedAdvertisementTest extends TestCase {
             signedAdv.setAdvertisement(pg.getPeerAdvertisement());
             signedAdv.setSigner(cred);
 
-            XMLDocument asDoc = (XMLDocument) signedAdv.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> asDoc = (XMLDocument<?>) signedAdv.getDocument(MimeMediaType.XMLUTF8);
 
             SignedAdvertisement signedAdv2 = (SignedAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
 

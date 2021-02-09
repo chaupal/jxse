@@ -1,6 +1,6 @@
 package net.jxse.systemtests.colocated;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;

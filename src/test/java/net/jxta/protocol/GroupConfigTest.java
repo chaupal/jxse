@@ -112,11 +112,11 @@ public class GroupConfigTest {
         try {
             GroupConfig cp = createTestInstance();
 
-            XMLDocument toDoc = (XMLDocument) cp.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> toDoc = (XMLDocument<?>) cp.getDocument(MimeMediaType.XMLUTF8);
             StringWriter writer = new StringWriter();
             toDoc.sendToWriter(writer);
 
-            XMLDocument fromDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(writer.toString()));
+            XMLDocument<?> fromDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(writer.toString()));
 
             Advertisement rawAdv = AdvertisementFactory.newAdvertisement(fromDoc);
 
@@ -138,11 +138,12 @@ public class GroupConfigTest {
         assertEquals("Original instance and clone instance were not identical.", cp, cp2);
     }
 
-    private static XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private static XMLDocument<?> wrapParm(Advertisement srcAdv, boolean enabled) {
         try {
-            XMLDocument advDoc = (XMLDocument) srcAdv.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> advDoc = (XMLDocument<?>) srcAdv.getDocument(MimeMediaType.XMLUTF8);
 
-            XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            XMLDocument doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
             StructuredDocumentUtils.copyElements(doc, doc, advDoc);
             if (!enabled) {

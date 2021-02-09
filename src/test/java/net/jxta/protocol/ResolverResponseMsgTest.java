@@ -56,9 +56,13 @@
 
 package net.jxta.protocol;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.impl.protocol.ResolverResponse;
@@ -66,7 +70,7 @@ import net.jxta.impl.protocol.ResolverResponse;
 /**
  *  A JUnit test for ResolverResponseMsgTest
  */
-public class ResolverResponseMsgTest extends TestCase {
+public class ResolverResponseMsgTest {
 
     private static final String handlername = "urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000006";
     String src;
@@ -75,41 +79,12 @@ public class ResolverResponseMsgTest extends TestCase {
     int qid = 0;
 
     /**
-     *Constructor for the object
-     *
-     */
-    public ResolverResponseMsgTest(String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the ResolverResponseMsgTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ResolverResponseMsgTest.class);
-
-        return suite;
-    }
-
-    /**
      *  The JUnit setup method
      */
-    @Override
-    protected void setUp() {}
+    @Before
+    public void setUp() {}
 
+    @Test
     public void testConstructMessage() {
         try {
             ResolverResponseMsg res = new ResolverResponse();
@@ -118,7 +93,7 @@ public class ResolverResponseMsgTest extends TestCase {
             res.setResponse(resstr);
             res.setQueryId(qid);
 
-            StructuredDocument doc = (StructuredDocument) res.getDocument(new MimeMediaType("text/xml"));
+            StructuredDocument<?> doc = (StructuredDocument<?>) res.getDocument(new MimeMediaType("text/xml"));
 
             assertNotNull("Failed to construct ResolverResponseMsg", doc);
 

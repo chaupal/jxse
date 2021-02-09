@@ -56,9 +56,13 @@
 
 package net.jxta.protocol;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.impl.protocol.ResolverQuery;
@@ -68,7 +72,7 @@ import net.jxta.test.util.AdvUtil;
 /**
  *  A JUnit test for ResolverQueryMsgTest
  */
-public class ResolverQueryMsgTest extends TestCase {
+public class ResolverQueryMsgTest {
 
     private static final String handlername = "urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000006";
     PeerID src;
@@ -77,41 +81,12 @@ public class ResolverQueryMsgTest extends TestCase {
     int qid = 0;
 
     /**
-     *Constructor for the object
-     *
-     */
-    public ResolverQueryMsgTest(String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the ResolverQueryMsgTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ResolverQueryMsgTest.class);
-
-        return suite;
-    }
-
-    /**
      *  The JUnit setup method
      */
-    @Override
-    protected void setUp() {}
+    @Before
+    public void setUp() {}
 
+    @Test
     public void testConstructMessage() {
         try {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey1", "0.0.0.0", 0, false);
@@ -124,7 +99,7 @@ public class ResolverQueryMsgTest extends TestCase {
             query.setQueryId(qid);
             query.setSrcPeer(src);
 
-            StructuredDocument doc = (StructuredDocument) query.getDocument(new MimeMediaType("text/xml"));
+            StructuredDocument<?> doc = (StructuredDocument<?>) query.getDocument(new MimeMediaType("text/xml"));
 
             assertNotNull("Failed to construct ResolverQueryMsg", doc);
 
@@ -143,6 +118,4 @@ public class ResolverQueryMsgTest extends TestCase {
             fail("exception thrown : " + e.getMessage());
         }
     }
-
 }
-

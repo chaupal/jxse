@@ -55,10 +55,13 @@
  */
 package net.jxta.protocol;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.util.Vector;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.Test;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.MimeMediaType;
@@ -69,53 +72,23 @@ import net.jxta.test.util.AdvUtil;
 /**
  *  A JUnit test for DiscoveryQueryMsg
  */
-public class DiscoveryResponseMsgTest extends TestCase {
+public class DiscoveryResponseMsgTest{
 
     String attribute = "Attribute";
     String value = "Value";
     int count = 1;
     int type = DiscoveryService.PEER;
 
-    /**
-     *Constructor for the object
-     *
-     * @param  testName  Description of the Parameter
-     */
-    public DiscoveryResponseMsgTest(String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the DiscoveryResponseMsgTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(DiscoveryResponseMsgTest.class);
-
-        return suite;
-    }
-
+    @Test
     public void testConstructMessage() {
         try {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey1", "0.0.0.0", 0, false);
-            Vector resp = new Vector();
+            Vector<PeerAdvertisement> resp = new Vector<PeerAdvertisement>();
 
             resp.add(padv);
-            Vector exp = new Vector();
+            Vector<Long> exp = new Vector<>();
 
-            exp.add(new Long(0));
+            exp.add(0l);
 
             DiscoveryResponseMsg res = new DiscoveryResponse();
 
@@ -126,7 +99,7 @@ public class DiscoveryResponseMsgTest extends TestCase {
             res.setResponses(resp);
             res.setExpirations(exp);
 
-            StructuredDocument doc = (StructuredDocument) res.getDocument(MimeMediaType.XMLUTF8);
+            StructuredDocument<?> doc = (StructuredDocument<?>) res.getDocument(MimeMediaType.XMLUTF8);
 
             assertNotNull("Failed to construct DiscoveryQueryMsg", doc);
 

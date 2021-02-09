@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.jmock.imposters.ByteBuddyClassImposteriser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class QueuingServerPipeAcceptorTest {
 
     @Rule
     public JUnitRuleMockery mockContext = new JUnitRuleMockery() {{
-        setImposteriser(ClassImposteriser.INSTANCE);
+        setImposteriser(ByteBuddyClassImposteriser.INSTANCE);
     }};
 
     private static final int BACKLOG = 10;

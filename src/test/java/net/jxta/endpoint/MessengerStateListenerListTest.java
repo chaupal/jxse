@@ -30,9 +30,9 @@ public class MessengerStateListenerListTest {
         list.addStateListener(listener3);
 
         mockContext.checking(new Expectations() {{
-            one(listener1).messengerStateChanged(Messenger.CLOSED);
-            one(listener2).messengerStateChanged(Messenger.CLOSED);
-            one(listener3).messengerStateChanged(Messenger.CLOSED);
+            oneOf(listener1).messengerStateChanged(Messenger.CLOSED);
+            oneOf(listener2).messengerStateChanged(Messenger.CLOSED);
+            oneOf(listener3).messengerStateChanged(Messenger.CLOSED);
         }});
 
         list.notifyNewState(Messenger.CLOSED);
@@ -50,11 +50,11 @@ public class MessengerStateListenerListTest {
         final Sequence expectedOrder = mockContext.sequence("listener1seq");
 
         mockContext.checking(new Expectations() {{
-            one(listener1).messengerStateChanged(Messenger.RECONNECTING); inSequence(expectedOrder); will(returnValue(true));
-            one(listener2).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
-            one(listener3).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
+            oneOf(listener1).messengerStateChanged(Messenger.RECONNECTING); inSequence(expectedOrder); will(returnValue(true));
+            oneOf(listener2).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
+            oneOf(listener3).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
 
-            one(listener1).messengerStateChanged(Messenger.CONNECTED); inSequence(expectedOrder); will(returnValue(false));
+            oneOf(listener1).messengerStateChanged(Messenger.CONNECTED); inSequence(expectedOrder); will(returnValue(false));
         }});
 
         list.notifyNewState(Messenger.RECONNECTING);
@@ -77,8 +77,8 @@ public class MessengerStateListenerListTest {
 
         mockContext.checking(new Expectations() {{
             never(listener1);
-            one(listener2).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
-            one(listener3).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
+            oneOf(listener2).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
+            oneOf(listener3).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(false));
         }});
 
         list.notifyNewState(Messenger.RECONNECTING);
@@ -93,7 +93,7 @@ public class MessengerStateListenerListTest {
         list.addStateListener(listener);
 
         mockContext.checking(new Expectations() {{
-            one(listener).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(true));
+            oneOf(listener).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(true));
         }});
 
         list.notifyNewState(Messenger.RECONNECTING);

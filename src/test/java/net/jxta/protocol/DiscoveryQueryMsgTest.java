@@ -55,9 +55,11 @@
  */
 package net.jxta.protocol;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.MimeMediaType;
@@ -68,44 +70,14 @@ import net.jxta.test.util.AdvUtil;
 /**
  *  A JUnit test for DiscoveryQueryMsg
  */
-public class DiscoveryQueryMsgTest extends TestCase {
+public class DiscoveryQueryMsgTest{
 
     String attribute = "Attribute";
     String value = "Value";
     int threshold = 0;
     int type = DiscoveryService.PEER;
 
-    /**
-     *Constructor for the object
-     *
-     * @param  testName  Description of the Parameter
-     */
-    public DiscoveryQueryMsgTest(String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the DiscoveryQueryMsgTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(DiscoveryQueryMsgTest.class);
-
-        return suite;
-    }
-
+    @Test
     public void testConstructMessage() {
         try {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey1", "0.0.0.0", 0, false);
@@ -117,7 +89,7 @@ public class DiscoveryQueryMsgTest extends TestCase {
             query.setAttr(attribute);
             query.setPeerAdvertisement(padv);
 
-            StructuredDocument doc = (StructuredDocument) query.getDocument(MimeMediaType.XMLUTF8);
+            StructuredDocument<?> doc = (StructuredDocument<?>) query.getDocument(MimeMediaType.XMLUTF8);
 
             assertNotNull("Failed to construct DiscoveryQueryMsg", doc);
 

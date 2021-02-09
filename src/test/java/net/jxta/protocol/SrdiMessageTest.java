@@ -55,20 +55,26 @@
  */
 package net.jxta.protocol;
 
-import junit.framework.*;
-
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Collection;
 import java.util.Vector;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *  A JUnit test for SrdiMessage
  */
-public class SrdiMessageTest extends TestCase {
+public class SrdiMessageTest{
 
     private static final String srcpeer = "urn:jxta:uuid-59616261646162614A787461503250330000000000000000000000000000000103";
     private static final String key = "key";
@@ -78,41 +84,10 @@ public class SrdiMessageTest extends TestCase {
     private SrdiMessageImpl srdiMsg = null;
 
     /**
-     *Constructor for the SrdiMessageTest object
-     *
-     * @param  testName  test name
-     */
-    public SrdiMessageTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the SrdiMessageTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SrdiMessageTest.class);
-
-        return suite;
-    }
-
-    /**
      *  The JUnit setup method
      */
-    @Override
-    protected void setUp() {}
+    @Before
+    public void setUp() {}
 
     public void testConstructMessage() {
 
@@ -138,6 +113,7 @@ public class SrdiMessageTest extends TestCase {
 
     }
 
+    @Test
     public void testConstructDocFromStr() {
 
         Vector<SrdiMessage.Entry> entries = new Vector<>(5);
@@ -175,6 +151,7 @@ public class SrdiMessageTest extends TestCase {
         return doc;
     }
 
+    @Test
     public void testGetElements() {
 
         Vector<SrdiMessage.Entry> entries = new Vector<>(5);

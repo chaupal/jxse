@@ -56,12 +56,15 @@
 
 package net.jxta.protocol;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.*;
 import java.net.URI;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+
 import net.jxta.document.*;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -69,19 +72,12 @@ import net.jxta.peergroup.PeerGroupID;
 /**
  * @author nadment
  */
-public class PeerAdvertisementTest extends TestCase {
+public class PeerAdvertisementTest {
     private static final String TestName = "Testing J2SE JXTA Peer (����)";
     private static final String TestDescription = "Testing J2SE JXTA Peer desc (����)";
     private static final String TestPeerID = "urn:jxta:uuid-59616261646162614A787461503250336ACC981CFAF047CFADA8A31FC6D0B88C03";
     private static final String TestGroupID = "urn:jxta:jxta-NetGroup";
 
-    /**
-     * Constructor for PeerAdvertisementTest.
-     * @param arg0
-     */
-    public PeerAdvertisementTest(String arg0) {
-        super(arg0);
-    }
 
     private PeerAdvertisement buildPeer() {
         PeerAdvertisement peer = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(
@@ -99,6 +95,7 @@ public class PeerAdvertisementTest extends TestCase {
         return peer;
     }
 
+    @Test
     public void testDeprecated() {
         PeerAdvertisement peer = buildPeer();
 
@@ -106,10 +103,11 @@ public class PeerAdvertisementTest extends TestCase {
         assertEquals("Description is corrupted (deprecated)", TestDescription, peer.getDescription());
     }
 
+    @Test
     public void testDocument() {
         PeerAdvertisement peer1 = buildPeer();
         PeerAdvertisement peer2 = null;
-        XMLDocument advDocument = null;
+        XMLDocument<?> advDocument = null;
 
         try {
             Document doc = peer1.getDocument(MimeMediaType.XMLUTF8);
@@ -119,7 +117,7 @@ public class PeerAdvertisementTest extends TestCase {
             bos.close();
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, bis);
+            advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, bis);
 
             peer2 = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(advDocument);
             bis.close();
@@ -135,8 +133,9 @@ public class PeerAdvertisementTest extends TestCase {
         // FIXME: test services
     }
 
-    private Element buildDesc() {
-        StructuredTextDocument desc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private Element<?> buildDesc() {
+        StructuredTextDocument desc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Desc");
 
         desc.appendChild(desc.createElement("Text1", TestDescription));
@@ -144,17 +143,4 @@ public class PeerAdvertisementTest extends TestCase {
         desc.appendChild(desc.createElement("Text3", TestDescription));
         return desc;
     }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(PeerAdvertisementTest.class);
-
-        return suite;
-    }
-
 }

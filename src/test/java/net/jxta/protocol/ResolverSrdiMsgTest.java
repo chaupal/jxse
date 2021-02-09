@@ -55,9 +55,12 @@
  */
 package net.jxta.protocol;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
@@ -66,7 +69,7 @@ import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
 /**
  *  A JUnit test for ResolverSrdiMsg
  */
-public class ResolverSrdiMsgTest extends TestCase {
+public class ResolverSrdiMsgTest {
 
     private static final String cred = "<testCred> test </testCred>";
     private static final String handlername = "urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000006";
@@ -74,46 +77,16 @@ public class ResolverSrdiMsgTest extends TestCase {
     private static final String payload = "12345678901234567890123456789012345678901234567890";
 
     /**
-     *Constructor for the SrdiMessageTest object
-     *
-     * @param  testName  Description of the Parameter
-     */
-    public ResolverSrdiMsgTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    /**
-     *  The main program for the SrdiMessageTest class
-     *
-     * @param  args  The command line arguments
-     */
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    /**
-     *  A unit test suite for JUnit
-     *
-     * @return    The test suite
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(ResolverSrdiMsgTest.class);
-
-        return suite;
-    }
-
-    /**
      *  The JUnit setup method
      */
-    @Override
-    protected void setUp() {}
+    @Before
+    public void setUp() {}
 
+    @Test
     public void testConstructMessage() {
 
         ResolverSrdiMsgImpl resS = new ResolverSrdiMsgImpl(handlername, null, payload);
-        StructuredDocument doc = (StructuredDocument) resS.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument<?> doc = (StructuredDocument<?>) resS.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct ResolverSrdiMessage", doc);
 
@@ -122,6 +95,7 @@ public class ResolverSrdiMsgTest extends TestCase {
         assertEquals("Corrupted payload", payload, resS.getPayload());
     }
 
+    @Test
     public void testConstructMessageWparameters() {
         ResolverSrdiMsgImpl resS = new ResolverSrdiMsgImpl();
 
@@ -130,7 +104,7 @@ public class ResolverSrdiMsgTest extends TestCase {
         // resS.setCredential(cred);
         resS.setPayload(payload);
 
-        StructuredDocument doc = (StructuredDocument) resS.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument<?> doc = (StructuredDocument<?>) resS.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct ResolverSrdiMessage", doc);
 
@@ -139,7 +113,8 @@ public class ResolverSrdiMsgTest extends TestCase {
         assertEquals("Corrupted payload", payload, resS.getPayload());
     }
 
-    private StructuredDocument createMessagefromString() {
+    @SuppressWarnings("unused")
+	private StructuredDocument<?> createMessagefromString() {
 
         String strdoc = null;
 
@@ -153,7 +128,7 @@ public class ResolverSrdiMsgTest extends TestCase {
         strdoc += payload;
         strdoc += "</" + ResolverSrdiMsgImpl.payloadTag + ">";
 
-        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(new MimeMediaType("text/xml")
+        StructuredDocument<?> doc = StructuredDocumentFactory.newStructuredDocument(new MimeMediaType("text/xml")
                 ,
                 ResolverSrdiMsg.getMessageType(), strdoc);
 

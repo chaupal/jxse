@@ -77,7 +77,7 @@ public class ModuleLifecycleManagerTest {
             Logger.getLogger(ModuleLifecycleManagerTest.class.getName());
     private ModuleLifecycleManager<Module> manager;
     private ModuleLifecycleManagerListener managerListener;
-    private ModuleLifecycleListener listener;
+    private ModuleLifecycleListener<?> listener;
     private Module module1;
     private Module module2;
     private PeerGroup peerGroup;
@@ -120,11 +120,12 @@ public class ModuleLifecycleManagerTest {
         System.out.flush();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testModuleCounts() throws Exception {
         context.checking(new Expectations() {{
-            one(module1).init(peerGroup, id, null);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(module1).init(peerGroup, id, null);
+            oneOf(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.INITIALIZED)));
         }});
@@ -141,23 +142,24 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testInitStartStopStart() throws Exception {
         final Sequence seq = context.sequence("event");
 
         context.checking(new Expectations() {{
-            one(module1).init(peerGroup, id, null);
-            one(module2).init(peerGroup, id, null);
+            oneOf(module1).init(peerGroup, id, null);
+            oneOf(module2).init(peerGroup, id, null);
 
             exactly(2).of(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.INITIALIZED)));
             inSequence(seq);
 
-            one(module1).startApp(with(any(String[].class)));
+            oneOf(module1).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
-            one(module2).startApp(with(any(String[].class)));
+            oneOf(module2).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
             exactly(2).of(listener).moduleLifecycleStateUpdated(
@@ -165,18 +167,18 @@ public class ModuleLifecycleManagerTest {
                     with(equal(ModuleLifecycleState.STARTED)));
             inSequence(seq);
 
-            one(module1).stopApp();
-            one(module2).stopApp();
+            oneOf(module1).stopApp();
+            oneOf(module2).stopApp();
 
             exactly(2).of(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.STOPPED)));
             inSequence(seq);
 
-            one(module1).startApp(with(any(String[].class)));
+            oneOf(module1).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
-            one(module2).startApp(with(any(String[].class)));
+            oneOf(module2).startApp(with(any(String[].class)));
             will(returnValue(Module.START_OK));
 
             exactly(2).of(listener).moduleLifecycleStateUpdated(
@@ -207,13 +209,14 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testInitFailure() throws Exception {
         context.checking(new Expectations() {{
-            one(module1).init(peerGroup, id, null);
+            oneOf(module1).init(peerGroup, id, null);
             will(throwException(pgx));
 
-            one(listener).unhandledPeerGroupException(
+            oneOf(listener).unhandledPeerGroupException(
                     with(any(ModuleLifecycleTracker.class)),
                     with(any(PeerGroupException.class)));
         }});
@@ -224,15 +227,16 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testMaxIterations() throws Exception {
         context.checking(new Expectations() {{
-            one(module1).init(peerGroup, id, null);
+            oneOf(module1).init(peerGroup, id, null);
 
-            one(module1).startApp(with(any(String[].class)));
+            oneOf(module1).startApp(with(any(String[].class)));
             will(returnValue(Module.START_AGAIN_STALLED));
 
-            one(managerListener).moduleStalled(
+            oneOf(managerListener).moduleStalled(
                     with(any(ModuleLifecycleManager.class)),
                     with(any(ModuleLifecycleTracker.class)));
 
@@ -247,7 +251,8 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testMaxStall() throws Exception {
         final Module[] bulkModules = new Module[9];
 
@@ -258,11 +263,11 @@ public class ModuleLifecycleManagerTest {
         }
         context.checking(new Expectations() {{
             for (Module module : bulkModules) {
-                one(module).init(peerGroup, id, null);
+                oneOf(module).init(peerGroup, id, null);
                 allowing(module).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_OK));
             }
-            one(module1).init(peerGroup, id, null);
+            oneOf(module1).init(peerGroup, id, null);
             exactly(11).of(module1).startApp(with(any(String[].class)));
             will(returnValue(Module.START_AGAIN_STALLED));
 
@@ -284,7 +289,8 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testMaxStallWithProgressReset() throws Exception {
         final Module[] bulkModules = new Module[9];
 
@@ -295,20 +301,20 @@ public class ModuleLifecycleManagerTest {
         }
         context.checking(new Expectations() {{
             for (Module module : bulkModules) {
-                one(module).init(peerGroup, id, null);
+                oneOf(module).init(peerGroup, id, null);
                 allowing(module).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_OK));
             }
 
-            one(module1).init(peerGroup, id, null);
+            oneOf(module1).init(peerGroup, id, null);
             for (int i=0; i<15; i++) {
-                one(module1).startApp(with(any(String[].class)));
+                oneOf(module1).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_AGAIN_STALLED));
 
-                one(module1).startApp(with(any(String[].class)));
+                oneOf(module1).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_AGAIN_PROGRESS));
             }
-            one(module1).startApp(with(any(String[].class)));
+            oneOf(module1).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_OK));
 
             allowing(listener).moduleLifecycleStateUpdated(
@@ -325,21 +331,22 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testDisabledModule() throws Exception {
         context.checking(new Expectations() {{
-            one(module1).init(peerGroup, id, null);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(module1).init(peerGroup, id, null);
+            oneOf(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.INITIALIZED)));
 
-            one(module1).startApp(with(any(String[].class)));
+            oneOf(module1).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_DISABLED));
 
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.DISABLED)));
-            one(managerListener).moduleDisabled(
+            oneOf(managerListener).moduleDisabled(
                     with(any(ModuleLifecycleManager.class)),
                     with(any(ModuleLifecycleTracker.class)));
         }});
@@ -356,22 +363,23 @@ public class ModuleLifecycleManagerTest {
         context.assertIsSatisfied();
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testRemoveModule() throws Exception {
         context.checking(new Expectations() {{
-            one(module1).init(peerGroup, id, null);
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(module1).init(peerGroup, id, null);
+            oneOf(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.INITIALIZED)));
 
-            one(module1).startApp(with(any(String[].class)));
+            oneOf(module1).startApp(with(any(String[].class)));
                 will(returnValue(Module.START_OK));
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.STARTED)));
 
-            one(module1).stopApp();
-            one(listener).moduleLifecycleStateUpdated(
+            oneOf(module1).stopApp();
+            oneOf(listener).moduleLifecycleStateUpdated(
                     with(any(ModuleLifecycleTracker.class)),
                     with(equal(ModuleLifecycleState.STOPPED)));
         }});

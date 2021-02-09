@@ -45,7 +45,7 @@ public class SrdiTest {
         mockery.checking(new Expectations() {{
             ignoring(groupMock).getResolverService();
             atLeast(1).of(groupMock).getRendezVousService(); will(returnValue(rendezvousServiceMock));
-            one(rendezvousServiceMock).addListener(with(any(SrdiManager.class)));
+            oneOf(rendezvousServiceMock).addListener(with(any(SrdiManager.class)));
         }});
         
         srdiManager = new SrdiManager(groupMock, "testHandler", srdiInterfaceMock, srdiIndex);
@@ -55,10 +55,10 @@ public class SrdiTest {
     public void testStartPush() {
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
@@ -67,7 +67,7 @@ public class SrdiTest {
     @Test
     public void testStartPushIgnoredIfPeerIsRdvInGroup() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(true));
+            oneOf(groupMock).isRendezvous(); will(returnValue(true));
             never(executorServiceMock);
         }});
         
@@ -77,8 +77,8 @@ public class SrdiTest {
     @Test
     public void testStartPushIgnoredIfRdvConnectionNotEstablished() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
             never(executorServiceMock);
         }});
         
@@ -87,9 +87,9 @@ public class SrdiTest {
     
     public void testStartPushIgnoredIfRdvServiceIsInAdHocMode() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.ADHOC));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.ADHOC));
             never(executorServiceMock);
         }});
         
@@ -99,10 +99,10 @@ public class SrdiTest {
     public void testStartPushSchedulesSrdiPeriodicPushTask() {
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
@@ -111,17 +111,17 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testRendezvousConnectEventRestartsPush() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
         srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
@@ -130,16 +130,16 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testRendezvousConnectEventIgnoredIfModeIsAdHoc() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.ADHOC));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.ADHOC));
             never(executorServiceMock);
         }});
         
@@ -157,17 +157,17 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testRendezvousDisconnectEventStopsPush() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
             will(returnValue(srdiPeriodicPushTaskHandle));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(srdiPeriodicPushTaskHandle).cancel(false);
+            oneOf(srdiPeriodicPushTaskHandle).cancel(false);
         }});
         
         srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVDISCONNECT, null));
@@ -175,17 +175,17 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testBecameRendezvousEventStopsPush() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
             will(returnValue(srdiPeriodicPushTaskHandle));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(srdiPeriodicPushTaskHandle).cancel(false);
+            oneOf(srdiPeriodicPushTaskHandle).cancel(false);
         }});
         
         srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMERDV, null));
@@ -201,16 +201,16 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testBecameEdgeEventStartsPush() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(true));
+            oneOf(groupMock).isRendezvous(); will(returnValue(true));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
         srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
@@ -218,14 +218,14 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testBecameEdgeEventIgnoredIfNotConnectedToRendezvous() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(true));
+            oneOf(groupMock).isRendezvous(); will(returnValue(true));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
             never(executorServiceMock);
         }});
         
@@ -234,15 +234,15 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testBecameEdgeEventIgnoredIfRendezvousIsInAdHocMode() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(true));
+            oneOf(groupMock).isRendezvous(); will(returnValue(true));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.ADHOC));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.ADHOC));
             never(executorServiceMock);
         }});
         
@@ -259,17 +259,17 @@ public class SrdiTest {
     @Ignore("Needs updating")
     public void testRdvFailedEventStopsPush() {
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
-            one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
-            one(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
-            one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(true));
+            oneOf(rendezvousServiceMock).getRendezVousStatus(); will(returnValue(RendezVousStatus.EDGE));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
             will(returnValue(srdiPeriodicPushTaskHandle));
         }});
         
         srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         mockery.checking(new Expectations() {{
-            one(srdiPeriodicPushTaskHandle).cancel(false);
+            oneOf(srdiPeriodicPushTaskHandle).cancel(false);
         }});
         
         srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVFAILED, null));
@@ -279,8 +279,8 @@ public class SrdiTest {
         final PeerID peerId = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(true));
-            one(srdiIndex).remove(peerId);
+            oneOf(groupMock).isRendezvous(); will(returnValue(true));
+            oneOf(srdiIndex).remove(peerId);
         }});
         
         srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.CLIENTFAILED, peerId));
@@ -290,7 +290,7 @@ public class SrdiTest {
         final PeerID peerId = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
         
         mockery.checking(new Expectations() {{
-            one(groupMock).isRendezvous(); will(returnValue(false));
+            oneOf(groupMock).isRendezvous(); will(returnValue(false));
             never(srdiIndex).remove(peerId);
         }});
         

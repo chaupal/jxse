@@ -56,8 +56,6 @@
 
 package net.jxta.protocol;
 
-import junit.framework.*;
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
 import net.jxta.document.XMLDocument;
@@ -66,42 +64,30 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.net.URI;
 
-import net.jxta.protocol.RdvAdvertisement;
+import org.junit.Before;
+import org.junit.Test;
 
-public class RdvAdvertisementTest extends TestCase {
+public class RdvAdvertisementTest {
 
     private static final String TestName = "Testing J2SE JXTA Peer";
     private static final String TestPeerID = "urn:jxta:uuid-59616261646162614A787461503250336ACC981CFAF047CFADA8A31FC6D0B88C03";
     private static final String TestGroupID = "urn:jxta:jxta-NetGroup";
 
-    public RdvAdvertisementTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(RdvAdvertisementTest.class);
-
-        return suite;
-    }
-
-    @Override
-    protected void setUp() {}
+    @Before
+    public void setUp() {}
 
     // Test building an RdvAdv from XML (with optional Name)
 
     private void _testReadXMLWithName(Document doc) {
 
         // Create the advertisement
-        RdvAdvertisement adv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement((XMLDocument) doc);
+        RdvAdvertisement adv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement((XMLDocument<?>) doc);
 
         assertNotNull("cannot create RdvAdv from template", doc);
 	
@@ -114,18 +100,18 @@ public class RdvAdvertisementTest extends TestCase {
         assertEquals("GroupID is corrupted", TestGroupID, adv.getGroupID().toString());
     }
 
+    @Test
     public void testReadWXMLWithName() {
         // Build an RdvAdversitement template
-        XMLDocument doc = buildXMLTemplate(true);
+        XMLDocument<?> doc = buildXMLTemplate(true);
 	
         _testReadXMLWithName(doc);
     }
 
     // Test building an RdvAdv from XML (with optional Name)
-
-    public void _testReadXMLWithoutName(Document doc) {
+    private void _testReadXMLWithoutName(Document doc) {
         // Create the advertisement
-        RdvAdvertisement adv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement((XMLDocument) doc);
+        RdvAdvertisement adv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement((XMLDocument<?>) doc);
 
         assertNotNull("cannot create RdvAdv from template", doc);
 	
@@ -138,15 +124,16 @@ public class RdvAdvertisementTest extends TestCase {
         assertEquals("GroupID is corrupted", TestGroupID, adv.getGroupID().toString());
     }
 
+    @Test
     public void testReadXMLWithoutName() {
         // Build an RdvAdversitement template
-        XMLDocument doc = buildXMLTemplate(false);
+        XMLDocument<?> doc = buildXMLTemplate(false);
 
         _testReadXMLWithoutName(doc);
     }
 
     // Test writing XML with optional Name
-
+    @Test
     public void testWriteXMLWithName() {
 
         RdvAdvertisement adv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement(RdvAdvertisement.getAdvertisementType());
@@ -175,6 +162,7 @@ public class RdvAdvertisementTest extends TestCase {
     }
 
     // Test writing XML without optional Name
+    @Test
     public void testWriteXMLWithoutName() {
 
         RdvAdvertisement adv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement(RdvAdvertisement.getAdvertisementType());
@@ -197,7 +185,7 @@ public class RdvAdvertisementTest extends TestCase {
         _testReadXMLWithoutName(doc);
     }
 
-    private XMLDocument buildXMLTemplate(boolean withName) {
+    private XMLDocument<?> buildXMLTemplate(boolean withName) {
 
         String xmlTemplate = null;
 
@@ -219,7 +207,7 @@ public class RdvAdvertisementTest extends TestCase {
             xmlTemplate += "</" + RdvAdvertisement.NameTag + ">";
         }
 
-        XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
+        XMLDocument<?> doc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                 ,
                 RdvAdvertisement.getAdvertisementType(), xmlTemplate);
 

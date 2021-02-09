@@ -45,7 +45,7 @@ public class MessageDispatchHandlerTest {
     public void testSendsMessageToListener() {
         final Message expectedMessage = new Message();
         mockContext.checking(new Expectations() {{
-            one(listener).messageArrived(expectedMessage);
+            oneOf(listener).messageArrived(expectedMessage);
         }});
         
         handler.setMessageArrivalListener(listener);
@@ -65,9 +65,9 @@ public class MessageDispatchHandlerTest {
         Channels.fireMessageReceived(channel, expectedMessage3);
         
         mockContext.checking(new Expectations() {{
-            one(listener).messageArrived(expectedMessage1); inSequence(seq);
-            one(listener).messageArrived(expectedMessage2); inSequence(seq);
-            one(listener).messageArrived(expectedMessage3); inSequence(seq);
+            oneOf(listener).messageArrived(expectedMessage1); inSequence(seq);
+            oneOf(listener).messageArrived(expectedMessage2); inSequence(seq);
+            oneOf(listener).messageArrived(expectedMessage3); inSequence(seq);
         }});
         
         handler.setMessageArrivalListener(listener);
@@ -82,7 +82,7 @@ public class MessageDispatchHandlerTest {
         final WelcomeMessage message = new WelcomeMessage(directedAtAddress, new EndpointAddress("test://192.168.1.2:54321"), PEER_ID, true);
         
         mockContext.checking(new Expectations() {{
-            one(registry).newConnection(with(same(channel)), with(equal(directedAtAddress)), with(equal(expectedLogicalAddress)));
+            oneOf(registry).newConnection(with(same(channel)), with(equal(directedAtAddress)), with(equal(expectedLogicalAddress)));
         }});
         
         Channels.fireMessageReceived(channel, message);
@@ -98,8 +98,8 @@ public class MessageDispatchHandlerTest {
     	
     	final Sequence seq = mockContext.sequence("arrivals");
     	mockContext.checking(new Expectations() {{
-    		one(listener).messageArrived(message1); inSequence(seq);
-    		one(listener).messageArrived(message2); inSequence(seq);
+    		oneOf(listener).messageArrived(message1); inSequence(seq);
+    		oneOf(listener).messageArrived(message2); inSequence(seq);
     	}});
     	
     	handler.setMessageArrivalListener(listener);

@@ -56,12 +56,14 @@
 
 package net.jxta.protocol;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.*;
 import java.net.URI;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
 import net.jxta.document.*;
 import net.jxta.id.ID;
@@ -70,20 +72,12 @@ import net.jxta.pipe.PipeID;
 /**
  * @author nadment
  */
-public class PipeAdvertisementTest extends TestCase {
+public class PipeAdvertisementTest{
     private static final String TestName = "Testing J2SE JXTA Pipe (����)";
     private static final String TestType = "SuperPipe";
     private static final String TestDescription = "Testing J2SE JXTA Pipe desc (����)";
     private static final PipeID TestPipeID = (PipeID) ID.create(
             URI.create("urn:jxta:uuid-59616261646162614A787461503250336ACC981CFAF047CFADA8A31FC6D0B88C04"));
-
-    /**
-     * Constructor for PipeAdvertisementTest.
-     * @param arg0
-     */
-    public PipeAdvertisementTest(String arg0) {
-        super(arg0);
-    }
 
     private PipeAdvertisement buildPipe() {
         PipeAdvertisement pipe = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
@@ -99,6 +93,7 @@ public class PipeAdvertisementTest extends TestCase {
         return pipe;
     }
 
+    @Test
     public void testDeprecated() {
         PipeAdvertisement pipe = buildPipe();
 
@@ -111,14 +106,14 @@ public class PipeAdvertisementTest extends TestCase {
         PipeAdvertisement pipe2 = null;
 
         try {
-            XMLDocument doc = (XMLDocument) pipe1.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> doc = (XMLDocument<?>) pipe1.getDocument(MimeMediaType.XMLUTF8);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             doc.sendToStream(bos);
             bos.close();
 
             InputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            XMLDocument newDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
+            XMLDocument<?> newDoc = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
 
             pipe2 = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(newDoc);
             bis.close();
@@ -146,8 +141,9 @@ public class PipeAdvertisementTest extends TestCase {
         // FIXME: test services
     }
 
-    private Element buildDesc() {
-        StructuredTextDocument desc = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private Element<?> buildDesc() {
+        StructuredTextDocument desc = (StructuredTextDocument<?>) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "Desc");
 
         desc.appendChild(desc.createElement("Text1", TestDescription));
@@ -155,17 +151,4 @@ public class PipeAdvertisementTest extends TestCase {
         desc.appendChild(desc.createElement("Text3", TestDescription));
         return desc;
     }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(PipeAdvertisementTest.class);
-
-        return suite;
-    }
-
 }

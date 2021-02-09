@@ -44,7 +44,7 @@ public class SrdiManagerPeriodicPushTaskTest {
 
     private void checkStartPushTask() {
         mockery.checking(new Expectations() {{
-            one(executorServiceMock).scheduleWithFixedDelay(pushTask, 0L, PUSH_INTERVAL, TimeUnit.MILLISECONDS); will(returnValue(runHandleMock));
+            oneOf(executorServiceMock).scheduleWithFixedDelay(pushTask, 0L, PUSH_INTERVAL, TimeUnit.MILLISECONDS); will(returnValue(runHandleMock));
         }});
         
         pushTask.start();
@@ -54,7 +54,7 @@ public class SrdiManagerPeriodicPushTaskTest {
         checkStartPushTask();
         
         mockery.checking(new Expectations() {{
-            one(srdiInterfaceMock).pushEntries(true);
+            oneOf(srdiInterfaceMock).pushEntries(true);
         }});
         
         pushTask.run();
@@ -64,13 +64,13 @@ public class SrdiManagerPeriodicPushTaskTest {
         checkStartPushTask();
         
         mockery.checking(new Expectations() {{
-            one(srdiInterfaceMock).pushEntries(true);
+            oneOf(srdiInterfaceMock).pushEntries(true);
         }});
         
         pushTask.run();
         
         mockery.checking(new Expectations() {{
-            one(srdiInterfaceMock).pushEntries(false);
+            oneOf(srdiInterfaceMock).pushEntries(false);
         }});
         
         pushTask.run();
@@ -84,7 +84,7 @@ public class SrdiManagerPeriodicPushTaskTest {
 
     private void checkSelfCancelsOnStop() {
         mockery.checking(new Expectations() {{
-            one(runHandleMock).cancel(false);
+            oneOf(runHandleMock).cancel(false);
         }});
         pushTask.stop();
     }
@@ -96,7 +96,7 @@ public class SrdiManagerPeriodicPushTaskTest {
         checkStartPushTask();
         
         mockery.checking(new Expectations() {{
-            one(srdiInterfaceMock).pushEntries(true);
+            oneOf(srdiInterfaceMock).pushEntries(true);
         }});
         
         pushTask.run();

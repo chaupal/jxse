@@ -57,15 +57,16 @@ package net.jxta.impl.cm;
 
 import java.math.BigInteger;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import net.jxta.impl.util.JxtaHash;
 
 /**
  * A SrdiGetReplica unit test
  */
-public class SrdiReplicaTest extends TestCase {
+public class SrdiReplicaTest{
 
     private JxtaHash jxtaHash = new JxtaHash();
     private static final int OFFBY = 30;
@@ -73,49 +74,20 @@ public class SrdiReplicaTest extends TestCase {
     private static final int SIZE = 100;
     private static final String TSTSTR = "This is only a Test, nothing else";
 
-    /**
-     * Constructor for the SrdiIndexTest object
-     *
-     * @param testName test name
-     */
-    public SrdiReplicaTest(String testName) {
-        super(testName);
-    }
-
-    /**
-     * A unit test suite for JUnit
-     *
-     * @return The test suite
-     */
-    public static Test suite() {
-        return new TestSuite(SrdiReplicaTest.class);
-    }
 
     /**
      * The JUnit setup method
      */
-    @Override
-    protected void setUp() {
+    @Before
+    public void setUp() {
     }
 
-    @Override
+    @After
     public void tearDown() {
         System.gc();
     }
 
-    /**
-     * The main program to test CmCache
-     *
-     * @param argv The command line arguments
-     * @throws Exception Description of Exception
-     */
-    public static void main(String[] argv) throws Exception {
-
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
+    @Test
     public void testOffBy() {
         for (int i = 0; i < OFFBY; i++) {
             offBy(i);
