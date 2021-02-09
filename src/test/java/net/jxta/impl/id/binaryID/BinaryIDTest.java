@@ -56,13 +56,14 @@
 
 package net.jxta.impl.id.binaryID;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.net.URI;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
-import net.jxta.codat.CodatID;
+import net.jxta.content.ContentID;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 
@@ -71,27 +72,13 @@ import net.jxta.id.IDFactory;
  * net.jxta.id.BinaryIDTest
  * @author Daniel Brookshier <a HREF="mailto:turbogeek@cluck.com">turbogeek@cluck.com</a>
  */
-public final class BinaryIDTest extends TestCase {
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(BinaryIDTest.class);
-
-        return suite;
-    }
+public final class BinaryIDTest {
 	
-    /** Creates new DocTest */
-    public BinaryIDTest(String name) {
-        super(name);
-    }
     byte[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
     byte[] data2 = { 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
     byte[] data3 = { 11, 22, 33, 44, 55, 66, 77, 88, 99, 99, 99, 99, 99, 99, 99, 99 };
 
+    @Test
     public void testBinaryID() {
         try {
             // System.out.println("");
@@ -139,6 +126,8 @@ public final class BinaryIDTest extends TestCase {
 
     }
 
+    @SuppressWarnings("unused")
+	@Test
     public void testPeerGroupID() {
         try {
             byte type = BinaryID.flagGenericID;
@@ -218,6 +207,8 @@ public final class BinaryIDTest extends TestCase {
 
     }
 
+    @SuppressWarnings("unused")
+	@Test
     public void testPeerID() {
         try {
             // Create a uuid parent
@@ -266,6 +257,8 @@ public final class BinaryIDTest extends TestCase {
         }
     }
 
+    @SuppressWarnings("unused")
+	@Test
     public void testPipeID() {
         try {
             // Create a uuid parent
@@ -314,6 +307,7 @@ public final class BinaryIDTest extends TestCase {
         }
     }
 
+    @Test
     public void testPeerGroupBinaryIDDigestID() {
         String clearTextID = "turbogeek";
         String function = "test";
@@ -345,6 +339,7 @@ public final class BinaryIDTest extends TestCase {
         }
     }
 
+    @Test
     public void testPipeBinaryIDDigestID() {
         String clearTextID = "turbogeek";
         String function = "test";
@@ -381,6 +376,7 @@ public final class BinaryIDTest extends TestCase {
         }
     }
 
+    @Test
     public void testPeerBinaryIDDigestID() {
         String clearTextID = "turbogeek";
         String function = "test";
@@ -412,20 +408,23 @@ public final class BinaryIDTest extends TestCase {
         }
     }
 
-    public void testCodatID() {
+    @SuppressWarnings("unused")
+	@Test
+    public void testContentID() {
         try {
-            CodatID first = IDFactory.newCodatID(IDFactory.newPeerGroupID());
-            CodatID second = IDFactory.newCodatID(IDFactory.newPeerGroupID());
-            CodatID third;
+            //CP: irst will fail the test if it is made static 
+        	ContentID first = IDFactory.newContentID(IDFactory.newPeerGroupID(), false);
+            ContentID second = IDFactory.newContentID(IDFactory.newPeerGroupID(), false);
+            ContentID third;
             ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID());
             String  asString;
             URI     asURI;
             ID myPeerGroup;
             boolean isStatic;
 
-            assertTrue("comparison of a CodatID against itself failed", first.equals(first));
+            assertTrue("comparison of a ContentID against itself failed", first.equals(first));
 
-            assertTrue("comparison of two different CodatIDs should have failed", !first.equals(second));
+            assertTrue("comparison of two different ContentIDs should have failed", !first.equals(second));
 
             assertTrue("comparison of different types should have failed", !first.equals(interloper));
 
@@ -438,7 +437,7 @@ public final class BinaryIDTest extends TestCase {
 
             assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
 
-            third = (CodatID) IDFactory.fromURI(asURI);
+            third = (ContentID) IDFactory.fromURI(asURI);
 
             assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
 
@@ -446,7 +445,7 @@ public final class BinaryIDTest extends TestCase {
 
             assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
 
-            assertTrue("dynamic CodatID did not test as such.", !first.isStatic());
+            assertTrue("dynamic ContentID did not test as such.", !first.isStatic());
         } catch (Exception everything) {
             everything.printStackTrace();
             fail("caught an unexpected exception - " + everything.toString());

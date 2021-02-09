@@ -56,20 +56,23 @@
 
 package net.jxta.impl.xindice;
 
-import java.util.Random;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.util.Random;
 
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("Takes too long to run")
-public class XindiceTest extends TestCase {
+public class XindiceTest {
 
     private static final int ITERATIONS = 4096;
     private static final int MAX_VALUE_SIZE = 4096;
@@ -77,27 +80,10 @@ public class XindiceTest extends TestCase {
     private BTreeFiler filer = null;
     private Random random = new Random();
 
-    public XindiceTest(java.lang.String testName) {
-        super(testName);
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(XindiceTest.class);
-
-        return suite;
-    }
-
-    @Override
+    @Before
     public void setUp() {
         filer = new BTreeFiler();
-        filer.setLocation(".", getName() + "-db");
+        filer.setLocation(".", this.getClass().getName() + "-db");
         try {
             if (!filer.open()) {
                 filer.create();
@@ -108,7 +94,7 @@ public class XindiceTest extends TestCase {
         }
     }
 
-    @Override
+    @After
     public void tearDown() {
         try {
             filer.close();
@@ -124,7 +110,7 @@ public class XindiceTest extends TestCase {
     // Add test methods here, they have to start with 'test' name.
     // for example:
     // public void testHello() {}
-
+    @Test
     public void testRecords() {
         Key key = new Key("a key");
         Value value = new Value("a value");
@@ -146,6 +132,7 @@ public class XindiceTest extends TestCase {
         }
     }
 
+    @Test
     public void testStress() {
         Key[] keys = new Key[ITERATIONS];
         Value[] values = new Value[ITERATIONS];
@@ -201,7 +188,8 @@ public class XindiceTest extends TestCase {
             fail(ex.getMessage());
         }
     }
-
+    
+    @Test
     public void testBenchmark() {
         Key[] keys = new Key[ITERATIONS];
 

@@ -55,21 +55,19 @@
  */
 package net.jxta.impl.endpoint.msgframing;
 
+import static org.junit.Assert.fail;
+
 import java.io.*;
 
-import junit.framework.*;
+import org.junit.Test;
 
-import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
-
-public class WelcomeMessageTest extends TestCase {
+public class WelcomeMessageTest {
 
     final static String valid11 = "JXTAHELLO tcp://64.81.53.91:36815 tcp://209.128.126.120:9701 urn:jxta:uuid-59616 261646162614A787461503250333C85E78DB99A4BDD837FD8A233CAD3D803 0 1.1";
     final static String valid20 = "JXTAHELLO tcp://64.81.53.91:36815 tcp://209.128.126.120:9701 urn:jxta:uuid-59616 261646162614A787461503250333C85E78DB99A4BDD837FD8A233CAD3D803 0 2.0";
 
-    public WelcomeMessageTest(java.lang.String testName) {
-        super(testName);
-    }
-
+	@SuppressWarnings("unused")
+	@Test
     public void testGarbage() {
         String atest = "Lorem Ipsum Dolor";
 
@@ -84,6 +82,8 @@ public class WelcomeMessageTest extends TestCase {
         }
     }
 
+	@SuppressWarnings("unused")
+	@Test
     public void testTruncated() {
         String atest = valid11.substring(0, 20);
 
@@ -98,7 +98,9 @@ public class WelcomeMessageTest extends TestCase {
         }
     }
 
-    public void testVersionMissing() {
+    @SuppressWarnings("unused")
+	@Test
+	public void testVersionMissing() {
         String atest = valid11.substring(0, valid11.lastIndexOf(' '));
 
         try { 
@@ -112,6 +114,8 @@ public class WelcomeMessageTest extends TestCase {
         }
     }
 
+	@SuppressWarnings("unused")
+	@Test
     public void testValid11() {
 
         try { 
@@ -125,7 +129,9 @@ public class WelcomeMessageTest extends TestCase {
         }
     }
 
-    public void testValid20() {
+	@SuppressWarnings("unused")
+	@Test
+	public void testValid20() {
 
         try { 
             WelcomeMessage welcome = new WelcomeMessage(new ByteArrayInputStream(valid20.getBytes("UTF-8")));
@@ -136,18 +142,5 @@ public class WelcomeMessageTest extends TestCase {
         } catch (Throwable unexpected) {
             fail("An unexpected exception occurred.");
         }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(WelcomeMessageTest.class);
-
-        return suite;
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
-        System.out.flush();
-        System.err.flush();
     }
 }

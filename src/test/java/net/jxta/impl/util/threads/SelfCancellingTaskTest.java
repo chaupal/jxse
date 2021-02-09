@@ -1,16 +1,18 @@
 package net.jxta.impl.util.threads;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-
-
-//public class SelfCancellingTaskTest extends MockObjectTestCase {
-public class SelfCancellingTaskTest extends TestCase {
+public class SelfCancellingTaskTest {
+	
+	@Test
 	public void testCancel() throws Exception {
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 		SelfCancellingTaskTester tester = new SelfCancellingTaskTester(5);
@@ -26,6 +28,7 @@ public class SelfCancellingTaskTest extends TestCase {
 		assertEquals(5, tester.getRunCount());
 	}
 	
+	@Test
 	public void testCancel_whenHandleNotImmediatelySet() throws Exception {
 		SelfCancellingTaskTester tester = new SelfCancellingTaskTester(1);
 		tester.run();
@@ -42,6 +45,7 @@ public class SelfCancellingTaskTest extends TestCase {
 		tester.run();
 	}
 	
+	@Test
 	public void testCancel_beforeTaskRun() {
 		SelfCancellingTaskTester tester = new SelfCancellingTaskTester(1);
 		tester.cancel();
@@ -64,7 +68,5 @@ public class SelfCancellingTaskTest extends TestCase {
 				this.cancel();
 			}
 		}
-		
-	}
-	
+	}	
 }

@@ -59,28 +59,32 @@ package net.jxta.pipe;
 import java.net.URI;
 import java.util.Collections;
 
-import java.io.IOException;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import java.io.IOException;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
-// import net.jxta.peergroup.PeerGroupFactory;
+import net.jxta.peergroup.WorldPeerGroupFactory;
+
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.peer.PeerID;
 
 import net.jxta.impl.endpoint.tls.TlsTransport;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("JXTA Configurator required")
-public class PipeTest extends TestCase {
+public class PipeTest {
 
     static final String pipeid = "urn:jxta:uuid-59616261646162614E504720503250330171AB9DD280488AA6429589D17FC95404";
 
@@ -88,54 +92,26 @@ public class PipeTest extends TestCase {
 
     static PeerGroup pg;
 
-    public PipeTest(java.lang.String testName) throws Exception {
-        super(testName);
-
+    @Before
+    public void setup(){
         System.setProperty("net.jxta.tls.password", "password");
         System.setProperty("net.jxta.tls.principal", "password");
 
         synchronized (PipeTest.class) {
             if (null == pg) {
-                pg = null; // PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
+            	WorldPeerGroupFactory factory;
+				try {
+					factory = new WorldPeerGroupFactory();
+	                pg = factory.getWorldPeerGroup();//PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
+				} catch (PeerGroupException e) {
+					e.printStackTrace();
+					fail(e.getMessage());
+				}
             }
         }
     }
 
-    @Override
-    protected void finalize() {
-
-        synchronized (PipeTest.class) {
-            if (null != pg) {
-                pg.stopApp();
-//                pg.unref();
-                pg = null;
-            }
-        }
-    }
-
-    public static void main(java.lang.String[] args) {
-        try {
-            TestRunner.run(suite());
-        } finally {
-            synchronized (PipeTest.class) {
-                if (null != pg) {
-                    pg.stopApp();
-//                    pg.unref();
-                    pg = null;
-                }
-            }
-
-            System.err.flush();
-            System.out.flush();
-        }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(PipeTest.class);
-
-        return suite;
-    }
-
+    @Test
     public void testLocalResolution() {
         try {
             PipeID pipeID = PipeID.create(URI.create(pipeid));
@@ -183,6 +159,7 @@ public class PipeTest extends TestCase {
         }
     }
 
+    @Test
     public void testTlsFiltering() {
 
         try {
@@ -250,6 +227,7 @@ public class PipeTest extends TestCase {
         }
     }
 
+    @Test
     public void testOutputResolution() {
 
         try {
@@ -307,6 +285,7 @@ public class PipeTest extends TestCase {
         }
     }
 
+    @Test
     public void testInputClose() {
 
         try {
@@ -331,6 +310,18 @@ public class PipeTest extends TestCase {
         } catch (Exception caught) {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
+        }
+    }
+
+    @After
+    public void tearDown() {
+
+        synchronized (PipeTest.class) {
+            if (null != pg) {
+                pg.stopApp();
+//                pg.unref();
+                pg = null;
+            }
         }
     }
 

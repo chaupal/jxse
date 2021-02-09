@@ -58,11 +58,14 @@ package net.jxta.impl.membership.pse;
 
 import javax.crypto.EncryptedPrivateKeyInfo;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.Map;
 
-import junit.framework.*;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
@@ -80,16 +83,19 @@ import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore("JXTA Configurator & PeerGroupFactory Required")
-public class pseMembershipTest extends TestCase {
+public class pseMembershipTest{
 
     static PeerGroup npg = null;
     static PeerGroup pg = null;
 
-    public pseMembershipTest(java.lang.String testName) {
-        super(testName);
+    @Before
+    public void setup() {
         synchronized (pseMembershipTest.class) {
             try {
                 if (null == npg) {
@@ -161,9 +167,8 @@ public class pseMembershipTest extends TestCase {
         }
     }
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-
+    @After
+    public void tearDown() {
         synchronized (pseMembershipTest.class) {
             if (null != pg) {
                 pg.stopApp();
@@ -182,12 +187,8 @@ public class pseMembershipTest extends TestCase {
         System.out.flush();
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(pseMembershipTest.class);
 
-        return suite;
-    }
-
+    @Test
     public void testLogin() {
         try {
             MembershipService membership = pg.getMembershipService();
@@ -245,6 +246,7 @@ public class pseMembershipTest extends TestCase {
     // }
     // }
 
+    @Test
     public void testPKCS5() {
         try {
             IssuerInfo test = PSEUtils.genCert("test", null);

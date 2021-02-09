@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint;
 
-import junit.framework.*;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
@@ -71,25 +70,28 @@ import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.protocol.TCPAdv;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.Enumeration;
 import java.util.Vector;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collections;
 
 @Ignore("JXTA Configurator & PeerGroupFactory required")
-public class XportConfTest extends TestCase {
+public class XportConfTest {
 
     static PeerGroup pg;
     static int count;
-
-    public XportConfTest(java.lang.String testName) throws net.jxta.exception.PeerGroupException {
-
-        super(testName);
-    }
 
     /**
      * Loads the Platform Config from the named file.
@@ -100,12 +102,12 @@ public class XportConfTest extends TestCase {
 
         PlatformConfig advertisement = null;
         FileInputStream advStream = null;
-        XMLDocument advDocument = null;
+        XMLDocument<?> advDocument = null;
 
         try {
 
             advStream = new FileInputStream(file);
-            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, advStream );
+            advDocument = (XMLDocument<?>) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, advStream );
 
             advertisement = (PlatformConfig)
                     AdvertisementFactory.newAdvertisement(advDocument);
@@ -153,8 +155,9 @@ public class XportConfTest extends TestCase {
         xpAdv.setServerEnabled(true);
     }
 
-    private void removeRelay(ConfigParams config) throws Exception {
-        StructuredTextDocument param = (StructuredTextDocument)
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private void removeRelay(ConfigParams config) throws Exception {
+        StructuredTextDocument param = (StructuredTextDocument<?>)
                 config.getServiceParam(IModuleDefinitions.relayProtoClassID);
 
         param.appendChild(param.createElement("isOff"));
@@ -164,13 +167,13 @@ public class XportConfTest extends TestCase {
 
     private TCPAdv extractTcp(ConfigParams config) throws Exception {
 
-        Element param = config.getServiceParam(IModuleDefinitions.tcpProtoClassID);
+        Element<?> param = config.getServiceParam(IModuleDefinitions.tcpProtoClassID);
 
-        Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<?> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
         if (tcpChilds.hasMoreElements()) {
-            param = (Element) tcpChilds.nextElement();
+            param = (Element<?>) tcpChilds.nextElement();
             Attribute typeAttr = ((Attributable) param).getAttribute("type");
 
             if (!TCPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
@@ -184,7 +187,7 @@ public class XportConfTest extends TestCase {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located");
         }
 
-        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
+        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement<?>) param);
 
         if (!(paramsAdv instanceof TCPAdv)) {
             throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
@@ -195,13 +198,13 @@ public class XportConfTest extends TestCase {
 
     private HTTPAdv extractHttp(ConfigParams config) throws Exception {
 
-        Element param = config.getServiceParam(IModuleDefinitions.httpProtoClassID);
+        Element<?> param = config.getServiceParam(IModuleDefinitions.httpProtoClassID);
 
-        Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<?> httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
         if (httpChilds.hasMoreElements()) {
-            param = (Element) httpChilds.nextElement();
+            param = (Element<?>) httpChilds.nextElement();
             Attribute typeAttr = ((Attributable) param).getAttribute("type");
 
             if (!HTTPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
@@ -217,7 +220,7 @@ public class XportConfTest extends TestCase {
             throw new IllegalArgumentException("configuration did not contain http advertisement");
         }
 
-        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
+        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement<?>) param);
 
         if (!(paramsAdv instanceof HTTPAdv)) {
             throw new IllegalArgumentException("Provided Advertisement was not a " + HTTPAdv.getAdvertisementType());
@@ -228,17 +231,17 @@ public class XportConfTest extends TestCase {
 
     private void insertTcp(TCPAdv tcpAdv, ConfigParams config) throws Exception {
 
-        StructuredDocument parm = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+        StructuredDocument<?> parm = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
-        StructuredDocumentUtils.copyElements(parm, parm, (StructuredDocument) tcpAdv.getDocument(MimeMediaType.XMLUTF8));
+        StructuredDocumentUtils.copyElements(parm, parm, (StructuredDocument<?>) tcpAdv.getDocument(MimeMediaType.XMLUTF8));
         config.putServiceParam(IModuleDefinitions.tcpProtoClassID, parm);
     }
 
     private void insertHttp(HTTPAdv httpAdv, ConfigParams config) throws Exception {
 
-        StructuredDocument parm = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+        StructuredDocument<?> parm = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
-        StructuredDocumentUtils.copyElements(parm, parm, (StructuredDocument) httpAdv.getDocument(MimeMediaType.XMLUTF8));
+        StructuredDocumentUtils.copyElements(parm, parm, (StructuredDocument<?>) httpAdv.getDocument(MimeMediaType.XMLUTF8));
         config.putServiceParam(IModuleDefinitions.httpProtoClassID, parm);
     }
 
@@ -264,16 +267,21 @@ public class XportConfTest extends TestCase {
         saveConfig(config, configFile);
     }
 
-    private void restoreConfig() throws Exception {
+    private void restoreConfig() {
 
-        File jxtaHomeDir = new File(pg.getStoreHome());
+        try {
+			File jxtaHomeDir = new File(pg.getStoreHome());
 
-        File configFileSaved = new File(jxtaHomeDir, "PlatformConfig.saved");
-        File configFile = new File(jxtaHomeDir, "PlatformConfig");
+			File configFileSaved = new File(jxtaHomeDir, "PlatformConfig.saved");
+			File configFile = new File(jxtaHomeDir, "PlatformConfig");
 
-        ConfigParams config = loadConfig(configFileSaved);
+			ConfigParams config = loadConfig(configFileSaved);
 
-        saveConfig(config, configFile);
+			saveConfig(config, configFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail( e.getMessage());
+		}
     }
 
     private void backupConfig() throws Exception {
@@ -294,8 +302,8 @@ public class XportConfTest extends TestCase {
         saveConfig(config, configFileSaved);
     }
 
-    @Override
-    public void setUp() throws Exception {
+    @Before
+    public void setUp(){
 
         synchronized (XportConfTest.class) {
             try {
@@ -324,29 +332,14 @@ public class XportConfTest extends TestCase {
 //                    pg.unref();
                 }
                 restoreConfig();
-                throw e;
             }
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        synchronized (XportConfTest.class) {
-            if (--count > 0) {
-                return;
-            }
-//            pg.unref();
-            pg = null;
-            restoreConfig();
-            System.out.flush();
-            System.err.flush();
-        }
-    }
-
-    private Enumeration getEndpointAddresses(PeerAdvertisement peerAdv) {
+    private Enumeration<EndpointAddress> getEndpointAddresses(PeerAdvertisement peerAdv) {
 	
         // Get its EndpointService advertisement
-        TextElement endpParam = (TextElement)
+        TextElement<?> endpParam = (TextElement<?>)
                 peerAdv.getServiceParam(IModuleDefinitions.endpointClassID);
 	
         if (endpParam == null) {
@@ -356,14 +349,14 @@ public class XportConfTest extends TestCase {
         RouteAdvertisement route = null;
 
         try {
-            Enumeration paramChilds = endpParam.getChildren(RouteAdvertisement.getAdvertisementType());
-            Element param = null;
+            Enumeration<?> paramChilds = endpParam.getChildren(RouteAdvertisement.getAdvertisementType());
+            Element<?> param = null;
 
             if (paramChilds.hasMoreElements()) {
-                param = (Element) paramChilds.nextElement();
+                param = (Element<?>) paramChilds.nextElement();
             }
             route = (RouteAdvertisement) 
-                    AdvertisementFactory.newAdvertisement((XMLElement) param);
+                    AdvertisementFactory.newAdvertisement((XMLElement<?>) param);
         } catch (Exception ex) {
             return null;
         }
@@ -372,10 +365,10 @@ public class XportConfTest extends TestCase {
             return null;
         }
 
-        Vector addrs = new Vector();
+        Vector<EndpointAddress> addrs = new Vector<>();
 
         try {
-            for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
+            for (Enumeration<String> e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
                 addrs.add(new EndpointAddress((String) e.nextElement()));
             }
         } catch (Exception e) {
@@ -389,10 +382,11 @@ public class XportConfTest extends TestCase {
         return Collections.enumeration(addrs);
     }
 
+    @Test
     public void testPubAddressOnly() throws Exception {
         PeerAdvertisement newPadv = pg.getPeerAdvertisement();
 
-        Enumeration endps = getEndpointAddresses(newPadv);
+        Enumeration<EndpointAddress> endps = getEndpointAddresses(newPadv);
 
         assertFalse("There should be exactly 4 endpoint addresses : " + newPadv, endps == null);
 
@@ -414,14 +408,18 @@ public class XportConfTest extends TestCase {
 
         assertFalse("There should be exactly 4 address : " + newPadv, endps.hasMoreElements());
     }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(XportConfTest.class);
-
-        return suite;
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+    
+    @After
+    public void tearDown() throws Exception {
+        synchronized (XportConfTest.class) {
+            if (--count > 0) {
+                return;
+            }
+//            pg.unref();
+            pg = null;
+            restoreConfig();
+            System.out.flush();
+            System.err.flush();
+        }
     }
 }

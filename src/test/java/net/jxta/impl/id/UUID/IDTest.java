@@ -60,14 +60,17 @@ import java.net.URI;
 import java.security.MessageDigest;
 
 import java.security.ProviderException;
+
+import org.junit.Test;
+
 import java.security.NoSuchAlgorithmException;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.UnsupportedEncodingException;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import net.jxta.codat.CodatID;
+import net.jxta.content.ContentID;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
@@ -77,259 +80,253 @@ import net.jxta.pipe.PipeID;
 /**
  * @author  mike
  */
-public final class IDTest extends TestCase {
+public final class IDTest{
 
-    /** Creates new DocTest */
-    public IDTest(String name) {
-        super(name);
-    }
 
-    public void testCodatID() {
-        try {
-            PeerGroupID seedGroup = IDFactory.newPeerGroupID("uuid");
-            CodatID first = IDFactory.newCodatID(seedGroup);
-            CodatID second = IDFactory.newCodatID(seedGroup);
-            CodatID third;
-            ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
-            String  asString;
-            ID myPeerGroup;
-            boolean isStatic;
+	@SuppressWarnings("unused")
+	@Test
+	public void testContentID() {
+		try {
+			PeerGroupID seedGroup = IDFactory.newPeerGroupID("uuid");
+			ContentID first = IDFactory.newContentID(seedGroup, false);
+			ContentID second = IDFactory.newContentID(seedGroup, false);
+			ContentID third;
+			ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+			String  asString;
+			ID myPeerGroup;
+			boolean isStatic;
 
-            assertTrue("comparison of a CodatID against itself failed", first.equals(first));
+			assertTrue("comparison of a ContentID against itself failed", first.equals(first));
 
-            assertTrue("comparison of two different CodatIDs should have failed", !first.equals(second));
+			assertTrue("comparison of two different ContentIDs should have failed", !first.equals(second));
 
-            assertTrue("comparison of different types should have failed", !first.equals(interloper));
+			assertTrue("comparison of different types should have failed", !first.equals(interloper));
 
-            assertTrue("comparison of different types should have failed", !interloper.equals(first));
+			assertTrue("comparison of different types should have failed", !interloper.equals(first));
 
-            assertTrue("zero hashcodereturned", 0 != first.hashCode());
+			assertTrue("zero hashcodereturned", 0 != first.hashCode());
 
-            URI asURI = first.toURI();
+			URI asURI = first.toURI();
 
-            asString = first.toString();
+			asString = first.toString();
 
-            assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
+			assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
 
-            third = (CodatID) IDFactory.fromURI(asURI);
+			third = (ContentID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
 
-            myPeerGroup = first.getPeerGroupID();
+			myPeerGroup = first.getPeerGroupID();
 
-            assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
+			assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
 
-            assertTrue("dynamic CodatID did not test as such.", !first.isStatic());
+			assertTrue("dynamic ContentID did not test as such.", !first.isStatic());
 
-            asURI = first.toURI();
+			asURI = first.toURI();
 
-            third = (CodatID) IDFactory.fromURI(asURI);
+			third = (ContentID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
 
-        }
+		}
 
-    }
+	}
 
-    public void testPeerGroupID() {
-        try {
-            byte[] seed = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-            PeerGroupID first = IDFactory.newPeerGroupID("uuid");
-            PeerGroupID second = IDFactory.newPeerGroupID("uuid");
-            PeerGroupID third = IDFactory.newPeerGroupID(second);
-            PeerGroupID fourth;
-            PeerGroupID fifth = IDFactory.newPeerGroupID(seed);
-            PeerGroupID sixth = IDFactory.newPeerGroupID(fifth, seed);
-            ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
-            String  asString;
-            URI     asURI;
-            ID myPeerGroup;
-            boolean isStatic;
+	@SuppressWarnings("unused")
+	@Test
+	public void testPeerGroupID() {
+		try {
+			byte[] seed = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+			PeerGroupID first = IDFactory.newPeerGroupID("uuid");
+			PeerGroupID second = IDFactory.newPeerGroupID("uuid");
+			PeerGroupID third = IDFactory.newPeerGroupID(second);
+			PeerGroupID fourth;
+			PeerGroupID fifth = IDFactory.newPeerGroupID(seed);
+			PeerGroupID sixth = IDFactory.newPeerGroupID(fifth, seed);
+			ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+			String  asString;
+			URI     asURI;
+			ID myPeerGroup;
+			boolean isStatic;
 
-            assertTrue("comparison of a PeerGroupID against itself failed", first.equals(first));
+			assertTrue("comparison of a PeerGroupID against itself failed", first.equals(first));
 
-            assertTrue("comparison against worldPeerGroup should have failed", !first.equals(PeerGroupID.worldPeerGroupID));
+			assertTrue("comparison against worldPeerGroup should have failed", !first.equals(PeerGroupID.worldPeerGroupID));
 
-            assertTrue("comparison of two different PeerGroupIDs should have failed", !first.equals(second));
+			assertTrue("comparison of two different PeerGroupIDs should have failed", !first.equals(second));
 
-            assertTrue("comparison of different types should have failed", !first.equals(interloper));
+			assertTrue("comparison of different types should have failed", !first.equals(interloper));
 
-            assertTrue("comparison of different types should have failed", !interloper.equals(first));
+			assertTrue("comparison of different types should have failed", !interloper.equals(first));
 
-            assertTrue("zero hashcodereturned", 0 != first.hashCode());
+			assertTrue("zero hashcodereturned", 0 != first.hashCode());
 
-            assertTrue("hashcode for world group should not have matched."
-                    ,
-                    PeerGroupID.worldPeerGroupID.hashCode() != first.hashCode());
+			assertTrue("hashcode for world group should not have matched."
+					,
+					PeerGroupID.worldPeerGroupID.hashCode() != first.hashCode());
 
-            asURI = first.toURI();
-            asString = first.toString();
+			asURI = first.toURI();
+			asString = first.toString();
 
-            assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
+			assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
 
-            fourth = (PeerGroupID) IDFactory.fromURI(asURI);
+			fourth = (PeerGroupID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(fourth));
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(fourth));
 
-            Object fromFirst = first.getUniqueValue();
-            Object fromSecond = second.getUniqueValue();
+			Object fromFirst = first.getUniqueValue();
+			Object fromSecond = second.getUniqueValue();
 
-            assertTrue("comparison of UUIDs from an ID and a clone failed", fromFirst.equals(fourth.getUniqueValue()));
+			assertTrue("comparison of UUIDs from an ID and a clone failed", fromFirst.equals(fourth.getUniqueValue()));
 
-            assertTrue("comparison of UUIDs from an ID and a different ID should have failed."
-                    ,
-                    !fromFirst.equals(second.getUniqueValue()));
+			assertTrue("comparison of UUIDs from an ID and a different ID should have failed."
+					,
+					!fromFirst.equals(second.getUniqueValue()));
 
-            assertTrue("simple group shouldnt have had a parent", null == first.getParentPeerGroupID());
+			assertTrue("simple group shouldnt have had a parent", null == first.getParentPeerGroupID());
 
-            assertTrue("parent group didnt match expected.", third.getParentPeerGroupID().equals(second));
+			assertTrue("parent group didnt match expected.", third.getParentPeerGroupID().equals(second));
 
-            third = IDFactory.newPeerGroupID(PeerGroupID.worldPeerGroupID);
+			third = IDFactory.newPeerGroupID(PeerGroupID.worldPeerGroupID);
 
-            assertTrue("parent group wasnt world group", third.getParentPeerGroupID().equals(PeerGroupID.worldPeerGroupID));
+			assertTrue("parent group wasnt world group", third.getParentPeerGroupID().equals(PeerGroupID.worldPeerGroupID));
 
-            assertTrue("parent didnt match", fifth.equals(sixth.getParentPeerGroupID()));
+			assertTrue("parent didnt match", fifth.equals(sixth.getParentPeerGroupID()));
 
-            asURI = first.toURI();
+			asURI = first.toURI();
 
-            third = (PeerGroupID) IDFactory.fromURI(asURI);
+			third = (PeerGroupID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
-        }
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
+		}
 
-    }
+	}
 
-    public void testPeerID() {
-        try {
-            PeerID first = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
-            PeerID second = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
-            PeerID third;
-            ID interloper = IDFactory.newPeerGroupID("uuid");
-            String  asString;
-            URI     asURI;
-            ID myPeerGroup;
-            boolean isStatic;
+	@SuppressWarnings("unused")
+	@Test
+	public void testPeerID() {
+		try {
+			PeerID first = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+			PeerID second = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+			PeerID third;
+			ID interloper = IDFactory.newPeerGroupID("uuid");
+			String  asString;
+			URI     asURI;
+			ID myPeerGroup;
+			boolean isStatic;
 
-            assertTrue("comparison of a PeerID against itself failed", first.equals(first));
+			assertTrue("comparison of a PeerID against itself failed", first.equals(first));
 
-            assertTrue("comparison of two different PeerIDs should have failed", !first.equals(second));
+			assertTrue("comparison of two different PeerIDs should have failed", !first.equals(second));
 
-            assertTrue("comparison of different types should have failed", !first.equals(interloper));
+			assertTrue("comparison of different types should have failed", !first.equals(interloper));
 
-            assertTrue("comparison of different types should have failed", !interloper.equals(first));
+			assertTrue("comparison of different types should have failed", !interloper.equals(first));
 
-            assertTrue("zero hashcodereturned", 0 != first.hashCode());
+			assertTrue("zero hashcodereturned", 0 != first.hashCode());
 
-            asURI = first.toURI();
-            asString = first.toString();
+			asURI = first.toURI();
+			asString = first.toString();
 
-            assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
+			assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
 
-            third = (PeerID) IDFactory.fromURI(asURI);
+			third = (PeerID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
 
-            assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
+			assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
 
-            asURI = first.toURI();
+			asURI = first.toURI();
 
-            third = (PeerID) IDFactory.fromURI(asURI);
+			third = (PeerID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
-        }
-    }
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
+		}
+	}
 
-    public void testSeededPipeID() {
-        MessageDigest dig = null;
+	@SuppressWarnings("unused")
+	@Test
+	public void testSeededPipeID() {
+		MessageDigest dig = null;
 
-        try {
-            dig = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException caught) {
-            dig = null;
-        }
+		try {
+			dig = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException caught) {
+			dig = null;
+		}
 
-        if (dig == null) {
-            throw new ProviderException("SHA-1 digest algorithm not found");
-        }
+		if (dig == null) {
+			throw new ProviderException("SHA-1 digest algorithm not found");
+		}
 
-        dig.reset();
+		dig.reset();
 
-        String pipeSeed = "JXTA_PIPE for user #012494345676";
+		String pipeSeed = "JXTA_PIPE for user #012494345676";
 
-        // Must use UTF-8 because platform encoding does vary.
-        try {
-            dig.update(pipeSeed.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException never) {
-            // UTF-8 is builtin
-            ;
-        }
+		// Must use UTF-8 because platform encoding does vary.
+		try {
+			dig.update(pipeSeed.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException never) {
+			// UTF-8 is builtin
+			;
+		}
 
-        byte[] result = dig.digest();
+		byte[] result = dig.digest();
 
-        PipeID first = IDFactory.newPipeID(IDFactory.newPeerGroupID("uuid"), result);
-    }
+		PipeID first = IDFactory.newPipeID(IDFactory.newPeerGroupID("uuid"), result);
+	}
 
-    public void testPipeID() {
-        try {
-            PipeID first = IDFactory.newPipeID(IDFactory.newPeerGroupID("uuid"));
-            PipeID second = IDFactory.newPipeID(IDFactory.newPeerGroupID("uuid"));
-            PipeID third;
-            ID interloper = IDFactory.newPeerGroupID("uuid");
-            String  asString;
-            URI     asURI;
-            ID myPeerGroup;
-            boolean isStatic;
+	@SuppressWarnings("unused")
+	@Test
+	public void testPipeID() {
+		try {
+			PipeID first = IDFactory.newPipeID(IDFactory.newPeerGroupID("uuid"));
+			PipeID second = IDFactory.newPipeID(IDFactory.newPeerGroupID("uuid"));
+			PipeID third;
+			ID interloper = IDFactory.newPeerGroupID("uuid");
+			String  asString;
+			URI     asURI;
+			ID myPeerGroup;
+			boolean isStatic;
 
-            assertTrue("comparison of a PipeID against itself failed", first.equals(first));
+			assertTrue("comparison of a PipeID against itself failed", first.equals(first));
 
-            assertTrue("comparison of two different PipeIDs should have failed", !first.equals(second));
+			assertTrue("comparison of two different PipeIDs should have failed", !first.equals(second));
 
-            assertTrue("comparison of different types should have failed", !first.equals(interloper));
+			assertTrue("comparison of different types should have failed", !first.equals(interloper));
 
-            assertTrue("comparison of different types should have failed", !interloper.equals(first));
+			assertTrue("comparison of different types should have failed", !interloper.equals(first));
 
-            assertTrue("zero hashcode returned", 0 != first.hashCode());
+			assertTrue("zero hashcode returned", 0 != first.hashCode());
 
-            asURI = first.toURI();
-            asString = first.toString();
+			asURI = first.toURI();
+			asString = first.toString();
 
-            assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
+			assertTrue("comparison of ID string and string of URI was not the same", asString.equals(asURI.toString()));
 
-            third = (PipeID) IDFactory.fromURI(asURI);
+			third = (PipeID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
 
-            assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
+			assertTrue("clone of ID is not of same peergroup.", first.getPeerGroupID().equals(third.getPeerGroupID()));
 
-            asURI = first.toURI();
+			asURI = first.toURI();
 
-            third = (PipeID) IDFactory.fromURI(asURI);
+			third = (PipeID) IDFactory.fromURI(asURI);
 
-            assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
-        } catch (Exception everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
-        }
-    }
-
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(suite());
-        System.err.flush();
-        System.out.flush();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(IDTest.class);
-
-        return suite;
-    }
+			assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
+		} catch (Exception everything) {
+			everything.printStackTrace();
+			fail("caught an unexpected exception - " + everything.toString());
+		}
+	}
 }

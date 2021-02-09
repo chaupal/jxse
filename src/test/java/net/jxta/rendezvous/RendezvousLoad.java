@@ -55,6 +55,8 @@
  */
 package net.jxta.rendezvous;
 
+import static org.junit.Assert.fail;
+
 import java.net.InetAddress;
 import java.util.Iterator;
 
@@ -85,7 +87,7 @@ import net.jxta.test.util.TcpConnection;
  * The peer must be configured with a tcp transport on port 9701
  * In addition $JXTA_HOME/jxta.properties must define RdvManager.MaxClients=#clients simulated
  * 
- * CP: This test requires additional prweparation
+ * CP: This test requires additional preparation
  */
 @Ignore
 public class RendezvousLoad {
@@ -160,9 +162,5 @@ public class RendezvousLoad {
     public String newIncarnation() {
 
         return Long.toString(System.currentTimeMillis());
-    }
-
-    public static void fail(String message) {
-        junit.framework.TestCase.fail(message);
     }
 }
