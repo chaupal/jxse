@@ -56,180 +56,176 @@
 
 package net.jxta.impl.util;
 
-import junit.framework.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.*;
 import java.util.*;
+
+import org.junit.Test;
 
 /**
  *
  * @author mike
  */
-public class BASE64Test extends TestCase {
+public class BASE64Test {
 
-    public BASE64Test(java.lang.String testName) {
-        super(testName);
-    }
+	@Test
+	public void testRoundTrip0() {
+		byte testVector1[] = {};
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        System.err.flush();
-        System.out.flush();
-    }
+	@Test
+	public void testRoundTrip1() {
+		byte testVector1[] = { 0 };
+		byte testVector3[] = { 127 };
+		byte testVector4[] = { -128 };
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(BASE64Test.class);
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        return suite;
-    }
+	@Test
+	public void testRoundTrip2() {
+		byte testVector1[] = { 0, 0 };
+		byte testVector2[] = { 0, 1 };
+		byte testVector3[] = { 127, 127 };
+		byte testVector4[] = { -128, -128 };
 
-    public void testRoundTrip0() {
-        byte testVector1[] = {};
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+	@Test
+	public void testRoundTrip3() {
+		byte testVector1[] = { 0, 0, 0 };
+		byte testVector2[] = { 0, 1, 2 };
+		byte testVector3[] = { 127, 127, 127 };
+		byte testVector4[] = { -128, -128, -128 };
 
-    public void testRoundTrip1() {
-        byte testVector1[] = { 0 };
-        byte testVector3[] = { 127 };
-        byte testVector4[] = { -128 };
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+	@Test
+	public void testRoundTrip4() {
+		byte testVector1[] = { 0, 0, 0, 0 };
+		byte testVector2[] = { 0, 1, 2, 3 };
+		byte testVector3[] = { 127, 127, 127, 127 };
+		byte testVector4[] = { -128, -128, -128, -128 };
 
-    public void testRoundTrip2() {
-        byte testVector1[] = { 0, 0 };
-        byte testVector2[] = { 0, 1 };
-        byte testVector3[] = { 127, 127 };
-        byte testVector4[] = { -128, -128 };
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+	@Test
+	public void testRoundTrip80() {
+		byte testVector1[] = new byte[80];
 
-    public void testRoundTrip3() {
-        byte testVector1[] = { 0, 0, 0 };
-        byte testVector2[] = { 0, 1, 2 };
-        byte testVector3[] = { 127, 127, 127 };
-        byte testVector4[] = { -128, -128, -128 };
+		Arrays.fill(testVector1, (byte) 0);
+		byte testVector2[] = new byte[80];
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+		Arrays.fill(testVector1, (byte) 1);
+		byte testVector3[] = new byte[80];
 
-    public void testRoundTrip4() {
-        byte testVector1[] = { 0, 0, 0, 0 };
-        byte testVector2[] = { 0, 1, 2, 3 };
-        byte testVector3[] = { 127, 127, 127, 127 };
-        byte testVector4[] = { -128, -128, -128, -128 };
+		Arrays.fill(testVector1, (byte) 127);
+		byte testVector4[] = new byte[80];
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+		Arrays.fill(testVector1, (byte) -128);
 
-    public void testRoundTrip80() {
-        byte testVector1[] = new byte[80];
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        Arrays.fill(testVector1, (byte) 0);
-        byte testVector2[] = new byte[80];
+	@Test
+	public void testRoundTrip1024() {
+		byte testVector1[] = new byte[1024];
 
-        Arrays.fill(testVector1, (byte) 1);
-        byte testVector3[] = new byte[80];
+		Arrays.fill(testVector1, (byte) 0);
+		byte testVector2[] = new byte[1024];
 
-        Arrays.fill(testVector1, (byte) 127);
-        byte testVector4[] = new byte[80];
+		Arrays.fill(testVector2, (byte) 1);
+		byte testVector3[] = new byte[1024];
 
-        Arrays.fill(testVector1, (byte) -128);
+		Arrays.fill(testVector3, (byte) 127);
+		byte[] testVector4 = createTestArray((byte) -128);
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-    public void testRoundTrip1024() {
-        byte testVector1[] = new byte[1024];
+	@Test
+	public void testRoundTrip131072() {
+		byte testVector1[] = new byte[131072];
 
-        Arrays.fill(testVector1, (byte) 0);
-        byte testVector2[] = new byte[1024];
+		Arrays.fill(testVector1, (byte) 0);
+		byte testVector2[] = new byte[131072];
 
-        Arrays.fill(testVector2, (byte) 1);
-        byte testVector3[] = new byte[1024];
+		Arrays.fill(testVector1, (byte) 1);
+		byte testVector3[] = new byte[131072];
 
-        Arrays.fill(testVector3, (byte) 127);
-        byte[] testVector4 = createTestArray((byte) -128);
+		Arrays.fill(testVector1, (byte) 127);
+		byte testVector4[] = new byte[131072];
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+		Arrays.fill(testVector1, (byte) -128);
 
-    public void testRoundTrip131072() {
-        byte testVector1[] = new byte[131072];
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
+			assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-        Arrays.fill(testVector1, (byte) 0);
-        byte testVector2[] = new byte[131072];
-
-        Arrays.fill(testVector1, (byte) 1);
-        byte testVector3[] = new byte[131072];
-
-        Arrays.fill(testVector1, (byte) 127);
-        byte testVector4[] = new byte[131072];
-
-        Arrays.fill(testVector1, (byte) -128);
-
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector2));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector3));
-            assertTrue("vector didn't round trip successfully", roundTripTest(testVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
-
-    public void testRoundTripCR1024() {
-        byte testVector1[] = createTestArray((byte)0);
-        String expectedB64ForVector1 
-        	=     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
+	@Test
+	public void testRoundTripCR1024() {
+		byte testVector1[] = createTestArray((byte)0);
+		String expectedB64ForVector1 
+		=     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
 				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
 				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
 				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
@@ -248,9 +244,9 @@ public class BASE64Test extends TestCase {
 				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
 				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
 
-        byte testVector2[] = createTestArray((byte)1);
+		byte testVector2[] = createTestArray((byte)1);
 		String expectedB64ForVector2 
-			=     "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\n"
+		=     "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\n"
 				+ "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\n"
 				+ "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\n"
 				+ "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\n"
@@ -269,145 +265,148 @@ public class BASE64Test extends TestCase {
 				+ "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\n"
 				+ "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ==";
 
-        byte testVector3[] = createTestArray((byte)127);
-        String expectedB64ForVector3 
-        	=   "f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
-        		"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/fw==";
+		byte testVector3[] = createTestArray((byte)127);
+		String expectedB64ForVector3 
+		=   "f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/\n" + 
+				"f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/f39/fw==";
 
-        byte[] testVector4 = createTestArray((byte) -128);
-        String expectedB64ForVector4 
-        	=   "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
-        		"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+		byte[] testVector4 = createTestArray((byte) -128);
+		String expectedB64ForVector4 
+		=   "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA\n" + 
+				"gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector1, expectedB64ForVector1));
-            assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector2, expectedB64ForVector2));
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector1, expectedB64ForVector1));
+			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector2, expectedB64ForVector2));
 			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector3, expectedB64ForVector3));
 			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector4, expectedB64ForVector4));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
 	private byte[] createTestArray(byte fillByte) {
 		byte testArray[] = new byte[1024];
-        Arrays.fill(testArray, fillByte);
+		Arrays.fill(testArray, fillByte);
 		return testArray;
 	}
 
-    public void testRoundTripCR131072Random() {
-        Random random = new Random();
-        byte testVector1[] = new byte[131072];
+	@Test
+	public void testRoundTripCR131072Random() {
+		Random random = new Random();
+		byte testVector1[] = new byte[131072];
 
-        random.nextBytes(testVector1);
-        byte testVector2[] = new byte[131072];
+		random.nextBytes(testVector1);
+		byte testVector2[] = new byte[131072];
 
-        random.nextBytes(testVector2);
-        byte testVector3[] = new byte[131072];
+		random.nextBytes(testVector2);
+		byte testVector3[] = new byte[131072];
 
-        random.nextBytes(testVector3);
-        byte testVector4[] = new byte[131072];
+		random.nextBytes(testVector3);
+		byte testVector4[] = new byte[131072];
 
-        random.nextBytes(testVector4);
+		random.nextBytes(testVector4);
 
-        try {
-            assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector1, null));
-            assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector2, null));
-            assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector3, null));
-            assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector4, null));
-        } catch (IOException failed) {
-            fail("Exception " + failed);
-        }
-    }
+		try {
+			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector1, null));
+			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector2, null));
+			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector3, null));
+			assertTrue("vector didn't round trip successfully", roundTripTestCR(testVector4, null));
+		} catch (IOException failed) {
+			fail("Exception " + failed);
+		}
+	}
 
-    public boolean roundTripTest(byte[] source) throws IOException {
+	@SuppressWarnings("resource")
+	public boolean roundTripTest(byte[] source) throws IOException {
 
-        StringWriter base64Writer = new StringWriter();
+		StringWriter base64Writer = new StringWriter();
 
-        OutputStream out = new BASE64OutputStream(base64Writer);
+		OutputStream out = new BASE64OutputStream(base64Writer);
 
-        out.write(source);
-        out.close();
+		out.write(source);
+		out.close();
 
-        StringReader base64Reader = new StringReader(base64Writer.toString());
+		StringReader base64Reader = new StringReader(base64Writer.toString());
 
-        InputStream input = new BASE64InputStream(base64Reader);
+		InputStream input = new BASE64InputStream(base64Reader);
 
-        DataInput di = new DataInputStream(input);
+		DataInput di = new DataInputStream(input);
 
-        byte result[] = new byte[source.length];
+		byte result[] = new byte[source.length];
 
-        di.readFully(result);
+		di.readFully(result);
 
-        if (-1 != input.read()) {
-            throw new IOException("Not at EOF");
-        }
+		if (-1 != input.read()) {
+			throw new IOException("Not at EOF");
+		}
 
-        return Arrays.equals(source, result);
-    }
+		return Arrays.equals(source, result);
+	}
 
-    /**
-     *  A round trip test that also compares whether our encoder works against
-     *  an alternate sun private implemenation.
-     **/
-    public boolean roundTripTestCR(byte[] source, String expectedB64) throws IOException {
+	/**
+	 *  A round trip test that also compares whether our encoder works against
+	 *  an alternate sun private implemenation.
+	 **/
+	@SuppressWarnings("resource")
+	public boolean roundTripTestCR(byte[] source, String expectedB64) throws IOException {
 
-        StringWriter base64Writer = new StringWriter();
+		StringWriter base64Writer = new StringWriter();
 
-        OutputStream out = new BASE64OutputStream(base64Writer, 72);
+		OutputStream out = new BASE64OutputStream(base64Writer, 72);
 
-        out.write(source);
-        out.close();
+		out.write(source);
+		out.close();
 
-        if(expectedB64 != null) {
-        	assertEquals(expectedB64, base64Writer.getBuffer().toString());
-        }
+		if(expectedB64 != null) {
+			assertEquals(expectedB64, base64Writer.getBuffer().toString());
+		}
 
-        StringReader base64Reader = new StringReader(base64Writer.toString());
-        InputStream input = new BASE64InputStream(base64Reader);
+		StringReader base64Reader = new StringReader(base64Writer.toString());
+		InputStream input = new BASE64InputStream(base64Reader);
 
-        DataInput di = new DataInputStream(input);
+		DataInput di = new DataInputStream(input);
 
-        byte result[] = new byte[source.length];
+		byte result[] = new byte[source.length];
 
-        di.readFully(result);
+		di.readFully(result);
 
-        if (-1 != input.read()) {
-            throw new IOException("Not at EOF");
-        }
+		if (-1 != input.read()) {
+			throw new IOException("Not at EOF");
+		}
 
-        return Arrays.equals(source, result);
-    }
+		return Arrays.equals(source, result);
+	}
 }

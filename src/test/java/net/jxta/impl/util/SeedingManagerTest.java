@@ -56,80 +56,68 @@
 
 package net.jxta.impl.util;
 
-import junit.framework.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import org.junit.Test;
 
 /**
  *
  * @author mike
  */
-public class SeedingManagerTest extends TestCase {
+public class SeedingManagerTest{
 
-    public SeedingManagerTest(java.lang.String testName) {
-        super(testName);
-    }
+	@Test
+	public void testPermanentSeeds() {
+		URI seeduris[] = { 
+				URI.create("tcp://1.2.3.4:1234"), 
+				URI.create("tcp://4.3.2.1:4321"), 
+				URI.create("http://1.2.3.4:1234"),
+				URI.create("http://4.3.2.1:1234")
+		};
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+		URISeedingManager seeder = new URISeedingManager(null, true, null, null );
 
-        System.err.flush();
-        System.out.flush();
-    }
+		seeder.addSeed(seeduris[0]);
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(SeedingManagerTest.class);
+		URI seeds[] = seeder.getActiveSeedURIs();
 
-        return suite;
-    }
+		assertTrue("Incorrect number of seeds returned.", seeds.length == 1);
+		assertTrue("Seed not as expected.", seeds[0].equals(seeduris[0]));
 
-    public void testPermanentSeeds() {
-        URI seeduris[] = { 
-            URI.create("tcp://1.2.3.4:1234"), 
-            URI.create("tcp://4.3.2.1:4321"), 
-            URI.create("http://1.2.3.4:1234"),
-            URI.create("http://4.3.2.1:1234")
-        };
+		for (URI aSeed : Arrays.asList(seeduris)) {
+			seeder.addSeed(aSeed);
+		}
 
-        URISeedingManager seeder = new URISeedingManager(null, true, null, null );
+		seeds = seeder.getActiveSeedURIs();
 
-        seeder.addSeed(seeduris[0]);
+		assertTrue("Incorrect number of seeds returned.", seeds.length == seeduris.length);
+		for (URI aSeed : Arrays.asList(seeduris)) {
+			if (!Arrays.asList(seeduris).contains(aSeed)) {
+				fail("Missing permanent seed");
+			}
+		}
+	}
 
-        URI seeds[] = seeder.getActiveSeedURIs();
+	@SuppressWarnings("unused")
+	@Test
+	public void testSeeding() {
+		URI seedinguris[] = {
+				URI.create("file:///home/mike/rendezvous.xml"),
+				URI.create("ftp://ftp.duigou.org/jxta/rendezvous.txt")
+		};
 
-        assertTrue("Incorrect number of seeds returned.", seeds.length == 1);
-        assertTrue("Seed not as expected.", seeds[0].equals(seeduris[0]));
+		URISeedingManager seeder = new URISeedingManager(null, true, null, null);
 
-        for (URI aSeed : Arrays.asList(seeduris)) {
-            seeder.addSeed(aSeed);
-        }
+		seeder.addSeedingURI(seedinguris[0]);
 
-        seeds = seeder.getActiveSeedURIs();
+		URI seeds[] = seeder.getActiveSeedURIs();
 
-        assertTrue("Incorrect number of seeds returned.", seeds.length == seeduris.length);
-        for (URI aSeed : Arrays.asList(seeduris)) {
-            if (!Arrays.asList(seeduris).contains(aSeed)) {
-                fail("Missing permanent seed");
-            }
-        }
-    }
+		seeder.addSeedingURI(seedinguris[1]);
 
-    public void testSeeding() {
-        URI seedinguris[] = {
-            URI.create("file:///home/mike/rendezvous.xml"),
-            URI.create("ftp://ftp.duigou.org/jxta/rendezvous.txt")
-        };
-
-        URISeedingManager seeder = new URISeedingManager(null, true, null, null);
-
-        seeder.addSeedingURI(seedinguris[0]);
-
-        URI seeds[] = seeder.getActiveSeedURIs();
-
-        seeder.addSeedingURI(seedinguris[1]);
-
-        seeds = seeder.getActiveSeedURIs();
-    }
+		seeds = seeder.getActiveSeedURIs();
+	}
 }

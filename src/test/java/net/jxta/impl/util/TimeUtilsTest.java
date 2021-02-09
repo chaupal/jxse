@@ -56,154 +56,145 @@
 
 package net.jxta.impl.util;
 
-import junit.framework.*;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 /**
  *
  * @author mike
  */
-public class TimeUtilsTest extends TestCase {
+public class TimeUtilsTest{
 
-    public TimeUtilsTest(java.lang.String testName) {
-        super(testName);
-    }
+	@Test
+	public void testConstants() {
+		assertTrue("zero milliseconds not less than a millisecond", TimeUtils.ZEROMILLISECONDS < TimeUtils.AMILLISECOND);
+		assertTrue("millisecond not less than a second", TimeUtils.AMILLISECOND < TimeUtils.ASECOND);
+		assertTrue("second not less than a minute", TimeUtils.ASECOND < TimeUtils.AMINUTE);
+		assertTrue("minute not less than an hour", TimeUtils.AMINUTE < TimeUtils.ANHOUR);
+		assertTrue("hour not less than a day", TimeUtils.ANHOUR < TimeUtils.ADAY);
+		assertTrue("day not less than a week", TimeUtils.ADAY < TimeUtils.AWEEK);
+		assertTrue("week not less than a fornight", TimeUtils.AWEEK < TimeUtils.AFORTNIGHT);
+		assertTrue("fornight not less than a year", TimeUtils.AFORTNIGHT < TimeUtils.AYEAR);
+		assertTrue("year not less than a leap year", TimeUtils.AYEAR < TimeUtils.ALEAPYEAR);
+	}
 
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+	@Test
+	public void testTimeNow() {
+		long firstNow = TimeUtils.timeNow();
 
-        System.err.flush();
-        System.out.flush();
-    }
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException woken) {
+			Thread.interrupted();
+		}
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TimeUtilsTest.class);
+		long secondNow = TimeUtils.timeNow();
 
-        return suite;
-    }
+		assertTrue("Time is not working", secondNow > firstNow);
+	}
 
-    public void testConstants() {
-        assertTrue("zero milliseconds not less than a millisecond", TimeUtils.ZEROMILLISECONDS < TimeUtils.AMILLISECOND);
-        assertTrue("millisecond not less than a second", TimeUtils.AMILLISECOND < TimeUtils.ASECOND);
-        assertTrue("second not less than a minute", TimeUtils.ASECOND < TimeUtils.AMINUTE);
-        assertTrue("minute not less than an hour", TimeUtils.AMINUTE < TimeUtils.ANHOUR);
-        assertTrue("hour not less than a day", TimeUtils.ANHOUR < TimeUtils.ADAY);
-        assertTrue("day not less than a week", TimeUtils.ADAY < TimeUtils.AWEEK);
-        assertTrue("week not less than a fornight", TimeUtils.AWEEK < TimeUtils.AFORTNIGHT);
-        assertTrue("fornight not less than a year", TimeUtils.AFORTNIGHT < TimeUtils.AYEAR);
-        assertTrue("year not less than a leap year", TimeUtils.AYEAR < TimeUtils.ALEAPYEAR);
-    }
+	@Test
+	public void testToAbsoluteTimeMillis1() {
+		long relativeNow = TimeUtils.toAbsoluteTimeMillis(0);
 
-    public void testTimeNow() {
-        long firstNow = TimeUtils.timeNow();
+		long now = TimeUtils.timeNow();
 
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException woken) {
-            Thread.interrupted();
-        }
+		assertTrue("relative now is later than now", now >= relativeNow);
 
-        long secondNow = TimeUtils.timeNow();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException woken) {
+			Thread.interrupted();
+		}
 
-        assertTrue("Time is not working", secondNow > firstNow);
-    }
+		long aboutepoch = TimeUtils.toAbsoluteTimeMillis(-now);
 
-    public void testToAbsoluteTimeMillis1() {
-        long relativeNow = TimeUtils.toAbsoluteTimeMillis(0);
+		assertTrue("epoch is not before now", aboutepoch >= 0);
 
-        long now = TimeUtils.timeNow();
+		long inTheFuture = TimeUtils.toAbsoluteTimeMillis(10000);
 
-        assertTrue("relative now is later than now", now >= relativeNow);
+		assertTrue("Time is running backwards", inTheFuture >= now);
 
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException woken) {
-            Thread.interrupted();
-        }
+		long forever = TimeUtils.toAbsoluteTimeMillis(Long.MAX_VALUE);
 
-        long aboutepoch = TimeUtils.toAbsoluteTimeMillis(-now);
+		assertTrue("forever is not the end of time", forever == Long.MAX_VALUE);
 
-        assertTrue("epoch is not before now", aboutepoch >= 0);
+		long almostForever = TimeUtils.toAbsoluteTimeMillis(Long.MAX_VALUE - 1);
 
-        long inTheFuture = TimeUtils.toAbsoluteTimeMillis(10000);
+		assertTrue("Almost forever was not enough", almostForever == Long.MAX_VALUE);
 
-        assertTrue("Time is running backwards", inTheFuture >= now);
+		long bigbang = TimeUtils.toAbsoluteTimeMillis(Long.MIN_VALUE);
 
-        long forever = TimeUtils.toAbsoluteTimeMillis(Long.MAX_VALUE);
+		assertTrue("all time is is not the start of time.", bigbang == Long.MIN_VALUE);
 
-        assertTrue("forever is not the end of time", forever == Long.MAX_VALUE);
+		long longlongago = TimeUtils.toAbsoluteTimeMillis(Long.MIN_VALUE + 1);
 
-        long almostForever = TimeUtils.toAbsoluteTimeMillis(Long.MAX_VALUE - 1);
+		assertTrue("long long ago is not when it should be", longlongago < now);
 
-        assertTrue("Almost forever was not enough", almostForever == Long.MAX_VALUE);
+		long rightaway = TimeUtils.toAbsoluteTimeMillis(0);
 
-        long bigbang = TimeUtils.toAbsoluteTimeMillis(Long.MIN_VALUE);
+		assertTrue("right away should not be less than now.", rightaway >= now);
 
-        assertTrue("all time is is not the start of time.", bigbang == Long.MIN_VALUE);
+	}
 
-        long longlongago = TimeUtils.toAbsoluteTimeMillis(Long.MIN_VALUE + 1);
+	@Test
+	public void testToRelativeTime() {
+		long justpast = TimeUtils.toRelativeTimeMillis(-1);
 
-        assertTrue("long long ago is not when it should be", longlongago < now);
+		assertTrue("-1 is not a mapped value", (justpast > Long.MIN_VALUE) && (justpast < Long.MAX_VALUE));
 
-        long rightaway = TimeUtils.toAbsoluteTimeMillis(0);
+		long now = TimeUtils.toRelativeTimeMillis(0);
 
-        assertTrue("right away should not be less than now.", rightaway >= now);
+		assertTrue("0 is not a mapped value", (now > Long.MIN_VALUE) && (now < Long.MAX_VALUE));
 
-    }
+		long beginingoftime = TimeUtils.toRelativeTimeMillis(Long.MIN_VALUE);
 
-    public void testToRelativeTime() {
-        long justpast = TimeUtils.toRelativeTimeMillis(-1);
+		assertTrue("beginging of time not beginging of time", beginingoftime == Long.MIN_VALUE);
 
-        assertTrue("-1 is not a mapped value", (justpast > Long.MIN_VALUE) && (justpast < Long.MAX_VALUE));
+		long endoftime = TimeUtils.toRelativeTimeMillis(Long.MAX_VALUE);
 
-        long now = TimeUtils.toRelativeTimeMillis(0);
+		assertTrue("end of time not end of time", endoftime == Long.MAX_VALUE);
+	}
 
-        assertTrue("0 is not a mapped value", (now > Long.MIN_VALUE) && (now < Long.MAX_VALUE));
+	@Test
+	public void testTimeWarp() {
 
-        long beginingoftime = TimeUtils.toRelativeTimeMillis(Long.MIN_VALUE);
+		assertTrue("Warper active", TimeUtils.WARPBEGAN == 0); // private API
 
-        assertTrue("beginging of time not beginging of time", beginingoftime == Long.MIN_VALUE);
+		TimeUtils.TIMEWARP = 0; // private API
 
-        long endoftime = TimeUtils.toRelativeTimeMillis(Long.MAX_VALUE);
+		long now = TimeUtils.timeNow();
 
-        assertTrue("end of time not end of time", endoftime == Long.MAX_VALUE);
-    }
+		TimeUtils.timeWarp(10000000);
 
-    public void testTimeWarp() {
+		long later = TimeUtils.timeNow();
 
-        assertTrue("Warper active", TimeUtils.WARPBEGAN == 0); // private API
+		assertTrue("later wasn't after now", later > now);
+	}
 
-        TimeUtils.TIMEWARP = 0; // private API
+	@Test
+	public void testAutoWarper() {
 
-        long now = TimeUtils.timeNow();
+		assertTrue("Warper already active", TimeUtils.WARPFACTOR == 1.0); // private API
 
-        TimeUtils.timeWarp(10000000);
+		TimeUtils.TIMEWARP = 0; // private API
 
-        long later = TimeUtils.timeNow();
+		long start = TimeUtils.timeNow();
 
-        assertTrue("later wasn't after now", later > now);
-    }
+		TimeUtils.autoWarp((double) (TimeUtils.AWEEK / TimeUtils.ASECOND));
 
-    public void testAutoWarper() {
+		try {
+			Thread.sleep(3 * TimeUtils.ASECOND);
+		} catch (InterruptedException woken) {
+			Thread.interrupted();
+		}
 
-        assertTrue("Warper already active", TimeUtils.WARPFACTOR == 1.0); // private API
+		long muchLater = TimeUtils.timeNow();
 
-        TimeUtils.TIMEWARP = 0; // private API
+		assertTrue("much later wasn't in the future.", TimeUtils.toRelativeTimeMillis(muchLater, start) >= (3 * TimeUtils.AWEEK));
 
-        long start = TimeUtils.timeNow();
-
-        TimeUtils.autoWarp((double) (TimeUtils.AWEEK / TimeUtils.ASECOND));
-
-        try {
-            Thread.sleep(3 * TimeUtils.ASECOND);
-        } catch (InterruptedException woken) {
-            Thread.interrupted();
-        }
-
-        long muchLater = TimeUtils.timeNow();
-
-        assertTrue("much later wasn't in the future.", TimeUtils.toRelativeTimeMillis(muchLater, start) >= (3 * TimeUtils.AWEEK));
-        
-        //Restore the static after the test to its original value
-        TimeUtils.WARPBEGAN = 0;
-    }
+		//Restore the static after the test to its original value
+		TimeUtils.WARPBEGAN = 0;
+	}
 }
