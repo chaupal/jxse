@@ -112,9 +112,16 @@ public class BlockingPipeAcceptTest {
 	
     @After
     public void killPeers() throws Exception {
-        aliceManager.stopNetwork();
-        bobManager.stopNetwork();
-        relayManager.stopNetwork();
-        service.shutdown();
+    	service.shutdown();
+    	try {
+    		service.awaitTermination(120, TimeUnit.SECONDS);
+    	} catch (InterruptedException e) {
+    		fail( e.getMessage());
+    	}
+    	finally {
+        	aliceManager.stopNetwork();
+        	bobManager.stopNetwork();
+        	relayManager.stopNetwork();    		
+    	}
     }
 }

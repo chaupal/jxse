@@ -31,15 +31,15 @@ public class RelayedHttp2CommsTest {
         Thread.sleep(5000L);
     }
 
+	@Test(timeout=30000)
+	public void testComms() throws Exception {
+		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+	}
+
 	@After
     public void killPeers() throws Exception {
         aliceManager.stopNetwork();
         bobManager.stopNetwork();
         relayManager.stopNetwork();
     }
-	
-	@Test(timeout=30000)
-	public void testComms() throws Exception {
-		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
-	}
 }

@@ -79,6 +79,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
         this.sendQueue = new ArrayBlockingQueue<QueuedMessage>(messageQueueSize);
     }
 
+    @Override
     public final void close() {
         closeEvent();
     }
@@ -208,28 +209,30 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             }
 
             try {
-                SendStatus status = pushSingleMessage();
-                switch(status) {
-                case SATURATED:
-                case FAIL:
-                    sendSucceeding = false;
-                    break;
-                }
+            	SendStatus status = pushSingleMessage();
+            	switch(status) {
+            	case SATURATED:
+            	case FAIL:
+            		sendSucceeding = false;
+            		break;
+            	default:
+            		break;
+            	}
 
-                if(inputClosed.get() && sendQueue.isEmpty()) {
-                    // this is our prompt to close the connection gracefully
-                    requestClose();
-                }
+            	if(inputClosed.get() && sendQueue.isEmpty()) {
+            		// this is our prompt to close the connection gracefully
+            		requestClose();
+            	}
             } finally {
-                sending.set(false);
+            	sending.set(false);
             }
         }
     }
 
     private boolean ableToSend() {
-        int sendableState = Messenger.CONNECTED
-                          | Messenger.SENDING
-                          | Messenger.SENDINGSATURATED
+    	int sendableState = Messenger.CONNECTED
+    			| Messenger.SENDING
+    			| Messenger.SENDINGSATURATED
                           | Messenger.CLOSING;
         return (getState() & sendableState) != 0;
     }

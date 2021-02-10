@@ -14,7 +14,7 @@ import net.jxse.systemtests.colocated.pipes.BlockingPipeAcceptTest;
 import net.jxta.socket.SocketServerTest;
 
 @RunWith(Suite.class)
-
+@Ignore
 @Suite.SuiteClasses({
 	AdHocHttp2CommsTest.class,
 	RelayedHttp2CommsTest.class,
@@ -23,5 +23,4 @@ import net.jxta.socket.SocketServerTest;
 	BlockingPipeAcceptTest.class
 
 })
-@Ignore
 public class TestSuite {}

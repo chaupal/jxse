@@ -1595,7 +1595,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             return null;
         }
 
-        return parentEndpoint.getCanonicalMessenger(addr, hint);
+        return parentEndpoint.getMessenger(addr, hint);
     }
 
     /**
@@ -2009,8 +2009,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 }
             }
             // The listenerAdaptor of this interface obj is used to support the sendMessage-with-listener API.
-            res.setMessageWatcher(listenerAdaptor);
-            channelCache.put(res.getDestinationAddress(), new WeakReference<Messenger>(res));
+            //CP: apparently res may be null, so we make this conditional
+            if( res != null ) {
+            	res.setMessageWatcher(listenerAdaptor);
+            	channelCache.put(res.getDestinationAddress(), new WeakReference<Messenger>(res));
+            }
         }
         return res;
     }

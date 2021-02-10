@@ -7,6 +7,9 @@ import net.jxta.platform.NetworkManager;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,8 +31,12 @@ public class AdHocHttp2CommsTest {
 	private NetworkManager aliceManager;
 	private NetworkManager bobManager;
 	
+    private ExecutorService service;
+
+
 	@Before
 	public void createPeers() throws Exception {
+        service = Executors.newCachedThreadPool();
 		aliceManager = PeerConfigurator.createHttp2AdhocPeer("alice", 58000, tempStorage);
 		bobManager = PeerConfigurator.createHttp2AdhocPeer("bob", 58001, tempStorage);
 
@@ -50,17 +57,29 @@ public class AdHocHttp2CommsTest {
 	
 	@Test
 	public void testComms() throws Exception {
-		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+		service.execute(()-> onTestpeerCommunication());
+	}
+	
+	protected void onTestpeerCommunication() {
+		try {
+			SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 	}
 	
 	@After
-	public void killAlice() throws Exception {
-		aliceManager.stopNetwork();
-	}
-	
-	@After
-	public void killBob() throws Exception {
-		bobManager.stopNetwork();
-	}
-	
+	public void tearDown() throws Exception {
+		service.shutdown();
+		try {
+			service.awaitTermination(30000, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			fail( e.getMessage());
+		}
+		finally {
+			aliceManager.stopNetwork();
+			bobManager.stopNetwork();
+		}
+	}	
 }

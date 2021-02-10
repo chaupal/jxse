@@ -202,6 +202,22 @@
 				<version>2.5.2</version>
 			</plugin>
 
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+			                <overWrite>true</overWrite>
+							<excludeTransitive>true</excludeTransitive>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -231,12 +247,6 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.main</artifactId>
-			<version>2.0.1</version>
-			<scope>provided</scope>
 		</dependency>
 		<!-- The following dependencies are not always needed in normal JXTA use, 
 			so they are flagged as "optional". Include it manually in your project's 
