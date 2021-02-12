@@ -88,7 +88,7 @@ import net.jxta.peer.PeerID;
  * The client will identify how many ITERATIONS of PAYLOADSIZE buffers will be
  * exchanged with the server and then write and read those buffers.
  */
-public class SocketClientTest implements Closeable{
+public class SocketClientTest{
     /**
      *  The maximum ratio of messages we will test losing.
      */
@@ -134,9 +134,7 @@ public class SocketClientTest implements Closeable{
         synchronized (SocketClientTest.class) {
             try {
                 if(null == manager) {
-                    /*manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
-                            new File(new File(".cache"), "SocketClient").toURI());*/
-                    manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
+                   manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
                             new File(new File(".cache"), "SocketClient").toURI());
                     manager.startNetwork();
 
@@ -327,7 +325,7 @@ public class SocketClientTest implements Closeable{
     }
 
     @After
-    public void close() {
+    public void tearDown() {
 
         synchronized (SocketClientTest.class) {
             if (null != manager) {
@@ -350,19 +348,14 @@ public class SocketClientTest implements Closeable{
 
 
 	protected void onRunSocketClient() {
-		SocketClientTest test =  new SocketClientTest();
 		try {
-			test.setup();
-			test.testDefault();
-			test.testFailingSocket();
-			test.testMessageDelay();
-			test.testMessageLoss();
+			testDefault();
+			testFailingSocket();
+			testMessageDelay();
+			testMessageLoss();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
-		}
-		finally {
-			test.close();
 		}
 	}
 

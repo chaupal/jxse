@@ -73,7 +73,7 @@ public class AdHocHttp2CommsTest {
 	public void tearDown() throws Exception {
 		service.shutdown();
 		try {
-			service.awaitTermination(30000, TimeUnit.SECONDS);
+			service.awaitTermination(120, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			fail( e.getMessage());
 		}

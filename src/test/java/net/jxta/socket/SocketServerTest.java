@@ -89,7 +89,7 @@ import net.jxta.credential.Credential;
  * The initiator will provide an iteration count and buffer size. The peers will
  * then read and write buffers. (or write and read for the initiator).
  */
-public class SocketServerTest implements Closeable{
+public class SocketServerTest {
     public final static PipeID SOCKET_ID = PipeID.create(URI.create("urn:jxta:uuid-59616261646162614E5047205032503393B5C2F6CA7A41FBB0F890173088E79404"));
 
     private static transient NetworkManager manager = null;
@@ -99,20 +99,20 @@ public class SocketServerTest implements Closeable{
     private static transient JxtaServerSocket serverSocket = null;
 
     private static boolean closed = false;
+    
+    private ExecutorService service;
 
     public SocketServerTest() {
     }
 
     @Before
     public void setup() {
-        synchronized (SocketServerTest.class) {
+        service = Executors.newCachedThreadPool();
+    	synchronized (SocketServerTest.class) {
             try {
                 if(null == manager) {
-                    //manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer", new File(new File(".cache"), "SocketServer").toURI());
                     manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer", new File(new File(".cache"), "SocketServer").toURI());                    
-
                     manager.startNetwork();
-
                     netPeerGroup = manager.getNetPeerGroup();
                 }
             } catch (Exception e) {
@@ -207,10 +207,7 @@ public class SocketServerTest implements Closeable{
     }
 
     protected void testServerSocket() {
-    	SocketServerTest socEx = null;
     	try {
-            socEx = new SocketServerTest();
-
             System.out.println("Starting ServerSocket");
 
             FaultyJxtaServerSocket.loss = 0.05;
@@ -241,7 +238,7 @@ public class SocketServerTest implements Closeable{
             fail(e.getMessage());
         }
     	finally {
-    		IOUtils.closeQuietely(socEx);
+    		IOUtils.closeQuietely(serverSocket);
     	}
     }
 
@@ -269,9 +266,20 @@ public class SocketServerTest implements Closeable{
             }
         }
     }
+    
+	@Test
+	public void runSockets() {
+		service.submit( ()->testServerSocket() );
+	}
 
     @After
-    public void close() {
+    public void tearDown() {
+		try {
+			service.shutdown();
+			service.awaitTermination(120, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         synchronized (SocketServerTest.class) {
             if (null != manager) {
                 manager.stopNetwork();
@@ -279,27 +287,5 @@ public class SocketServerTest implements Closeable{
             }
         }
     }
-    
-	@Test
-	public void runSockets() {
-		ExecutorService executor = Executors.newFixedThreadPool(2);
-		executor.execute( ()->onRunSocketServer() );
-		try {
-			executor.awaitTermination(120, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	protected void onRunSocketServer() {
-		SocketServerTest test = new SocketServerTest();
-		try {
-			test.setup();
-			test.testServerSocket();
-		}
-		finally {
-			test.close();
-		}
-	}
 
 }
