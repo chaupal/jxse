@@ -58,12 +58,9 @@ package net.jxta.impl.membership.pse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
@@ -101,9 +98,8 @@ import javax.security.auth.x500.X500Principal;
 
 import net.jxta.document.Attribute;
 import net.jxta.document.XMLElement;
-import net.jxta.impl.util.BASE64InputStream;
-import net.jxta.impl.util.BASE64OutputStream;
 import net.jxta.logging.Logging;
+import net.jxta.util.Base64Utils;
 
 import org.spongycastle.asn1.DERObjectIdentifier;
 import org.spongycastle.asn1.x509.X509NameTokenizer;
@@ -724,15 +720,6 @@ public final class PSEUtils {
     }
 
     /**
-     * Read an object
-     */
-    public static byte[] readObject(BufferedReader br, String type) throws IOException {
-        String base64 = readBase64Object(br, type);
-
-        return base64Decode(new StringReader(base64));
-    }
-
-    /**
      *
      */
 
@@ -762,73 +749,19 @@ public final class PSEUtils {
         bw.flush();
     }
 
+    /**
+     * Read an object
+     */
+    public static byte[] readObject(BufferedReader br, String type) throws IOException {
+        String base64 = readBase64Object(br, type);
+
+        return Base64Utils.base64Decode(new StringReader(base64));
+    }
+
     public static void writeObject(BufferedWriter out, String type, byte[] object) throws IOException {
-        String base64 = base64Encode(object);
+        String base64 = Base64Utils.base64EncodeToString(object);
 
         writeBase64Object(out, type, base64);
-    }
-
-    /**
-     * Convert a byte array into a BASE64 encoded String.
-     *
-     * @param in The bytes to be converted
-     * @return the BASE64 encoded String.
-     */
-    public static String base64Encode(byte[] in) throws IOException {
-        return base64Encode(in, true);
-    }
-
-    /**
-     * Convert a byte array into a BASE64 encoded String.
-     *
-     * @param in the bytes to be converted
-     * @return the BASE64 encoded String.
-     */
-    public static String base64Encode(byte[] in, boolean wrap) throws IOException {
-        StringWriter base64 = new StringWriter();
-
-        BASE64OutputStream b64os;
-
-        if (wrap) {
-            b64os = new BASE64OutputStream(base64, 72);
-        } else {
-            b64os = new BASE64OutputStream(base64);
-        }
-        b64os.write(in);
-        b64os.close();
-
-        String encoded = base64.toString();
-
-        Logging.logCheckedFiner(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
-
-        return encoded;
-    }
-
-    /**
-     * Convert a BASE64 Encoded String into byte array.
-     *
-     * @param in BASE64 encoded String
-     * @return the decoded bytes.
-     */
-    public static byte[] base64Decode(Reader in) throws IOException {
-        BASE64InputStream b64is = new BASE64InputStream(in);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        do {
-            int c = b64is.read();
-
-            if (c < 0) {
-                break;
-            }
-
-            bos.write(c);
-        } while (true);
-
-        byte[] result = bos.toByteArray();
-
-        Logging.logCheckedFiner(LOG, "Decoded ", result.length, " bytes.");
-
-        return result;
     }
 
     /**

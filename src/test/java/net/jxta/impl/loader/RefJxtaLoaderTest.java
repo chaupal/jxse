@@ -81,6 +81,8 @@ import net.jxta.document.Element;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.IJxtaLoader;
+import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
@@ -181,7 +183,7 @@ public class RefJxtaLoaderTest {
         PeerGroupID pgid = IDFactory.newPeerGroupID();
         ModuleImplAdvertisement pgMIA =
                 pg.getAllPurposePeerGroupImplAdvertisement();
-        testGroup = pg.newGroup(pgid, pgMIA, "Test group", "Test group");
+        testGroup = pg.newGroup(pgid, pgMIA, "Test group", "Test group", false);
         testService = testGroup.getContentService();
         if (LOG.isLoggable(Level.FINE)) {
             for (ContentProvider provider : testService.getContentProviders()) {
@@ -443,9 +445,8 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     sibling1.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
-            //TODO CP: Change this test
-            //IJxtaLoader groupLoader = sibling1.getLoader();
-            //clazz1 = groupLoader.defineClass(mia);
+            IJxtaLoader groupLoader = sibling1.getLoader();
+            clazz1 = groupLoader.defineClass(mia);
         } catch (Error err) {
             fail("Was not able to load a Module into sibling1");
         } catch (Exception exc) {
@@ -466,9 +467,8 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     sibling2.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
-            //TODO CP: Change this test
-            //JxtaLoader groupLoader = sibling2.getLoader();
-            //clazz2 = groupLoader.defineClass(mia);
+            IJxtaLoader groupLoader = sibling2.getLoader();
+            clazz2 = groupLoader.defineClass(mia);
         } catch (Error err) {
             fail("Was not able to load a Module into sibling2");
         } catch (Exception exc) {
@@ -507,9 +507,8 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
-            //TODO CP: Change this test
-            //JxtaLoader groupLoader = pg.getLoader();
-            //clazz1 = groupLoader.defineClass(mia);
+            IJxtaLoader groupLoader = pg.getLoader();
+            clazz1 = groupLoader.defineClass(mia);
         } catch (Error err) {
             fail("Was not able to load a Module into parent");
         } catch (Exception exc) {
@@ -530,10 +529,9 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     child.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
-            //TODO CP: Change this test
-            //JxtaLoader groupLoader = child.getLoader();
-            //clazz2 = groupLoader.defineClass(mia);
-        } catch (Error err) {
+            IJxtaLoader groupLoader = child.getLoader();
+            clazz2 = groupLoader.defineClass(mia);
+       } catch (Error err) {
             fail("Was not able to load a Module into child");
         } catch (Exception exc) {
             LOG.log(Level.SEVERE, "Caught exception", exc);

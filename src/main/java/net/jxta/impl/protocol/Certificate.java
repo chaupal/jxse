@@ -67,6 +67,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.logging.Logging;
+import net.jxta.util.Base64Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -170,7 +171,7 @@ public class Certificate {
         value = value.trim();
 
         try {
-            byte[] cert_der = PSEUtils.base64Decode(new StringReader(value));
+            byte[] cert_der = Base64Utils.base64Decode(new StringReader(value));
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
@@ -214,7 +215,7 @@ public class Certificate {
         String encodedCert;
 
         try {
-            encodedCert = PSEUtils.base64Encode((certs.get(0)).getEncoded());
+            encodedCert = Base64Utils.base64EncodeToString((certs.get(0)).getEncoded());
         } catch (CertificateEncodingException failed) {
             IllegalStateException failure = new IllegalStateException("bad certificate.");
 
@@ -246,7 +247,7 @@ public class Certificate {
             X509Certificate anIssuer = eachCert.next();
 
             try {
-                encodedCert = PSEUtils.base64Encode(anIssuer.getEncoded());
+                encodedCert = Base64Utils.base64EncodeToString(anIssuer.getEncoded());
             } catch (CertificateEncodingException failed) {
                 IllegalStateException failure = new IllegalStateException("bad certificate.");
 

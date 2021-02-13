@@ -60,9 +60,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.logging.Logger;
 
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.codec.binary.Base64OutputStream;
 import org.junit.Test;
 
 /**
@@ -70,6 +82,9 @@ import org.junit.Test;
  * @author mike
  */
 public class BASE64Test {
+	
+	private Logger logger = Logger.getLogger(this.getClass().getName());
+	
 
 	@Test
 	public void testRoundTrip0() {
@@ -349,64 +364,53 @@ public class BASE64Test {
 		}
 	}
 
-	@SuppressWarnings("resource")
 	public boolean roundTripTest(byte[] source) throws IOException {
 
-		StringWriter base64Writer = new StringWriter();
-
-		OutputStream out = new BASE64OutputStream(base64Writer);
-
-		out.write(source);
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		OutputStream out = new Base64OutputStream( bout, true, 76, "\n".getBytes() );
+		out.write(source, 0, source.length);
+		out.flush();
 		out.close();
 
-		StringReader base64Reader = new StringReader(base64Writer.toString());
-
-		InputStream input = new BASE64InputStream(base64Reader);
-
-		DataInput di = new DataInputStream(input);
-
-		byte result[] = new byte[source.length];
-
-		di.readFully(result);
-
-		if (-1 != input.read()) {
-			throw new IOException("Not at EOF");
-		}
-
-		return Arrays.equals(source, result);
+		InputStream inp = new ByteArrayInputStream(bout.toByteArray());
+		InputStream input = new Base64InputStream(inp);
+		return testResult(source, input);
 	}
 
 	/**
 	 *  A round trip test that also compares whether our encoder works against
-	 *  an alternate sun private implemenation.
+	 *  an alternate sun private implementation.
 	 **/
-	@SuppressWarnings("resource")
 	public boolean roundTripTestCR(byte[] source, String expectedB64) throws IOException {
 
-		StringWriter base64Writer = new StringWriter();
-
-		OutputStream out = new BASE64OutputStream(base64Writer, 72);
-
-		out.write(source);
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		OutputStream out = new Base64OutputStream( bout, true, 76, "\n".getBytes() );
+		out.write(source, 0, source.length);
+		out.flush();
 		out.close();
 
 		if(expectedB64 != null) {
-			assertEquals(expectedB64, base64Writer.getBuffer().toString());
+			String result = new String( bout.toByteArray(), "UTF-8" ).trim();
+			assertEquals(expectedB64, result);
 		}
 
-		StringReader base64Reader = new StringReader(base64Writer.toString());
-		InputStream input = new BASE64InputStream(base64Reader);
-
-		DataInput di = new DataInputStream(input);
+		InputStream inp = new ByteArrayInputStream(bout.toByteArray());
+		InputStream input = new Base64InputStream(inp);
+		return testResult(source, input);
+	}
+		
+	protected boolean testResult( byte[] source, InputStream in ) throws IOException {
+		DataInput di = new DataInputStream(in);
 
 		byte result[] = new byte[source.length];
 
 		di.readFully(result);
 
-		if (-1 != input.read()) {
+		if (-1 != in.read()) {
 			throw new IOException("Not at EOF");
 		}
 
-		return Arrays.equals(source, result);
+		return Arrays.equals(source, result);		
 	}
+
 }

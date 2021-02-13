@@ -77,15 +77,15 @@ import java.util.Hashtable;
 public class EndpointServiceStatsFilter implements MessageFilterListener {
 
     long lastMessageTime;
-    Hashtable channelTrafficTable;
-    Hashtable sourceCountTable;
-    Hashtable destCountTable;
+    Hashtable<Object,Object> channelTrafficTable;
+    Hashtable<Object,Object> sourceCountTable;
+    Hashtable<Object,Object> destCountTable;
 
     public EndpointServiceStatsFilter() {
 
-        channelTrafficTable = new Hashtable();
-        sourceCountTable = new Hashtable();
-        destCountTable = new Hashtable();
+        channelTrafficTable = new Hashtable<>();
+        sourceCountTable = new Hashtable<>();
+        destCountTable = new Hashtable<>();
     }
 
     /**
@@ -148,7 +148,7 @@ public class EndpointServiceStatsFilter implements MessageFilterListener {
         return getCount(channelTrafficTable, channel);
     }
 
-    public Enumeration getChannelNames() {
+    public Enumeration<?> getChannelNames() {
         return channelTrafficTable.keys();
     }
 
@@ -167,13 +167,13 @@ public class EndpointServiceStatsFilter implements MessageFilterListener {
         return getCount(destCountTable, addr);
     }
 
-    private long getCount(Hashtable table, Object key) {
+    private long getCount(Hashtable<Object,Object> table, Object key) {
         Counter counter = (Counter) table.get(key);
 
         return counter == null ? -1 : counter.value;
     }
 
-    private void incrementCount(Hashtable table, Object key, int incr) {
+    private void incrementCount(Hashtable<Object,Object> table, Object key, int incr) {
         Counter counter = (Counter) table.get(key);
 
         if (counter == null) {

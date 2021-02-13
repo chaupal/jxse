@@ -59,6 +59,7 @@ package net.jxta.impl.membership.pse;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -82,7 +83,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -108,6 +108,7 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.service.Service;
+import net.jxta.util.Base64Utils;
 
 /**
  * This class provides the sub-class of Credential which is associated with the
@@ -155,7 +156,7 @@ import net.jxta.service.Service;
  * @see net.jxta.credential.Credential
  * @see net.jxta.impl.membership.pse.PSEMembershipService
  */
-public final class PSECredential implements Credential, CredentialPCLSupport {
+public final class PSECredential implements Credential, CredentialPCLSupport, Closeable {
 
     /**
      * Logger
@@ -282,8 +283,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     /**
      * {@inheritDoc}
      */
-    @Override
-    protected void finalize() throws Throwable {
+    public void close() {
         if (null != becomesValidTaskHandle) {
             becomesValidTaskHandle.cancel(false);
         }
@@ -291,8 +291,6 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         if (null != expiresTaskHandle) {
             expiresTaskHandle.cancel(false);
         }
-
-        super.finalize();
     }
 
     /**
@@ -448,7 +446,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public StructuredDocument<?> getDocument(MimeMediaType encodeAs) throws Exception {
         if (!isValid()) {
-            throw new javax.security.cert.CertificateException("Credential is not valid. Cannot generate document.");
+            throw new java.security.cert.CertificateException("Credential is not valid. Cannot generate document.");
         }
 
         if (!local) {
@@ -508,7 +506,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
             PSECredentialSignatureBridge pseCredentialSignatureBridge = new PSECredentialSignatureBridge(source.getPeerSecurityEngineSignatureAlgorithm(), this, signStream);
             byte[] sig = source.signPSECredentialDocument(pseCredentialSignatureBridge);
 
-            e = doc.createElement("Signature", PSEUtils.base64Encode(sig));
+            e = doc.createElement("Signature", Base64Utils.base64EncodeToString(sig));
             doc.appendChild(e);
         } catch (java.io.UnsupportedEncodingException never) {// UTF-8 is always available
         }
@@ -790,11 +788,10 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
             List<InputStream> someStreams = new ArrayList<InputStream>(3);
 
             try {
-                byte[] signatureToCompare = PSEUtils.base64Decode(new StringReader(elem.getTextValue()));
+                byte[] signatureToCompare = Base64Utils.base64Decode(new StringReader(elem.getTextValue()));
 
                 someStreams.add(new ByteArrayInputStream(getPeerGroupID().toString().getBytes("UTF-8")));
                 someStreams.add(new ByteArrayInputStream(getPeerID().toString().getBytes("UTF-8")));
-                Iterator<? extends Certificate> eachCert = certs.getCertificates().iterator();
 
                 for (Certificate certificate : certs.getCertificates()) {
                     X509Certificate aCert = (X509Certificate) certificate;

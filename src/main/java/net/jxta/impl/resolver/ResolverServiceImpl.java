@@ -183,9 +183,9 @@ public class ResolverServiceImpl implements ResolverService {
         /**
          * The current default credential in serialized XML form.
          */
-        final XMLDocument credentialDoc;
+        final XMLDocument<?> credentialDoc;
 
-        CurrentCredential(Credential credential, XMLDocument credentialDoc) {
+        CurrentCredential(Credential credential, XMLDocument<?> credentialDoc) {
             this.credential = credential;
             this.credentialDoc = credentialDoc;
         }
@@ -218,13 +218,13 @@ public class ResolverServiceImpl implements ResolverService {
 
                 synchronized (ResolverServiceImpl.this) {
                     Credential cred = (Credential) evt.getNewValue();
-                    XMLDocument credentialDoc;
+                    XMLDocument<?> credentialDoc;
 
                     if (null != cred) {
 
                         try {
 
-                            credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
+                            credentialDoc = (XMLDocument<?>) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
 
                         } catch (Exception all) {
@@ -366,10 +366,10 @@ public class ResolverServiceImpl implements ResolverService {
                 // set the initial version of the default credential.
                 currentCredential = null;
                 Credential credential = membership.getDefaultCredential();
-                XMLDocument credentialDoc;
+                XMLDocument<?> credentialDoc;
 
                 if (null != credential) {
-                    credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
+                    credentialDoc = (XMLDocument<?>) credential.getDocument(MimeMediaType.XMLUTF8);
                     currentCredential = new CurrentCredential(credential, credentialDoc);
                 }
 
@@ -529,7 +529,7 @@ public class ResolverServiceImpl implements ResolverService {
         if (destPeer == null) {
             try {
                 Message queryMsg = new Message();
-                XMLDocument asDoc = (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8);
+                XMLDocument<?> asDoc = (XMLDocument<?>) query.getDocument(MimeMediaType.XMLUTF8);
                 MessageElement docElem = new TextDocumentMessageElement(outQueName, asDoc, null);
                 queryMsg.addMessageElement("jxta", docElem);
                 RendezVousService rendezvous = group.getRendezVousService();
@@ -563,7 +563,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             // unicast instead
             boolean success = sendMessage(destPeer, null, handlerName, outQueName, outQueName,
-                    (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8), false);
+                    (XMLDocument<?>) query.getDocument(MimeMediaType.XMLUTF8), false);
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 if (success) {
@@ -592,7 +592,7 @@ public class ResolverServiceImpl implements ResolverService {
                 // Check if an optional route information is available to send the response
                 RouteAdvertisement route = response.getSrcPeerRoute();
                 boolean success = sendMessage(destPeer, route, handlerName, inQueName, inQueName,
-                        (XMLDocument) response.getDocument(MimeMediaType.XMLUTF8), false);
+                        (XMLDocument<?>) response.getDocument(MimeMediaType.XMLUTF8), false);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     if (success) {
@@ -669,7 +669,7 @@ public class ResolverServiceImpl implements ResolverService {
         } else {
             try {
                 boolean success = sendMessage(destPeer, null, handlerName, srdiQueName, srdiQueName,
-                        (XMLDocument) srdi.getDocument(MimeMediaType.XMLUTF8),
+                        (XMLDocument<?>) srdi.getDocument(MimeMediaType.XMLUTF8),
                         // compression
                         true);
 
@@ -715,7 +715,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         }
 
-        XMLDocument asDoc = (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument<?> asDoc = (XMLDocument<?>) query.getDocument(MimeMediaType.XMLUTF8);
         MessageElement docElem = new TextDocumentMessageElement(outQueName, asDoc, null);
 
         msg.replaceMessageElement("jxta", docElem);
@@ -915,7 +915,7 @@ public class ResolverServiceImpl implements ResolverService {
                 queryHandlerMeter = resolverServiceMonitor.getQueryHandlerMeter(queryHandlerName);
             }
 
-            XMLDocument responseDoc = (XMLDocument) response.getDocument(MimeMediaType.XMLUTF8);
+            XMLDocument<?> responseDoc = (XMLDocument<?>) response.getDocument(MimeMediaType.XMLUTF8);
             MessageElement elemDoc = new TextDocumentMessageElement(inQueName, responseDoc, null);
             propagateMsg.addMessageElement("jxta", elemDoc);
             RendezVousService rendezvous = group.getRendezVousService();
@@ -1023,7 +1023,7 @@ public class ResolverServiceImpl implements ResolverService {
      * @param gzip     If <code>true</code> then encode the message body using gzip.
      * @return {@code true} if successful
      */
-    private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) {
+    private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument<?> body, boolean gzip) {
 
         // Get the messenger ready
         ID dest;
@@ -1145,7 +1145,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             try {
 
-                StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
+                StructuredDocument<?> asDoc = StructuredDocumentFactory.newStructuredDocument(element);
                 query = new ResolverQuery(asDoc);
 
             } catch (IOException e) {
@@ -1211,7 +1211,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             try {
 
-                StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
+                StructuredDocument<?> asDoc = StructuredDocumentFactory.newStructuredDocument(element);
                 resolverResponse = new ResolverResponse(asDoc);
 
             } catch (IOException e) {
@@ -1271,10 +1271,10 @@ public class ResolverServiceImpl implements ResolverService {
             try {
                 if (element.getMimeType().getBaseMimeMediaType().equals(GZIP_MEDIA_TYPE)) {
                     InputStream gzipStream = new GZIPInputStream(element.getStream());
-                    StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, gzipStream);
+                    StructuredDocument<?> asDoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, gzipStream);
                     srdimsg = new ResolverSrdiMsgImpl(asDoc, membership);
                 } else {
-                    StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
+                    StructuredDocument<?> asDoc = StructuredDocumentFactory.newStructuredDocument(element);
                     srdimsg = new ResolverSrdiMsgImpl(asDoc, membership);
                 }
 

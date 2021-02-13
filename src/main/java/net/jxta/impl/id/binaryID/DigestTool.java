@@ -60,6 +60,8 @@ import java.security.MessageDigest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.util.Base64Utils;
+
 /**
  * This is a utility class used to create pipe advertisement named and BinaryID for the pipeID to create
  * a private address space that can be hosted in the public discovery system or sent over unencrypted
@@ -226,13 +228,7 @@ public class DigestTool {
      */
     public final String generateHashString(String clearTextID) {
         try {
-            java.io.StringWriter base64 = new java.io.StringWriter();
-            net.jxta.impl.util.BASE64OutputStream encode = new net.jxta.impl.util.BASE64OutputStream(base64);
-
-            encode.write(generateHash(clearTextID));
-            encode.close();
-
-            return base64.toString();
+            return Base64Utils.base64EncodeToString(generateHash(clearTextID));
         } catch (Exception failed) {
             LOG.log(Level.SEVERE, "Unable to encode hash value.\n", failed);
             throw new RuntimeException("Unable to encode hash value.");
@@ -248,14 +244,8 @@ public class DigestTool {
      */
     public final String generateHashString(String clearTextID, String function) {
         try {
-            java.io.StringWriter base64 = new java.io.StringWriter();
-            net.jxta.impl.util.BASE64OutputStream encode = new net.jxta.impl.util.BASE64OutputStream(base64);
-
-            encode.write(generateHash(clearTextID, function));
-            encode.close();
-
-            return base64.toString();
-        } catch (Exception failed) {
+            return Base64Utils.base64EncodeToString(generateHash(clearTextID, function));
+       } catch (Exception failed) {
             LOG.log(Level.SEVERE, "Unable to encode hash value.\n", failed);
             throw new RuntimeException("Unable to encode hash value.");
         }
@@ -342,21 +332,7 @@ public class DigestTool {
         byte[] digest2;
 
         try {
-            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-            net.jxta.impl.util.BASE64InputStream decoder = new net.jxta.impl.util.BASE64InputStream(
-                    new java.io.StringReader(testHash));
-
-            while (true) {
-                int c = decoder.read();
-
-                if (-1 == c) {
-                    break;
-                }
-
-                bos.write(c);
-            }
-
-            digest2 = bos.toByteArray();
+            digest2 = Base64Utils.base64Decode(testHash);
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Failed to create a digest.\n", e);
             return false;

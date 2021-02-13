@@ -29,9 +29,9 @@ public class LRUCache<K, V> {
 
     private final transient int cacheSize;
     private transient int currentSize;
-    private transient CacheNode<K, V> first;
-    private transient CacheNode<K, V> last;
-    private final transient Map<K, CacheNode<K, V>> nodes;
+    private transient CacheNode first;
+    private transient CacheNode last;
+    private final transient Map<K, CacheNode> nodes;
 
     /**
      * Constructor for the LRUCache object
@@ -41,7 +41,7 @@ public class LRUCache<K, V> {
     public LRUCache(int size) {
         currentSize = 0;
         cacheSize = size;
-        nodes = new HashMap<K, CacheNode<K, V>>(size);
+        nodes = new HashMap<K, CacheNode>(size);
     }
 
     /**
@@ -70,7 +70,7 @@ public class LRUCache<K, V> {
      * @return object
      */
     public synchronized V get(K key) {
-        CacheNode<K, V> node = nodes.get(key);
+        CacheNode node = nodes.get(key);
 
         if (node != null) {
             moveToHead(node);
@@ -83,7 +83,7 @@ public class LRUCache<K, V> {
         return nodes.keySet().contains(key);
     }
 
-    private void moveToHead(CacheNode<K, V> node) {
+    private void moveToHead(CacheNode node) {
         if (node == first) {
             return;
         }
@@ -114,7 +114,7 @@ public class LRUCache<K, V> {
      * @param value object to insert
      */
     public synchronized void put(K key, V value) {
-        CacheNode<K, V> node = nodes.get(key);
+        CacheNode node = nodes.get(key);
 
         if (node == null) {
             if (currentSize >= cacheSize) {
@@ -125,7 +125,7 @@ public class LRUCache<K, V> {
             } else {
                 currentSize++;
             }
-            node = new CacheNode<K, V>(key, value);
+            node = new CacheNode(key, value);
         }
         node.value = value;
         moveToHead(node);
@@ -139,7 +139,7 @@ public class LRUCache<K, V> {
      * @return Object removed
      */
     public synchronized V remove(K key) {
-        CacheNode<K, V> node = nodes.get(key);
+        CacheNode node = nodes.get(key);
 
         if (node != null) {
             if (node.prev != null) {
@@ -179,11 +179,11 @@ public class LRUCache<K, V> {
     /**
      * cache node object wrapper
      */
-    protected class CacheNode<K, V> {
+    protected class CacheNode {
         final K key;
-        CacheNode<K, V> next;
+        CacheNode next;
 
-        CacheNode<K, V> prev;
+        CacheNode prev;
         V value;
 
         /**

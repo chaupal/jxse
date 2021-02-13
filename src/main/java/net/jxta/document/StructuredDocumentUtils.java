@@ -88,18 +88,19 @@ public final class StructuredDocumentUtils {
      * the elements being copied.
      * @param from the parent element of the elements which will be copied.
      **/
-    public static void copyChildren(StructuredDocument intoDoc, Element intoElement, Element from) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void copyChildren(StructuredDocument<?> intoDoc, Element intoElement, Element<?> from) {
 
-        for (Enumeration eachChild = from.getChildren(); eachChild.hasMoreElements();) {
+        for (Enumeration<?> eachChild = from.getChildren(); eachChild.hasMoreElements();) {
 
-            Element aChild = (Element) eachChild.nextElement();
-            Element newElement = intoDoc.createElement(aChild.getKey(), aChild.getValue());
+            Element<?> aChild = (Element<?>) eachChild.nextElement();
+            Element<?> newElement = intoDoc.createElement(aChild.getKey(), aChild.getValue());
 
             intoElement.appendChild(newElement);
 
             // copy attributes if any
             if ((aChild instanceof Attributable) && (newElement instanceof Attributable)) {
-                Enumeration eachAttrib = ((Attributable) aChild).getAttributes();
+                Enumeration<?> eachAttrib = ((Attributable) aChild).getAttributes();
 
                 while (eachAttrib.hasMoreElements()) {
                     Attribute anAttrib = (Attribute) eachAttrib.nextElement();
@@ -127,9 +128,10 @@ public final class StructuredDocumentUtils {
      *  @return The added element.
      *
      **/
-    public static Element copyElements(StructuredDocument intoDoc, Element intoElement, Element from, Object newName) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static Element<?> copyElements(StructuredDocument<?> intoDoc, Element intoElement, Element<?> from, Object newName) {
 
-        Element newElement = intoDoc.createElement(newName, from.getValue());
+        Element<?> newElement = intoDoc.createElement(newName, from.getValue());
 
         intoElement.appendChild(newElement);
 
@@ -139,7 +141,7 @@ public final class StructuredDocumentUtils {
         if (newElement instanceof Attributable) {
 
             if (from instanceof Attributable) {
-                Enumeration eachAttrib = ((Attributable) from).getAttributes();
+                Enumeration<?> eachAttrib = ((Attributable) from).getAttributes();
 
                 while (eachAttrib.hasMoreElements()) {
                     Attribute anAttrib = (Attribute) eachAttrib.nextElement();
@@ -181,7 +183,7 @@ public final class StructuredDocumentUtils {
      *  @param from the root element of the hierarchy which will be copied.
      *  @return The added element.
      **/
-    public static Element copyElements(StructuredDocument intoDoc, Element intoElement, Element from) {
+    public static Element<?> copyElements(StructuredDocument<?> intoDoc, Element<?> intoElement, Element<?> from) {
 
         return copyElements(intoDoc, intoElement, from, from.getKey());
     }
@@ -194,9 +196,9 @@ public final class StructuredDocumentUtils {
      * @param from the root element from which to begin copying.
      * @return StructuredDocument the copy
      **/
-    public static StructuredDocument copyAsDocument(Element from) {
+    public static StructuredDocument<?> copyAsDocument(Element<?> from) {
 
-        StructuredDocument result;
+        StructuredDocument<?> result;
         Object value = from.getValue();
 
         if (value == null) {
@@ -210,7 +212,7 @@ public final class StructuredDocumentUtils {
 
         // copy attributes if any
         if ((from instanceof Attributable) && (result instanceof Attributable)) {
-            Enumeration eachAttrib = ((Attributable) from).getAttributes();
+            Enumeration<?> eachAttrib = ((Attributable) from).getAttributes();
 
             while (eachAttrib.hasMoreElements()) {
                 Attribute anAttrib = (Attribute) eachAttrib.nextElement();

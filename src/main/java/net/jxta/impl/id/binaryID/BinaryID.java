@@ -60,6 +60,8 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.util.Base64Utils;
+
 /**
  * A <code>BinaryID</code> is a 256-byte, identifier.
  * This class should be immutable so that it is thread safe.
@@ -70,8 +72,9 @@ import java.util.logging.Logger;
  */
 
 public class BinaryID implements Serializable {
-
-    private final static transient Logger LOG = Logger.getLogger(BinaryID.class.getName());
+	private static final long serialVersionUID = 1L;
+	
+	private final static transient Logger LOG = Logger.getLogger(BinaryID.class.getName());
     public static String UUIDEncoded = "uuid";
     public final static int flagsSize = 1;
 
@@ -146,13 +149,7 @@ public class BinaryID implements Serializable {
         if (lengthIncluded && data.length < 256 && data.length > 1) {
             if (data[0] == data.length - 1) {
                 try {
-                    java.io.StringWriter base64 = new java.io.StringWriter();
-                    net.jxta.impl.util.BASE64OutputStream encoder = new net.jxta.impl.util.BASE64OutputStream(base64);
-
-                    encoder.write(data);
-                    encoder.close();
-
-                    encodedValue = ((char) type) + base64.toString();
+                    encodedValue = ((char) type) + Base64Utils.base64EncodeToString(data);
                 } catch (Exception e) {
                     LOG.log(Level.SEVERE, "Unable to encode binary value.\n", e);
                     throw new RuntimeException("Unable to encode binary value.");
@@ -167,13 +164,7 @@ public class BinaryID implements Serializable {
             temp[0] = (byte) data.length;
             System.arraycopy(data, 0, temp, 1, data.length);
             try {
-                java.io.StringWriter base64 = new java.io.StringWriter();
-                net.jxta.impl.util.BASE64OutputStream encoder = new net.jxta.impl.util.BASE64OutputStream(base64);
-
-                encoder.write(temp);
-                encoder.close();
-
-                encodedValue = ((char) type) + base64.toString();
+                encodedValue = ((char) type) + Base64Utils.base64EncodeToString(temp);
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "Unable to encode binary value.\n", e);
                 throw new RuntimeException("Unable to encode binary value.");
@@ -193,26 +184,12 @@ public class BinaryID implements Serializable {
      * @return returns the data part of the array.
      */
     public byte[] toByteArray() {
-        try {
-            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-            net.jxta.impl.util.BASE64InputStream decoder = new net.jxta.impl.util.BASE64InputStream(
-                    new java.io.StringReader(encodedValue.substring(1)));
-
-            while (true) {
-                int c = decoder.read();
-
-                if (-1 == c) {
-                    break;
-                }
-
-                bos.write(c);
-            }
-
-            return bos.toByteArray();
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Unable to decode binary value.\n", e);
-            throw new RuntimeException("Unable to encode binary value.");
-        }
+    	try {
+    		return Base64Utils.base64Decode( encodedValue.substring(1));
+    	} catch (Exception e) {
+    		LOG.log(Level.SEVERE, "Unable to decode binary value.\n", e);
+    		throw new RuntimeException("Unable to encode binary value.");
+    	}
 
     }
 

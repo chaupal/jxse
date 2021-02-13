@@ -78,6 +78,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
 import net.jxta.pipe.PipeService;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
@@ -863,4 +864,9 @@ public interface PeerGroup extends Service {
      * @return the task manager associated with this peer group.
      */
     public TaskManager getTaskManager();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	IJxtaLoader getLoader();
 }

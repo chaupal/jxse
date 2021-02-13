@@ -96,7 +96,11 @@ import java.util.logging.Logger;
  */
 public class AutomaticConfigurator extends NullConfigurator {
 
-    /**
+	private static final String S_JXTA_PEER_NAME = "jxta.peer.name";
+	public static final String S_JXTA_HTTP_PORT = "jxta.http.port";
+	public static final String S_JXTA_TCP_PORT = "jxta.tcp.port";
+
+	/**
      * Log4J logger
      */
     private final static transient Logger LOG = Logger.getLogger(AutomaticConfigurator.class.getName());
@@ -166,7 +170,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         String peerName = advertisement.getName();
 
         if ((null == peerName) || (0 == peerName.trim().length())) {
-            String jpn = System.getProperty("jxta.peer.name", "");
+            String jpn = System.getProperty(S_JXTA_PEER_NAME, "");
 
             if (0 != jpn.trim().length()) {
                 advertisement.setName(jpn);
@@ -224,7 +228,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
             int port = 0;
             // get the port from a property
-            String httpPort = System.getProperty("jxta.http.port");
+            String httpPort = System.getProperty(S_JXTA_HTTP_PORT);
 
             if (httpPort != null) {
                 try {
@@ -309,7 +313,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
             int port = 0;
             // get the port from a property
-            String tcpPort = System.getProperty("jxta.tcp.port");
+            String tcpPort = System.getProperty(S_JXTA_TCP_PORT);
 
             if (tcpPort != null) {
                 try {

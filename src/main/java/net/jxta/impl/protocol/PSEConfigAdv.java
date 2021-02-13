@@ -62,6 +62,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.util.Base64Utils;
 
 import javax.crypto.EncryptedPrivateKeyInfo;
 import java.io.ByteArrayInputStream;
@@ -339,7 +340,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         if (null != rootCert) {
             try {
-                return PSEUtils.base64Encode(getCertificate().getEncoded());
+                return Base64Utils.base64EncodeToString(getCertificate().getEncoded());
             } catch (Throwable failed) {
                 throw new IllegalStateException("Failed to process seed cert");
             }
@@ -355,7 +356,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setCert(String newCert) {
         try {
-            byte[] cert_der = PSEUtils.base64Decode(new StringReader(newCert));
+            byte[] cert_der = Base64Utils.base64Decode(new StringReader(newCert));
 
             CertificateFactory cf = CertificateFactory.getInstance("X509");
 
@@ -458,7 +459,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
                 return null;
             }
 
-            return PSEUtils.base64Encode(encryptedPrivateKey.getEncoded());
+            return Base64Utils.base64EncodeToString(encryptedPrivateKey.getEncoded());
 
         } catch (Exception failed) {
 
@@ -570,7 +571,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
     public void setEncryptedPrivateKey(String newPriv, String algorithm) {
         try {
 
-            byte[] key_der = PSEUtils.base64Decode(new StringReader(newPriv));
+            byte[] key_der = Base64Utils.base64Decode(new StringReader(newPriv));
             EncryptedPrivateKeyInfo newEncryptedPriv = new EncryptedPrivateKeyInfo(key_der);
             setEncryptedPrivateKey(newEncryptedPriv, algorithm);
 

@@ -56,18 +56,17 @@
 
 package net.jxta.document;
 
-import net.jxta.impl.util.BASE64InputStream;
-import net.jxta.impl.util.BASE64OutputStream;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
+
+import org.apache.commons.codec.binary.Base64InputStream;
+
+import net.jxta.util.Base64Utils;
 
 
 /**
@@ -92,23 +91,23 @@ public class XMLSignature  {
      * The XMLSignature element for an incoming adv
      * @param raw
      */
-    public XMLSignature(Element raw) {
+    public XMLSignature(Element<?> raw) {
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         
         if ("XMLSignature".equals(elem.getName())) {
 
-            Enumeration eachChild = elem.getChildren();
+            Enumeration<?> eachChild = elem.getChildren();
 
             while (eachChild.hasMoreElements()) {
-                XMLElement aChild = (XMLElement) eachChild.nextElement();
+                XMLElement<?> aChild = (XMLElement<?>) eachChild.nextElement();
 
                 if ("digest".equals(aChild.getName())) {
 
                     try {
 
                         Reader digestB64 = new StringReader(aChild.getValue());
-                        InputStream bis = new BASE64InputStream(digestB64);
+                        InputStream bis = new Base64InputStream( Base64Utils.convert(digestB64));
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                         do {
@@ -135,7 +134,7 @@ public class XMLSignature  {
                     try {
 
                         Reader signatureB64 = new StringReader(aChild.getValue());
-                        InputStream bis = new BASE64InputStream(signatureB64);
+                        InputStream bis = new Base64InputStream( Base64Utils.convert(signatureB64));
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                         do {
@@ -165,31 +164,18 @@ public class XMLSignature  {
     /**
      * Get the Key Element in order to attach it to an outgoing advertisement
      */
-    public XMLDocument getXMLSignatureDocument() {
+    public XMLDocument<?> getXMLSignatureDocument() {
 
         StringBuilder docBuilder = new StringBuilder();
         docBuilder.append("<XMLSignatureDocument><XMLSignature>");
 
         try {
-
-            StringWriter digestB64 = new StringWriter();
-            StringWriter signatureB64 = new StringWriter();
-
-            OutputStream digestOut = new BASE64OutputStream(digestB64);
-            OutputStream signatureOut = new BASE64OutputStream(signatureB64);
-
-            digestOut.write(digest);
-            digestOut.close();
-
-            signatureOut.write(signature);
-            signatureOut.close();
-
             docBuilder.append("<digest>");
-            docBuilder.append(digestB64.toString());
+            docBuilder.append( Base64Utils.base64Encode(digest));
             docBuilder.append("</digest>");
 
             docBuilder.append("<signature>");
-            docBuilder.append(signatureB64.toString());
+            docBuilder.append( Base64Utils.base64Encode( signature ));
             docBuilder.append("</signature>");
 
         } catch (Exception failed) {
@@ -204,7 +190,7 @@ public class XMLSignature  {
 
         try {
 
-            XMLDocument xmlSignatureDocument = (XMLDocument)StructuredDocumentFactory.newStructuredDocument(
+            XMLDocument<?> xmlSignatureDocument = (XMLDocument<?>)StructuredDocumentFactory.newStructuredDocument(
                     MimeMediaType.XMLUTF8,
                     new StringReader(docBuilder.toString()));
 

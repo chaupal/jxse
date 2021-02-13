@@ -65,5 +65,5 @@ public interface XMLElement<X extends XMLElement<X>> extends TextElement<X>, Att
     /**
      * {@inheritDoc}
      */
-    XMLDocument getRoot();
+    XMLDocument<?> getRoot();
 }

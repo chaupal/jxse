@@ -105,6 +105,7 @@ import net.jxta.service.Service;
  */
 public class StdPeerGroup extends GenericPeerGroup {
 
+	public static final String S_JXTA_COMMAND_LINE_PASSWORD = "net.jxta.stdpeergroup.password";
     /**
      * Logger
      */
@@ -768,28 +769,15 @@ public class StdPeerGroup extends GenericPeerGroup {
                         }
                         else
                         {
-                            char[] tempPass=null;
-                            for(int attempt=0;attempt<3;attempt++)
-                            {
-                                net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());
-                                tempPass=net.jxta.impl.util.Password.singleton().getPassword();
-                                tempAuth.setAuth1_KeyStorePassword(tempPass);
-                                tempAuth.setAuth2Identity(this.getPeerID());
-                                tempAuth.setAuth3_IdentityPassword(tempPass);
-                                if(tempAuth.isReadyForJoin())
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    net.jxta.impl.util.Password.singleton().resetPassword();
-                                }
-                            }
-
-                            if (tempAuth.isReadyForJoin())
-                            {
-                                tempMs.join(tempAuth);
-                                if (tempMs.getDefaultCredential() == null)
+                        	String password = System.getProperty(S_JXTA_COMMAND_LINE_PASSWORD);
+                        	char[] tempPass=( password == null)?null: password.toCharArray();
+                        	tempAuth.setAuth1_KeyStorePassword(tempPass);
+                        	tempAuth.setAuth2Identity(this.getPeerID());
+                        	tempAuth.setAuth3_IdentityPassword(tempPass);
+                        	if (tempAuth.isReadyForJoin())
+                        	{
+                        		tempMs.join(tempAuth);
+                        		if (tempMs.getDefaultCredential() == null)
                                 {
                                     throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
                                 }

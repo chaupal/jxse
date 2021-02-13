@@ -404,19 +404,18 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      * The remote peer's certificates should be examined in order to fully
      * establish that it an appropriate peer. 
      */
-    private boolean isSeedPeer(RouteAdvertisement route) {
-        List<?> addrList = route.getDestEndpointAddresses();
+    @SuppressWarnings("unlikely-arg-type")
+	private boolean isSeedPeer(RouteAdvertisement route) {
+        List<EndpointAddress> addrList = route.getDestEndpointAddresses();
 
-        ListIterator eachAddr = addrList.listIterator();
+        List<URI> eachAddr = new ArrayList<>();
 
         // convert each EndpointAddress to a URI to compare with seedHosts
-        while (eachAddr.hasNext()) {
-            EndpointAddress anAddr = (EndpointAddress) eachAddr.next();
-
-            eachAddr.set(anAddr.toURI());
+        for( EndpointAddress addr: addrList ) {
+            eachAddr.add(addr.toURI());
         }
 
-        addrList.retainAll(Arrays.asList(getActiveSeedURIs()));
+        addrList.retainAll( Arrays.asList(getActiveSeedURIs()));
 
         // What's left is the intersection of activeSeeds and the set of
         // endpoint addresses in the given APA. If it is non-empty, then we
@@ -444,7 +443,8 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      *  @throws IOException Thrown for errors encountered loading the seed
      *  RouteAdvertisements.
      */
-    static RouteAdvertisement[] loadSeeds(URI seedingURI) throws IOException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	static RouteAdvertisement[] loadSeeds(URI seedingURI) throws IOException {
         boolean isXML;
         URL seedingURL = seedingURI.toURL();
         URLConnection connection = seedingURL.openConnection();
@@ -485,13 +485,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
         if (isXML) {
             // Read in XML format seeds. (a list of Route Advertisements)
-            XMLDocument xmldoc = (XMLDocument) 
+            XMLDocument xmldoc = (XMLDocument<?>) 
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, seeds);
 
-            Enumeration<XMLElement> eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
+            Enumeration<XMLElement<?>> eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
 
             while (eachRA.hasMoreElements()) {
-                XMLElement anRAElement = eachRA.nextElement();
+                XMLElement<?> anRAElement = eachRA.nextElement();
                 RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(anRAElement);
 
                 result.add(ra);

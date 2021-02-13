@@ -107,7 +107,7 @@ public class Cache {
 
     private final long maxSize;
     private long size;
-    private final Map map = new HashMap();
+    private final Map<Object,Object> map = new HashMap<>();
     private final Dlist lru = new Dlist();
 
     private final CacheEntryListener listener;

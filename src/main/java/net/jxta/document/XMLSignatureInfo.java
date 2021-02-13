@@ -59,17 +59,11 @@ package net.jxta.document;
 
 import java.net.URISyntaxException;
 import net.jxta.peer.PeerID;
+import net.jxta.util.Base64Utils;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.util.BASE64InputStream;
-import net.jxta.impl.util.BASE64OutputStream;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
@@ -112,16 +106,16 @@ public class XMLSignatureInfo  {
      * The XMLSignatureInfo element for an incoming adv
      * @param raw
      */
-    public XMLSignatureInfo(Element raw) {
+    public XMLSignatureInfo(Element<?> raw) {
 
-        XMLElement elem = (XMLElement) raw;
+        XMLElement<?> elem = (XMLElement<?>) raw;
         
         if ("XMLSignatureInfo".equals(elem.getName())) {
 
-            Enumeration eachChild = elem.getChildren();
+            Enumeration<?> eachChild = elem.getChildren();
 
             while (eachChild.hasMoreElements()) {
-                XMLElement aChild = (XMLElement) eachChild.nextElement();
+                XMLElement<?> aChild = (XMLElement<?>) eachChild.nextElement();
 
                 if ("peerid".equals(aChild.getName())) {
 
@@ -140,27 +134,12 @@ public class XMLSignatureInfo  {
 
                     try {
 
-                        Reader encodedB64 = new StringReader(aChild.getValue());
-                        InputStream bis = new BASE64InputStream(encodedB64);
-                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-                        do {
-                            int c = bis.read();
-
-                            if (-1 == c) {
-                                break;
-                            }
-                            bos.write(c);
-                        } while (true);
-
+                        byte[] result = Base64Utils.base64Encode( aChild.getValue().getBytes());
                         if ("digest".equals(aChild.getName()))
-                            digest = bos.toByteArray();
+                            digest = result;
                         else
-                            encodedkey = bos.toByteArray();
+                            encodedkey = result;
                         
-                        bis.close();
-                        bos.close();
-
                     } catch (IOException failed) {
                         IllegalArgumentException failure = new IllegalArgumentException("Could not process Key element");
                         throw failure;
@@ -184,33 +163,20 @@ public class XMLSignatureInfo  {
      * @param doc
      * @return XMLElement containing peerID, digest, encodedkey, keyalgorithm
      */
-    public XMLDocument getXMLSignatureInfoDocument() {
+    public XMLDocument<?> getXMLSignatureInfoDocument() {
 
         StringBuilder docBuilder = new StringBuilder();
         docBuilder.append("<XMLSignatureInfoDocument><XMLSignatureInfo>");
 
         try {
 
-            StringWriter digestB64 = new StringWriter();
-            OutputStream digestOut = new BASE64OutputStream(digestB64);
-
-            digestOut.write(digest);
-            digestOut.close();
-
             docBuilder.append("<digest>");
-            docBuilder.append(digestB64.toString());
+            docBuilder.append( Base64Utils.base64Encode(digest ));
             docBuilder.append("</digest>");
 
             if (encodedkey != null && includePublicKey) {
-
-                StringWriter encodedkeyB64 = new StringWriter();
-                OutputStream encodedkeyOut = new BASE64OutputStream(encodedkeyB64);
-
-                encodedkeyOut.write(encodedkey);
-                encodedkeyOut.close();
-
                 docBuilder.append("<encodedkey>");
-                docBuilder.append(encodedkeyB64.toString());
+                docBuilder.append( Base64Utils.base64Encode(encodedkey));
                 docBuilder.append("</encodedkey>");
             }
 
@@ -244,7 +210,7 @@ public class XMLSignatureInfo  {
 
         try {
         
-            XMLDocument xmlSignatureInfoDocument = (XMLDocument)StructuredDocumentFactory.newStructuredDocument(
+            XMLDocument<?> xmlSignatureInfoDocument = (XMLDocument<?>)StructuredDocumentFactory.newStructuredDocument(
                     MimeMediaType.XMLUTF8,
                     new StringReader(docBuilder.toString()));
 

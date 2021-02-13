@@ -217,7 +217,7 @@ class HttpMessageReceiver implements MessageReceiver {
         handler.initialize(handlerContext);
 
         // Use peer group class loader (useful for HttpMessageServlet)
-        IJxtaLoader loader = GenericPeerGroup.getLoader();
+        IJxtaLoader loader = servletHttpTransport.getPeerGroup().getLoader();
         handlerContext.setClassLoader(loader.getClassLoader());
         handlerContext.addHandler(handler);
 

@@ -64,6 +64,8 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.membership.pse.PSEUtils;
+import net.jxta.util.Base64Utils;
+
 import org.spongycastle.jce.PKCS10CertificationRequest;
 
 import java.io.IOException;
@@ -146,7 +148,7 @@ public class CertificateSigningRequest {
         value = value.trim();
 
         try {
-            byte[] csr_der = PSEUtils.base64Decode(new StringReader(value));
+            byte[] csr_der = Base64Utils.base64Decode(new StringReader(value));
 
             csr = new PKCS10CertificationRequest(csr_der);
         } catch (IOException error) {
@@ -170,7 +172,7 @@ public class CertificateSigningRequest {
         String encodedCSR;
 
         try {
-            encodedCSR = PSEUtils.base64Encode(csr.getEncoded());
+            encodedCSR = Base64Utils.base64EncodeToString(csr.getEncoded());
         } catch (IOException failed) {
             IllegalStateException failure = new IllegalStateException("Could not encode certificate signing request.");
 

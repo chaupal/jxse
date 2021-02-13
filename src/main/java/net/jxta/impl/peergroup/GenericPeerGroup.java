@@ -163,7 +163,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 	/**
 	 * The PeerGroup-specific JxtaLoader instance.
 	 */
-	private static IJxtaLoader loader;
+	private IJxtaLoader loader;
 
 	/*
 	 * Shortcuts to well known services.
@@ -1054,7 +1054,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 				loader = new RefJxtaLoader(new URL[0], staticLoader.getClassLoader(), COMP_EQ, this);
 
 			} else {
-				IJxtaLoader upLoader = GenericPeerGroup.getLoader();
+				IJxtaLoader upLoader = parentGroup.getLoader();
 				StructuredDocument<?> cfgDoc =
 						peerGroupAdvertisement.getServiceParam(
 								IModuleDefinitions.peerGroupClassID);
@@ -1510,7 +1510,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
 	/**
 	 * {@inheritDoc}
 	 */
-	public static IJxtaLoader getLoader() {
+	@Override
+	public IJxtaLoader getLoader() {
 		return loader;
 	}
 

@@ -185,13 +185,13 @@ public final class ServletHttpTransport implements Module {
         implAdvertisement = (ModuleImplAdvertisement) impl;
 
         // Get out invariable parameters from the implAdv
-        XMLElement param = (XMLElement) implAdvertisement.getParam();
+        XMLElement<?> param = (XMLElement<?>) implAdvertisement.getParam();
 
         if (param != null) {
-            Enumeration list = param.getChildren("Proto");
+            Enumeration<?> list = param.getChildren("Proto");
 
             if (list.hasMoreElements()) {
-                XMLElement pname = (XMLElement) list.nextElement();
+                XMLElement<?> pname = (XMLElement<?>) list.nextElement();
                 String configProtoName = pname.getTextValue();
                 if (null != configProtoName) {
                     HTTP_PROTOCOL_NAME = configProtoName.trim();
@@ -201,13 +201,13 @@ public final class ServletHttpTransport implements Module {
 
         ConfigParams peerAdv = group.getConfigAdvertisement();
 
-        param = (XMLElement) peerAdv.getServiceParam(assignedID);
+        param = (XMLElement<?>) peerAdv.getServiceParam(assignedID);
 
-        Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<?> httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
         if (httpChilds.hasMoreElements()) {
-            param = (XMLElement) httpChilds.nextElement();
+            param = (XMLElement<?>) httpChilds.nextElement();
             Attribute typeAttr = param.getAttribute("type");
 
             if (!HTTPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
@@ -304,8 +304,12 @@ public final class ServletHttpTransport implements Module {
         }
 
     }
+ 
+    public PeerGroup getPeerGroup() {
+		return group;
+	}
 
-    /**
+	/**
      * {@inheritDoc}
      */
     public synchronized int startApp(String[] args) {

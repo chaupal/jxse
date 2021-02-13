@@ -121,6 +121,7 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.service.Service;
+import net.jxta.util.Base64Utils;
 
 /**
  *  A JXTA Membership Service utilizing PKI to provide secure identities.
@@ -723,7 +724,7 @@ public final class PSEMembershipService implements MembershipService {
             ByteArrayInputStream bis = new ByteArrayInputStream(serviceinfo.issuerPkey.getEncoded());
             byte privateKeySignature[] = peerSecurityEngine.sign(null, credential, bis);
 
-            keyPass = PSEUtils.base64Encode(privateKeySignature, false).toCharArray();
+            keyPass = Base64Utils.base64EncodeToString(privateKeySignature, false).toCharArray();
         } else {
             keyPass = authenticatorEngine.getKeyPass(group);
         }
@@ -787,7 +788,7 @@ public final class PSEMembershipService implements MembershipService {
             // make a new service certificate
             ByteArrayInputStream bis = new ByteArrayInputStream(privateKey.getEncoded());
             byte privateKeySignature[] = peerSecurityEngine.sign(null, credential, bis);
-            String passkey = PSEUtils.base64Encode(privateKeySignature, false);
+            String passkey = Base64Utils.base64EncodeToString(privateKeySignature, false);
 
             StringAuthenticator auth = (StringAuthenticator) authenticate;
 

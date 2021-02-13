@@ -324,17 +324,6 @@ public class SocketClientTest{
         }
     }
 
-    @After
-    public void tearDown() {
-
-        synchronized (SocketClientTest.class) {
-            if (null != manager) {
-                manager.stopNetwork();
-                manager = null;
-            }
-        }
-    }
-
 	@Test
 	public void runSockets() {
 		ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -346,6 +335,16 @@ public class SocketClientTest{
 		}
 	}
 
+    @After
+    public void tearDown() {
+
+        synchronized (SocketClientTest.class) {
+            if (null != manager) {
+                manager.stopNetwork();
+                manager = null;
+            }
+        }
+    }
 
 	protected void onRunSocketClient() {
 		try {
